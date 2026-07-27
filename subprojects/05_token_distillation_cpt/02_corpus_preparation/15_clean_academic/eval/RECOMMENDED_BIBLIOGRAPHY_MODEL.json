@@ -6,8 +6,10 @@
   "supersedes": "incumbent_entry",
   "rationale": "Strictly dominates the deployed incumbent on the 20260723 cohort: removes 86.0% of bibliography characters against 53.9%, while destroying 0.258% of body characters against 0.505%. Better on both axes simultaneously.",
   "measure_change_required": {
-    "accepted_by_owner": false,
-    "note": "This candidate does not clear the historical 0.98 line-precision gate (0.95921). The recommendation rests on replacing line precision with a character-denominated body-damage budget, because the incumbent scores 0.9788 line precision but 0.9127 character precision - its false positives are long lines. Adopting this model means adopting that change of measure."
+    "accepted_by_owner": true,
+    "accepted_by": "Foivos Karounos-Zamparloukos",
+    "accepted_on": "2026-07-27",
+    "note": "Owner approved replacing line precision with the character-denominated body-damage budget for this model decision. The incumbent scores 0.9788 line precision but 0.9127 character precision because its false positives are long lines."
   },
   "configuration": {
     "feature_table": "experiments/bib_nextgen_devfix_20260722/full_table_v3",

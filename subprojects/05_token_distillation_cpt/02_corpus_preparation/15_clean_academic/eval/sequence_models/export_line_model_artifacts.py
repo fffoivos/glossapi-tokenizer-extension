@@ -25,14 +25,21 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import pickle
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
-SCHEMA_VERSION = "bibliography-line-model-export-v1"
+SCHEMA_VERSION = "bibliography-line-model-export-v2"
+EXPECTED_STAGES = {
+    "entry_p0d",
+    "line_model",
+    "heading_bundle",
+    "connector_bundle",
+    "signal_tcn",
+}
 
 
 # --------------------------------------------------------------------------
@@ -52,15 +59,19 @@ def export_hist_gradient_boosting(model: Any) -> dict[str, Any]:
     for iteration in model._predictors:
         for predictor in iteration:
             nodes = predictor.nodes
-            trees.append({
-                "is_leaf": nodes["is_leaf"].astype(np.uint8).tolist(),
-                "feature_idx": nodes["feature_idx"].astype(np.int32).tolist(),
-                "num_threshold": nodes["num_threshold"].astype(np.float64).tolist(),
-                "left": nodes["left"].astype(np.int32).tolist(),
-                "right": nodes["right"].astype(np.int32).tolist(),
-                "value": nodes["value"].astype(np.float64).tolist(),
-                "missing_go_to_left": nodes["missing_go_to_left"].astype(np.uint8).tolist(),
-            })
+            trees.append(
+                {
+                    "is_leaf": nodes["is_leaf"].astype(np.uint8).tolist(),
+                    "feature_idx": nodes["feature_idx"].astype(np.int32).tolist(),
+                    "num_threshold": nodes["num_threshold"].astype(np.float64).tolist(),
+                    "left": nodes["left"].astype(np.int32).tolist(),
+                    "right": nodes["right"].astype(np.int32).tolist(),
+                    "value": nodes["value"].astype(np.float64).tolist(),
+                    "missing_go_to_left": nodes["missing_go_to_left"]
+                    .astype(np.uint8)
+                    .tolist(),
+                }
+            )
     baseline = np.asarray(model._baseline_prediction, dtype=np.float64).ravel()
     return {
         "kind": "hist_gradient_boosting",
@@ -152,8 +163,12 @@ def export_scaler(scaler: Any) -> dict[str, Any]:
         "with_mean": with_mean,
         "with_std": with_std,
         # Retained even when unused, so the artifact records what was fitted.
-        "mean": np.asarray(mean, dtype=np.float64).tolist() if mean is not None else None,
-        "scale": np.asarray(scale, dtype=np.float64).tolist() if scale is not None else None,
+        "mean": np.asarray(mean, dtype=np.float64).tolist()
+        if mean is not None
+        else None,
+        "scale": np.asarray(scale, dtype=np.float64).tolist()
+        if scale is not None
+        else None,
     }
 
 
@@ -211,7 +226,11 @@ def _load_pickle(path: Path) -> Any:
     """Rebind the three role-expert dataclasses that were pickled from __main__."""
     import __main__
 
-    from .bibliography_role_experts import ConnectorBundle, HeadingBundle, HeadingTransform
+    from .bibliography_role_experts import (
+        ConnectorBundle,
+        HeadingBundle,
+        HeadingTransform,
+    )
 
     __main__.HeadingTransform = HeadingTransform
     __main__.HeadingBundle = HeadingBundle
@@ -247,8 +266,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         target = out / f"{name}.json"
         with target.open("x", encoding="utf-8") as handle:
             json.dump(payload, handle, ensure_ascii=False)
-        manifest["stages"][name] = {"file": target.name, "bytes": target.stat().st_size}
-        print(f"  wrote {target.name} ({target.stat().st_size/1e6:.1f} MB)")
+        manifest["stages"][name] = {
+            "file": target.name,
+            "bytes": target.stat().st_size,
+            "sha256": _sha256(target),
+        }
+        print(f"  wrote {target.name} ({target.stat().st_size / 1e6:.1f} MB)")
 
     # ---- P0D entry (HistGB folds) ----
     p0d = sorted(Path(args.entry_model_dir).glob("models/P0D.fold*.pkl"))
@@ -264,10 +287,12 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     line_folds = []
     for path in line:
         bundle = _load_pickle(path)
-        line_folds.append({
-            "scaler": export_scaler(bundle.get("scaler")),
-            "model": export_any_model(bundle["model"]),
-        })
+        line_folds.append(
+            {
+                "scaler": export_scaler(bundle.get("scaler")),
+                "model": export_any_model(bundle["model"]),
+            }
+        )
     dump("line_model", {"folds": line_folds})
     inputs["line_model"] = [_sha256(p) for p in line]
 
@@ -276,13 +301,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     heading_folds = []
     for path in heading:
         bundle = _load_pickle(path)
-        heading_folds.append({
-            "char_tfidf": export_tfidf(bundle.transform.char_vectorizer),
-            "word_tfidf": export_tfidf(bundle.transform.word_vectorizer),
-            "numeric_scaler": export_scaler(bundle.transform.numeric_scaler),
-            "any_model": export_any_model(bundle.any_model),
-            "type_model": export_any_model(bundle.type_model),
-        })
+        heading_folds.append(
+            {
+                "char_tfidf": export_tfidf(bundle.transform.char_vectorizer),
+                "word_tfidf": export_tfidf(bundle.transform.word_vectorizer),
+                "numeric_scaler": export_scaler(bundle.transform.numeric_scaler),
+                "any_model": export_any_model(bundle.any_model),
+                "type_model": export_any_model(bundle.type_model),
+            }
+        )
     dump("heading_bundle", {"folds": heading_folds})
     inputs["heading_bundle"] = [_sha256(p) for p in heading]
 
@@ -291,14 +318,20 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     connector_folds = []
     for path in connector:
         bundle = _load_pickle(path)
-        connector_folds.append({
-            "arm": bundle.arm,
-            "mean": np.asarray(bundle.mean, dtype=np.float64).tolist() if bundle.mean is not None else None,
-            "scale": np.asarray(bundle.scale, dtype=np.float64).tolist() if bundle.scale is not None else None,
-            "connector_model": export_any_model(bundle.connector_model),
-            "subtype_model": export_any_model(bundle.subtype_model),
-            "other_model": export_any_model(bundle.other_model),
-        })
+        connector_folds.append(
+            {
+                "arm": bundle.arm,
+                "mean": np.asarray(bundle.mean, dtype=np.float64).tolist()
+                if bundle.mean is not None
+                else None,
+                "scale": np.asarray(bundle.scale, dtype=np.float64).tolist()
+                if bundle.scale is not None
+                else None,
+                "connector_model": export_any_model(bundle.connector_model),
+                "subtype_model": export_any_model(bundle.subtype_model),
+                "other_model": export_any_model(bundle.other_model),
+            }
+        )
     dump("connector_bundle", {"folds": connector_folds})
     inputs["connector_bundle"] = [_sha256(p) for p in connector]
 
@@ -308,6 +341,14 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         dump("signal_tcn", {"folds": [export_tcn(p) for p in tcn]})
         inputs["signal_tcn"] = [_sha256(p) for p in tcn]
 
+    if set(manifest["stages"]) != EXPECTED_STAGES:
+        raise ValueError(
+            f"artifact stages {sorted(manifest['stages'])} != {sorted(EXPECTED_STAGES)}"
+        )
+    for name, stage in manifest["stages"].items():
+        payload = json.loads((out / stage["file"]).read_text())
+        if len(payload.get("folds", [])) != 5:
+            raise ValueError(f"{name} must contain exactly five folds")
     manifest["inputs_sha256"] = inputs
     manifest["code_commit"] = args.code_commit
     with (out / "manifest.json").open("x", encoding="utf-8") as handle:
@@ -325,7 +366,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--line-model-dir", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--threshold", type=float, default=0.9)
-    parser.add_argument("--feature-schema", default="bibliography-nextgen-full-table-v3")
+    parser.add_argument(
+        "--feature-schema", default="bibliography-nextgen-full-table-v3"
+    )
     parser.add_argument("--code-commit", required=True)
     return parser.parse_args(argv)
 
