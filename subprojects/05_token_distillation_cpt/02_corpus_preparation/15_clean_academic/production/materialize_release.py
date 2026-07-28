@@ -10,6 +10,8 @@ import re
 import shutil
 import tempfile
 from collections import defaultdict
+from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import get_context
 from pathlib import Path
 from typing import Any
 
@@ -179,6 +181,13 @@ def _validate_fragment(
     return fragment
 
 
+def _validate_fragment_path(
+    source_path: str, unit: dict[str, Any], receipt: dict[str, Any]
+) -> str:
+    _validate_fragment(pq.ParquetFile(source_path), unit, receipt)
+    return str(receipt["output"]["path"])
+
+
 def run(args: argparse.Namespace) -> dict[str, Any]:
     contract, plan, contract_sha, plan_sha = validate_plan(args.contract, args.plan)
     if contract["mode"] != "apply":
@@ -261,30 +270,55 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                     raise ValueError(
                         f"rank {rank}: apply units do not cover every row group exactly"
                     )
+                bound_receipts: list[tuple[dict[str, Any], dict[str, Any]]] = []
+                for unit in units:
+                    receipt_path = receipt_dir / f"{unit['unit_id']}.json"
+                    receipt = load_json(receipt_path)
+                    require_schema(receipt, RECEIPT_SCHEMA, receipt_path)
+                    if (
+                        receipt.get("status") != "passed"
+                        or receipt.get("mode") != "apply"
+                        or receipt.get("contract_sha256") != contract_sha
+                        or receipt.get("plan_sha256") != plan_sha
+                        or receipt.get("unit_id") != unit["unit_id"]
+                        or summary["receipt_sha256"].get(unit["unit_id"])
+                        != sha256_file(receipt_path)
+                        or summary["ledger_sha256"].get(unit["unit_id"])
+                        != receipt["ledger"]["sha256"]
+                    ):
+                        raise ValueError(f"receipt binding failed: {unit['unit_id']}")
+                    bound_receipts.append((unit, receipt))
+                workers = min(
+                    int(getattr(args, "validation_workers", 8)),
+                    len(bound_receipts),
+                )
+                if workers < 1:
+                    raise ValueError("validation worker count must be positive")
+                if workers == 1:
+                    for unit, receipt in bound_receipts:
+                        _validate_fragment_path(str(source_path), unit, receipt)
+                else:
+                    with ProcessPoolExecutor(
+                        max_workers=workers, mp_context=get_context("fork")
+                    ) as executor:
+                        futures = [
+                            executor.submit(
+                                _validate_fragment_path,
+                                str(source_path),
+                                unit,
+                                receipt,
+                            )
+                            for unit, receipt in bound_receipts
+                        ]
+                        for future in futures:
+                            future.result()
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 writer = pq.ParquetWriter(
                     destination, parquet.schema_arrow, compression="zstd"
                 )
                 try:
-                    for unit in units:
-                        receipt_path = receipt_dir / f"{unit['unit_id']}.json"
-                        receipt = load_json(receipt_path)
-                        require_schema(receipt, RECEIPT_SCHEMA, receipt_path)
-                        if (
-                            receipt.get("status") != "passed"
-                            or receipt.get("mode") != "apply"
-                            or receipt.get("contract_sha256") != contract_sha
-                            or receipt.get("plan_sha256") != plan_sha
-                            or receipt.get("unit_id") != unit["unit_id"]
-                            or summary["receipt_sha256"].get(unit["unit_id"])
-                            != sha256_file(receipt_path)
-                            or summary["ledger_sha256"].get(unit["unit_id"])
-                            != receipt["ledger"]["sha256"]
-                        ):
-                            raise ValueError(
-                                f"receipt binding failed: {unit['unit_id']}"
-                            )
-                        fragment = _validate_fragment(parquet, unit, receipt)
+                    for unit, receipt in bound_receipts:
+                        fragment = pq.read_table(receipt["output"]["path"])
                         writer.write_table(fragment)
                         validation["documents"] += fragment.num_rows
                         validation["fragments"] += 1
@@ -413,6 +447,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-root", required=True)
     parser.add_argument("--repo-id", required=True)
     parser.add_argument("--created-at", required=True)
+    parser.add_argument("--validation-workers", type=int, default=8)
     return parser.parse_args()
 
 
