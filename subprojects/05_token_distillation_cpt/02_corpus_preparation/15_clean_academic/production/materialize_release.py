@@ -323,6 +323,14 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 raise ValueError(f"untouched rank {rank} is not checksum-identical")
 
         decision_source = source_root / source_manifest["decision_ledger"]["path"]
+        if (
+            decision_source.is_symlink()
+            or decision_source.stat().st_size
+            != int(source_manifest["decision_ledger"]["bytes"])
+            or sha256_file(decision_source)
+            != source_manifest["decision_ledger"]["sha256"]
+        ):
+            raise ValueError("source decision ledger differs from its manifest")
         decision_destination = temporary / "manifests" / "dedup_decision_ledger.parquet"
         _hardlink(decision_source, decision_destination)
         inventory_path = temporary / "manifests" / "deduplicated_inventory.parquet"

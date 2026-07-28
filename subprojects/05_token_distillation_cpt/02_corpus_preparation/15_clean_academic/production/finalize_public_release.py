@@ -141,6 +141,19 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         or reconstruction["contract"]["sha256"] != contract_sha
     ):
         raise ValueError("candidate reconstruction evidence is invalid")
+    source_manifest_path = Path(reconstruction["source_manifest"]["path"])
+    source_manifest = load_json(source_manifest_path)
+    if (
+        sha256_file(source_manifest_path)
+        != reconstruction["source_manifest"]["sha256"]
+        or candidate_manifest["decision_ledger"]["sha256"]
+        != source_manifest["decision_ledger"]["sha256"]
+        or int(candidate_manifest["decision_ledger"]["bytes"])
+        != int(source_manifest["decision_ledger"]["bytes"])
+        or int(candidate_manifest["decision_ledger"]["rows"])
+        != int(source_manifest["decision_ledger"]["rows"])
+    ):
+        raise ValueError("deduplication decision ledger provenance failed")
 
     token_summary_path = Path(args.token_summary).resolve()
     token_summary = load_json(token_summary_path)
