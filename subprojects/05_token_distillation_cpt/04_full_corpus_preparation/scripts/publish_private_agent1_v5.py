@@ -325,10 +325,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         write_json_atomic(args.output, base_receipt)
         print(canonical_json({"ok": True, "dry_run": True, "repo_id": args.repo_id}))
         return 0
-    token = args.token or os.environ.get("HF_TOKEN")
+    from huggingface_hub import HfApi, get_token
+
+    token = args.token or os.environ.get("HF_TOKEN") or get_token()
     if not token:
-        raise RuntimeError("--execute requires --token or HF_TOKEN")
-    from huggingface_hub import HfApi
+        raise RuntimeError(
+            "--execute requires --token, HF_TOKEN, or a cached Hugging Face token"
+        )
 
     api = HfApi(token=token)
     identity = api.whoami(token=token)
