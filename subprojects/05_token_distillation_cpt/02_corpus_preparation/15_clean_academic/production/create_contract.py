@@ -28,10 +28,8 @@ def run(args: argparse.Namespace) -> Path:
     require_schema(parity, PARITY_SCHEMA, args.parity)
     if preflight.get("status") != "passed" or parity.get("status") != "passed":
         raise ValueError("preflight and parity must both pass before contract creation")
-    if policy["publication_authorized"] or policy["kallipos_apply_authorized"]:
-        raise ValueError(
-            "reviewed policy must stop before publication and Kallipos apply"
-        )
+    if policy["kallipos_apply_authorized"]:
+        raise ValueError("reviewed policy must keep Kallipos outside apply scope")
 
     artifacts = load_json(args.artifact_manifest)
     if artifacts.get("schema_version") != "bibliography-line-model-export-v2":
@@ -78,6 +76,8 @@ def run(args: argparse.Namespace) -> Path:
             },
         },
         "size_column_policy": "recompute only where the source value is non-null",
+        # This contract controls scoring/materialization only. Publication remains a
+        # later receipt-bound action even when the owner policy authorizes its target.
         "publication_authorized": False,
     }
     identity_sha = hashlib.sha256(canonical_bytes(payload)).hexdigest()

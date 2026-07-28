@@ -85,6 +85,13 @@ def run(args: argparse.Namespace) -> dict:
         total_rows += parquet.metadata.num_rows
     if total_rows != contract["policy"]["expected_analysis_rows"]:
         raise ValueError(f"analysis rows {total_rows} != expected")
+    apply_units = [unit for unit in units if unit["apply"]]
+    apply_rows = sum(unit["rows"] for unit in apply_units)
+    if apply_rows != contract["policy"]["expected_apply_rows"]:
+        raise ValueError(
+            f"apply rows {apply_rows} != "
+            f"{contract['policy']['expected_apply_rows']}"
+        )
     plan = {
         "schema_version": PLAN_SCHEMA,
         "run_id": contract["run_id"],
@@ -92,6 +99,8 @@ def run(args: argparse.Namespace) -> dict:
         "target_chars": args.target_chars,
         "chars_per_second_per_process": CHARS_PER_SECOND_PER_PROCESS,
         "rows": total_rows,
+        "apply_rows": apply_rows,
+        "apply_units": len(apply_units),
         "units": units,
     }
     output = Path(args.output or Path(contract["run_root"]) / "work_plan.json")

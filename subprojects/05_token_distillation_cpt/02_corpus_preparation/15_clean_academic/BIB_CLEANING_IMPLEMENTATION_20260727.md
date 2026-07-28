@@ -245,6 +245,16 @@ QA artifacts:
 
 ## Remaining authority boundary
 
-This implementation ends at dry-run and QA. A later apply would require a new
-`apply` contract and explicit authorization. Publication remains prohibited by
-the frozen policy.
+The 2026-07-27 implementation ended at dry-run and QA.
+
+On 2026-07-28 the owner authorized a new apply contract for the existing
+175,242-document scope, explicitly including libduth, and directed that the v2
+Hugging Face target remain public. Live verification found the canonical target,
+`fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2`, already public and
+manually gated. The owner decision is recorded without changing or concealing
+the existing libduth source-rights warning: it is not represented as
+rightsholder permission.
+
+The apply contract remains non-publishing. Publication is a later action after
+apply fragments, release reconstruction, whole-release validation and token
+counts pass.

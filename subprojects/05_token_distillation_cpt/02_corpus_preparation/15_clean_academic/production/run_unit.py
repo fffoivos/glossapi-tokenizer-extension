@@ -128,9 +128,17 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             receipt["contract_sha256"] != contract_sha
             or receipt["plan_sha256"] != plan_sha
             or receipt["unit_id"] != args.unit_id
+            or receipt["mode"] != args.mode
             or sha256_file(receipt["ledger"]["path"]) != receipt["ledger"]["sha256"]
         ):
             raise ValueError(f"invalid existing completion receipt {receipt_path}")
+        if args.mode == "apply":
+            output = receipt.get("output")
+            if (
+                not isinstance(output, dict)
+                or sha256_file(output["path"]) != output["sha256"]
+            ):
+                raise ValueError(f"invalid existing apply output {receipt_path}")
         print(json.dumps({"status": "passed", "reused": True, "unit_id": args.unit_id}))
         return receipt
 

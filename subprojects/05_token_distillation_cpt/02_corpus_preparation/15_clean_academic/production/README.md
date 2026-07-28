@@ -20,18 +20,23 @@ The sequence is deliberately fail-closed:
    review with non-empty rationales.
 
 The dry-run writes only receipts and one Parquet ledger row per analyzed document.
-It does not write cleaned corpus fragments. An apply contract is a separate run and
-is not authorized by the dry-run contract.
+It does not write cleaned corpus fragments. An apply contract is a separate run,
+filters the shared work plan to units explicitly marked `apply`, and writes an
+atomic schema-preserving fragment plus ledger and receipt for each selected unit.
 
 Frozen policy:
 
 - analyze all 202,792 academic documents from all eight sources;
-- future apply scope remains 175,242 documents in Greek PhD, OpenArchives, elocus
-  and libduth;
+- apply scope is 175,242 documents in Greek PhD, OpenArchives, elocus and
+  libduth;
 - Kallipos is not automatically promoted into the apply scope;
-- the libduth exception applies only to this private variant and never authorizes
-  public redistribution;
-- publication is not authorized;
+- the owner explicitly includes libduth and authorizes the cleaned v2 target to
+  remain public; this directive is recorded separately from the existing
+  source-rights warning and is not represented as rightsholder permission;
+- the target is the already-public, manually gated
+  `fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2`;
+- the cleaning contract itself cannot publish; publication requires a later
+  independently verified receipt-bound action;
 - size columns are recomputed only where the source value was non-null.
 
 QA passes only when all packet decisions are complete, none is body-only,

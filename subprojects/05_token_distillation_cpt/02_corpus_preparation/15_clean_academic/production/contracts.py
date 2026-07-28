@@ -16,6 +16,7 @@ LEDGER_SCHEMA = "bibliography-cleaning-document-ledger-v2"
 PREFLIGHT_SCHEMA = "bibliography-cleaning-preflight-v2"
 PARITY_SCHEMA = "bibliography-cleaning-parity-v2"
 SUMMARY_SCHEMA = "bibliography-cleaning-dryrun-summary-v2"
+APPLY_SUMMARY_SCHEMA = "bibliography-cleaning-apply-summary-v1"
 QA_PACKET_SCHEMA = "bibliography-cleaning-qa-packet-v2"
 QA_REVIEW_SCHEMA = "bibliography-cleaning-qa-review-v2"
 
@@ -86,8 +87,20 @@ def validate_contract(path: str | Path) -> tuple[dict[str, Any], str]:
     if policy["kallipos_apply_authorized"]:
         raise ValueError("Kallipos must remain outside the apply scope")
     override = policy["license_overrides"]["glossAPI/libduth"]
-    if override["public_redistribution"] or "private" not in override["scope"]:
-        raise ValueError("libduth requires a private, no-redistribution run override")
+    if (
+        override["public_redistribution"] is not True
+        or "v2 public release" not in override["scope"]
+        or not override.get("approved_by")
+    ):
+        raise ValueError("libduth requires the explicit owner-approved v2 public override")
+    publication = policy["publication_target"]
+    if (
+        policy["publication_authorized"] is not True
+        or publication["repo_id"]
+        != "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2"
+        or publication["visibility"] != "public"
+    ):
+        raise ValueError("the owner-approved public v2 publication policy is absent")
     train_archive = contract["code"]["train_archive"]
     if sha256_file(train_archive["path"]) != train_archive["sha256"]:
         raise ValueError("train source archive hash mismatch")

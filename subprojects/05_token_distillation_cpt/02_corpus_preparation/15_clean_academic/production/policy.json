@@ -26,10 +26,11 @@
   },
   "license_overrides": {
     "glossAPI/libduth": {
-      "scope": "this run-scoped private variant only",
-      "public_redistribution": false,
+      "scope": "v2 public release including the cleaned libduth rows",
+      "public_redistribution": true,
+      "authorization_basis": "dataset owner directive; does not represent rightsholder permission or supersede the recorded source-license warning",
       "approved_by": "Foivos Karounos-Zamparloukos",
-      "approved_on": "2026-07-27"
+      "approved_on": "2026-07-28"
     }
   },
   "qa_gate": {
@@ -39,6 +40,14 @@
     "kallipos_primarily_bibliography_min": 27,
     "openarchives_over_50pct_required": "all"
   },
-  "publication_authorized": false,
+  "publication_authorized": true,
+  "publication_target": {
+    "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+    "visibility": "public",
+    "gating": "manual",
+    "current_visibility_verified": "public",
+    "verified_on": "2026-07-28",
+    "action": "keep v2 public and publish the cleaned immutable revision only after apply and release verification"
+  },
   "kallipos_apply_authorized": false
 }

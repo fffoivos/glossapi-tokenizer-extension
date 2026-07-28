@@ -13,6 +13,7 @@ from typing import Any
 import pyarrow.parquet as pq
 
 from .contracts import (
+    APPLY_SUMMARY_SCHEMA,
     RECEIPT_SCHEMA,
     SUMMARY_SCHEMA,
     atomic_write_json,
@@ -52,7 +53,12 @@ def _new_stats() -> dict[str, Any]:
 def run(args: argparse.Namespace) -> dict[str, Any]:
     contract, plan, contract_sha, plan_sha = validate_plan(args.contract, args.plan)
     receipt_dir = Path(contract["run_root"]) / contract["mode"] / "receipts"
-    expected = {unit["unit_id"] for unit in plan["units"]}
+    expected_units = [
+        unit
+        for unit in plan["units"]
+        if contract["mode"] == "dry-run" or unit["apply"]
+    ]
+    expected = {unit["unit_id"] for unit in expected_units}
     actual = {path.stem for path in receipt_dir.glob("*.json")}
     if actual != expected:
         raise ValueError(
@@ -118,8 +124,13 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                     stats["fractions"].append(row["removed_fraction"])
         receipt_hashes[unit_id] = sha256_file(receipt_path)
         ledger_hashes[unit_id] = ledger["sha256"]
-    if overall["docs"] != plan["rows"]:
-        raise ValueError(f"ledger rows {overall['docs']} != plan rows {plan['rows']}")
+    expected_rows = (
+        plan["rows"] if contract["mode"] == "dry-run" else plan["apply_rows"]
+    )
+    if overall["docs"] != expected_rows:
+        raise ValueError(
+            f"ledger rows {overall['docs']} != expected {expected_rows}"
+        )
 
     def finalize(stats: dict[str, Any]) -> dict[str, Any]:
         values = stats.pop("fractions")
@@ -132,7 +143,11 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         return stats
 
     result = {
-        "schema_version": SUMMARY_SCHEMA,
+        "schema_version": (
+            SUMMARY_SCHEMA
+            if contract["mode"] == "dry-run"
+            else APPLY_SUMMARY_SCHEMA
+        ),
         "status": "passed",
         "run_id": contract["run_id"],
         "mode": contract["mode"],

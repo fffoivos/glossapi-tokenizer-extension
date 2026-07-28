@@ -66,7 +66,9 @@ def _write_json(path: Path, value: dict) -> None:
     path.write_text(json.dumps(value, sort_keys=True) + "\n")
 
 
-def _fixture(tmp_path: Path) -> tuple[Path, Path, str]:
+def _fixture(
+    tmp_path: Path, *, mode: str = "dry-run", apply: bool = False
+) -> tuple[Path, Path, str]:
     release = tmp_path / "release"
     data = release / "data"
     data.mkdir(parents=True)
@@ -158,24 +160,30 @@ def _fixture(tmp_path: Path) -> tuple[Path, Path, str]:
     policy = {
         "analysis_sources": {},
         "expected_analysis_rows": 2,
-        "expected_apply_rows": 0,
+        "expected_apply_rows": 2 if apply else 0,
         "model_policy": {"character_damage_measure_approved": True},
         "license_overrides": {
             "glossAPI/libduth": {
-                "scope": "this private run only",
-                "public_redistribution": False,
+                "scope": "v2 public release including cleaned libduth",
+                "public_redistribution": True,
+                "approved_by": "owner",
             }
         },
         "qa_gate": {
             "kallipos_sample_size": 1,
             "kallipos_primarily_bibliography_min": 1,
         },
+        "publication_authorized": True,
+        "publication_target": {
+            "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+            "visibility": "public",
+        },
         "kallipos_apply_authorized": False,
     }
     run_root = tmp_path / "run"
     contract = {
         "schema_version": contracts.CONTRACT_SCHEMA,
-        "mode": "dry-run",
+        "mode": mode,
         "run_id": "test-run",
         "run_root": str(run_root),
         "release_root": str(release),
@@ -220,12 +228,14 @@ def _fixture(tmp_path: Path) -> tuple[Path, Path, str]:
         "schema_version": contracts.PLAN_SCHEMA,
         "contract_sha256": contracts.sha256_file(contract_path),
         "rows": 2,
+        "apply_rows": 2 if apply else 0,
+        "apply_units": 1 if apply else 0,
         "units": [
             {
                 "unit_id": unit_id,
                 "rank": 2,
                 "source_dataset": "Apothetirio_Kallipos",
-                "apply": False,
+                "apply": apply,
                 "source_path": str(source),
                 "source_bytes": source.stat().st_size,
                 "source_sha256": contracts.sha256_file(source),
@@ -267,6 +277,66 @@ def test_dryrun_writes_exact_document_ledger_and_bound_receipt(tmp_path, monkeyp
     assert ledger[0]["chars_before"] - ledger[0]["chars_after"] == 9
     assert not list((tmp_path / "run").rglob("*.partial"))
     assert run_unit.run(args) == receipt
+
+
+def test_apply_writes_schema_preserving_fragment_and_aggregates_only_apply_units(
+    tmp_path, monkeypatch
+):
+    contract_path, plan_path, unit_id = _fixture(
+        tmp_path, mode="apply", apply=True
+    )
+    monkeypatch.setattr(run_unit, "_load_cleaner", lambda *args: FakeCleaner())
+    args = Namespace(
+        contract=str(contract_path),
+        plan=str(plan_path),
+        unit_id=unit_id,
+        mode="apply",
+        glossapi_src=None,
+        threads=8,
+        batch_size=2,
+    )
+    receipt = run_unit.run(args)
+    output = pq.read_table(receipt["output"]["path"])
+    rows = output.to_pylist()
+    assert output.schema == pq.read_table(
+        tmp_path / "release" / "data" / "000002.parquet"
+    ).schema
+    assert rows[0]["text"] == "Body"
+    assert rows[0]["chars"] is None
+    assert rows[0]["utf8_bytes"] is None
+    assert rows[1]["text"] == "Untouched"
+    assert rows[1]["chars"] == 9
+    assert run_unit.run(args) == receipt
+
+    summary = aggregate.run(
+        Namespace(
+            contract=str(contract_path),
+            plan=str(plan_path),
+            output=None,
+        )
+    )
+    assert summary["schema_version"] == contracts.APPLY_SUMMARY_SCHEMA
+    assert summary["mode"] == "apply"
+    assert summary["overall"]["docs"] == 2
+
+
+def test_apply_refuses_unit_outside_frozen_scope(tmp_path, monkeypatch):
+    contract_path, plan_path, unit_id = _fixture(
+        tmp_path, mode="apply", apply=False
+    )
+    monkeypatch.setattr(run_unit, "_load_cleaner", lambda *args: FakeCleaner())
+    with pytest.raises(ValueError, match="outside the frozen apply scope"):
+        run_unit.run(
+            Namespace(
+                contract=str(contract_path),
+                plan=str(plan_path),
+                unit_id=unit_id,
+                mode="apply",
+                glossapi_src=None,
+                threads=8,
+                batch_size=2,
+            )
+        )
 
 
 def test_contract_rejects_artifact_tampering(tmp_path):
