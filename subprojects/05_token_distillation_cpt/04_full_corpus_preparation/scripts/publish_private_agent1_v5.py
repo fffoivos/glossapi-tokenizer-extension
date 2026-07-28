@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Publish a receipt-bound Agent-1 v5 release to a private HF dataset repo.
+"""Publish a receipt-bound Agent-1 v5 release to an explicitly scoped HF repo.
 
-The command refuses public repositories, unexpected remote files, local
-symlinks, manifest/repository disagreement, and unverifiable post-upload
-content.  Its persistent hardlink staging tree lets ``upload_large_folder``
-resume without modifying the immutable release.
+The command refuses visibility disagreement, unexpected remote files, local
+symlinks, non-final public manifests, manifest/repository disagreement, and
+unverifiable post-upload content. Its persistent hardlink staging tree lets
+``upload_large_folder`` resume without modifying the immutable release.
 """
 
 from __future__ import annotations
@@ -14,9 +14,9 @@ import json
 import os
 import tempfile
 import time
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
-
+from typing import Any
 
 from agent1_v5_datatrove import DEDUP_MANIFEST_SCHEMA
 from agent1_v5_pipeline import (
@@ -28,7 +28,7 @@ from agent1_v5_pipeline import (
 )
 
 
-PUBLICATION_SCHEMA = "agent1_v5_private_hf_publication_receipt_v1"
+PUBLICATION_SCHEMA = "agent1_v5_hf_publication_receipt_v2"
 ALLOWED_REMOTE_SYSTEM_FILES = {".gitattributes"}
 HUB_RATE_LIMIT_BACKOFF_SECONDS = 310
 HUB_UPLOAD_WORKERS = 2
@@ -43,26 +43,40 @@ def _field(value: object, name: str, default: Any = None) -> Any:
 def read_object(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
-        raise ValueError(f"{path}: expected JSON object")
+        raise TypeError(f"{path}: expected JSON object")
     return value
 
 
 def _manifest_path(release: Path, kind: str) -> Path:
-    name = "combined_manifest.json" if kind == "pre-dedup" else "deduplicated_manifest.json"
+    name = (
+        "combined_manifest.json"
+        if kind == "pre-dedup"
+        else "deduplicated_manifest.json"
+    )
     return release / "manifests" / name
 
 
-def validate_release(release: Path, kind: str) -> tuple[dict[str, Any], Path]:
+def validate_release(
+    release: Path, kind: str, visibility: str
+) -> tuple[dict[str, Any], Path]:
     if release.is_symlink():
         raise ValueError("release root may not be a symlink")
     release = release.resolve(strict=True)
     manifest_path = _manifest_path(release, kind)
     manifest = read_object(manifest_path)
-    expected_schema = COMBINED_MANIFEST_SCHEMA if kind == "pre-dedup" else DEDUP_MANIFEST_SCHEMA
-    if manifest.get("schema_version") != expected_schema or manifest.get("status") != "passed":
+    expected_schema = (
+        COMBINED_MANIFEST_SCHEMA if kind == "pre-dedup" else DEDUP_MANIFEST_SCHEMA
+    )
+    if (
+        manifest.get("schema_version") != expected_schema
+        or manifest.get("status") != "passed"
+    ):
         raise ValueError(f"{kind} release manifest is not passed")
-    if manifest.get("private_only") is not True:
-        raise ValueError("publisher only accepts private-only release manifests")
+    expected_private = visibility == "private"
+    if bool(manifest.get("private_only")) != expected_private:
+        raise ValueError("release manifest visibility differs from publication request")
+    if visibility == "public" and manifest.get("publication_ready") is not True:
+        raise ValueError("public release manifest has not passed finalization")
     if Path(str(manifest.get("root"))).resolve() != release:
         raise ValueError("release manifest is bound to a different local root")
     expected_data = {str(row["path"]): row for row in manifest["files"]}
@@ -76,7 +90,10 @@ def validate_release(release: Path, kind: str) -> tuple[dict[str, Any], Path]:
         if path.is_symlink():
             raise ValueError(f"release contains symlink: {path}")
         row = expected_data[relative]
-        if path.stat().st_size != int(row["bytes"]) or sha256_file(path) != row["sha256"]:
+        if (
+            path.stat().st_size != int(row["bytes"])
+            or sha256_file(path) != row["sha256"]
+        ):
             raise ValueError(f"release data drift: {path}")
     return manifest, manifest_path
 
@@ -88,7 +105,9 @@ def local_inventory(release: Path) -> list[dict[str, Any]]:
         directories[:] = sorted(name for name in directories if name != ".cache")
         for directory in directories:
             if (current_path / directory).is_symlink():
-                raise ValueError(f"release contains symlink: {current_path / directory}")
+                raise ValueError(
+                    f"release contains symlink: {current_path / directory}"
+                )
         for name in sorted(names):
             path = current_path / name
             if path.is_symlink():
@@ -114,12 +133,16 @@ def build_or_validate_staging(
     }
     unexpected = set(actual) - set(expected)
     if unexpected:
-        raise ValueError(f"publication staging has unexpected payload: {sorted(unexpected)[:20]}")
+        raise ValueError(
+            f"publication staging has unexpected payload: {sorted(unexpected)[:20]}"
+        )
     for relative, row in expected.items():
         source = release / relative
         destination = staging / relative
         if destination.exists():
-            if destination.is_symlink() or destination.stat().st_size != int(row["bytes"]):
+            if destination.is_symlink() or destination.stat().st_size != int(
+                row["bytes"]
+            ):
                 raise ValueError(f"publication staging drift: {destination}")
             if sha256_file(destination) != row["sha256"]:
                 raise ValueError(f"publication staging checksum drift: {destination}")
@@ -128,7 +151,9 @@ def build_or_validate_staging(
         try:
             os.link(source, destination)
         except OSError as exc:
-            raise RuntimeError("publication staging requires same-filesystem hardlinks") from exc
+            raise RuntimeError(
+                "publication staging requires same-filesystem hardlinks"
+            ) from exc
 
 
 def remote_files(api: Any, repo_id: str, revision: str | None = None) -> dict[str, Any]:
@@ -222,7 +247,10 @@ def verify_remote(
     extras = set(remote) - set(expected) - ALLOWED_REMOTE_SYSTEM_FILES
     missing = set(expected) - set(remote)
     if extras or missing:
-        raise RuntimeError(f"remote inventory mismatch: extra={sorted(extras)}, missing={sorted(missing)}")
+        mismatch = f"extra={sorted(extras)}, missing={sorted(missing)}"
+        raise RuntimeError(
+            f"remote inventory mismatch: {mismatch}"
+        )
     from huggingface_hub import hf_hub_download
 
     verified = []
@@ -265,12 +293,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--repo-id", required=True)
     parser.add_argument("--staging", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--visibility", choices=["private", "public"], default="private"
+    )
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--token", default=None)
     args = parser.parse_args(argv)
     if args.output.exists():
         raise FileExistsError(f"immutable publication receipt exists: {args.output}")
-    manifest, manifest_path = validate_release(args.release, args.kind)
+    manifest, manifest_path = validate_release(args.release, args.kind, args.visibility)
     if args.repo_id != manifest["repository_id"]:
         raise ValueError("repository ID differs from the immutable release manifest")
     inventory = local_inventory(args.release.resolve())
@@ -278,7 +309,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         "schema_version": PUBLICATION_SCHEMA,
         "status": "dry_run" if not args.execute else "passed",
         "kind": args.kind,
-        "private": True,
+        "private": args.visibility == "private",
+        "visibility": args.visibility,
         "repo_id": args.repo_id,
         "release": str(args.release.resolve()),
         "release_manifest": file_receipt(manifest_path),
@@ -302,14 +334,28 @@ def main(argv: Sequence[str] | None = None) -> int:
     identity = api.whoami(token=token)
     if not isinstance(identity, Mapping) or not identity.get("name"):
         raise RuntimeError("Hugging Face identity check failed")
-    api.create_repo(repo_id=args.repo_id, repo_type="dataset", private=True, exist_ok=True)
+    expected_private = args.visibility == "private"
+    api.create_repo(
+        repo_id=args.repo_id,
+        repo_type="dataset",
+        private=expected_private,
+        exist_ok=True,
+    )
     info = api.repo_info(repo_id=args.repo_id, repo_type="dataset", files_metadata=True)
-    if not bool(_field(info, "private", False)):
-        raise RuntimeError("refusing to upload because the Hugging Face repository is not private")
+    if bool(_field(info, "private", False)) != expected_private:
+        raise RuntimeError(
+            "refusing to upload because Hugging Face repository visibility differs"
+        )
     existing = remote_files(api, args.repo_id)
-    extras = set(existing) - {str(row["remote_path"]) for row in inventory} - ALLOWED_REMOTE_SYSTEM_FILES
+    extras = (
+        set(existing)
+        - {str(row["remote_path"]) for row in inventory}
+        - ALLOWED_REMOTE_SYSTEM_FILES
+    )
     if extras:
-        raise RuntimeError(f"remote repository contains unexpected payload: {sorted(extras)}")
+        raise RuntimeError(
+            f"remote repository contains unexpected payload: {sorted(extras)}"
+        )
     build_or_validate_staging(args.release.resolve(), args.staging.resolve(), inventory)
     upload_large_folder_with_rate_limit_backoff(
         api,
@@ -319,13 +365,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     info = api.repo_info(repo_id=args.repo_id, repo_type="dataset", files_metadata=True)
     commit_sha = _field(info, "sha")
-    if not bool(_field(info, "private", False)) or not isinstance(commit_sha, str) or not commit_sha:
-        raise RuntimeError("final private repository state or commit SHA is invalid")
+    if (
+        bool(_field(info, "private", False)) != expected_private
+        or not isinstance(commit_sha, str)
+        or not commit_sha
+    ):
+        raise RuntimeError("final repository visibility or commit SHA is invalid")
     remote_inventory = verify_remote(api, args.repo_id, commit_sha, token, inventory)
     base_receipt["commit_sha"] = commit_sha
     base_receipt["remote_inventory"] = remote_inventory
     write_json_atomic(args.output, base_receipt)
-    print(canonical_json({"ok": True, "repo_id": args.repo_id, "commit_sha": commit_sha}))
+    print(
+        canonical_json({"ok": True, "repo_id": args.repo_id, "commit_sha": commit_sha})
+    )
     return 0
 
 

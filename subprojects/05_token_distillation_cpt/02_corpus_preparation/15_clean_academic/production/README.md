@@ -18,6 +18,20 @@ The sequence is deliberately fail-closed:
    `check_qa.py`. Packet construction rechecks the exact ledger set and every
    post-aggregation ledger hash; the gate accepts only an explicitly complete
    review with non-empty rationales.
+7. For the separate apply contract, run all frozen apply units and aggregate
+   them, then run `materialize_release.py`. It independently rederives cleaned
+   text from every ledger span, verifies all nonmutable columns, and creates a
+   non-publishable 431-shard candidate.
+8. Use `count_tokens.py` to count the original 431 shards plus only the nine
+   transformed candidate shards with the pinned tokenizer. The cleaned total
+   reuses receipts only for checksum-identical shards and reports raw text
+   tokens plus training tokens with one EOS per document.
+9. Run `finalize_public_release.py`; it requires the candidate, token summary,
+   apply summary, public policy, and all 431 hashes to agree. Only that final
+   root has `publication_ready: true`.
+10. Dry-run and then execute `publish_private_agent1_v5.py --visibility public`.
+    The publisher rejects visibility drift, unexpected files, and any remote
+    revision whose bytes cannot be verified against the immutable local root.
 
 The dry-run writes only receipts and one Parquet ledger row per analyzed document.
 It does not write cleaned corpus fragments. An apply contract is a separate run,
