@@ -52,6 +52,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--roundtrip-verification", type=Path, required=True)
     parser.add_argument("--megatron-dir", type=Path, required=True)
     parser.add_argument("--tokenizer-dir", type=Path, required=True)
+    parser.add_argument("--hf-conversion-template", type=Path, required=True)
     parser.add_argument("--bridge-manifest", type=Path, required=True)
     parser.add_argument("--training-data-env", type=Path, required=True)
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT_DEFAULT)
@@ -79,6 +80,19 @@ def main() -> int:
 
     if Tokenizer.from_file(str(tokenizer / "tokenizer.json")).get_vocab_size(with_added_tokens=True) != 148992:
         raise ValueError("production tokenizer vocabulary drift")
+
+    hf_template = args.hf_conversion_template.resolve()
+    hf_template_files = {}
+    for name in (
+        "config.json",
+        "generation_config.json",
+        "special_tokens_map.json",
+        "tokenizer_config.json",
+        "tokenizer.json",
+    ):
+        hf_template_files[name] = _file(hf_template / name)
+    if sha256_file(hf_template / "tokenizer.json") != TOKENIZER_SHA:
+        raise ValueError("HF conversion template tokenizer drift")
 
     evidence = read_json(args.init_evidence.resolve())
     required_evidence = {
@@ -127,8 +141,15 @@ def main() -> int:
         "smoke_verifier": PROBE_ROOT / "train" / "verify_smoke.py",
         "smoke_verify_sbatch": PROBE_ROOT / "clariden" / "verify_smoke.sbatch",
         "greekmmlu_checkpoint_watcher": PROBE_ROOT / "eval" / "watch_greekmmlu_checkpoints.sbatch",
+        "greekmmlu_checkpoint_submitter": PROBE_ROOT / "eval" / "submit_greekmmlu_checkpoint.sh",
+        "greekmmlu_checkpoint_finalizer": PROBE_ROOT / "eval" / "finalize_greekmmlu_checkpoint.py",
         "trainer": repo_root / "subprojects" / "03_apertus_extension_and_embedding_adaptation" / "03_4_implementation_experiments" / "init_bakeoff" / "bakeoff_training" / "bakeoff_train.sbatch",
         "te_guard": repo_root / "subprojects" / "03_apertus_extension_and_embedding_adaptation" / "03_4_implementation_experiments" / "init_bakeoff" / "megatron_patches" / "runtime" / "pretrain_gpt_te_guard.py",
+        "checkpoint_converter": repo_root / "subprojects" / "03_apertus_extension_and_embedding_adaptation" / "03_4_implementation_experiments" / "init_bakeoff" / "eval" / "convert_bakeoff_checkpoint_to_hf.sbatch",
+        "checkpoint_converter_runtime": repo_root / "subprojects" / "03_apertus_extension_and_embedding_adaptation" / "03_4_implementation_experiments" / "init_bakeoff" / "eval" / "run_megatron_convert_with_pg.py",
+        "native_greekmmlu_sbatch": repo_root / "subprojects" / "03_apertus_extension_and_embedding_adaptation" / "03_4_implementation_experiments" / "init_bakeoff" / "eval" / "run_native_greek_mcq_eval.sbatch",
+        "native_greekmmlu_runner": repo_root / "subprojects" / "03_apertus_extension_and_embedding_adaptation" / "03_4_implementation_experiments" / "init_bakeoff" / "eval" / "run_native_greek_mcq_eval.py",
+        "native_greekmmlu_registry": repo_root / "subprojects" / "03_apertus_extension_and_embedding_adaptation" / "03_4_implementation_experiments" / "init_bakeoff" / "eval" / "native_greek_benchmark_registry.json",
         "bridge_manifest": args.bridge_manifest.resolve(),
         "training_data_env": args.training_data_env.resolve(),
         "init_evidence": args.init_evidence.resolve(),
@@ -144,6 +165,10 @@ def main() -> int:
         "roundtrip_verification": _file(args.roundtrip_verification.resolve()),
         "megatron": {"root": str(megatron), "commit": MEGATRON_COMMIT, "tree": file_tree_receipt(megatron, exclude_top_level=(".git",))},
         "tokenizer": {"root": str(tokenizer), "tokenizer_json_sha256": TOKENIZER_SHA, "vocab_size": 148992, "tree": tokenizer_tree_receipt(tokenizer)},
+        "hf_conversion_template": {
+            "root": str(hf_template),
+            "files": hf_template_files,
+        },
         "dependencies": {name: _file(path) for name, path in sorted(dependencies.items())},
     }
     write_json_atomic(args.output.resolve(), payload)

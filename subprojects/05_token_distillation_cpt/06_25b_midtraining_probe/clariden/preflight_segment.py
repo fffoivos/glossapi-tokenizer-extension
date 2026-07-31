@@ -116,6 +116,14 @@ def main() -> int:
         raise ValueError("training assets are not frozen")
     validate_file_tree_receipt(assets["megatron"]["tree"])
     validate_tokenizer_tree_receipt(assets["tokenizer"]["tree"])
+    for name, receipt in assets["hf_conversion_template"]["files"].items():
+        path = Path(receipt["path"])
+        if (
+            not path.is_file()
+            or path.stat().st_size != int(receipt["bytes"])
+            or sha256_file(path) != receipt["sha256"]
+        ):
+            raise ValueError(f"frozen HF conversion template drift: {name}")
     for name, receipt in assets["dependencies"].items():
         path = Path(receipt["path"])
         if not path.is_file() or path.stat().st_size != int(receipt["bytes"]) or sha256_file(path) != receipt["sha256"]:

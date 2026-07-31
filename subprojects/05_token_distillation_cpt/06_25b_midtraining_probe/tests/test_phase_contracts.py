@@ -234,3 +234,78 @@ def test_preflight_keeps_smoke_and_production_boundaries_disjoint() -> None:
     assert BOUNDARIES == {0: (1, 1785), 1785: (1, 3570), 3570: (2, 5960)}
     assert SMOKE_BOUNDARIES == {0: (1, 1), 1: (2, 2)}
     assert set(BOUNDARIES.items()).isdisjoint(SMOKE_BOUNDARIES.items())
+
+
+def test_checkpoint_watcher_waits_for_completed_marker_and_uses_new_sidecar() -> None:
+    watcher = (ROOT / "eval" / "watch_greekmmlu_checkpoints.sbatch").read_text(
+        encoding="utf-8"
+    )
+    assert "submit_greekmmlu_checkpoint.sh" in watcher
+    assert "submit_td_checkpoint_sidecars.sh" not in watcher
+    assert "latest_checkpointed_iteration.txt" in watcher
+    assert "latest >= iteration" in watcher
+    assert 'range(119,5951,119)' in watcher
+    assert "if end == 5960: values.append(5960)" in watcher
+
+
+def test_greekmmlu_finalizer_freezes_full_16632_result(tmp_path: Path) -> None:
+    checkpoint = tmp_path / "checkpoints" / "iter_0000119"
+    checkpoint.mkdir(parents=True)
+    (checkpoint / ".metadata").write_text("complete", encoding="utf-8")
+    hf_dir = tmp_path / "hf"
+    hf_dir.mkdir()
+    for name in ("config.json", "tokenizer.json", "model.safetensors.index.json"):
+        (hf_dir / name).write_text("{}", encoding="utf-8")
+    (hf_dir / "model-00001-of-00001.safetensors").write_bytes(b"model")
+    eval_dir = tmp_path / "greekmmlu"
+    eval_dir.mkdir()
+    aggregate = {
+        "schema": "native-greek-mcq-aggregate-v1",
+        "headline": {
+            "n_tasks": 1,
+            "total_n": 16632,
+            "micro_accuracy": 0.5,
+        },
+    }
+    (eval_dir / "model_native_mcq_aggregate.json").write_text(
+        json.dumps(aggregate), encoding="utf-8"
+    )
+    assets = tmp_path / "assets.json"
+    assets.write_text(
+        json.dumps(
+            {
+                "schema_version": "greek_cpt_training_assets_receipt_v1",
+                "status": "frozen",
+            }
+        ),
+        encoding="utf-8",
+    )
+    output = tmp_path / "evaluation_receipt.json"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "eval" / "finalize_greekmmlu_checkpoint.py"),
+            "--iteration",
+            "119",
+            "--tokens",
+            str(119 * 4_194_304),
+            "--checkpoint-dir",
+            str(checkpoint),
+            "--hf-dir",
+            str(hf_dir),
+            "--eval-dir",
+            str(eval_dir),
+            "--training-assets-receipt",
+            str(assets),
+            "--output",
+            str(output),
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    receipt = json.loads(output.read_text(encoding="utf-8"))
+    assert receipt["status"] == "passed"
+    assert receipt["iteration"] == 119
+    assert receipt["greekmmlu"]["total_n"] == 16632
+    assert receipt["greekmmlu"]["micro_accuracy"] == 0.5

@@ -71,20 +71,27 @@ cmd=(sbatch --parsable
   --output="$OUTPUT_DIR/%x-%j.out" --error="$OUTPUT_DIR/%x-%j.err"
   --export="ALL,TRAINING_ASSETS_RECEIPT=$TRAINING_ASSETS_RECEIPT,SMOKE_VERIFICATION=$SMOKE_VERIFICATION,START_ITERATION=$START_ITERATION,END_ITERATION=$END_ITERATION,CPT_PHASE=$CPT_PHASE,INIT_CKPT=$INIT_CKPT,RESUME_CHECKPOINT_RECEIPT=$RESUME_CHECKPOINT_RECEIPT,TRAIN_SCRIPT=$TRAIN_SCRIPT,PROBE_ROOT=$PROBE_ROOT,REPO_ROOT=$REPO_ROOT,MEGATRON_LM_SWISSAI_DIR=$MEGATRON_DIR,FULL_CPT_TOKENIZER_DIR=$TOKENIZER_DIR,BRIDGE_DATA_ENV=$BRIDGE_DATA_ENV,OUTPUT_DIR=$OUTPUT_DIR,SCRIPT_DIR_OVERRIDE=$(dirname "$TRAIN_SCRIPT"),ACCOUNT=a0140,PARTITION=normal,NODES=16,GPUS_PER_NODE=4,LAUNCH_MODE=torchrun,TIME_LIMIT=08:00:00,DISABLE_SAVE=0,SAVE_INTERVAL=119,EVAL_INTERVAL=25,EVAL_ITERS=1"
   "$SBATCH")
+watcher="$PROBE_ROOT/eval/watch_greekmmlu_checkpoints.sbatch"
 
 echo "segment: phase=$CPT_PHASE iterations=$START_ITERATION..$END_ITERATION"
 if [[ "$DRY_RUN" == 1 ]]; then
   printf 'DRY:'; printf ' %q' "${cmd[@]}"; printf '\n'
+  printf 'DRY: sbatch --dependency=after:<train-job-id> %q\n' "$watcher"
   echo "No job submitted."
   exit 0
 fi
 job_id=$("${cmd[@]}")
-python3 - "$submission_receipt" "$job_id" "$START_ITERATION" "$END_ITERATION" "$CPT_PHASE" <<'PY'
+watch_job=$(sbatch --parsable --account=a0140 --partition=xfer \
+  --dependency="after:$job_id" --job-name="${RUN_TAG}_eval_i${START_ITERATION}_${END_ITERATION}" \
+  --output="$OUTPUT_DIR/%x-%j.out" --error="$OUTPUT_DIR/%x-%j.err" \
+  --export="ALL,REPO_ROOT=$REPO_ROOT,RUN_TAG=$RUN_TAG,TRAIN_RUN_DIR=$OUTPUT_DIR,TRAINING_ASSETS_RECEIPT=$TRAINING_ASSETS_RECEIPT,TRAIN_JOB_ID=$job_id,START_ITERATION=$START_ITERATION,END_ITERATION=$END_ITERATION" \
+  "$watcher")
+python3 - "$submission_receipt" "$job_id" "$watch_job" "$START_ITERATION" "$END_ITERATION" "$CPT_PHASE" <<'PY'
 import datetime,json,os,sys,tempfile
-out,job,start,end,phase=sys.argv[1:]
-value={"schema_version":"greek_cpt_segment_submission_v1","submitted_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"job_id":job,"start_iteration":int(start),"end_iteration":int(end),"phase":int(phase)}
+out,job,watch,start,end,phase=sys.argv[1:]
+value={"schema_version":"greek_cpt_segment_submission_v1","submitted_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"job_id":job,"evaluation_watcher_job_id":watch,"start_iteration":int(start),"end_iteration":int(end),"phase":int(phase)}
 fd,tmp=tempfile.mkstemp(prefix=".segment.",suffix=".partial",dir=os.path.dirname(out))
 with os.fdopen(fd,"w",encoding="utf-8") as f: json.dump(value,f,indent=2,sort_keys=True); f.write("\n"); f.flush(); os.fsync(f.fileno())
 os.replace(tmp,out)
 PY
-echo "submitted job $job_id"
+echo "submitted training job $job_id and evaluation watcher $watch_job"

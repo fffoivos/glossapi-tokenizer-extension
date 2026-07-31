@@ -20,5 +20,6 @@ cpt_python "$CPT_DIR/initialization/freeze_training_assets.py" \
   --init-evidence "$INIT_ROOT/production_init_verification.json" \
   --roundtrip-verification "$ROUNDTRIP_ROOT/work/verification.json" \
   --megatron-dir "$MEGATRON_DIR" --tokenizer-dir "$TOKENIZER_DIR" \
+  --hf-conversion-template "$INIT_ROOT/production" \
   --bridge-manifest "$BRIDGE_MANIFEST" --training-data-env "$TRAINING_DATA_ENV" \
   --repo-root "$REPO_ROOT" --output "$TRAINING_ASSETS_RECEIPT"

@@ -103,6 +103,14 @@ checkpoint load for phase 2, and the exact phase-relative data-index evidence
 nodes/64 GPUs, requires the passed smoke receipt through `SMOKE_VERIFICATION`,
 and still requires `GREEK_CPT25B_64GPU` separately.
 
+Each production segment submission also starts a receipt-bound watcher when
+the training allocation begins. It waits for the root checkpoint marker (not
+merely an early `.metadata` file), converts every completed 119-iteration
+checkpoint plus iteration 5,960 to HF, runs all 16,632 GreekMMLU items, and
+freezes an `evaluation_receipt.json` containing the score and output hashes.
+The ordinary in-training extra-validation cadence continues to measure the
+new-Greek and replay heldout losses every 25 iterations.
+
 `prereqs` deliberately rebuilds the appended 512 rows from the uncpt
 `TokenDistil-Init` checkpoint. The earlier `TokenDistil-3.5B` cutoff-probe
 checkpoint is CPT-trained and is explicitly forbidden as production
