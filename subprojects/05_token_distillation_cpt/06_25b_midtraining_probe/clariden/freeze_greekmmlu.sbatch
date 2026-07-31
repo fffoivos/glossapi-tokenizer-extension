@@ -17,17 +17,24 @@ if [[ -s "$DECONTAM_BINDING" ]]; then
     --output "$DECONTAM_BINDING"
   exit 0
 fi
-[[ ! -e "$DECONTAM_DIR" ]] || { echo "ERROR: incomplete GreekMMLU freeze exists: $DECONTAM_DIR" >&2; exit 2; }
-mkdir -p "$DECONTAM_DIR"
 REGISTRY="$REPO_ROOT/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/native_greek_benchmark_registry.json"
 EVAL_DIR=$(dirname "$REGISTRY")
-cpt_python "$REPO_ROOT/subprojects/05_token_distillation_cpt/02_corpus_preparation/30_decontaminate/scripts/build_decontamination_queries.py" \
-  --registry "$REGISTRY" --eval-dir "$EVAL_DIR" --benchmarks greekmmlu \
-  --output-jsonl "$DECONTAM_QUERIES" --summary-json "$DECONTAM_QUERY_SUMMARY"
-cpt_python "$REPO_ROOT/subprojects/05_token_distillation_cpt/04_full_corpus_preparation/scripts/freeze_greekmmlu_queries.py" \
-  --queries-jsonl "$DECONTAM_QUERIES" --output "$DECONTAM_QUERY_MANIFEST" \
-  --dataset-revision 6a03aa06b68beb932fb75edff3a34e50b3674649 \
-  --required-split test --registry "$REGISTRY" --builder-summary "$DECONTAM_QUERY_SUMMARY"
+if [[ -s "$DECONTAM_QUERIES" && -s "$DECONTAM_QUERY_SUMMARY" && -s "$DECONTAM_QUERY_MANIFEST" ]]; then
+  echo "Reusing complete hash-bound GreekMMLU query artifacts after binding-only failure"
+else
+  if [[ -e "$DECONTAM_DIR" ]]; then
+    echo "ERROR: partial GreekMMLU query freeze exists: $DECONTAM_DIR" >&2
+    exit 2
+  fi
+  mkdir -p "$DECONTAM_DIR"
+  cpt_python "$REPO_ROOT/subprojects/05_token_distillation_cpt/02_corpus_preparation/30_decontaminate/scripts/build_decontamination_queries.py" \
+    --registry "$REGISTRY" --eval-dir "$EVAL_DIR" --benchmarks greekmmlu \
+    --output-jsonl "$DECONTAM_QUERIES" --summary-json "$DECONTAM_QUERY_SUMMARY"
+  cpt_python "$REPO_ROOT/subprojects/05_token_distillation_cpt/04_full_corpus_preparation/scripts/freeze_greekmmlu_queries.py" \
+    --queries-jsonl "$DECONTAM_QUERIES" --output "$DECONTAM_QUERY_MANIFEST" \
+    --dataset-revision 6a03aa06b68beb932fb75edff3a34e50b3674649 \
+    --required-split test --registry "$REGISTRY" --builder-summary "$DECONTAM_QUERY_SUMMARY"
+fi
 cpt_python "$CPT_DIR/dataset/freeze_decontamination_binding.py" \
   --queries "$DECONTAM_QUERIES" --benchmark-manifest "$DECONTAM_QUERY_MANIFEST" \
   --output "$DECONTAM_BINDING"
