@@ -61,7 +61,12 @@ def main() -> int:
     iteration_dir = checkpoint_dir / f"iter_{args.iteration:07d}"
     if not iteration_dir.is_dir() or not (iteration_dir / ".metadata").is_file():
         raise ValueError("complete torch_dist iteration checkpoint is absent")
-    tree = file_tree_receipt(checkpoint_dir)
+    # Production roots accumulate dozens of periodic checkpoints. A resume
+    # receipt binds the one boundary checkpoint that will actually load plus
+    # the exact root tracker; hashing every earlier optimizer checkpoint again
+    # would add terabytes of redundant I/O. Smoke roots contain one checkpoint
+    # each, so retain the complete-tree assertion there.
+    tree = file_tree_receipt(checkpoint_dir if args.smoke else iteration_dir)
     payload = {
         "schema_version": "greek_cpt_resume_checkpoint_receipt_v1",
         "status": "frozen",
@@ -73,6 +78,7 @@ def main() -> int:
             "path": str(assets_path),
             "sha256": sha256_file(assets_path),
         },
+        "checkpoint_root": str(checkpoint_dir),
         "checkpoint_tree": tree,
         "marker": {"path": str(marker), "sha256": sha256_file(marker), "value": str(args.iteration)},
         "iteration_directory": str(iteration_dir),

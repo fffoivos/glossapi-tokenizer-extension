@@ -225,6 +225,8 @@ def test_smoke_launcher_has_separate_confirmation_and_geometry() -> None:
     production = (ROOT / "train" / "submit_segment.sh").read_text(encoding="utf-8")
     assert 'SMOKE_VERIFICATION:?set SMOKE_VERIFICATION' in production
     assert "SMOKE_VERIFICATION=$SMOKE_VERIFICATION" in production
+    assert "freeze_checkpoint.sbatch" in production
+    assert "checkpoint_freeze_job_id" in production
 
 
 def test_preflight_keeps_smoke_and_production_boundaries_disjoint() -> None:
@@ -309,3 +311,54 @@ def test_greekmmlu_finalizer_freezes_full_16632_result(tmp_path: Path) -> None:
     assert receipt["iteration"] == 119
     assert receipt["greekmmlu"]["total_n"] == 16632
     assert receipt["greekmmlu"]["micro_accuracy"] == 0.5
+
+
+def test_production_resume_receipt_hashes_only_boundary_checkpoint(
+    tmp_path: Path,
+) -> None:
+    checkpoint_root = tmp_path / "checkpoints"
+    old = checkpoint_root / "iter_0000119"
+    boundary = checkpoint_root / "iter_0001785"
+    old.mkdir(parents=True)
+    boundary.mkdir()
+    (old / ".metadata").write_text("old", encoding="utf-8")
+    (boundary / ".metadata").write_text("boundary", encoding="utf-8")
+    (boundary / "state.pt").write_bytes(b"state")
+    (checkpoint_root / "latest_checkpointed_iteration.txt").write_text(
+        "1785\n", encoding="utf-8"
+    )
+    assets = tmp_path / "assets.json"
+    assets.write_text(
+        json.dumps(
+            {
+                "schema_version": "greek_cpt_training_assets_receipt_v1",
+                "status": "frozen",
+            }
+        ),
+        encoding="utf-8",
+    )
+    output = tmp_path / "resume.json"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "train" / "freeze_resume_checkpoint.py"),
+            "--checkpoint-dir",
+            str(checkpoint_root),
+            "--iteration",
+            "1785",
+            "--training-assets-receipt",
+            str(assets),
+            "--output",
+            str(output),
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    receipt = json.loads(output.read_text(encoding="utf-8"))
+    assert receipt["checkpoint_root"] == str(checkpoint_root.resolve())
+    assert receipt["checkpoint_tree"]["root"] == str(boundary.resolve())
+    assert {row["path"] for row in receipt["checkpoint_tree"]["files"]} == {
+        ".metadata",
+        "state.pt",
+    }

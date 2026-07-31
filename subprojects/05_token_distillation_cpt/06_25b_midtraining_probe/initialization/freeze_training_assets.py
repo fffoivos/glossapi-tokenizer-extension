@@ -133,6 +133,7 @@ def main() -> int:
         "phase_relative_wrapper": PROBE_ROOT / "train" / "runtime_patches" / "phase_relative_data_index.py",
         "segment_launcher": PROBE_ROOT / "train" / "submit_segment.sh",
         "segment_sbatch": PROBE_ROOT / "clariden" / "train_segment.sbatch",
+        "checkpoint_freeze_sbatch": PROBE_ROOT / "clariden" / "freeze_checkpoint.sbatch",
         "segment_preflight": PROBE_ROOT / "clariden" / "preflight_segment.py",
         "freeze_resume_checkpoint": PROBE_ROOT / "train" / "freeze_resume_checkpoint.py",
         "smoke_phase_config": PROBE_ROOT / "train" / "smoke_phase_config.env",

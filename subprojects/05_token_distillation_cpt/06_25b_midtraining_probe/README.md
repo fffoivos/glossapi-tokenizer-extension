@@ -111,6 +111,12 @@ freezes an `evaluation_receipt.json` containing the score and output hashes.
 The ordinary in-training extra-validation cadence continues to measure the
 new-Greek and replay heldout losses every 25 iterations.
 
+After each segment, a dependent CPU job freezes the exact boundary checkpoint
+and root tracker into `checkpoint_receipts/iteration_<N>.json`; this is the
+required `RESUME_CHECKPOINT_RECEIPT` for the next segment. The receipt hashes
+only that loadable boundary rather than repeatedly reading every older
+checkpoint in the accumulating run directory.
+
 `prereqs` deliberately rebuilds the appended 512 rows from the uncpt
 `TokenDistil-Init` checkpoint. The earlier `TokenDistil-3.5B` cutoff-probe
 checkpoint is CPT-trained and is explicitly forbidden as production

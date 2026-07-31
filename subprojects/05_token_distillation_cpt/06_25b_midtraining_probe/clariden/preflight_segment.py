@@ -158,7 +158,19 @@ def main() -> int:
         ):
             raise ValueError("resume checkpoint is bound to different training assets")
         validate_file_tree_receipt(resume["checkpoint_tree"])
-        if args.load_checkpoint.resolve() != Path(resume["checkpoint_tree"]["root"]).resolve():
+        marker = resume.get("marker", {})
+        marker_path = Path(str(marker.get("path", ""))).resolve()
+        if (
+            not marker_path.is_file()
+            or marker.get("value") != str(args.start)
+            or marker_path.read_text(encoding="utf-8").strip() != str(args.start)
+            or sha256_file(marker_path) != marker.get("sha256")
+        ):
+            raise ValueError("resume checkpoint tracker drift")
+        checkpoint_root = Path(
+            str(resume.get("checkpoint_root", resume["checkpoint_tree"]["root"]))
+        ).resolve()
+        if args.load_checkpoint.resolve() != checkpoint_root:
             raise ValueError("resume checkpoint path differs from receipt")
     print(json.dumps({"ok": True, "smoke": args.smoke, "start": args.start, "end": args.end, "phase": args.phase}, sort_keys=True))
     return 0
