@@ -120,13 +120,13 @@
       },
       {
         "name": "openarchives",
-        "selector_column": "source_family_id",
-        "selector_equals": "openarchives"
+        "selector_column": "source_dataset",
+        "selector_regex": "^openarchives\\.gr"
       },
       {
         "name": "greek_phd",
-        "selector_column": "source_family_id",
-        "selector_equals": "greek_phd"
+        "selector_column": "source_dataset",
+        "selector_regex": "^greek_phd"
       },
       {
         "name": "historical_polytonic",

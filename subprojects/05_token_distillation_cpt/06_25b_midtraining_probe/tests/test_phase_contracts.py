@@ -44,6 +44,17 @@ def test_tokenizer_is_divisible_without_padding() -> None:
     assert tokenizer["padding_tokens"] == 0
 
 
+def test_new_greek_heldout_selectors_exist_in_published_schema() -> None:
+    recipe = json.loads((ROOT / "configs" / "recipe_25b_midtraining.json").read_text())
+    available = set(recipe["dataset"]["required_columns"]) | {
+        "is_historical_or_polytonic"
+    }
+    specs = {row["name"]: row for row in recipe["heldouts"]["new_greek"]}
+    assert all(row["selector_column"] in available for row in specs.values())
+    assert specs["openarchives"]["selector_regex"] == r"^openarchives\.gr"
+    assert specs["greek_phd"]["selector_regex"] == r"^greek_phd"
+
+
 def test_partition_boundary_is_exact_and_deterministic() -> None:
     boundary = (3 * UINT64_RANGE + 4) // 5
     assert split_phase(boundary - 1) == 1
