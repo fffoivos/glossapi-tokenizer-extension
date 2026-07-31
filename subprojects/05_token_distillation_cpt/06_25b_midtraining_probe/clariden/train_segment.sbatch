@@ -24,7 +24,7 @@ preflight=(python3 "$PROBE_ROOT/clariden/preflight_segment.py"
 if [[ -n "${RESUME_CHECKPOINT_RECEIPT:-}" ]]; then
   preflight+=(--resume-receipt "$RESUME_CHECKPOINT_RECEIPT")
 fi
-"${preflight[@]}"
+uenv run pytorch/v2.9.1:v2 --view=default -- "${preflight[@]}"
 
 export TRAIN_CONFIG_OVERRIDE="$PROBE_ROOT/train/phase_config.env"
 export CPT_PHASE START_ITERATION
