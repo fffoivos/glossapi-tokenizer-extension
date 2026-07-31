@@ -67,7 +67,9 @@ r=json.load(open(input_path,encoding="utf-8")); h=json.load(open(heldout_path,en
 if r.get("schema_version") != "full_cpt_training_bridge_input_receipt_v1" or r.get("status") != "frozen": raise SystemExit("input receipt is not frozen")
 if h.get("schema_version") != "full_cpt_training_heldouts_v1" or h.get("status") != "completed": raise SystemExit("heldout manifest is not completed")
 if os.path.realpath(h.get("input_receipt", "")) != input_path or h.get("input_receipt_sha256") != sha(input_path): raise SystemExit("heldout manifest is bound to a different input receipt")
-if os.path.realpath(h.get("config", "")) != recipe_path or h.get("config_sha256") != sha(recipe_path): raise SystemExit("heldout manifest is bound to a different recipe")
+frozen_recipe_path=os.path.realpath(r.get("config", {}).get("path", "")); frozen_recipe_sha=r.get("config", {}).get("sha256")
+if not os.path.isfile(frozen_recipe_path) or sha(frozen_recipe_path) != frozen_recipe_sha or sha(recipe_path) != frozen_recipe_sha: raise SystemExit("launcher recipe differs from the frozen input receipt")
+if os.path.realpath(h.get("config", "")) != frozen_recipe_path or h.get("config_sha256") != frozen_recipe_sha: raise SystemExit("heldout manifest is bound to a different recipe")
 pools=("new_greek","foreign_replay","old_greek_replay")
 expected={(pool,row["name"]) for pool in pools for row in c["heldouts"][pool]}
 actual={(row.get("pool"),row.get("name")) for row in h.get("sets", [])}
