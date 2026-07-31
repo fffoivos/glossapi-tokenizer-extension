@@ -169,3 +169,68 @@ printf '%s %s %s %s\n' "$EXIT_INTERVAL" "$RESUME_TRAINING" "$CPT_PHASE_START_ITE
         phase_start = 0 if phase == 1 else 3570
         prefix = "/phase1" if phase == 1 else "/phase2"
         assert result.stdout.strip() == f"{end} {expected_resume} {phase_start} 1 {prefix}"
+
+
+def test_smoke_config_is_small_and_resets_phase2_index(tmp_path: Path) -> None:
+    bridge = tmp_path / "training_data.env"
+    bridge.write_text(
+        "\n".join(
+            [
+                'FULL_CPT_TOKENIZER_DIR="/tokenizer"',
+                'PHASE1_CPT_DATA_PREFIX="1 /phase1"',
+                'PHASE2_CPT_DATA_PREFIX="1 /phase2"',
+                'VAL_DATA_DIR="/heldout"',
+                'EXTRA_VALID_SETS="hplt english"',
+                'FULL_CPT_BRIDGE_MANIFEST="/bridge.json"',
+                'FULL_CPT_INPUT_RECEIPT="/input.json"',
+                'FULL_CPT_HELDOUT_MANIFEST="/heldout.json"',
+                'FULL_CPT_MIX_RECIPE="/recipe.json"',
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    config = ROOT / "train" / "smoke_phase_config.env"
+    for start, end, phase, expected_resume, phase_start, prefix in (
+        (0, 1, 1, 0, 0, "/phase1"),
+        (1, 2, 2, 1, 1, "/phase2"),
+    ):
+        command = f"""
+set -euo pipefail
+BRIDGE_DATA_ENV={bridge!s}
+CPT_SMOKE=1
+CPT_PHASE={phase}
+START_ITERATION={start}
+END_ITERATION={end}
+source {config!s}
+printf '%s %s %s %s %s %s %s %s\n' "$EXIT_INTERVAL" "$RESUME_TRAINING" "$CPT_PHASE_START_ITERATION" "$CPT_GLOBAL_BATCH_SIZE" "$GLOBAL_BATCH_SIZE" "$TRAIN_ITERS" "$SAVE_INTERVAL" "$FULL_CPT_DATA_PREFIX"
+"""
+        result = subprocess.run(
+            ["bash", "-c", command], check=True, text=True, capture_output=True
+        )
+        assert result.stdout.strip() == (
+            f"{end} {expected_resume} {phase_start} 8 8 2 1 1 {prefix}"
+        )
+
+
+def test_smoke_launcher_has_separate_confirmation_and_geometry() -> None:
+    launcher = (ROOT / "train" / "submit_smoke.sh").read_text(encoding="utf-8")
+    assert "CONFIRM_GPU_LAUNCH=GREEK_CPT25B_SMOKE" in launcher
+    assert "GREEK_CPT25B_64GPU" not in launcher
+    assert "--nodes=1" in launcher
+    assert "--gpus-per-node=4" in launcher
+    assert "START_ITERATION=0,END_ITERATION=1,CPT_PHASE=1" in launcher
+    assert "START_ITERATION=1,END_ITERATION=2,CPT_PHASE=2" in launcher
+
+    production = (ROOT / "train" / "submit_segment.sh").read_text(encoding="utf-8")
+    assert 'SMOKE_VERIFICATION:?set SMOKE_VERIFICATION' in production
+    assert "SMOKE_VERIFICATION=$SMOKE_VERIFICATION" in production
+
+
+def test_preflight_keeps_smoke_and_production_boundaries_disjoint() -> None:
+    sys.path.insert(0, str(ROOT / "clariden"))
+    from preflight_segment import BOUNDARIES, SMOKE_BOUNDARIES
+
+    assert BOUNDARIES == {0: (1, 1785), 1785: (1, 3570), 3570: (2, 5960)}
+    assert SMOKE_BOUNDARIES == {0: (1, 1), 1: (2, 2)}
+    assert set(BOUNDARIES.items()).isdisjoint(SMOKE_BOUNDARIES.items())

@@ -85,6 +85,24 @@ DRY_RUN=0 CONFIRM_PREPARATION=1 clariden/submit_data_pipeline.sh after-freeze
 DRY_RUN=0 CONFIRM_PREPARATION=1 clariden/submit_data_pipeline.sh assets
 ```
 
+After `training_assets_receipt.json` is frozen, inspect and then submit the
+isolated smoke chain. It uses one node and four GPUs, runs iteration 1 on the
+phase-1 blend, resumes iteration 2 on the phase-2 blend, and freezes a
+`smoke_verification.json` receipt. Its confirmation value is intentionally
+different from the 64-GPU production gate:
+
+```bash
+export TRAINING_ASSETS_RECEIPT=<absolute-training-assets-receipt>
+DRY_RUN=1 train/submit_smoke.sh
+DRY_RUN=0 CONFIRM_GPU_LAUNCH=GREEK_CPT25B_SMOKE train/submit_smoke.sh
+```
+
+The verifier requires a finite loss at both iterations, an iteration-1
+checkpoint load for phase 2, and the exact phase-relative data-index evidence
+`consumed_samples 8 -> 0`. The production segment launcher remains fixed at 16
+nodes/64 GPUs, requires the passed smoke receipt through `SMOKE_VERIFICATION`,
+and still requires `GREEK_CPT25B_64GPU` separately.
+
 `prereqs` deliberately rebuilds the appended 512 rows from the uncpt
 `TokenDistil-Init` checkpoint. The earlier `TokenDistil-3.5B` cutoff-probe
 checkpoint is CPT-trained and is explicitly forbidden as production

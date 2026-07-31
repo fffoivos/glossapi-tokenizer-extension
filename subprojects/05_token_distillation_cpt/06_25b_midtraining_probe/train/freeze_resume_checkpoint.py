@@ -34,15 +34,25 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--iteration", type=int, required=True)
     parser.add_argument("--training-assets-receipt", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--smoke",
+        action="store_true",
+        help="freeze synthetic smoke boundaries 1 or 2 instead of production boundaries",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    if args.iteration not in RESUME_BOUNDARIES | {FINAL_ITERATION}:
+    allowed = {1, 2} if args.smoke else RESUME_BOUNDARIES | {FINAL_ITERATION}
+    if args.iteration not in allowed:
         raise ValueError("iteration is not a frozen segment boundary")
-    assets = read_json(args.training_assets_receipt.resolve())
-    if assets.get("schema_version") != "greek_cpt_training_assets_receipt_v1":
+    assets_path = args.training_assets_receipt.resolve()
+    assets = read_json(assets_path)
+    if (
+        assets.get("schema_version") != "greek_cpt_training_assets_receipt_v1"
+        or assets.get("status") != "frozen"
+    ):
         raise ValueError("training assets receipt schema drift")
     checkpoint_dir = args.checkpoint_dir.resolve()
     marker = checkpoint_dir / "latest_checkpointed_iteration.txt"
@@ -57,10 +67,11 @@ def main() -> int:
         "status": "frozen",
         "completed_at": utc_now(),
         "iteration": args.iteration,
-        "terminal": args.iteration == FINAL_ITERATION,
+        "smoke": args.smoke,
+        "terminal": args.iteration == (2 if args.smoke else FINAL_ITERATION),
         "training_assets_receipt": {
-            "path": str(args.training_assets_receipt.resolve()),
-            "sha256": sha256_file(args.training_assets_receipt.resolve()),
+            "path": str(assets_path),
+            "sha256": sha256_file(assets_path),
         },
         "checkpoint_tree": tree,
         "marker": {"path": str(marker), "sha256": sha256_file(marker), "value": str(args.iteration)},
@@ -68,7 +79,14 @@ def main() -> int:
     }
     if args.output.exists():
         existing = read_json(args.output.resolve())
-        if existing.get("iteration") != args.iteration or existing.get("checkpoint_tree", {}).get("tree_sha256") != tree["tree_sha256"]:
+        if (
+            existing.get("iteration") != args.iteration
+            or bool(existing.get("smoke", False)) != args.smoke
+            or existing.get("terminal") != payload["terminal"]
+            or existing.get("training_assets_receipt")
+            != payload["training_assets_receipt"]
+            or existing.get("checkpoint_tree", {}).get("tree_sha256") != tree["tree_sha256"]
+        ):
             raise ValueError("existing checkpoint receipt has different bindings")
         validate_file_tree_receipt(existing["checkpoint_tree"])
         print(json.dumps({"ok": True, "resumed": True, "output": str(args.output.resolve())}, sort_keys=True))

@@ -5,6 +5,7 @@ set -euo pipefail
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROBE_ROOT=$(cd "$HERE/.." && pwd)
 : "${TRAINING_ASSETS_RECEIPT:?set TRAINING_ASSETS_RECEIPT}"
+: "${SMOKE_VERIFICATION:?set SMOKE_VERIFICATION from the passed two-phase GPU smoke}"
 : "${START_ITERATION:?set START_ITERATION to 0, 1785, or 3570}"
 DRY_RUN="${DRY_RUN:-1}"
 CONFIRM_GPU_LAUNCH="${CONFIRM_GPU_LAUNCH:-}"
@@ -26,9 +27,15 @@ if [[ "$DRY_RUN" == 0 && "$CONFIRM_GPU_LAUNCH" != "GREEK_CPT25B_64GPU" ]]; then
 fi
 
 read -r REPO_ROOT INIT_CKPT MEGATRON_DIR TOKENIZER_DIR BRIDGE_DATA_ENV TRAIN_SCRIPT < <(
-  python3 - "$TRAINING_ASSETS_RECEIPT" "$START_ITERATION" "$RESUME_CHECKPOINT_RECEIPT" <<'PY'
+  python3 - "$TRAINING_ASSETS_RECEIPT" "$START_ITERATION" "$RESUME_CHECKPOINT_RECEIPT" "$SMOKE_VERIFICATION" <<'PY'
 import json,sys
-assets=json.load(open(sys.argv[1],encoding="utf-8")); start=int(sys.argv[2]); resume=sys.argv[3]
+from pathlib import Path
+import hashlib
+assets_path=Path(sys.argv[1]).resolve(); assets=json.load(open(assets_path,encoding="utf-8")); start=int(sys.argv[2]); resume=sys.argv[3]; smoke_path=Path(sys.argv[4]).resolve()
+smoke=json.load(open(smoke_path,encoding="utf-8"))
+assets_sha=hashlib.sha256(assets_path.read_bytes()).hexdigest()
+if smoke.get("schema_version") != "greek_cpt_two_phase_smoke_verification_v1" or smoke.get("status") != "passed": raise SystemExit("two-phase GPU smoke has not passed")
+if Path(smoke.get("training_assets_receipt",{}).get("path","")).resolve() != assets_path or smoke.get("training_assets_receipt",{}).get("sha256") != assets_sha: raise SystemExit("GPU smoke is bound to different training assets")
 load=assets["init_checkpoint"]["root"]
 if start:
     if not resume: raise SystemExit("resume checkpoint receipt required")
@@ -62,7 +69,7 @@ fi
 cmd=(sbatch --parsable
   --job-name="${RUN_TAG}_i${START_ITERATION}_${END_ITERATION}"
   --output="$OUTPUT_DIR/%x-%j.out" --error="$OUTPUT_DIR/%x-%j.err"
-  --export="ALL,TRAINING_ASSETS_RECEIPT=$TRAINING_ASSETS_RECEIPT,START_ITERATION=$START_ITERATION,END_ITERATION=$END_ITERATION,CPT_PHASE=$CPT_PHASE,INIT_CKPT=$INIT_CKPT,RESUME_CHECKPOINT_RECEIPT=$RESUME_CHECKPOINT_RECEIPT,TRAIN_SCRIPT=$TRAIN_SCRIPT,PROBE_ROOT=$PROBE_ROOT,REPO_ROOT=$REPO_ROOT,MEGATRON_LM_SWISSAI_DIR=$MEGATRON_DIR,FULL_CPT_TOKENIZER_DIR=$TOKENIZER_DIR,BRIDGE_DATA_ENV=$BRIDGE_DATA_ENV,OUTPUT_DIR=$OUTPUT_DIR,SCRIPT_DIR_OVERRIDE=$(dirname "$TRAIN_SCRIPT"),ACCOUNT=a0140,PARTITION=normal,NODES=16,GPUS_PER_NODE=4,LAUNCH_MODE=torchrun,TIME_LIMIT=08:00:00,DISABLE_SAVE=0,SAVE_INTERVAL=119,EVAL_INTERVAL=25,EVAL_ITERS=1"
+  --export="ALL,TRAINING_ASSETS_RECEIPT=$TRAINING_ASSETS_RECEIPT,SMOKE_VERIFICATION=$SMOKE_VERIFICATION,START_ITERATION=$START_ITERATION,END_ITERATION=$END_ITERATION,CPT_PHASE=$CPT_PHASE,INIT_CKPT=$INIT_CKPT,RESUME_CHECKPOINT_RECEIPT=$RESUME_CHECKPOINT_RECEIPT,TRAIN_SCRIPT=$TRAIN_SCRIPT,PROBE_ROOT=$PROBE_ROOT,REPO_ROOT=$REPO_ROOT,MEGATRON_LM_SWISSAI_DIR=$MEGATRON_DIR,FULL_CPT_TOKENIZER_DIR=$TOKENIZER_DIR,BRIDGE_DATA_ENV=$BRIDGE_DATA_ENV,OUTPUT_DIR=$OUTPUT_DIR,SCRIPT_DIR_OVERRIDE=$(dirname "$TRAIN_SCRIPT"),ACCOUNT=a0140,PARTITION=normal,NODES=16,GPUS_PER_NODE=4,LAUNCH_MODE=torchrun,TIME_LIMIT=08:00:00,DISABLE_SAVE=0,SAVE_INTERVAL=119,EVAL_INTERVAL=25,EVAL_ITERS=1"
   "$SBATCH")
 
 echo "segment: phase=$CPT_PHASE iterations=$START_ITERATION..$END_ITERATION"
