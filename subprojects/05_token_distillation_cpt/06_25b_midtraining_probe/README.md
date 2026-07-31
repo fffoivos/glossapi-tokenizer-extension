@@ -45,8 +45,10 @@ data index on every segment, fixing the historical first-segment-only reset.
 3. Build heldouts before training binaries, exclude their document identities,
    and apply GreekMMLU decontamination to new Greek and replay pools.
 4. Build the two phase manifests and binaries. The finalizer must prove there
-   is no retained `doc_id` intersection across phases and that every blend sums
-   exactly to one.
+   is no retained `doc_id` intersection across phases, that every blend sums
+   exactly to one, and that every phase pool, source, and physical prefix has
+   at least 1.005x exact-content-unique sample capacity plus one boundary
+   sample.
 5. Run checkpoint-load and two-iteration GPU smokes, including a synthetic
    phase-boundary resume that proves the phase-relative data index.
 6. Freeze all launch assets and checkpoint receipts. Only then prepare the

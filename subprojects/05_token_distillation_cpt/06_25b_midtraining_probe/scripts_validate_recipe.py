@@ -34,6 +34,13 @@ def main() -> int:
         raise ValueError("phase token arithmetic drift")
     if geometry["phase_boundary_iteration"] != geometry["phase_1_iterations"]:
         raise ValueError("phase boundary drift")
+    capacity = recipe["capacity"]
+    if (
+        capacity["minimum_unique_capacity_ratio"] != "1.005"
+        or capacity["physical_prefix_sample_capacity_ratio"] != "1.005"
+        or capacity["physical_prefix_boundary_samples"] != 1
+    ):
+        raise ValueError("unique-capacity policy drift")
     if geometry["segment_boundaries"][0] != 0 or geometry["segment_boundaries"][-1] != geometry["effective_iterations"]:
         raise ValueError("segment endpoints drift")
     if geometry["segment_boundaries"] != sorted(set(geometry["segment_boundaries"])):

@@ -103,6 +103,17 @@
     "disjoint_across_phases": true,
     "heldouts_excluded_before_partition": true
   },
+  "capacity": {
+    "basis": "exact_unique_text_sha256_tokens",
+    "minimum_unique_capacity_ratio": "1.005",
+    "physical_prefix_sample_capacity_ratio": "1.005",
+    "physical_prefix_boundary_samples": 1,
+    "gate_scope": [
+      "phase_logical_pool",
+      "phase_source",
+      "phase_physical_prefix"
+    ]
+  },
   "heldouts": {
     "char_budget_per_set": 30000000,
     "max_pool_fraction": 0.1,

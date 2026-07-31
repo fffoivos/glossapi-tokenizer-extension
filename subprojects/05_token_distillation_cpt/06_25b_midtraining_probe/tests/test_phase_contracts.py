@@ -18,7 +18,11 @@ from phase_partition import (  # noqa: E402
     composite_document_id,
     split_phase,
 )
-from finalize_phase_bridge import _write_env  # noqa: E402
+from finalize_phase_bridge import (  # noqa: E402
+    _capacity_report,
+    _prove_disjoint_and_measure_uniqueness,
+    _write_env,
+)
 from phase_relative_data_index import phase_relative_consumed_samples  # noqa: E402
 
 
@@ -42,6 +46,21 @@ def test_tokenizer_is_divisible_without_padding() -> None:
     tokenizer = recipe["tokenizer"]
     assert tokenizer["vocab_size"] % tokenizer["make_vocab_size_divisible_by"] == 0
     assert tokenizer["padding_tokens"] == 0
+
+
+def test_capacity_policy_is_frozen_at_1_005_plus_boundary() -> None:
+    recipe = json.loads((ROOT / "configs" / "recipe_25b_midtraining.json").read_text())
+    assert recipe["capacity"] == {
+        "basis": "exact_unique_text_sha256_tokens",
+        "minimum_unique_capacity_ratio": "1.005",
+        "physical_prefix_sample_capacity_ratio": "1.005",
+        "physical_prefix_boundary_samples": 1,
+        "gate_scope": [
+            "phase_logical_pool",
+            "phase_source",
+            "phase_physical_prefix",
+        ],
+    }
 
 
 def test_new_greek_heldout_selectors_exist_in_published_schema() -> None:
@@ -362,3 +381,111 @@ def test_production_resume_receipt_hashes_only_boundary_checkpoint(
         ".metadata",
         "state.pt",
     }
+
+
+def test_two_phase_capacity_gate_checks_boundary_sample_exactly() -> None:
+    recipe = {
+        "capacity": {
+            "minimum_unique_capacity_ratio": "1.005",
+            "physical_prefix_sample_capacity_ratio": "1.005",
+            "physical_prefix_boundary_samples": 1,
+        },
+        "geometry": {
+            "sequence_length": 4,
+            "global_batch_sequences": 10,
+            "phase_1_iterations": 10,
+            "phase_2_iterations": 10,
+        },
+        "phases": {
+            "phase_1": {"mix_exact": {"pool": "1"}},
+            "phase_2": {"mix_exact": {"pool": "1"}},
+        },
+    }
+    blends = {
+        phase: [
+            {
+                "task_id": f"task-{phase}",
+                "logical_pool": "pool",
+                "source_name": "source",
+                "prefix": f"/phase-{phase}",
+                "weight_exact": "1",
+            }
+        ]
+        for phase in (1, 2)
+    }
+    uniqueness = {
+        "tasks": [
+            {
+                "phase": phase,
+                "task_id": f"task-{phase}",
+                "unique_content_tokens": 409,
+            }
+            for phase in (1, 2)
+        ],
+        "pools": [
+            {"phase": phase, "logical_pool": "pool", "unique_content_tokens": 409}
+            for phase in (1, 2)
+        ],
+        "sources": [
+            {
+                "phase": phase,
+                "logical_pool": "pool",
+                "source_name": "source",
+                "unique_content_tokens": 409,
+            }
+            for phase in (1, 2)
+        ],
+    }
+    report, failures = _capacity_report(recipe, blends, uniqueness)
+    assert failures == []
+    prefix = report["phases"]["1"]["physical_prefixes"][0]
+    assert prefix["planned_samples"] == 100
+    assert prefix["required_samples"] == 102
+    assert prefix["available_nonrepeating_samples"] == 102
+
+    uniqueness["tasks"][0]["unique_content_tokens"] = 405
+    _, failures = _capacity_report(recipe, blends, uniqueness)
+    assert failures == [
+        "phase-1/prefix/task-1: nonrepeating samples 101 < required 102"
+    ]
+
+
+def test_phase_disjoint_proof_also_discounts_duplicate_content(tmp_path: Path) -> None:
+    shards = []
+    for phase, suffix in ((1, "1"), (2, "2")):
+        ledger = tmp_path / f"phase{phase}.jsonl"
+        ledger.write_text(
+            json.dumps(
+                {
+                    "doc_id": "docv2:" + suffix * 64,
+                    "text_sha256": "a" * 64,
+                    "tokens": 3,
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        shards.append(
+            {
+                "task_id": f"task-{phase}",
+                "source_name": "source",
+                "counts": {"documents": 1, "tokens": 3},
+                "task": {
+                    "task_index": phase - 1,
+                    "phase_partition": {
+                        "phase": phase,
+                        "logical_pool": "pool",
+                    },
+                },
+                "outputs": {"retained_ledger": {"path": str(ledger)}},
+            }
+        )
+    proof, uniqueness = _prove_disjoint_and_measure_uniqueness(
+        shards, tmp_path / "proof.sqlite"
+    )
+    assert proof["unique_documents"] == 2
+    assert proof["documents_by_phase"] == {"1": 1, "2": 1}
+    assert uniqueness["global"]["identity_tokens"] == 6
+    assert uniqueness["global"]["unique_content_documents"] == 1
+    assert uniqueness["global"]["unique_content_tokens"] == 3
+    assert [row["unique_content_tokens"] for row in uniqueness["tasks"]] == [3, 3]
