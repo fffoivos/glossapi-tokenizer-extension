@@ -1,10 +1,19 @@
 {
   "schema_version": "full_cpt_replay_acquisition_config_v1",
-  "reviewed_at_utc": "2026-07-12",
+  "reviewed_at_utc": "2026-07-31",
   "status": "ready_for_receipt_bound_acquisition",
   "revision_policy": "Every dataset is pinned to the immutable commit established by retained Clariden build-time cache or job evidence. The acquisition stage must resolve that exact commit and receipt every selected payload byte; it must never substitute a later head.",
   "phase04_sources_config": "../../04_full_corpus_preparation/configs/sources.json",
-  "selection_policy": "all_matching_files_at_immutable_revision_v1",
+  "selection_policy": "all_matching_or_domain_separated_sha256_ranked_capacity_sample_v1",
+  "capacity_sampling": {
+    "seed": 20260609,
+    "planned_foreign_replay_tokens": 4999610368,
+    "minimum_unique_capacity_ratio": 1.005,
+    "expected_selected_files": 355,
+    "expected_selected_remote_bytes": 250673537368,
+    "policy": "English keeps the complete pinned 10BT sample. Every FineWeb2-HQ language uses two hash-ranked shards; FineWeb-2 languages use one; FineMath uses four; the 28-file StarCoder plan is unchanged. Final tokenized unique-capacity gates remain authoritative and fail closed before launch.",
+    "reason": "The uncapped FineWeb2-HQ globs select 5,285 files and 5.36 TB, far beyond the 5.0B-token foreign replay requirement. The deterministic capacity sample avoids multi-terabyte acquisition and full-corpus tokenization while retaining every frozen source and weight."
+  },
   "historical_revision_adjudication": {
     "status": "approved_from_retained_build_evidence",
     "historical_acquisition_git_commit": "3aefb95aa8abfe9b2a7795709c4ff181012116ff",
@@ -56,18 +65,18 @@
       "revision": "c0c06e94fd3a44ae9e802b2b0fc533817601eb5e",
       "observed_head_2026_07_12": "c0c06e94fd3a44ae9e802b2b0fc533817601eb5e",
       "mappings": [
-        {"source_name": "replay_t1_fra_Latn", "role": "foreign_replay", "remote_glob": "fra_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/fra_Latn_fw2hq"},
-        {"source_name": "replay_t1_deu_Latn", "role": "foreign_replay", "remote_glob": "deu_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/deu_Latn_fw2hq"},
-        {"source_name": "replay_t1_ita_Latn", "role": "foreign_replay", "remote_glob": "ita_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/ita_Latn_fw2hq"},
-        {"source_name": "replay_t1_spa_Latn", "role": "foreign_replay", "remote_glob": "spa_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/spa_Latn_fw2hq"},
-        {"source_name": "replay_t1_rus_Cyrl", "role": "foreign_replay", "remote_glob": "rus_Cyrl/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/rus_Cyrl_fw2hq"},
-        {"source_name": "replay_t1_arb_Arab", "role": "foreign_replay", "remote_glob": "arb_Arab/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/arb_Arab_fw2hq"},
-        {"source_name": "replay_t1_cmn_Hani", "role": "foreign_replay", "remote_glob": "cmn_Hani/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/cmn_Hani_fw2hq"},
-        {"source_name": "replay_t2_tur_Latn", "role": "foreign_replay", "remote_glob": "tur_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/tur_Latn_fw2hq"},
-        {"source_name": "replay_t2_por_Latn", "role": "foreign_replay", "remote_glob": "por_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/por_Latn_fw2hq"},
-        {"source_name": "replay_t2_pol_Latn", "role": "foreign_replay", "remote_glob": "pol_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/pol_Latn_fw2hq"},
-        {"source_name": "replay_t2_nld_Latn", "role": "foreign_replay", "remote_glob": "nld_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/nld_Latn_fw2hq"},
-        {"source_name": "replay_t2_jpn_Jpan", "role": "foreign_replay", "remote_glob": "jpn_Jpan/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/jpn_Jpan_fw2hq"}
+        {"source_name": "replay_t1_fra_Latn", "role": "foreign_replay", "remote_glob": "fra_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/fra_Latn_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t1_deu_Latn", "role": "foreign_replay", "remote_glob": "deu_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/deu_Latn_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t1_ita_Latn", "role": "foreign_replay", "remote_glob": "ita_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/ita_Latn_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t1_spa_Latn", "role": "foreign_replay", "remote_glob": "spa_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/spa_Latn_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t1_rus_Cyrl", "role": "foreign_replay", "remote_glob": "rus_Cyrl/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/rus_Cyrl_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t1_arb_Arab", "role": "foreign_replay", "remote_glob": "arb_Arab/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/arb_Arab_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t1_cmn_Hani", "role": "foreign_replay", "remote_glob": "cmn_Hani/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/cmn_Hani_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t2_tur_Latn", "role": "foreign_replay", "remote_glob": "tur_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/tur_Latn_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t2_por_Latn", "role": "foreign_replay", "remote_glob": "por_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/por_Latn_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t2_pol_Latn", "role": "foreign_replay", "remote_glob": "pol_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/pol_Latn_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t2_nld_Latn", "role": "foreign_replay", "remote_glob": "nld_Latn/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/nld_Latn_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}},
+        {"source_name": "replay_t2_jpn_Jpan", "role": "foreign_replay", "remote_glob": "jpn_Jpan/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/jpn_Jpan_fw2hq", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 2}}
       ]
     },
     {
@@ -75,17 +84,17 @@
       "revision": "af9c13333eb981300149d5ca60a8e9d659b276b9",
       "observed_head_2026_07_12": "af9c13333eb981300149d5ca60a8e9d659b276b9",
       "mappings": [
-        {"source_name": "replay_t2_bul_Cyrl", "role": "foreign_replay", "remote_glob": "data/bul_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/bul_Cyrl_fw2"},
-        {"source_name": "replay_t2_srp_Cyrl", "role": "foreign_replay", "remote_glob": "data/srp_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/srp_Cyrl_fw2"},
-        {"source_name": "replay_t2_ron_Latn", "role": "foreign_replay", "remote_glob": "data/ron_Latn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/ron_Latn_fw2"},
-        {"source_name": "replay_t2_heb_Hebr", "role": "foreign_replay", "remote_glob": "data/heb_Hebr/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/heb_Hebr_fw2"},
-        {"source_name": "replay_t2_pes_Arab", "role": "foreign_replay", "remote_glob": "data/fas_Arab/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/fas_Arab_fw2"},
-        {"source_name": "replay_t2_ukr_Cyrl", "role": "foreign_replay", "remote_glob": "data/ukr_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/ukr_Cyrl_fw2"},
-        {"source_name": "replay_t3_lat_Latn", "role": "foreign_replay", "remote_glob": "data/lat_Latn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/lat_Latn_fw2"},
-        {"source_name": "replay_t3_hye_Armn", "role": "foreign_replay", "remote_glob": "data/hye_Armn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/hye_Armn_fw2"},
-        {"source_name": "replay_t3_kat_Geor", "role": "foreign_replay", "remote_glob": "data/kat_Geor/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/kat_Geor_fw2"},
-        {"source_name": "replay_t3_als_Latn", "role": "foreign_replay", "remote_glob": "data/als_Latn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/als_Latn_fw2"},
-        {"source_name": "replay_t3_mkd_Cyrl", "role": "foreign_replay", "remote_glob": "data/mkd_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/mkd_Cyrl_fw2"}
+        {"source_name": "replay_t2_bul_Cyrl", "role": "foreign_replay", "remote_glob": "data/bul_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/bul_Cyrl_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t2_srp_Cyrl", "role": "foreign_replay", "remote_glob": "data/srp_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/srp_Cyrl_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t2_ron_Latn", "role": "foreign_replay", "remote_glob": "data/ron_Latn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/ron_Latn_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t2_heb_Hebr", "role": "foreign_replay", "remote_glob": "data/heb_Hebr/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/heb_Hebr_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t2_pes_Arab", "role": "foreign_replay", "remote_glob": "data/fas_Arab/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/fas_Arab_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t2_ukr_Cyrl", "role": "foreign_replay", "remote_glob": "data/ukr_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/ukr_Cyrl_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t3_lat_Latn", "role": "foreign_replay", "remote_glob": "data/lat_Latn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/lat_Latn_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t3_hye_Armn", "role": "foreign_replay", "remote_glob": "data/hye_Armn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/hye_Armn_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t3_kat_Geor", "role": "foreign_replay", "remote_glob": "data/kat_Geor/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/kat_Geor_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t3_als_Latn", "role": "foreign_replay", "remote_glob": "data/als_Latn/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/als_Latn_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}},
+        {"source_name": "replay_t3_mkd_Cyrl", "role": "foreign_replay", "remote_glob": "data/mkd_Cyrl/train/*.parquet", "destination_root": "{scratch_root}/cpt_corpus/replay/mkd_Cyrl_fw2", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 1}}
       ]
     },
     {
@@ -93,7 +102,7 @@
       "revision": "e92b25a616738fe95dc186b64dfb19f9c8525594",
       "observed_head_2026_07_12": "e92b25a616738fe95dc186b64dfb19f9c8525594",
       "mappings": [
-        {"source_name": "math_finemath", "role": "foreign_replay", "remote_glob": "finemath-3plus/train-*.parquet", "destination_root": "{scratch_root}/cpt_corpus/math/finemath"}
+        {"source_name": "math_finemath", "role": "foreign_replay", "remote_glob": "finemath-3plus/train-*.parquet", "destination_root": "{scratch_root}/cpt_corpus/math/finemath", "selection": {"method": "domain_separated_sha256_rank_v1", "seed": 20260609, "file_count": 4}}
       ]
     },
     {

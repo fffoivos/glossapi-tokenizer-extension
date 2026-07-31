@@ -56,6 +56,15 @@ the StarCoder snapshot inventory and its completed staging log. The config
 records the exact evidence paths and hashes. The old payload copies are gone,
 so the restaging receipt must still validate every newly acquired byte.
 
+Replay restaging does not expand the pinned FineWeb2-HQ globs to all 5,285
+matching shards (5.36 TB). It keeps the complete 10BT English sample and old
+Greek inputs, but uses a seed-20260609 domain-separated SHA-256 file ranking for
+capacity-sized multilingual web and FineMath samples. The receipt records the
+complete matched count, selected count, and selected remote paths per source.
+This is only a pre-build bound: the exact post-tokenization unique-capacity
+gate for every weighted source and physical prefix remains authoritative and
+must pass before launch.
+
 ```bash
 cd subprojects/05_token_distillation_cpt/05_training_dataset_bridge/clariden
 export BRIDGE_RUN_ID=full-corpus-25b-v1

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import hashlib
 import json
 import os
 import shutil
@@ -128,6 +129,62 @@ def _glob_prefix(pattern: str) -> Path:
             break
         parts.append(part)
     return Path(*parts)
+
+
+def _select_mapping_files(
+    files: list[str],
+    mapping: Mapping[str, Any],
+    *,
+    repo_id: str,
+    revision: str,
+) -> tuple[list[str], dict[str, Any]]:
+    pattern = str(mapping["remote_glob"])
+    matches = sorted(value for value in files if fnmatch.fnmatch(value, pattern))
+    if not matches:
+        raise ValueError(f"{repo_id}: no files match {pattern!r}")
+    selection = mapping.get("selection")
+    if selection is None:
+        return matches, {
+            "method": "all_matching_files_v1",
+            "matched_file_count": len(matches),
+            "selected_file_count": len(matches),
+        }
+    if not isinstance(selection, Mapping):
+        raise ValueError(f"{repo_id}/{pattern}: selection must be an object")
+    method = str(selection.get("method") or "")
+    if method != "domain_separated_sha256_rank_v1":
+        raise ValueError(f"{repo_id}/{pattern}: unsupported selection method {method!r}")
+    seed = selection.get("seed")
+    count = selection.get("file_count")
+    if (
+        not isinstance(seed, int)
+        or isinstance(seed, bool)
+        or seed < 0
+        or not isinstance(count, int)
+        or isinstance(count, bool)
+        or count < 1
+    ):
+        raise ValueError(f"{repo_id}/{pattern}: invalid selection seed/file_count")
+    if len(matches) < count:
+        raise ValueError(
+            f"{repo_id}/{pattern}: requested {count} files, found {len(matches)}"
+        )
+
+    def rank(remote_path: str) -> tuple[bytes, str]:
+        payload = (
+            "full-cpt-replay-file-selection-v1\0"
+            f"{seed}\0{repo_id}\0{revision}\0{mapping['source_name']}\0{remote_path}"
+        ).encode("utf-8")
+        return hashlib.sha256(payload).digest(), remote_path
+
+    selected = sorted(sorted(matches, key=rank)[:count])
+    return selected, {
+        "method": method,
+        "seed": seed,
+        "matched_file_count": len(matches),
+        "selected_file_count": len(selected),
+        "selection_domain": "full-cpt-replay-file-selection-v1",
+    }
 
 
 def _rewrite_starcoder(
@@ -368,17 +425,22 @@ def main() -> int:
         revision = str(repository["revision"])
         if not HEX_COMMIT.fullmatch(revision):
             raise ValueError(f"dataset revision is not immutable: {repo_id}")
-        resolved = api.repo_info(
-            repo_id, repo_type="dataset", revision=revision, token=token
-        ).sha
+        repo_info = api.repo_info(
+            repo_id,
+            repo_type="dataset",
+            revision=revision,
+            token=token,
+            files_metadata=True,
+        )
+        resolved = repo_info.sha
         if resolved != revision:
             raise ValueError(f"dataset revision resolution drift: {repo_id}")
-        files = sorted(
-            api.list_repo_files(
-                repo_id, repo_type="dataset", revision=revision, token=token
-            )
-        )
+        files = sorted(sibling.rfilename for sibling in repo_info.siblings)
+        remote_sizes = {
+            sibling.rfilename: int(sibling.size or 0) for sibling in repo_info.siblings
+        }
         selected_for_repo: list[str] = []
+        mapping_receipts: list[dict[str, Any]] = []
         if repository.get("transform") == "starcoder_stable_doc_id_v1":
             selected: list[str] = []
             for language, count in _parse_plan(str(repository["plan"])):
@@ -392,6 +454,24 @@ def main() -> int:
                         f"{repo_id}/{language}: requested {count}, found {len(candidates)}"
                     )
                 selected.extend(candidates[:count])
+            if any(remote_sizes.get(path, 0) < 1 for path in selected):
+                raise ValueError(f"{repo_id}: selected StarCoder file lacks size metadata")
+            print(
+                json.dumps(
+                    {
+                        "event": "replay_selection",
+                        "repo_id": repo_id,
+                        "source_name": str(repository["source_name"]),
+                        "matched_files": sum(
+                            1 for value in files if value.endswith(".parquet")
+                        ),
+                        "selected_files": len(selected),
+                        "selected_remote_bytes": sum(remote_sizes[path] for path in selected),
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
             destination_root = _render(
                 str(repository["destination_root"]), args.scratch_root
             )
@@ -442,11 +522,40 @@ def main() -> int:
         else:
             for mapping in repository.get("mappings", []):
                 pattern = str(mapping["remote_glob"])
-                selected = sorted(
-                    value for value in files if fnmatch.fnmatch(value, pattern)
+                selected, selection_receipt = _select_mapping_files(
+                    files,
+                    mapping,
+                    repo_id=repo_id,
+                    revision=revision,
                 )
-                if not selected:
-                    raise ValueError(f"{repo_id}: no files match {pattern!r}")
+                if any(remote_sizes.get(path, 0) < 1 for path in selected):
+                    raise ValueError(
+                        f"{repo_id}/{pattern}: selected file lacks size metadata"
+                    )
+                selected_remote_bytes = sum(remote_sizes[path] for path in selected)
+                mapping_receipts.append(
+                    {
+                        "source_name": str(mapping["source_name"]),
+                        "remote_glob": pattern,
+                        "selected_files": selected,
+                        "selected_remote_bytes": selected_remote_bytes,
+                        **selection_receipt,
+                    }
+                )
+                print(
+                    json.dumps(
+                        {
+                            "event": "replay_selection",
+                            "repo_id": repo_id,
+                            "source_name": str(mapping["source_name"]),
+                            "matched_files": selection_receipt["matched_file_count"],
+                            "selected_files": len(selected),
+                            "selected_remote_bytes": selected_remote_bytes,
+                        },
+                        sort_keys=True,
+                    ),
+                    flush=True,
+                )
                 destination_root = _render(
                     str(mapping["destination_root"]), args.scratch_root
                 )
@@ -495,8 +604,26 @@ def main() -> int:
                 "revision": revision,
                 "selected_files": sorted(selected_for_repo),
                 "selected_file_count": len(selected_for_repo),
+                "selected_remote_bytes": sum(
+                    remote_sizes[path] for path in selected_for_repo
+                ),
+                "mappings": mapping_receipts,
             }
         )
+
+    capacity_sampling = config.get("capacity_sampling", {})
+    selected_remote_files = sum(
+        int(row["selected_file_count"]) for row in repository_receipts
+    )
+    selected_remote_bytes = sum(
+        int(row["selected_remote_bytes"]) for row in repository_receipts
+    )
+    if selected_remote_files != int(capacity_sampling.get("expected_selected_files", -1)):
+        raise ValueError("selected replay file total differs from frozen capacity plan")
+    if selected_remote_bytes != int(
+        capacity_sampling.get("expected_selected_remote_bytes", -1)
+    ):
+        raise ValueError("selected replay byte total differs from frozen capacity plan")
 
     git_receipts = [
         _stage_git_source(spec, args.scratch_root, replace=args.replace_existing)
@@ -516,6 +643,12 @@ def main() -> int:
             "sha256": sha256_file(phase04_config_path),
         },
         "repositories": repository_receipts,
+        "selection_plan": {
+            "policy": config.get("selection_policy"),
+            "selected_remote_files": selected_remote_files,
+            "selected_remote_bytes": selected_remote_bytes,
+            "capacity_sampling": capacity_sampling,
+        },
         "outputs": sorted(outputs, key=lambda row: row["path"]),
         "output_count": len(outputs),
         "git_sources": git_receipts,

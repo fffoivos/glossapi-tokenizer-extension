@@ -33,7 +33,7 @@ from finalize_bridge import (  # noqa: E402
     compute_blend,
 )
 from verify_launch_assets import validate_tokenizer_asset  # noqa: E402
-from acquire_replay_sources import _copy_atomic  # noqa: E402
+from acquire_replay_sources import _copy_atomic, _select_mapping_files  # noqa: E402
 
 
 def shard(
@@ -81,6 +81,48 @@ def test_replay_atomic_copy_resolves_hf_snapshot_symlink(tmp_path: Path) -> None
     assert destination.read_bytes() == blob.read_bytes()
     assert not destination.is_symlink()
     assert not list(destination.parent.glob(".*.partial"))
+
+
+def test_replay_file_cap_is_exact_deterministic_and_domain_separated() -> None:
+    files = [f"ell_Grek/{index:03d}.parquet" for index in range(20)]
+    mapping = {
+        "source_name": "source-a",
+        "remote_glob": "ell_Grek/*.parquet",
+        "selection": {
+            "method": "domain_separated_sha256_rank_v1",
+            "seed": 20260609,
+            "file_count": 4,
+        },
+    }
+    selected, receipt = _select_mapping_files(
+        files,
+        mapping,
+        repo_id="owner/dataset",
+        revision="0" * 40,
+    )
+    repeated, _ = _select_mapping_files(
+        list(reversed(files)),
+        mapping,
+        repo_id="owner/dataset",
+        revision="0" * 40,
+    )
+    assert selected == repeated
+    assert len(selected) == 4
+    assert receipt == {
+        "method": "domain_separated_sha256_rank_v1",
+        "seed": 20260609,
+        "matched_file_count": 20,
+        "selected_file_count": 4,
+        "selection_domain": "full-cpt-replay-file-selection-v1",
+    }
+    other = dict(mapping, source_name="source-b")
+    other_selected, _ = _select_mapping_files(
+        files,
+        other,
+        repo_id="owner/dataset",
+        revision="0" * 40,
+    )
+    assert selected != other_selected
 
 
 def test_index_roundtrip_exact_counts(tmp_path: Path) -> None:
@@ -798,6 +840,28 @@ def test_replay_acquisition_pins_adjudicated_historical_revisions() -> None:
     assert evidence["status"] == "approved_from_retained_build_evidence"
     assert len(evidence["cache_refs"]) == 4
     assert evidence["starcoder_job_evidence"]["selected_link_count"] == 28
+    assert config["selection_policy"] == (
+        "all_matching_or_domain_separated_sha256_ranked_capacity_sample_v1"
+    )
+    assert config["capacity_sampling"]["expected_selected_files"] == 355
+    assert (
+        config["capacity_sampling"]["expected_selected_remote_bytes"]
+        == 250_673_537_368
+    )
+    repositories = {row["repo_id"]: row for row in config["repositories"]}
+    hq_counts = [
+        row["selection"]["file_count"]
+        for row in repositories["epfml/FineWeb2-HQ"]["mappings"]
+    ]
+    assert hq_counts == [2] * 12
+    fw2_counts = [
+        row["selection"]["file_count"]
+        for row in repositories["HuggingFaceFW/fineweb-2"]["mappings"]
+    ]
+    assert fw2_counts == [1] * 11
+    assert repositories["HuggingFaceTB/finemath"]["mappings"][0]["selection"][
+        "file_count"
+    ] == 4
 
 
 def test_cpu_stages_request_no_gpus() -> None:
