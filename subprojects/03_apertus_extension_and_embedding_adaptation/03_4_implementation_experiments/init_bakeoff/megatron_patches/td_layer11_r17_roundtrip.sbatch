@@ -19,6 +19,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
 source "$SCRIPT_DIR/../bakeoff_training/_train_config_common.env"
+if [[ -n "${MEGATRON_DIR_OVERRIDE:-}" ]]; then
+    MEGATRON_LM_SWISSAI_DIR="$MEGATRON_DIR_OVERRIDE"
+fi
 
 HF_DIR="${HF_DIR:-/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_full25_layers_20260523T092602Z/layer11}"
 RUN_ROOT="${RUN_ROOT:-/iopsstor/scratch/cscs/fffoivos/token_distillation/td_full25_layer11_r17_roundtrip_${SLURM_JOB_ID:-manual}}"

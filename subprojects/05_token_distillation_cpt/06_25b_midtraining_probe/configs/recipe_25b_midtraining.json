@@ -1,0 +1,210 @@
+{
+  "schema_version": "greek_cpt_25b_midtraining_recipe_v1",
+  "recipe_id": "apertus8b_greek_cpt25b_midtraining_v1",
+  "status": "frozen_pending_clariden_asset_receipts",
+  "seed": 20260609,
+  "dataset": {
+    "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+    "revision": "3f97cec48af502f4996cf8ff20b02660e2dd3d31",
+    "gated": "manual",
+    "published_manifest_sha256": "2368c479a31341d042e8dfca8ab991dfe02bff85efbc65f8c5db29ca2418e659",
+    "documents": 51839746,
+    "parquet_files": 431,
+    "parquet_bytes": 140506550248,
+    "required_columns": [
+      "text",
+      "source_dataset",
+      "source_doc_id"
+    ],
+    "document_identity": [
+      "source_dataset",
+      "source_doc_id"
+    ],
+    "require_greekmmlu_decontamination_before_training": true,
+    "token_count_receipt": {
+      "tokenizer_revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+      "training_tokens": 63822761532,
+      "text_tokens": 63770921786,
+      "eos_tokens": 51839746,
+      "hplt_training_tokens": 44054228362,
+      "require_clariden_receipt_before_build": true
+    }
+  },
+  "tokenizer": {
+    "repo_id": "fffoivos/apertus-tokenizer-extension",
+    "revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+    "subfolder": "greek-modern-polytonic-tokenizer",
+    "identity": "ModernGreek-148480-plus-512-polytonic",
+    "vocab_size": 148992,
+    "make_vocab_size_divisible_by": 256,
+    "padding_tokens": 0,
+    "tokenizer_json_sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b"
+  },
+  "model": {
+    "base": "swiss-ai/Apertus-8B-2509",
+    "distillation_layer": 11,
+    "production_initialization": "modern_148480_layer11_td_then_append_512_merge_chain_and_calibrate_output_rows",
+    "forbidden_initialization": "cpt_trained_token_distil_3_5b",
+    "tensor_parallel_size": 2,
+    "pipeline_parallel_size": 1,
+    "require_old_row_zero_drift": true
+  },
+  "geometry": {
+    "nominal_tokens": 25000000000,
+    "effective_iterations": 5960,
+    "effective_tokens": 24998051840,
+    "nominal_floor_residual": 1948160,
+    "sequence_length": 4096,
+    "micro_batch_size": 2,
+    "global_batch_sequences": 1024,
+    "global_batch_tokens": 4194304,
+    "phase_boundary_iteration": 3570,
+    "phase_1_iterations": 3570,
+    "phase_1_tokens": 14973665280,
+    "phase_2_iterations": 2390,
+    "phase_2_tokens": 10024386560,
+    "save_interval": 119,
+    "eval_interval": 25,
+    "eval_iters": 1,
+    "segment_boundaries": [0, 1785, 3570, 5960]
+  },
+  "phases": {
+    "phase_1": {
+      "iteration_start": 0,
+      "iteration_end": 3570,
+      "mix_exact": {
+        "hplt_new_greek": "0.79",
+        "foreign_replay": "0.20",
+        "old_greek_replay": "0.01"
+      }
+    },
+    "phase_2": {
+      "iteration_start": 3570,
+      "iteration_end": 5960,
+      "mix_exact": {
+        "hplt_new_greek": "68563986177353/381341000153700",
+        "non_hplt_new_greek": "23269540394407/38134100015370",
+        "foreign_replay": "1/5",
+        "old_greek_replay": "1/100"
+      },
+      "mix_decimal": {
+        "hplt_new_greek": "0.179797048179236418",
+        "non_hplt_new_greek": "0.610202951820763562",
+        "foreign_replay": "0.20",
+        "old_greek_replay": "0.01"
+      }
+    }
+  },
+  "partition": {
+    "contract": "domain_separated_sha256_u64_v1",
+    "hplt_and_replay_phase_1_fraction": "3/5",
+    "hplt_and_replay_phase_2_fraction": "2/5",
+    "non_hplt_new_greek_phase": 2,
+    "disjoint_across_phases": true,
+    "heldouts_excluded_before_partition": true
+  },
+  "heldouts": {
+    "char_budget_per_set": 30000000,
+    "max_pool_fraction": 0.1,
+    "selection": "domain_separated_sha256_threshold_v1",
+    "new_greek": [
+      {
+        "name": "hplt",
+        "selector_column": "source_dataset",
+        "selector_regex": "^HPLT/"
+      },
+      {
+        "name": "non_hplt",
+        "selector_column": "source_dataset",
+        "selector_not_regex": "^HPLT/"
+      },
+      {
+        "name": "openarchives",
+        "selector_column": "source_family_id",
+        "selector_equals": "openarchives"
+      },
+      {
+        "name": "greek_phd",
+        "selector_column": "source_family_id",
+        "selector_equals": "greek_phd"
+      },
+      {
+        "name": "historical_polytonic",
+        "selector_column": "is_historical_or_polytonic",
+        "selector_equals": "True"
+      }
+    ],
+    "foreign_replay": [
+      {
+        "name": "english",
+        "source_name": "replay_t1_english_edu"
+      },
+      {
+        "name": "de",
+        "source_name": "replay_t1_deu_Latn"
+      },
+      {
+        "name": "ru",
+        "source_name": "replay_t1_rus_Cyrl"
+      },
+      {
+        "name": "zh",
+        "source_name": "replay_t1_cmn_Hani"
+      },
+      {
+        "name": "code",
+        "source_name": "code_starcoderdata_subset"
+      },
+      {
+        "name": "math",
+        "source_name": "math_finemath"
+      }
+    ],
+    "old_greek_replay": [
+      {
+        "name": "old_greek",
+        "source_name": "greek_replay_apertus_original"
+      }
+    ]
+  },
+  "training": {
+    "optimizer": "AdEMAMix",
+    "beta1": "0.9",
+    "beta2": "0.999",
+    "beta3": "0.999",
+    "alpha": "4.0",
+    "beta3_warmup_steps": 5960,
+    "alpha_warmup_steps": 5960,
+    "weight_decay": "0.1",
+    "gradient_clip": "0.1",
+    "init_std": "0.008944",
+    "lr_peak": "5.5e-5",
+    "lr_final": "5.5e-6",
+    "lr_warmup_init": "5.5e-6",
+    "lr_warmup_iterations": 400,
+    "lr_schedule": "WSD",
+    "lr_decay": "1-sqrt",
+    "lr_decay_fraction": "0.2",
+    "precision": "bf16",
+    "main_grads_dtype": "fp32",
+    "rotary_base": 500000,
+    "rope_scaling_factor": "8.0",
+    "loss": "goldfish",
+    "goldfish_k": 50,
+    "goldfish_h": 50,
+    "reset_attention_mask": true,
+    "reset_position_ids": true,
+    "eod_mask_loss": true,
+    "order": "randomized"
+  },
+  "runtime": {
+    "megatron_repository": "https://github.com/swiss-ai/Megatron-LM.git",
+    "megatron_commit": "c92402e39ef3c8e69ea378a59e79059dc14541f4",
+    "uenv": "pytorch/v2.9.1:v2",
+    "slurm_account": "a0140",
+    "partition": "normal",
+    "nodes": 16,
+    "gpus_per_node": 4,
+    "time_limit": "08:00:00"
+  }
+}

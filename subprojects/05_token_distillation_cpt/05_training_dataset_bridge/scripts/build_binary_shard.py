@@ -45,6 +45,7 @@ _EOS_ID: int | None = None
 _VOCAB_SIZE = 0
 _DECONTAM_MODULE: Any = None
 _DECONTAM_INDEX: Any = None
+_PHASE_MODULE: Any = None
 
 
 def _install_decontaminator(receipt: Mapping[str, Any]) -> None:
@@ -139,6 +140,61 @@ def _eligible(row: Mapping[str, Any], task: Mapping[str, Any]) -> bool:
     return True
 
 
+def _load_phase_module(task: Mapping[str, Any]):
+    """Load the receipt-bound optional two-phase assignment implementation."""
+
+    global _PHASE_MODULE
+    spec_value = task.get("phase_partition")
+    if not isinstance(spec_value, Mapping):
+        return None
+    implementation = spec_value.get("implementation")
+    if not isinstance(implementation, Mapping):
+        raise ValueError("phase-partition task has no implementation receipt")
+    path = Path(str(implementation.get("path", "")))
+    if not path.is_file() or sha256_file(path) != implementation.get("sha256"):
+        raise ValueError("phase-partition implementation drift")
+    if _PHASE_MODULE is None:
+        module_spec = importlib.util.spec_from_file_location(
+            "bridge_phase_partition", path
+        )
+        if module_spec is None or module_spec.loader is None:
+            raise ImportError(path)
+        module = importlib.util.module_from_spec(module_spec)
+        sys.modules[module_spec.name] = module
+        module_spec.loader.exec_module(module)
+        _PHASE_MODULE = module
+    return _PHASE_MODULE
+
+
+def _in_selected_phase(
+    row: Mapping[str, Any], doc_id: str, task: Mapping[str, Any], module: Any
+) -> bool:
+    value = task.get("phase_partition")
+    if not isinstance(value, Mapping):
+        return True
+    phase = int(value["phase"])
+    seed = int(value["seed"])
+    corpus = str(value["corpus"])
+    if corpus == "new_greek":
+        assignment = module.assign_new_greek(
+            seed=seed,
+            source_dataset=row.get("source_dataset"),
+            source_doc_id=row.get("source_doc_id"),
+        )
+        expected_pool = value.get("logical_pool")
+        if expected_pool and assignment.logical_pool != expected_pool:
+            return False
+    elif corpus == "replay":
+        assignment = module.assign_replay(
+            seed=seed,
+            logical_pool=str(value["logical_pool"]),
+            document_id=doc_id,
+        )
+    else:
+        raise ValueError(f"unsupported phase-partition corpus: {corpus}")
+    return int(assignment.phase) == phase
+
+
 def _iter_parquet_records(
     task: Mapping[str, Any], exclusions: set[str], counters: dict[str, int]
 ):
@@ -147,7 +203,18 @@ def _iter_parquet_records(
     path = Path(task["input_path"])
     parquet = pq.ParquetFile(path)
     columns = [str(task["text_column"])]
-    for value in (*task.get("identity_columns", []), task.get("filter_field")):
+    partition_module = _load_phase_module(task)
+    phase_columns = (
+        ("source_dataset", "source_doc_id")
+        if partition_module is not None
+        and task.get("phase_partition", {}).get("corpus") == "new_greek"
+        else ()
+    )
+    for value in (
+        *task.get("identity_columns", []),
+        task.get("filter_field"),
+        *phase_columns,
+    ):
         if value and str(value) not in columns:
             columns.append(str(value))
     row_index = 0
@@ -178,6 +245,11 @@ def _iter_parquet_records(
             )
             if doc_id in exclusions:
                 counters["heldout_rows"] += 1
+                continue
+            if partition_module is not None and not _in_selected_phase(
+                row, doc_id, task, partition_module
+            ):
+                counters["phase_excluded_rows"] += 1
                 continue
             counters["candidate_rows"] += 1
             yield doc_id, text
@@ -428,6 +500,7 @@ def main() -> int:
         "filtered_rows": 0,
         "empty_rows": 0,
         "heldout_rows": 0,
+        "phase_excluded_rows": 0,
         "candidate_rows": 0,
         "contaminated_rows": 0,
         "documents": 0,

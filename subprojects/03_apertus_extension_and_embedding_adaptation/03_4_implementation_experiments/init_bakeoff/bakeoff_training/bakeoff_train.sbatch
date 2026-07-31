@@ -409,7 +409,7 @@ fi
 ENABLE_EXTRA_VALID="${ENABLE_EXTRA_VALID:-1}"
 VAL_DATA_DIR="${VAL_DATA_DIR:-/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt_2arm_13b/megatron}"
 EXTRA_VALID_SETS="${EXTRA_VALID_SETS:-hplt openarchives greek_phd}"
-NEW_GREEK_SETS=" hplt openarchives greek_phd "
+NEW_GREEK_SETS=" ${NEW_GREEK_VALID_SETS:-hplt openarchives greek_phd} "
 EXTRA_VALID_ARGS=()
 if [ "$ENABLE_EXTRA_VALID" = "1" ]; then
     EXTRA_VALID_ARGS=(--extra-valid-data-path)

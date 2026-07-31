@@ -82,6 +82,10 @@ def _eligible(
             str(heldout["selector_regex"]), str(value or "")
         ):
             return False
+        if heldout.get("selector_not_regex") is not None and re.search(
+            str(heldout["selector_not_regex"]), str(value or "")
+        ):
+            return False
     return True
 
 
@@ -203,7 +207,7 @@ def _iter_group_docs(
 
 
 def _build_selector_group(payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Build the three Phase-04 adaptation sets in two shared corpus passes."""
+    """Build new-Greek heldouts in two shared corpus passes."""
 
     if not payloads:
         return []
@@ -211,6 +215,9 @@ def _build_selector_group(payloads: list[dict[str, Any]]) -> list[dict[str, Any]
     if any(payload["tasks"] != tasks for payload in payloads[1:]):
         raise ValueError("grouped heldouts must share an exact task inventory")
     specs = [payload["heldout"] for payload in payloads]
+    decontaminator = None
+    if any(bool(task["decontaminate_greekmmlu"]) for task in tasks):
+        decontaminator = _load_decontaminator(payloads[0]["input_receipt"])
     measurements = {
         str(spec["name"]): {"documents": 0, "characters": 0} for spec in specs
     }
@@ -250,9 +257,11 @@ def _build_selector_group(payloads: list[dict[str, Any]]) -> list[dict[str, Any]
             "seen": set(),
             "selected_documents": 0,
             "selected_characters": 0,
+            "contaminated": 0,
         }
     try:
         for task, row, doc_id, text in _iter_group_docs(tasks, specs):
+            selected_names: list[str] = []
             for spec in specs:
                 name = str(spec["name"])
                 item = state[name]
@@ -268,6 +277,18 @@ def _build_selector_group(payloads: list[dict[str, Any]]) -> list[dict[str, Any]
                     denominator=int(measured["characters"]),
                 ):
                     continue
+                selected_names.append(name)
+            if not selected_names:
+                continue
+            if decontaminator is not None:
+                module, index = decontaminator
+                action, _, _ = module.match_document(text, index)
+                if action == "drop":
+                    for name in selected_names:
+                        state[name]["contaminated"] += 1
+                    continue
+            for name in selected_names:
+                item = state[name]
                 if doc_id in item["seen"]:
                     raise ValueError(f"duplicate heldout identity for {name}: {doc_id}")
                 item["seen"].add(doc_id)
@@ -319,7 +340,7 @@ def _build_selector_group(payloads: list[dict[str, Any]]) -> list[dict[str, Any]
                 "selected_characters": item["selected_characters"],
                 "selected_fraction_by_characters": item["selected_characters"]
                 / measured["characters"],
-                "contaminated_selected_documents_dropped": 0,
+                "contaminated_selected_documents_dropped": item["contaminated"],
                 "selection": {
                     "algorithm": "domain_separated_sha256_threshold_v1",
                     "seed": item["payload"]["seed"],
@@ -517,7 +538,10 @@ def _specs(
     config: Mapping[str, Any], input_receipt: Mapping[str, Any], stage_root: Path
 ) -> list[dict[str, Any]]:
     heldouts = config["heldouts"]
-    tasks = input_receipt["tasks"]
+    # Two-phase bridges may expose a single unpartitioned inventory for
+    # heldout selection so a source file is not measured once per phase/pool.
+    # Historical receipts have no separate inventory and retain old behavior.
+    tasks = input_receipt.get("heldout_tasks", input_receipt["tasks"])
     result: list[dict[str, Any]] = []
     for pool in ("new_greek", "foreign_replay", "old_greek_replay"):
         for spec in heldouts[pool]:
