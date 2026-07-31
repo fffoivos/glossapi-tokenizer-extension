@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=cpt25b_baseinit
 #SBATCH --account=a0140
-#SBATCH --partition=xfer
+#SBATCH --partition=normal
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
