@@ -35,6 +35,13 @@ def _render(raw: str, scratch_root: Path) -> Path:
 
 
 def _copy_atomic(source: Path, destination: Path, *, replace: bool) -> None:
+    # hf_hub_download normally returns a relative symlink inside a snapshot.
+    # Hard-linking that symlink into the replay tree preserves the link text,
+    # not its target, and therefore creates a broken destination.  Resolve the
+    # immutable cache blob first and only ever publish a regular file inode.
+    source = source.resolve(strict=True)
+    if not source.is_file() or source.is_symlink():
+        raise ValueError(f"unsafe replay cache source: {source}")
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists():
         if destination.is_symlink() or not destination.is_file():

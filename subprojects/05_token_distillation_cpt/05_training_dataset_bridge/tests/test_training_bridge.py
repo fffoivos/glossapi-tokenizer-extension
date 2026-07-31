@@ -69,6 +69,20 @@ def test_replay_atomic_copy_publishes_exact_bytes_and_is_idempotent(
     assert destination.read_bytes() == source.read_bytes()
 
 
+def test_replay_atomic_copy_resolves_hf_snapshot_symlink(tmp_path: Path) -> None:
+    blob = tmp_path / "cache" / "blobs" / "digest"
+    blob.parent.mkdir(parents=True)
+    blob.write_bytes(b"parquet payload")
+    snapshot = tmp_path / "cache" / "snapshots" / "commit" / "data" / "part.parquet"
+    snapshot.parent.mkdir(parents=True)
+    snapshot.symlink_to(Path("../../../blobs/digest"))
+    destination = tmp_path / "replay" / "data" / "part.parquet"
+    _copy_atomic(snapshot, destination, replace=False)
+    assert destination.read_bytes() == blob.read_bytes()
+    assert not destination.is_symlink()
+    assert not list(destination.parent.glob(".*.partial"))
+
+
 def test_index_roundtrip_exact_counts(tmp_path: Path) -> None:
     index = tmp_path / "sample.idx"
     assert write_index(index, [3, 9, 1]) == (3, 4, 13)

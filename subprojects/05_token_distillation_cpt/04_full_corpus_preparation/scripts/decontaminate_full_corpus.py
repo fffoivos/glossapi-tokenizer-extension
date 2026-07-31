@@ -274,10 +274,12 @@ def load_benchmark_index(
         answer_tokens = tokenize(_correct_answer(row, choices))
         if not question_tokens:
             raise ValueError(f"GreekMMLU query {split}/{item_id}: question is empty")
-        # GreekMMLU currently contains one source row whose labelled choice is
-        # the empty string.  Keep the item so exact full-prompt leakage is still
-        # removed, but leave answer_tokens empty so question+answer and fuzzy
-        # answer-dependent rules cannot turn a question-only match into a drop.
+        # The pinned GreekMMLU revision contains source rows whose labelled
+        # choice is the empty string. Keep each item so exact full-prompt
+        # leakage is still removed, but leave answer_tokens empty so
+        # question+answer and fuzzy answer-dependent rules cannot turn a
+        # question-only match into a drop. The exact exception count is
+        # returned in the benchmark receipt.
         if not answer_tokens:
             items_without_correct_answer += 1
         question_grams = tuple(dict.fromkeys(gram for _, gram in kgrams(question_tokens, k)))
