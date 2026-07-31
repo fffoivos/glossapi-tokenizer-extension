@@ -256,6 +256,7 @@ def load_benchmark_index(
     items: list[BenchmarkItem] = []
     seen_ids: set[tuple[str, str]] = set()
     observed_splits: set[str] = set()
+    items_without_correct_answer = 0
     for row_number, row in enumerate(rows):
         split = str(row.get("split") or "")
         if not split:
@@ -271,8 +272,14 @@ def load_benchmark_index(
         question_tokens = tokenize(question)
         choices = _choices(row)
         answer_tokens = tokenize(_correct_answer(row, choices))
-        if not question_tokens or not answer_tokens:
-            raise ValueError(f"GreekMMLU query {split}/{item_id}: question/correct answer is empty")
+        if not question_tokens:
+            raise ValueError(f"GreekMMLU query {split}/{item_id}: question is empty")
+        # GreekMMLU currently contains one source row whose labelled choice is
+        # the empty string.  Keep the item so exact full-prompt leakage is still
+        # removed, but leave answer_tokens empty so question+answer and fuzzy
+        # answer-dependent rules cannot turn a question-only match into a drop.
+        if not answer_tokens:
+            items_without_correct_answer += 1
         question_grams = tuple(dict.fromkeys(gram for _, gram in kgrams(question_tokens, k)))
         surfaces: dict[str, tuple[str, ...]] = {}
         raw_surfaces = row.get("surfaces")
@@ -340,6 +347,7 @@ def load_benchmark_index(
         "required_splits": sorted(required_splits),
         "observed_splits": sorted(observed_splits),
         "items": len(items),
+        "items_without_correct_answer": items_without_correct_answer,
     }
     return index, receipt
 

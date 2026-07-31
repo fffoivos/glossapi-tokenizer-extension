@@ -38,6 +38,9 @@ data index on every segment, fixing the historical first-segment-only reset.
 2. On Clariden, materialize and hash the exact gated dataset revision, tokenizer
    tree, GreekMMLU decontamination inputs, replay inputs, clean Megatron commit,
    and production initialization checkpoint.
+   The pinned GreekMMLU revision has one labelled empty-answer row; its question
+   remains bound for exact full-prompt matching, while answer-dependent drop
+   rules are disabled for that row and the exception count is receipted.
 3. Build heldouts before training binaries, exclude their document identities,
    and apply GreekMMLU decontamination to new Greek and replay pools.
 4. Build the two phase manifests and binaries. The finalizer must prove there

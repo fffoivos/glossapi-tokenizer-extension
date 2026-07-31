@@ -33,6 +33,7 @@ from finalize_bridge import (  # noqa: E402
     compute_blend,
 )
 from verify_launch_assets import validate_tokenizer_asset  # noqa: E402
+from acquire_replay_sources import _copy_atomic  # noqa: E402
 
 
 def shard(
@@ -52,6 +53,20 @@ def shard(
         "counts": {"tokens": tokens, "documents": max(1, tokens // 10)},
         "outputs": {"bin": {"path": f"/tmp/task-{index}.bin"}},
     }
+
+
+def test_replay_atomic_copy_publishes_exact_bytes_and_is_idempotent(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "cache" / "source.parquet"
+    source.parent.mkdir()
+    source.write_bytes((b"receipt-bound-replay\n" * 4096) + b"end")
+    destination = tmp_path / "stage" / "part.parquet"
+    _copy_atomic(source, destination, replace=False)
+    assert destination.read_bytes() == source.read_bytes()
+    assert not list(destination.parent.glob(".*.partial"))
+    _copy_atomic(source, destination, replace=False)
+    assert destination.read_bytes() == source.read_bytes()
 
 
 def test_index_roundtrip_exact_counts(tmp_path: Path) -> None:

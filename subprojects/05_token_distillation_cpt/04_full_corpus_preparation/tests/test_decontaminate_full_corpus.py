@@ -234,6 +234,71 @@ def test_only_high_confidence_question_bound_rules_drop() -> None:
     assert evidence[0]["surface"] == "eval_prompt"
 
 
+def test_empty_correct_answer_retains_prompt_filter_without_question_only_drop(
+    tmp_path: Path,
+) -> None:
+    question = (
+        "Ποια από τις παρακάτω διατυπώσεις αντιστοιχεί στη συγκεκριμένη "
+        "ερώτηση του δοκιμαστικού συνόλου;"
+    )
+    prompt = question + "\n\nΔεύτερη επιλογή\nΤρίτη επιλογή\nΤέταρτη επιλογή"
+    queries = tmp_path / "queries.jsonl"
+    queries.write_text(
+        json.dumps(
+            {
+                "schema": "greek-mcq-decontam-query-v1",
+                "benchmark": "greekmmlu",
+                "dataset_repo_id": "dascim/GreekMMLU",
+                "dataset_revision": REVISION,
+                "dataset_config": "All",
+                "split": "test",
+                "example_id": "empty-answer",
+                "question": question,
+                "choices": ["", "Δεύτερη επιλογή", "Τρίτη επιλογή", "Τέταρτη επιλογή"],
+                "answer_index": 0,
+                "surfaces": {"eval_prompt": prompt},
+            },
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    manifest = tmp_path / "queries.jsonl.manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "greekmmlu_query_manifest_v1",
+                "benchmark_id": "greekmmlu",
+                "dataset_repo_id": "dascim/GreekMMLU",
+                "dataset_revision": REVISION,
+                "dataset_config": "All",
+                "required_splits": ["test"],
+                "observed_splits": ["test"],
+                "default_split": "",
+                "query_rows": 1,
+                "queries_sha256": _sha(queries),
+            }
+        ),
+        encoding="utf-8",
+    )
+    index, receipt = load_benchmark_index(
+        queries,
+        manifest,
+        k=3,
+        min_coverage=0.85,
+        minhash_threshold=0.85,
+        min_matched_grams=2,
+        max_gap_tokens=20,
+    )
+    assert receipt["items_without_correct_answer"] == 1
+    assert index.items[0].answer_tokens == ()
+    action, reason, _ = match_document(question + " Χωρίς απάντηση.", index)
+    assert (action, reason) == ("keep", "no_high_confidence_match")
+    action, reason, evidence = match_document("Πρόλογος " + prompt + " Επίλογος", index)
+    assert (action, reason) == ("drop", "greekmmlu_exact_prompt")
+    assert evidence[0]["benchmark_item_id"] == "empty-answer"
+
+
 def test_conservative_aligned_ngram_minhash_requires_nearby_answer() -> None:
     words = [f"λέξη{i}" for i in range(220)]
     question = " ".join(words)

@@ -53,13 +53,33 @@ def _copy_atomic(source: Path, destination: Path, *, replace: bool) -> None:
     os.close(descriptor)
     temporary = Path(temporary_name)
     try:
+        # The first mkstemp reserves a collision-free name for the hard-link
+        # fast path.  Do not reopen that link by pathname before publication:
+        # on the distributed Clariden filesystem we observed a just-created
+        # link briefly return ENOENT to open(2).  Fsyncing the already-open
+        # immutable source inode gives the same durability guarantee.
         temporary.unlink()
         try:
             os.link(source, temporary)
         except OSError:
-            shutil.copyfile(source, temporary)
-        with temporary.open("rb") as handle:
-            os.fsync(handle.fileno())
+            # Cross-device and filesystems without hard-link support use a
+            # second O_EXCL temporary whose descriptor stays open throughout
+            # the copy and fsync.  This also avoids a pathname reopen race.
+            descriptor, temporary_name = tempfile.mkstemp(
+                prefix=f".{destination.name}.",
+                suffix=".partial",
+                dir=destination.parent,
+            )
+            temporary = Path(temporary_name)
+            with source.open("rb") as source_handle, os.fdopen(
+                descriptor, "wb"
+            ) as temporary_handle:
+                shutil.copyfileobj(source_handle, temporary_handle, length=8 * 1024 * 1024)
+                temporary_handle.flush()
+                os.fsync(temporary_handle.fileno())
+        else:
+            with source.open("rb") as source_handle:
+                os.fsync(source_handle.fileno())
         os.replace(temporary, destination)
     finally:
         temporary.unlink(missing_ok=True)

@@ -71,6 +71,9 @@ def main() -> int:
             "greekmmlu_ngram_minhash_answer",
         ],
         "answer_only_action": "audit_only",
+        "missing_correct_answer_action": (
+            "retain_item_for_exact_prompt_matching_and_disable_answer_dependent_drops"
+        ),
     }
     index, benchmark = module.load_benchmark_index(
         queries,
