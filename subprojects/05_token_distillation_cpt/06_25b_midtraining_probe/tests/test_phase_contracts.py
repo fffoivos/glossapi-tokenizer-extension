@@ -63,6 +63,17 @@ def test_capacity_policy_is_frozen_at_1_005_plus_boundary() -> None:
     }
 
 
+def test_after_freeze_is_receipt_gated_without_completed_job_dependency() -> None:
+    launcher = (ROOT / "clariden" / "submit_data_pipeline.sh").read_text()
+    after_freeze = launcher.split("  after-freeze)", 1)[1].split("  assets)", 1)[0]
+    assert 'test -s "$INPUT_RECEIPT"' in after_freeze
+    assert 'test -s "$HELDOUT_MANIFEST"' in after_freeze
+    assert 'h.get("input_receipt_sha256") != sha(input_path)' in after_freeze
+    assert 'h.get("config_sha256") != sha(recipe_path)' in after_freeze
+    assert "heldout_job" not in after_freeze
+    assert '--dependency="afterok:$dependency"' in after_freeze
+
+
 def test_new_greek_heldout_selectors_exist_in_published_schema() -> None:
     recipe = json.loads((ROOT / "configs" / "recipe_25b_midtraining.json").read_text())
     available = set(recipe["dataset"]["required_columns"]) | {

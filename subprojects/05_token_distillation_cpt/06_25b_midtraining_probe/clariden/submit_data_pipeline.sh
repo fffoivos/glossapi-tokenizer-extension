@@ -57,12 +57,22 @@ PY
     ;;
   after-freeze)
     test -s "$INPUT_RECEIPT" || { echo "ERROR: input receipt not ready: $INPUT_RECEIPT" >&2; exit 3; }
-    prereqs="$STAGE_ROOT/submissions/prereqs.json"
-    test -s "$prereqs"
-    read -r task_count heldout_count heldout_job < <(cpt_python - "$INPUT_RECEIPT" "$RECIPE" "$prereqs" <<'PY'
-import json,sys
-r=json.load(open(sys.argv[1],encoding="utf-8")); c=json.load(open(sys.argv[2],encoding="utf-8")); p=json.load(open(sys.argv[3],encoding="utf-8"))
-print(len(r["tasks"]),sum(len(c["heldouts"][k]) for k in ("new_greek","foreign_replay","old_greek_replay")),p["jobs"]["heldouts"])
+    test -s "$HELDOUT_MANIFEST" || { echo "ERROR: heldout manifest not ready: $HELDOUT_MANIFEST" >&2; exit 3; }
+    read -r task_count heldout_count < <(cpt_python - "$INPUT_RECEIPT" "$HELDOUT_MANIFEST" "$RECIPE" <<'PY'
+import hashlib,json,os,sys
+from pathlib import Path
+input_path,heldout_path,recipe_path=map(os.path.realpath,sys.argv[1:])
+sha=lambda path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+r=json.load(open(input_path,encoding="utf-8")); h=json.load(open(heldout_path,encoding="utf-8")); c=json.load(open(recipe_path,encoding="utf-8"))
+if r.get("schema_version") != "full_cpt_training_bridge_input_receipt_v1" or r.get("status") != "frozen": raise SystemExit("input receipt is not frozen")
+if h.get("schema_version") != "full_cpt_training_heldouts_v1" or h.get("status") != "completed": raise SystemExit("heldout manifest is not completed")
+if os.path.realpath(h.get("input_receipt", "")) != input_path or h.get("input_receipt_sha256") != sha(input_path): raise SystemExit("heldout manifest is bound to a different input receipt")
+if os.path.realpath(h.get("config", "")) != recipe_path or h.get("config_sha256") != sha(recipe_path): raise SystemExit("heldout manifest is bound to a different recipe")
+pools=("new_greek","foreign_replay","old_greek_replay")
+expected={(pool,row["name"]) for pool in pools for row in c["heldouts"][pool]}
+actual={(row.get("pool"),row.get("name")) for row in h.get("sets", [])}
+if actual != expected or len(h.get("sets", [])) != len(expected): raise SystemExit("heldout set inventory differs from the frozen recipe")
+print(len(r["tasks"]),len(expected))
 PY
 )
     (( task_count > 0 && heldout_count > 0 ))
@@ -70,12 +80,12 @@ PY
     offset=0
     while (( offset < task_count )); do
       remaining=$((task_count-offset)); chunk=$((remaining<MAX_ARRAY_SIZE ? remaining : MAX_ARRAY_SIZE))
-      job=$(submit --account="$CPT_ACCOUNT" --dependency="afterok:$heldout_job" \
+      job=$(submit --account="$CPT_ACCOUNT" \
         --array="0-$((chunk-1))%$MAX_PARALLEL_TRAIN" --export="$base_export,TASK_OFFSET=$offset" \
         --output="$RUN_ROOT/%x-%A_%a.out" --error="$RUN_ROOT/%x-%A_%a.err" "$HERE/build_train_shards.sbatch")
       train_jobs+=("$job"); offset=$((offset+chunk))
     done
-    val_job=$(submit --account="$CPT_ACCOUNT" --dependency="afterok:$heldout_job" \
+    val_job=$(submit --account="$CPT_ACCOUNT" \
       --array="0-$((heldout_count-1))%$MAX_PARALLEL_HELDOUT" --export="$base_export" \
       --output="$RUN_ROOT/%x-%A_%a.out" --error="$RUN_ROOT/%x-%A_%a.err" "$HERE/build_heldout_shards.sbatch")
     dependency=$(IFS=:; echo "${train_jobs[*]}:$val_job")
