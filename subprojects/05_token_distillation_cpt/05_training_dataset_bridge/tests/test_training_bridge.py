@@ -34,6 +34,7 @@ from finalize_bridge import (  # noqa: E402
 )
 from verify_launch_assets import validate_tokenizer_asset  # noqa: E402
 from acquire_replay_sources import _copy_atomic, _select_mapping_files  # noqa: E402
+from build_heldouts import _merge_exclusions  # noqa: E402
 
 
 def shard(
@@ -147,6 +148,66 @@ def test_heldout_selection_is_domain_separated_and_deterministic() -> None:
         for index in range(2000)
     ]
     assert 400 < sum(observed) < 600
+
+
+def test_heldout_exclusions_union_overlapping_evaluation_slices(tmp_path: Path) -> None:
+    exclusions = tmp_path / "heldouts" / "exclusions"
+    exclusions.mkdir(parents=True)
+    broad = exclusions / "new_greek.hplt.jsonl"
+    slice_ = exclusions / "new_greek.historical.jsonl"
+    broad.write_text(
+        '\n'.join(
+            json.dumps({"doc_id": value, "heldout": "hplt"})
+            for value in ("doc-1", "doc-2")
+        )
+        + "\n"
+    )
+    slice_.write_text(
+        '\n'.join(
+            json.dumps({"doc_id": value, "heldout": "historical"})
+            for value in ("doc-1", "doc-3")
+        )
+        + "\n"
+    )
+    rows = [
+        {
+            "pool": "new_greek",
+            "selection_source_name": "phase04_release",
+            "exclusion": {"path": str(path)},
+        }
+        for path in (broad, slice_)
+    ]
+    receipt = _merge_exclusions(tmp_path, rows)["new_greek"]
+    merged = [json.loads(line) for line in Path(receipt["path"]).read_text().splitlines()]
+    assert [row["doc_id"] for row in merged] == ["doc-1", "doc-2", "doc-3"]
+    assert receipt["rows"] == 3
+    assert receipt["membership_rows"] == 4
+    assert receipt["duplicate_memberships"] == 1
+    assert receipt["overlapping_documents"] == 1
+    assert receipt["merge_policy"] == "set_union_across_heldout_components_v1"
+
+
+def test_heldout_exclusions_still_reject_duplicate_within_one_slice(
+    tmp_path: Path,
+) -> None:
+    exclusions = tmp_path / "heldouts" / "exclusions"
+    exclusions.mkdir(parents=True)
+    component = exclusions / "new_greek.hplt.jsonl"
+    component.write_text(
+        json.dumps({"doc_id": "doc-1", "heldout": "hplt"}) + "\n"
+        + json.dumps({"doc_id": "doc-1", "heldout": "hplt"}) + "\n"
+    )
+    with pytest.raises(ValueError, match="more than once within heldout component"):
+        _merge_exclusions(
+            tmp_path,
+            [
+                {
+                    "pool": "new_greek",
+                    "selection_source_name": "phase04_release",
+                    "exclusion": {"path": str(component)},
+                }
+            ],
+        )
 
 
 def test_document_identity_scopes_old_greek_composite_fields() -> None:

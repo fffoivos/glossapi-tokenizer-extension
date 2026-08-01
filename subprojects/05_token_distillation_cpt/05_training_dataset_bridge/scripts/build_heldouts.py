@@ -596,17 +596,29 @@ def _merge_exclusions(
         output = stage_root / "heldouts" / "exclusions" / f"{safe_name(key)}.jsonl"
         temporary = output.with_name(f".{output.name}.partial")
         seen: set[str] = set()
+        overlapping: set[str] = set()
+        duplicate_memberships = 0
         count = 0
         with temporary.open("w", encoding="utf-8") as out:
             for path in inputs:
+                component_seen: set[str] = set()
                 with path.open(encoding="utf-8") as handle:
                     for line in handle:
                         value = json.loads(line)
                         doc_id = str(value["doc_id"])
-                        if doc_id in seen:
+                        if doc_id in component_seen:
                             raise ValueError(
-                                f"document appears in multiple heldouts for {key}: {doc_id}"
+                                f"document appears more than once within heldout component {path}: {doc_id}"
                             )
+                        component_seen.add(doc_id)
+                        if doc_id in seen:
+                            # Evaluation slices intentionally overlap (for example,
+                            # broad HPLT and historical/source-specific slices).  The
+                            # training exclusion is their set union, so retain one
+                            # identity while receipting every duplicate membership.
+                            overlapping.add(doc_id)
+                            duplicate_memberships += 1
+                            continue
                         seen.add(doc_id)
                         out.write(line)
                         count += 1
@@ -618,6 +630,10 @@ def _merge_exclusions(
             "sha256": sha256_file(output),
             "bytes": output.stat().st_size,
             "rows": count,
+            "membership_rows": count + duplicate_memberships,
+            "duplicate_memberships": duplicate_memberships,
+            "overlapping_documents": len(overlapping),
+            "merge_policy": "set_union_across_heldout_components_v1",
             "component_files": [str(path) for path in inputs],
         }
     return receipts
