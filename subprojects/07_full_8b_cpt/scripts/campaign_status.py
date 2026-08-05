@@ -39,6 +39,14 @@ def main() -> int:
     parser.add_argument("--run-root", type=Path, required=True)
     parser.add_argument("--selected-profile", type=Path, required=True)
     parser.add_argument("--prelaunch-root", type=Path, required=True)
+    parser.add_argument(
+        "--initial-greekmmlu",
+        type=Path,
+        help=(
+            "completed iteration-zero GreekMMLU receipt; supply this when the "
+            "validated model anchor predates a later prelaunch-stage rebuild"
+        ),
+    )
     args = parser.parse_args()
     selected = read_json(args.selected_profile)
     boundaries = [int(value) for value in selected["selection"]["segment_boundaries"]]
@@ -53,6 +61,11 @@ def main() -> int:
             root = Path(read_json(canonical)["per_document_root"])
             endpoint_docs.extend(path for path in root.glob("*.receipt.json") if passing(path))
     current_jobs = jobs()
+    initial_greekmmlu = (
+        args.initial_greekmmlu
+        if args.initial_greekmmlu is not None
+        else args.prelaunch_root / "initial_greekmmlu" / "initial_greekmmlu_receipt.json"
+    )
     latest = args.run_root / "orchestration/latest.json"
     result = {
         "schema_version": "apertus_full_8b_campaign_status_v2",
@@ -68,7 +81,7 @@ def main() -> int:
             "segments_required": len(boundaries) - 1,
         },
         "evidence": {
-            "greekmmlu_completed": (1 if passing(args.prelaunch_root / "initial_greekmmlu/initial_greekmmlu_receipt.json") else 0) + sum(passing(path) for path in authoritative),
+            "greekmmlu_completed": (1 if passing(initial_greekmmlu) else 0) + sum(passing(path) for path in authoritative),
             "greekmmlu_required": 20,
             "per_document_panels_completed": len(initial_docs) + len(endpoint_docs),
             "per_document_panels_required": 39,

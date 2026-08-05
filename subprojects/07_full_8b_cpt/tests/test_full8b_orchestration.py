@@ -4,6 +4,7 @@ import json
 import hashlib
 import importlib.util
 import io
+import contextlib
 import re
 import subprocess
 import sys
@@ -584,6 +585,41 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertNotIn(",", encoded)
         self.assertEqual(queue.decode_evaluation_iterations(encoded), expected)
         self.assertEqual(queue.decode_evaluation_iterations("400,1192,2384"), expected)
+
+    def test_campaign_status_accepts_cross_stage_initial_greekmmlu_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            run = root / "run"
+            prelaunch = root / "prelaunch"
+            selected = root / "selected.json"
+            initial_greek = root / "corrected-anchor" / "initial_greekmmlu_receipt.json"
+            write(selected, {"selection": {
+                "segment_boundaries": [0, 3208, 6416, 9624, 12832, 16040, 19248],
+                "profile_id": "dp32_16node", "nodes": 16,
+            }})
+            write(initial_greek, {"status": "completed"})
+            path = ROOT / "scripts/campaign_status.py"
+            sys.path.insert(0, str(path.parent))
+            spec = importlib.util.spec_from_file_location("full8_campaign_status", path)
+            assert spec and spec.loader
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            module.jobs = lambda: []
+            command = [
+                "campaign_status.py", "--run-root", str(run),
+                "--selected-profile", str(selected), "--prelaunch-root", str(prelaunch),
+                "--initial-greekmmlu", str(initial_greek),
+            ]
+            output = io.StringIO()
+            previous_argv = sys.argv
+            try:
+                sys.argv = command
+                with contextlib.redirect_stdout(output):
+                    self.assertEqual(module.main(), 0)
+            finally:
+                sys.argv = previous_argv
+            status = json.loads(output.getvalue())
+            self.assertEqual(status["evidence"]["greekmmlu_completed"], 1)
 
     def test_initial_greekmmlu_finalizer_rejects_wrong_rope_geometry_first(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
