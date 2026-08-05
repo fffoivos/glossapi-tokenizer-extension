@@ -163,28 +163,43 @@ def main() -> int:
             timed_payload / 288 + fixed_startup / production_segment_updates
         )
     amortized_p90 = max(candidate["p90_step_seconds"], projected_production_wall)
+    control_restart = exact_restart(control, control_restart, 161)
+    candidate_restart = exact_restart(candidate, candidate_restart, 161)
     checks = {
         "same_scientific_digest": True,
         "same_frozen_sequence_and_goldfish_contract": bool(contract["sequence_ids"]["prefix_sha256"] and contract["goldfish"]["implementation"]["sha256"]),
         "first_batch_loss_gradient_parameter_parity": all(first_checks.values()),
         "trajectory_rmse_within_bound": rmse_ratio <= thresholds["trajectory_rmse_over_control_std_max"],
         "trajectory_signed_mean_within_bound": signed_ratio <= thresholds["trajectory_abs_mean_over_control_std_max"],
-        "control_restart_exact": exact_restart(control, control_restart, 161)["passed"],
-        "candidate_restart_exact": exact_restart(candidate, candidate_restart, 161)["passed"],
-        "zero_skipped_updates": control["skipped"] == candidate["skipped"] == 0,
-        "zero_nonfinite_updates": control["nonfinite"] == candidate["nonfinite"] == 0,
+        "control_restart_exact": control_restart["passed"],
+        "candidate_restart_exact": candidate_restart["passed"],
+        "control_zero_skipped_updates": control["skipped"] == 0,
+        "candidate_zero_skipped_updates": candidate["skipped"] == 0,
+        "control_zero_nonfinite_updates": control["nonfinite"] == 0,
+        "candidate_zero_nonfinite_updates": candidate["nonfinite"] == 0,
         "median_speedup_at_least_1p6": speedup >= thresholds["median_throughput_speedup_min"],
         "gpu_hour_ratio_at_most_1p25": gpu_hour_ratio <= thresholds["gpu_hour_ratio_max"],
         "amortized_p90_wall_at_most_5p89_seconds": amortized_p90 <= thresholds["p90_amortized_wall_seconds_per_update_max"],
     }
-    promoted = all(checks.values())
-    selected = "dp64_32node" if promoted else "dp32_16node"
+    control_viable = all(
+        checks[name]
+        for name in (
+            "same_scientific_digest",
+            "same_frozen_sequence_and_goldfish_contract",
+            "control_restart_exact",
+            "control_zero_skipped_updates",
+            "control_zero_nonfinite_updates",
+        )
+    )
+    promoted = control_viable and all(checks.values())
+    selected = "dp64_32node" if promoted else ("dp32_16node" if control_viable else None)
     payload = {
         "schema_version": "apertus_full_8b_parallelism_benchmark_v1",
-        "status": "promoted" if promoted else "completed",
+        "status": "promoted" if promoted else ("completed" if control_viable else "failed"),
         "completed_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "selected_profile": selected,
         "candidate_promoted": promoted,
+        "fallback_control_viable": control_viable,
         "checks": checks,
         "thresholds": thresholds,
         "first_batch_checks": first_checks,
@@ -204,10 +219,7 @@ def main() -> int:
             "gpu_hour_ratio": gpu_hour_ratio,
             "selected_compute_hours": 19248 * (candidate["median_step_seconds"] if promoted else control["median_step_seconds"]) / 3600,
         },
-        "restart": {
-            "control": exact_restart(control, control_restart, 161),
-            "candidate": exact_restart(candidate, candidate_restart, 161),
-        },
+        "restart": {"control": control_restart, "candidate": candidate_restart},
         "scientific_digest": control_job["scientific_digest"],
         "inputs": {
             "profiles": file_binding(args.profiles),
@@ -218,7 +230,7 @@ def main() -> int:
     }
     atomic_write_json(args.output, payload)
     print(json.dumps({"ok": True, "selected_profile": selected, "candidate_promoted": promoted, "checks": checks}, sort_keys=True))
-    return 0
+    return 0 if control_viable else 2
 
 
 if __name__ == "__main__":
