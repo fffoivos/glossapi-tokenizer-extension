@@ -522,6 +522,24 @@ class Full8BOrchestrationTests(unittest.TestCase):
             self.assertFalse(module.retryable_terminal("FAILED", marker, 25, 100))
             self.assertTrue(module.retryable_terminal("TIMEOUT", marker, 25, 100))
 
+    def test_evaluation_iteration_transport_avoids_slurm_export_commas(self) -> None:
+        supervisor_path = ROOT / "scripts/supervise_campaign.py"
+        queue_path = ROOT / "evaluation/run_evaluation_queue.py"
+        sys.path.insert(0, str(supervisor_path.parent))
+        supervisor_spec = importlib.util.spec_from_file_location("full8_supervisor_transport", supervisor_path)
+        queue_spec = importlib.util.spec_from_file_location("full8_queue_transport", queue_path)
+        assert supervisor_spec and supervisor_spec.loader and queue_spec and queue_spec.loader
+        supervisor = importlib.util.module_from_spec(supervisor_spec)
+        queue = importlib.util.module_from_spec(queue_spec)
+        supervisor_spec.loader.exec_module(supervisor)
+        queue_spec.loader.exec_module(queue)
+        expected = [400, 1192, 2384]
+        encoded = supervisor.encode_evaluation_iterations(expected)
+        self.assertEqual(encoded, "400:1192:2384")
+        self.assertNotIn(",", encoded)
+        self.assertEqual(queue.decode_evaluation_iterations(encoded), expected)
+        self.assertEqual(queue.decode_evaluation_iterations("400,1192,2384"), expected)
+
     def test_initial_greekmmlu_finalizer_rejects_wrong_rope_geometry_first(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

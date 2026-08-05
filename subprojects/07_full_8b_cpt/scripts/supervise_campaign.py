@@ -33,6 +33,11 @@ def submit(command: list[str]) -> str:
     return output.split(";", 1)[0]
 
 
+def encode_evaluation_iterations(iterations: list[int]) -> str:
+    """Encode a list without Slurm's comma-delimited --export separator."""
+    return ":".join(map(str, iterations))
+
+
 def event(args: argparse.Namespace, name: str, payload: dict) -> None:
     root = args.run_root / "orchestration" / "events"
     now = dt.datetime.now(dt.timezone.utc)
@@ -201,7 +206,7 @@ def main() -> int:
     queue = submit([
         "sbatch", "--parsable", f"--job-name=full8b_evalq_s{args.segment_id}",
         f"--output={args.run_root}/logs/%x-%j.out", f"--error={args.run_root}/logs/%x-%j.err",
-        f"--export={common_export(args)},FULL8_TRAIN_JOB_ID={args.train_job_id},FULL8_EVALUATION_ITERATIONS={','.join(map(str,evaluations))},FULL8_EVALUATION_QUEUE_RECEIPT={queue_receipt}",
+        f"--export={common_export(args)},FULL8_TRAIN_JOB_ID={args.train_job_id},FULL8_EVALUATION_ITERATIONS={encode_evaluation_iterations(evaluations)},FULL8_EVALUATION_QUEUE_RECEIPT={queue_receipt}",
         str(args.code_root / "subprojects/07_full_8b_cpt/clariden/run_evaluation_queue.sbatch"),
     ])
     event(args, "segment_checkpoint_gated", {"checkpoint_iteration": end, "checkpoint_receipt": str(checkpoint_receipt), "evaluation_queue_job": queue, "evaluation_iterations": evaluations})

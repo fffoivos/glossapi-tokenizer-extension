@@ -7,6 +7,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -18,6 +19,11 @@ from contract import atomic_write_json, read_json
 
 ACTIVE = {"CONFIGURING", "COMPLETING", "PENDING", "RUNNING", "RESIZING", "SUSPENDED"}
 SUCCESS = {"COMPLETED"}
+
+
+def decode_evaluation_iterations(value: str) -> list[int]:
+    """Accept the colon-safe Slurm transport and legacy comma-separated input."""
+    return [int(item) for item in re.split(r"[:,]", value) if item]
 
 
 def state(job_id: str) -> str:
@@ -128,7 +134,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     args.code_root = args.code_root.resolve(); args.stage_root = args.stage_root.resolve(); args.run_root = args.run_root.resolve()
-    iterations = [int(value) for value in args.iterations.split(",") if value]
+    iterations = decode_evaluation_iterations(args.iterations)
     started = time.monotonic()
     while True:
         completed = []
