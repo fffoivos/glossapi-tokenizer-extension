@@ -528,6 +528,9 @@ class Full8BOrchestrationTests(unittest.TestCase):
             self.assertTrue(module.retryable_terminal("FAILED", marker, 25, 100))
             marker.unlink()
             self.assertFalse(module.retryable_terminal("FAILED", marker, 25, 100))
+            self.assertTrue(module.retryable_terminal(
+                "FAILED", marker, 25, 100, verified_recovery_checkpoint=True,
+            ))
             self.assertTrue(module.retryable_terminal("TIMEOUT", marker, 25, 100))
 
     def test_supervisor_submissions_escape_the_parent_uenv(self) -> None:

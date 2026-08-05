@@ -103,8 +103,13 @@ def last_logged_iteration(path: Path) -> int | None:
     return latest
 
 
-def retryable_terminal(state: str, graceful_marker: Path, latest: int | None, end: int) -> bool:
+def retryable_terminal(
+    state: str, graceful_marker: Path, latest: int | None, end: int,
+    *, verified_recovery_checkpoint: bool = False,
+) -> bool:
     if state in RETRYABLE:
+        return True
+    if state == "FAILED" and verified_recovery_checkpoint:
         return True
     return graceful_marker.is_file() and latest is not None and latest < end
 
@@ -180,9 +185,6 @@ def main() -> int:
     latest = last_logged_iteration(log)
     incomplete_graceful = graceful_marker.is_file() and latest is not None and latest < end
     if state != "COMPLETED" or incomplete_graceful:
-        if not retryable_terminal(state, graceful_marker, latest, end) or args.attempt >= 2:
-            event(args, "campaign_blocked", {"reason": "nonretryable_or_exhausted_training_failure", "slurm_state": state})
-            raise RuntimeError(f"training failure is not automatically recoverable: {state}")
         recovery_start = original_start
         recovery = False
         recovery_receipt = args.run_root / "recovery_receipts" / f"segment_{args.segment_id}_attempt_{args.attempt}.json"
@@ -196,6 +198,20 @@ def main() -> int:
             if result.returncode == 0:
                 recovery_start = int(read_json(recovery_receipt)["iteration"])
                 recovery = True
+        if (
+            not retryable_terminal(
+                state, graceful_marker, latest, end,
+                verified_recovery_checkpoint=recovery,
+            )
+            or args.attempt >= 2
+        ):
+            event(args, "campaign_blocked", {
+                "reason": "nonretryable_or_exhausted_training_failure",
+                "slurm_state": state,
+                "verified_recovery_checkpoint": recovery,
+                "recovery_receipt": str(recovery_receipt) if recovery else None,
+            })
+            raise RuntimeError(f"training failure is not automatically recoverable: {state}")
         load_override = None
         if not recovery and recovery_start > 0:
             load_override = exact_load_view(args, segment=args.segment_id, attempt=args.attempt + 1, iteration=recovery_start)
