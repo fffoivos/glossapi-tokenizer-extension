@@ -30,7 +30,8 @@ def main() -> int:
     storage = shutil.disk_usage(args.storage_path)
     scheduler = run(["sinfo", "-h", "-p", "normal", "-o", "%a|%D|%t|%l"])
     test_only = run([
-        "sbatch", "--test-only", "--account=a0140", "--partition=normal", f"--nodes={nodes}",
+        "sbatch", "--test-only", "--uenv-passthrough=ignore",
+        "--account=a0140", "--partition=normal", f"--nodes={nodes}",
         "--exclusive", "--mem=450G", "--time=12:00:00", "--wrap=true",
     ])
     checks = {

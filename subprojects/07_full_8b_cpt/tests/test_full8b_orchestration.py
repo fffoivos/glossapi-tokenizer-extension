@@ -545,6 +545,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
 
     def test_final_launch_handoff_is_dependency_safe_and_fail_closed(self) -> None:
         handoff = (ROOT / "clariden/finalize_and_submit_production.sbatch").read_text()
+        environment = (ROOT / "scripts/capture_launch_environment.py").read_text()
         self.assertIn('FULL8_LAUNCH_AUTHORIZATION:?set explicit production authorization', handoff)
         self.assertIn('== APERTUS8B_FULL_MIXED_CPT', handoff)
         self.assertLess(handoff.index("capture_launch_environment.py"), handoff.index("build_launch_gate.py"))
@@ -554,6 +555,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("--conversion-smoke", handoff)
         self.assertIn("--benchmark-receipt", handoff)
         self.assertIn("--initial-hf-receipt", handoff)
+        self.assertIn('"--uenv-passthrough=ignore"', environment)
 
 
 if __name__ == "__main__":
