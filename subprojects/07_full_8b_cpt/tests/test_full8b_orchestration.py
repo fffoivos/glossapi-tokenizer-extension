@@ -106,6 +106,42 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 hashlib.sha256(text.encode()).digest() for text in ("first", "second")
             ))
 
+    def test_graceful_finalizer_uses_resume_record_after_tracker_advances(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            interrupted = root / "segments/updates_0_288"
+            restarted = root / "segments/updates_11_12"
+            training_log(interrupted / "training.log", 8500.0, start=1, end=11)
+            training_log(restarted / "training.log", 8500.0, start=12, end=12)
+            (interrupted / "graceful_stop_requested").touch()
+            write(interrupted / "training_job_receipt.json", {
+                "schema_version": "apertus_full_8b_training_job_v1",
+                "status": "gracefully_stopped", "profile_id": "dp32_16node",
+                "requested_end_iteration": 288, "last_logged_iteration": 11,
+            })
+            write(restarted / "training_job_receipt.json", {
+                "schema_version": "apertus_full_8b_training_job_v1",
+                "status": "completed", "profile_id": "dp32_16node",
+                "start_iteration": 11, "end_iteration": 12,
+            })
+            checkpoint = root / "checkpoints/iter_0000011"
+            checkpoint.mkdir(parents=True)
+            (checkpoint / ".metadata").write_bytes(b"checkpoint-11")
+            (root / "checkpoints/latest_checkpointed_iteration.txt").write_text("12\n")
+            write(root / "resume_submission.json", {
+                "schema_version": "apertus_full_8b_graceful_resume_submission_v1",
+                "status": "submitted", "checkpoint_iteration": 11,
+            })
+            output = root / "graceful_stop_smoke_receipt.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/finalize_graceful_stop_smoke.py"),
+                "--run-root", str(root), "--interrupted-root", str(interrupted),
+                "--restart-root", str(restarted), "--output", str(output),
+            ], check=True, capture_output=True, text=True)
+            receipt = json.loads(output.read_text())
+            self.assertEqual(receipt["checkpoint"]["iteration"], 11)
+            self.assertEqual(receipt["checkpoint"]["current_tracker_iteration"], 12)
+
     def test_code_bundle_verifier_rejects_unreceipted_files(self) -> None:
         path = ROOT / "scripts/contract.py"
         spec = importlib.util.spec_from_file_location("full8_contract", path)

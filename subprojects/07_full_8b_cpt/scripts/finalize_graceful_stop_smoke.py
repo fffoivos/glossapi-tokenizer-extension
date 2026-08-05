@@ -42,7 +42,11 @@ def main() -> int:
     if int(first.get("last_logged_iteration", -1)) != latest or latest >= int(first["requested_end_iteration"]):
         raise ValueError("interrupted attempt boundary drift")
     tracker = args.run_root / "checkpoints/latest_checkpointed_iteration.txt"
-    checkpoint_iteration = int(tracker.read_text().strip())
+    submission_path = args.run_root / "resume_submission.json"
+    submission = read_json(submission_path)
+    if submission.get("status") != "submitted":
+        raise ValueError("graceful resume submission is not complete")
+    checkpoint_iteration = int(submission["checkpoint_iteration"])
     checkpoint = args.run_root / "checkpoints" / f"iter_{checkpoint_iteration:07d}"
     if not 0 < checkpoint_iteration <= latest or not (checkpoint / ".metadata").is_file():
         raise ValueError("graceful stop did not persist a recoverable checkpoint")
@@ -75,6 +79,8 @@ def main() -> int:
             "root": str(checkpoint.resolve()),
             "metadata_sha256": hashlib.sha256((checkpoint / ".metadata").read_bytes()).hexdigest(),
             "tracker": file_binding(tracker),
+            "resume_submission": file_binding(submission_path),
+            "current_tracker_iteration": int(tracker.read_text().strip()),
         },
         "resume": {
             "passed": True,
