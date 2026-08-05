@@ -1,0 +1,59 @@
+{
+  "schema_version": "apertus_v1_1_0_5b_evidence_v1",
+  "captured_at": "2026-08-01",
+  "model": {
+    "repo_id": "swiss-ai/Apertus-v1.1-0.5B",
+    "revision": "1b7276176e564fc0cc7d7c3b991a8d653c8b8792",
+    "public": true,
+    "gated": false,
+    "license": "apache-2.0",
+    "model_card": "https://huggingface.co/swiss-ai/Apertus-v1.1-0.5B",
+    "config": "https://huggingface.co/swiss-ai/Apertus-v1.1-0.5B/blob/1b7276176e564fc0cc7d7c3b991a8d653c8b8792/config.json",
+    "tokenizer_config": "https://huggingface.co/swiss-ai/Apertus-v1.1-0.5B/blob/1b7276176e564fc0cc7d7c3b991a8d653c8b8792/tokenizer_config.json",
+    "special_tokens_map": "https://huggingface.co/swiss-ai/Apertus-v1.1-0.5B/blob/1b7276176e564fc0cc7d7c3b991a8d653c8b8792/special_tokens_map.json"
+  },
+  "architecture": {
+    "architecture": "ApertusForCausalLM",
+    "hidden_size": 1024,
+    "intermediate_size": 6144,
+    "num_hidden_layers": 20,
+    "num_attention_heads": 16,
+    "num_key_value_heads": 4,
+    "hidden_activation": "xielu",
+    "qk_norm": true,
+    "post_norm": false,
+    "rms_norm_eps": 1e-5,
+    "attention_bias": false,
+    "mlp_bias": false,
+    "attention_dropout": 0.0,
+    "hidden_dropout": 0.0,
+    "initializer_range": 0.02,
+    "tied_embeddings": true,
+    "vocab_size": 131072,
+    "model_config_pad_token_id": 3,
+    "token_at_model_config_pad_id": "[INST]",
+    "existing_pad_token_id_in_tokenizer": 10,
+    "tokenizer_declares_pad_token": false,
+    "max_position_embeddings": 4096,
+    "rope_theta": 500000,
+    "rope_type": "default",
+    "rope_scaling_config": {
+      "rope_type": "default"
+    },
+    "dtype": "bfloat16"
+  },
+  "release_paper": {
+    "title": "Apertus LLM Family Expansion via Distillation and Quantization",
+    "url": "https://arxiv.org/abs/2605.29128",
+    "training_tokens_rounded": 1700000000000,
+    "optimizer": "AdEMAMix",
+    "schedule": "WSD",
+    "learning_rate": "6e-4",
+    "global_batch_sequences": 512,
+    "total_iterations": 800000,
+    "sequence_length_from_model_card": 4096,
+    "derived_global_batch_tokens": 2097152,
+    "derived_training_tokens": 1677721600000,
+    "note": "Paper Table 6 supplies LR, GBS and iterations; the model card supplies 4096-token packed sequences. The 1.7T value is rounded."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "apertus_critical_path_forecast_v1",
+  "label": "full Apertus-8B mixed CPT from data freeze through evidence completion",
+  "calibration": {
+    "status": "mixed_measured_and_planning",
+    "training_geometry": "16 Clariden GH200 nodes, 64 GPUs, TP2, GBS1024, microbatch2",
+    "measured_jobs": [2972672, 2972674, 2975267, 2975269, 2975271],
+    "measured_step_seconds": {
+      "median_range": [8.6655, 8.7288],
+      "p90_range": [8.682, 8.7357],
+      "observed_wall_seconds_per_update_range": [10.493, 11.053]
+    },
+    "planning_only_components": ["six_future_scheduler_waits", "full_data_catalog_and_pack", "recovery_allowance", "twenty_GreekMMLU_pipelines", "terminal_per_document_validation"]
+  },
+  "training": {
+    "updates": 19248,
+    "step_seconds": {"median": 8.7288, "p90": 8.7357},
+    "wall_seconds_per_update": {"low": 10.49, "central": 10.75, "high": 11.1},
+    "queue_hours": {"low": 2.0, "central": 8.0, "high": 24.0},
+    "fixed_hours": {"low": 4.0, "central": 8.0, "high": 16.0},
+    "recovery_hours": {"low": 0.0, "central": 2.0, "high": 8.0}
+  },
+  "evidence": {"tail_hours": {"low": 2.0, "central": 6.0, "high": 12.0}},
+  "deadline": {"label": "Sunday 2026-08-09 23:59 Europe/Athens from 2026-08-05 11:34", "available_hours": 108.4167}
+}

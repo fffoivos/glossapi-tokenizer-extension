@@ -1,0 +1,33 @@
+{
+  "schema_version": "apertus_full_8b_owner_decisions_v1",
+  "status": "accepted",
+  "recorded_at": "2026-08-05T11:17:54Z",
+  "authority": "dataset_and_training_owner",
+  "recipe_id": "full8b-mixed-79-20-1-wsd10-v1",
+  "dataset": {
+    "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+    "revision": "3f97cec48af502f4996cf8ff20b02660e2dd3d31"
+  },
+  "decisions": {
+    "D0_selection_confirmed_after_per_document_rerun_or_explicit_point_estimate_acceptance": {
+      "accepted": true,
+      "basis": "explicit_point_estimate_acceptance",
+      "qualification": "The 0.5B aggregate evidence selected D0; the owner accepts proceeding before schedule-selection per-document confidence intervals are available."
+    },
+    "libduth_permission_evidence_conflict_is_reconciled_or_explicitly_accepted": {
+      "accepted": true,
+      "basis": "explicit_recorded_risk_acceptance",
+      "include_libduth": true,
+      "legal_conclusion_claimed": false,
+      "qualification": "This records the owner's launch decision despite the conflicting historical evidence; it does not assert that the legal conflict was resolved."
+    },
+    "explicit_production_launch_authorization_is_received": {
+      "accepted": true,
+      "basis": "owner_go_ahead_to_prepare_order_nodes_and_babysit_until_completion"
+    },
+    "checkpoint_averaging": {
+      "accepted": false,
+      "basis": "explicit_owner_exclusion"
+    }
+  }
+}

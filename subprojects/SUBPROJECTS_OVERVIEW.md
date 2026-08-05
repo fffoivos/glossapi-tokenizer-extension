@@ -324,3 +324,27 @@ indistinguishable from non-Greek-origin baselines (+0.04).
   embedding extension + CPT (not yet started; next after tokenizer
   handoff — cutoff is frozen at 17,408)
 ```
+
+---
+
+## `06_dataset_scheduling_experiments/`
+
+Completed five-arm Apertus-v1.1-0.5B factorial study over the exact same
+80.729939067B active-token corpus per arm. D0 stationary mixing, hard HPLT to
+GlossAPI, hard reverse, and the two gradual mirror schedules were trained with
+one WSD-10 optimizer trajectory and no checkpoint averaging. The subproject
+contains frozen schedules, production/recovery orchestration, source-panel and
+native GreekMMLU trajectories, and the single-page results report. D0 is the
+accepted point-estimate selector for the 8B CPT; the per-document uncertainty
+limitation remains explicitly recorded.
+
+## `07_full_8b_cpt/`
+
+Receipt-gated production orchestration for one full Apertus-8B D0 CPT pass:
+the public dataset v2 including `libduth`, 79/20/1 Greek/foreign/Old-Greek
+mix, 148,992-token Modern+Polytonic tokenizer, verified untied layer-11 Token
+Distillation initialization, corrected RoPE, AdEMAMix and WSD-10. It includes
+matched DP32/DP64 benchmarking, automatic fallback, 12-hour segment recovery,
+source validation every 25 updates, 20 native GreekMMLU checkpoints, 39
+per-document validation panels, and separate training/evidence completion
+receipts. Checkpoint averaging is excluded.
