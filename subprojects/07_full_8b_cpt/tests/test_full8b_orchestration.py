@@ -61,6 +61,12 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("benchmark_load_views", train)
         self.assertIn("latest_checkpointed_iteration.txt", train)
 
+    def test_megatron_cache_is_writable_run_state_not_frozen_dataset_state(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertIn('DATA_CACHE="$FULL8_RUN_ROOT/dataset_cache"', train)
+        self.assertIn('--data-cache-path "$DATA_CACHE"', train)
+        self.assertNotIn('--data-cache-path "$FULL8_STAGE_ROOT', train)
+
     def test_profiles_preserve_global_batch(self) -> None:
         for profile in ("dp32_16node", "dp64_32node"):
             subprocess.run(

@@ -40,7 +40,8 @@ if [[ "${FULL8_INITIAL_VALIDATION_ONLY:-0}" == 1 ]]; then
   SEGMENT_ROOT="$FULL8_RUN_ROOT/initial_validation"
 fi
 CHECKPOINT_ROOT="$FULL8_RUN_ROOT/checkpoints"
-mkdir -p "$SEGMENT_ROOT" "$CHECKPOINT_ROOT" "$FULL8_RUN_ROOT/triggers"
+DATA_CACHE="$FULL8_RUN_ROOT/dataset_cache"
+mkdir -p "$SEGMENT_ROOT" "$CHECKPOINT_ROOT" "$DATA_CACHE" "$FULL8_RUN_ROOT/triggers"
 JOB_STARTED_EPOCH=$(date +%s)
 
 if [[ -n "${FULL8_EXACT_LOAD_ITERATION:-}" ]]; then
@@ -175,6 +176,7 @@ cmd=(python3 "$TRAINING_CODE/pretrain_scheduled_gpt.py"
   --goldfish-loss --goldfish-k 50 --goldfish-h 50
   --reset-attention-mask --reset-position-ids --eod-mask-loss
   --tokenizer-type HuggingFaceTokenizer --tokenizer-model "$TOKENIZER"
+  --data-cache-path "$DATA_CACHE"
   --split 100,0,0 --num-workers 4 --num-dataset-builder-threads 4
   --dataloader-type single --seed 20260609 --log-throughput --log-params-norm --log-interval 1
   --eval-interval 25 --eval-iters 1 --extra-valid-data-path "${VALID_ARGS[@]}"
