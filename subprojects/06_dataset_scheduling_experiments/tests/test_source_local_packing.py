@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import importlib.util
+import struct
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -22,9 +24,25 @@ packing = load_module("build_packing_plan", ROOT / "dataset" / "build_packing_pl
 packed = load_module(
     "finalize_packed_corpus", ROOT / "dataset" / "finalize_packed_corpus.py"
 )
+bucket = load_module("pack_catalog_bucket", ROOT / "dataset" / "pack_catalog_bucket.py")
 
 
 class SourceLocalPackingTests(unittest.TestCase):
+    def test_bucket_index_writer_is_self_contained_and_megatron_compatible(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "sample.idx"
+            bucket.write_index(path, [4097, 4097])
+            with path.open("rb") as handle:
+                self.assertEqual(handle.read(9), b"MMIDIDX\x00\x00")
+                self.assertEqual(struct.unpack("<Q", handle.read(8))[0], 1)
+                self.assertEqual(struct.unpack("<B", handle.read(1))[0], 4)
+                self.assertEqual(struct.unpack("<Q", handle.read(8))[0], 2)
+                self.assertEqual(struct.unpack("<Q", handle.read(8))[0], 3)
+                self.assertEqual(struct.unpack("<2i", handle.read(8)), (4097, 4097))
+                self.assertEqual(struct.unpack("<2q", handle.read(16)), (0, 4097 * 4))
+                self.assertEqual(struct.unpack("<3q", handle.read(24)), (0, 1, 2))
+                self.assertEqual(handle.read(), b"")
+
     def test_token_balanced_boundaries_are_complete_and_nonempty(self) -> None:
         tokens = np.asarray([3, 7, 2, 11, 5, 13, 4], dtype=np.uint32)
         boundaries = packing.token_balanced_boundaries(tokens, 4)

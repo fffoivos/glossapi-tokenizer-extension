@@ -18,5 +18,4 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   --packing-plan "$FULL8_STAGE_ROOT/inventory/packing_plan.json" \
   --input-receipt "$FULL8_STAGE_ROOT/inventory/pool_corpus_receipt.json" \
   --stage-root "$FULL8_STAGE_ROOT" \
-  --bridge-common "$FULL8_CODE_ROOT/subprojects/05_token_distillation_cpt/05_training_dataset_bridge/scripts/bridge_common.py" \
   --task-index "$SLURM_ARRAY_TASK_ID"

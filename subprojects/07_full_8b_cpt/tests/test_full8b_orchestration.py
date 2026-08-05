@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import tempfile
 import unittest
@@ -28,6 +29,18 @@ def training_log(path: Path, milliseconds: float, *, start: int = 1, end: int = 
 
 
 class Full8BOrchestrationTests(unittest.TestCase):
+    def test_every_code_root_literal_exists_in_the_frozen_repository(self) -> None:
+        repository_root = ROOT.parents[1]
+        pattern = re.compile(r'\$FULL8_CODE_ROOT/([^"\\\s]+)')
+        missing = []
+        for script in sorted((ROOT / "clariden").iterdir()):
+            if not script.is_file():
+                continue
+            for relative in pattern.findall(script.read_text(encoding="utf-8")):
+                if not (repository_root / relative).exists():
+                    missing.append(f"{script.name}: {relative}")
+        self.assertEqual(missing, [])
+
     def test_profiles_preserve_global_batch(self) -> None:
         for profile in ("dp32_16node", "dp64_32node"):
             subprocess.run(

@@ -5,12 +5,10 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import importlib.util
 import json
 import os
 import resource
 import struct
-import sys
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -31,16 +29,6 @@ CATALOG_DTYPE = np.dtype(
 INDEX_HEADER = b"MMIDIDX\x00\x00"
 
 
-def load_module(name: str, path: Path):
-    spec = importlib.util.spec_from_file_location(name, path)
-    if spec is None or spec.loader is None:
-        raise ImportError(path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -54,6 +42,29 @@ def read_json(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{path}: expected JSON object")
     return value
+
+
+def write_index(path: Path, lengths: list[int]) -> None:
+    """Write the Megatron mmap index without an external bridge dependency."""
+
+    values = np.asarray(lengths, dtype=np.int32)
+    pointers = np.empty(len(values), dtype=np.int64)
+    offset = 0
+    for index, length in enumerate(values):
+        pointers[index] = offset
+        offset += int(length) * 4
+    documents = np.arange(len(values) + 1, dtype=np.int64)
+    with path.open("wb") as handle:
+        handle.write(INDEX_HEADER)
+        handle.write(struct.pack("<Q", 1))
+        handle.write(struct.pack("<B", 4))
+        handle.write(struct.pack("<Q", len(values)))
+        handle.write(struct.pack("<Q", len(documents)))
+        handle.write(values.tobytes(order="C"))
+        handle.write(pointers.tobytes(order="C"))
+        handle.write(documents.tobytes(order="C"))
+        handle.flush()
+        os.fsync(handle.fileno())
 
 
 def write_json_atomic(path: Path, value: Mapping[str, Any]) -> None:
@@ -103,7 +114,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--packing-plan", type=Path, required=True)
     parser.add_argument("--input-receipt", type=Path, required=True)
     parser.add_argument("--stage-root", type=Path, required=True)
-    parser.add_argument("--bridge-common", type=Path, required=True)
     parser.add_argument("--task-index", type=int, required=True)
     return parser.parse_args()
 
@@ -176,7 +186,6 @@ def main() -> int:
         raise ValueError("overlay tokenizer has no EOS token")
     pad_id = int(plan["geometry"]["pad_token_id"])
 
-    bridge_common = load_module("packing_bridge_common", args.bridge_common)
     prefix.parent.mkdir(parents=True, exist_ok=True)
     bin_path = Path(str(prefix) + ".bin")
     idx_path = Path(str(prefix) + ".idx")
@@ -237,7 +246,7 @@ def main() -> int:
         output.flush()
         os.fsync(output.fileno())
     os.replace(bin_tmp, bin_path)
-    bridge_common.write_index(idx_tmp, [4097] * len(active_counts))
+    write_index(idx_tmp, [4097] * len(active_counts))
     os.replace(idx_tmp, idx_path)
     np.asarray(active_counts, dtype=np.uint16).tofile(active_tmp)
     os.replace(active_tmp, active_path)
