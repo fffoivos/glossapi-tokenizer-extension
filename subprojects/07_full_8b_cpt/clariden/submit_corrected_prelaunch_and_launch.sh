@@ -16,11 +16,10 @@ set -euo pipefail
 DRY_RUN=${DRY_RUN:-1}
 [[ "$DRY_RUN" == 0 || "$DRY_RUN" == 1 ]] || { echo "DRY_RUN must be 0 or 1" >&2; exit 2; }
 selected="$FULL8_BENCHMARK_ROOT/selected_execution_profile.json"
-evaluation_bundle="$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments"
-megatron=${FULL8_MEGATRON_ROOT:-/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T093500Z-megatron-production-c92402e-v1}
 tokenizer=/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_polytonic_148992
-compat=/iopsstor/scratch/cscs/fffoivos/orchestration/apertus-cscs-efficiency/20260802T230000Z-mini-b2-v8/compat
-export_root="$FULL8_PRELAUNCH_ROOT/initial_export"
+initial_hf_source=${FULL8_INITIAL_HF_SOURCE:-/capstor/scratch/cscs/fffoivos/models/greek-cpt25b-init-roundtrip/20260731T124000Z-cpt25b-v1/hf_roundtrip}
+initial_hf_root="$FULL8_PRELAUNCH_ROOT/initial_hf_anchor/model"
+initial_hf_receipt="$FULL8_PRELAUNCH_ROOT/initial_hf_anchor/receipt.json"
 initial_checkpoint_receipt="$FULL8_PRELAUNCH_ROOT/initial_checkpoint_tree.json"
 initial_validation_receipt="$FULL8_PRELAUNCH_ROOT/initial_source_validation/initial_validation/initial_validation_receipt.json"
 initial_greek_receipt="$FULL8_PRELAUNCH_ROOT/initial_greekmmlu/initial_greekmmlu_receipt.json"
@@ -58,24 +57,24 @@ freeze_init=$(submit \
   --export="$common,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_CHECKPOINT_RECEIPT=$initial_checkpoint_receipt" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/freeze_initial_checkpoint.sbatch")
 
-convert=$(submit \
+materialize_hf=$(submit \
   --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
-  --export="ALL,EVALUATION_BUNDLE=$evaluation_bundle,EVALUATION_CODE_BUNDLE_ROOT=$FULL8_CODE_ROOT,EVALUATION_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,MEGATRON_DIR=$megatron,SOURCE_CHECKPOINT_ROOT=$FULL8_INITIAL_MEGATRON,SOURCE_ITERATION=0,TOKENIZER_DIR=$tokenizer,EXPORT_ROOT=$export_root,PYTHON_COMPAT_DIR=$compat,TOKENIZER_SHA=bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b,EXPORT_MODEL_SCALE=8B,FULL8_EVALUATION_ROOT=$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/evaluation" \
-  "$evaluation_bundle/clariden/convert_checkpoint_for_native_greekmmlu.sbatch")
+  --export="$common,FULL8_INITIAL_HF_SOURCE=$initial_hf_source,FULL8_INITIAL_HF_ROOT=$initial_hf_root,FULL8_INITIAL_HF_RECEIPT=$initial_hf_receipt" \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/materialize_corrected_initial_hf.sbatch")
 
 source_validation=$(submit --nodes=16 --dependency="afterok:$stage" \
   --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_STAGE_ROOT=$FULL8_CORRECTED_STAGE,FULL8_RUN_ROOT=$FULL8_PRELAUNCH_ROOT/initial_source_validation,FULL8_START_ITERATION=0,FULL8_END_ITERATION=3208,FULL8_LOAD_CHECKPOINT=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_VALIDATION_ONLY=1" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch")
 
-greek=$(submit --dependency="afterok:$convert" \
+greek=$(submit --dependency="afterok:$materialize_hf" \
   --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
-  --export="$common,FULL8_INITIAL_HF=$export_root/hf,FULL8_INITIAL_EVAL_ROOT=$FULL8_PRELAUNCH_ROOT/initial_greekmmlu" \
+  --export="$common,FULL8_INITIAL_HF=$initial_hf_root,FULL8_INITIAL_EVAL_ROOT=$FULL8_PRELAUNCH_ROOT/initial_greekmmlu" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/run_initial_greekmmlu.sbatch")
 
-doc=$(submit --dependency="afterok:$stage:$convert" \
+doc=$(submit --dependency="afterok:$stage:$materialize_hf" \
   --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%A_%a.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%A_%a.err" \
-  --export="$common,FULL8_VALIDATION_MANIFEST=$FULL8_CORRECTED_STAGE/validation/validation_manifest.json,FULL8_HF_MODEL=$export_root/hf,FULL8_HF_TOKENIZER=$tokenizer,FULL8_DOCVAL_OUTPUT=$per_document_root" \
+  --export="$common,FULL8_VALIDATION_MANIFEST=$FULL8_CORRECTED_STAGE/validation/validation_manifest.json,FULL8_HF_MODEL=$initial_hf_root,FULL8_HF_TOKENIZER=$tokenizer,FULL8_DOCVAL_OUTPUT=$per_document_root" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/run_per_document_group.sbatch")
 
 packed=$(submit --dependency="afterok:$stage" \
@@ -86,12 +85,12 @@ packed=$(submit --dependency="afterok:$stage" \
 handoff_dependency="afterok:$source_validation:$greek:$doc:$freeze_init:$packed"
 handoff=$(submit --dependency="$handoff_dependency" \
   --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
-  --export="$common,FULL8_STAGE_ROOT=$FULL8_CORRECTED_STAGE,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_BENCHMARK_ROOT=$FULL8_BENCHMARK_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_CHECKPOINT_RECEIPT=$initial_checkpoint_receipt,FULL8_INITIAL_VALIDATION_RECEIPT=$initial_validation_receipt,FULL8_INITIAL_GREEKMMLU_RECEIPT=$initial_greek_receipt,FULL8_INITIAL_PER_DOCUMENT_ROOT=$per_document_root,FULL8_PACKED_PAYLOAD_INTEGRITY=$packed_integrity,FULL8_CONVERSION_SMOKE_RECEIPT=$FULL8_CONVERSION_SMOKE_RECEIPT,FULL8_GRACEFUL_STOP_SMOKE=$FULL8_GRACEFUL_STOP_SMOKE,FULL8_RUN_ROOT=$FULL8_PRODUCTION_RUN_ROOT,FULL8_LAUNCH_AUTHORIZATION=$FULL8_LAUNCH_AUTHORIZATION" \
+  --export="$common,FULL8_STAGE_ROOT=$FULL8_CORRECTED_STAGE,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_BENCHMARK_ROOT=$FULL8_BENCHMARK_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_CHECKPOINT_RECEIPT=$initial_checkpoint_receipt,FULL8_INITIAL_HF_RECEIPT=$initial_hf_receipt,FULL8_INITIAL_VALIDATION_RECEIPT=$initial_validation_receipt,FULL8_INITIAL_GREEKMMLU_RECEIPT=$initial_greek_receipt,FULL8_INITIAL_PER_DOCUMENT_ROOT=$per_document_root,FULL8_PACKED_PAYLOAD_INTEGRITY=$packed_integrity,FULL8_CONVERSION_SMOKE_RECEIPT=$FULL8_CONVERSION_SMOKE_RECEIPT,FULL8_GRACEFUL_STOP_SMOKE=$FULL8_GRACEFUL_STOP_SMOKE,FULL8_RUN_ROOT=$FULL8_PRODUCTION_RUN_ROOT,FULL8_LAUNCH_AUTHORIZATION=$FULL8_LAUNCH_AUTHORIZATION" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/finalize_and_submit_production.sbatch")
 
-graph=$(python3 - "$stage" "$freeze_init" "$convert" "$source_validation" "$greek" "$doc" "$packed" "$handoff" <<'PY'
+graph=$(python3 - "$stage" "$freeze_init" "$materialize_hf" "$source_validation" "$greek" "$doc" "$packed" "$handoff" <<'PY'
 import json,sys
-names=("corrected_stage","freeze_initial_checkpoint","convert_initial_to_hf","initial_source_validation","initial_greekmmlu","initial_per_document","packed_payload_integrity","launch_gate_and_production_handoff")
+names=("corrected_stage","freeze_initial_checkpoint","materialize_corrected_initial_hf","initial_source_validation","initial_greekmmlu","initial_per_document","packed_payload_integrity","launch_gate_and_production_handoff")
 print(json.dumps(dict(zip(names,sys.argv[1:])),separators=(",",":")))
 PY
 )

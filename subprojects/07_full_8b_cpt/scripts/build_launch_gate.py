@@ -46,6 +46,7 @@ def main() -> int:
     parser.add_argument("--initial-per-document-root", type=Path, required=True)
     parser.add_argument("--initial-megatron", type=Path, required=True)
     parser.add_argument("--initial-checkpoint-receipt", type=Path, required=True)
+    parser.add_argument("--initial-hf-receipt", type=Path, required=True)
     parser.add_argument("--conversion-smoke", type=Path, required=True)
     parser.add_argument("--launch-environment", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -104,6 +105,28 @@ def main() -> int:
     model_config = initial_greek.get("model_config", {})
     if any(model_config.get(name) != value for name, value in expected_geometry.items()):
         raise ValueError("iteration-zero GreekMMLU model geometry drift")
+    initial_hf = status(args.initial_hf_receipt, {"apertus_full_8b_corrected_initial_hf_v1"})
+    initial_hf_root = Path(initial_hf.get("model_root", "")).resolve()
+    if (
+        initial_hf_root != Path(initial_greek.get("model", "")).resolve()
+        or initial_hf.get("geometry") != expected_geometry
+        or initial_hf.get("config_changed_fields") != ["max_position_embeddings", "rope_theta"]
+        or initial_hf.get("zero_tensor_and_logit_drift") is not True
+        or initial_hf.get("non_config_files_hardlinked_to_source") is not True
+        or initial_hf.get("source_roundtrip_verification", {}).get("sha256")
+        != recipe["initialization"]["roundtrip_verification_file_sha256"]
+    ):
+        raise ValueError("corrected iteration-zero HF anchor drift")
+    hf_rows = initial_hf.get("files", [])
+    if int(initial_hf.get("file_count", -1)) != 10 or len(hf_rows) != 10:
+        raise ValueError("corrected iteration-zero HF inventory drift")
+    for row in hf_rows:
+        path = initial_hf_root / row["relative_path"]
+        if not path.is_file() or path.is_symlink() or path.stat().st_size != int(row["bytes"]) or sha256_file(path) != row["sha256"]:
+            raise ValueError(f"corrected iteration-zero HF file drift: {path}")
+    hf_canonical = json.dumps(hf_rows, separators=(",", ":"), sort_keys=True).encode()
+    if hashlib.sha256(hf_canonical).hexdigest() != initial_hf.get("tree_sha256"):
+        raise ValueError("corrected iteration-zero HF tree drift")
     conversion_smoke = status(args.conversion_smoke, {"apertus_full_8b_conversion_greekmmlu_smoke_v1"})
     if conversion_smoke.get("selected_profile_id") != selected["selection"]["profile_id"]:
         raise ValueError("conversion smoke/profile drift")
@@ -169,7 +192,7 @@ def main() -> int:
         "libduth_permission_evidence_conflict_is_reconciled_or_explicitly_accepted": owner["decisions"]["libduth_permission_evidence_conflict_is_reconciled_or_explicitly_accepted"]["accepted"] is True,
         "packed_schedule_receipt_matches_recipe": packed.get("status") == "completed" and schedule.get("status") == "completed" and packed_integrity.get("status") == "passed",
         "all_13_validation_panels_are_frozen": len(validation["panels"]) == 13,
-        "tokenizer_and_initialization_hashes_pass": pool["tokenizer"]["tokenizer_json_sha256"] == recipe["tokenizer"]["tokenizer_json_sha256"] and initial_tree.get("status") == "frozen",
+        "tokenizer_and_initialization_hashes_pass": pool["tokenizer"]["tokenizer_json_sha256"] == recipe["tokenizer"]["tokenizer_json_sha256"] and initial_tree.get("status") == "frozen" and initial_hf.get("status") == "completed",
         "nan_checks_are_enabled": recipe["optimization"]["nan_and_inf_checks_enabled"] is True,
         "initial_validation_is_finite": initial_validation_finite and initial_validation.get("validation_manifest_sha256") == validation_sha,
         "two_update_train_and_resume_smoke_passes": control_restart.get("provenance", {}).get("passed") is True and control_restart.get("numerical", {}).get("passed") is True,
@@ -207,6 +230,7 @@ def main() -> int:
             "production_initialization": production_init,
             "roundtrip_initialization": roundtrip_init,
             "initial_checkpoint_tree": args.initial_checkpoint_receipt,
+            "initial_hf_anchor": args.initial_hf_receipt,
         }.items()
     }
     evidence["initial_per_document"] = [file_binding(path) for path in per_document]

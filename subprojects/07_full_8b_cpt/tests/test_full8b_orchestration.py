@@ -106,6 +106,70 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 hashlib.sha256(text.encode()).digest() for text in ("first", "second")
             ))
 
+    def test_sha256_sortedness_check_uses_exact_raw_byte_order(self) -> None:
+        path = ROOT / "dataset/build_clean_replay_validation.py"
+        spec = importlib.util.spec_from_file_location("full8_clean_replay", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        values = module.np.asarray([
+            b"\x00" * 31 + b"\x01",
+            b"\x00" * 30 + b"\x01\x00",
+            b"\x01" + b"\x00" * 31,
+        ], dtype="V32")
+        module.require_strictly_sorted_sha256(values, chunk_rows=2)
+        with self.assertRaisesRegex(ValueError, "not unique and sorted"):
+            module.require_strictly_sorted_sha256(values[[1, 0, 2]], chunk_rows=2)
+        with self.assertRaisesRegex(ValueError, "not unique and sorted"):
+            module.require_strictly_sorted_sha256(values[[0, 0, 2]], chunk_rows=2)
+
+    def test_corrected_initial_hf_changes_only_evaluation_geometry(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source"
+            source.mkdir()
+            config = {
+                "rope_theta": 12_000_000.0, "max_position_embeddings": 65_536,
+                "tie_word_embeddings": False, "vocab_size": 148_992,
+                "rope_scaling": {"factor": 8.0, "rope_type": "llama3"},
+            }
+            (source / "config.json").write_text(json.dumps(config), encoding="utf-8")
+            names = {
+                "generation_config.json", "model-00001-of-00004.safetensors",
+                "model-00002-of-00004.safetensors", "model-00003-of-00004.safetensors",
+                "model-00004-of-00004.safetensors", "model.safetensors.index.json",
+                "special_tokens_map.json", "tokenizer_config.json", "tokenizer.json",
+            }
+            for name in names:
+                (source / name).write_bytes(name.encode())
+            verification = root / "verification.json"
+            write(verification, {
+                "standard_max_abs_diff": 0.0, "r17_max_abs_diff": 0.0,
+                "xielu_max_abs_diff": 0.0, "qk_norm_max_abs_diff": 0.0,
+                "orig_only": [], "trip_only": [], "shape_mismatches": [],
+                "standard_changed_over_tol_count": 0, "r17_changed_over_tol_count": 0,
+                "logits": {"logit_max_abs_diff": 0.0},
+            })
+            output = root / "model"
+            receipt = root / "receipt.json"
+            subprocess.run([
+                "python3", str(ROOT / "evaluation/materialize_corrected_initial_hf.py"),
+                "--source", str(source), "--roundtrip-verification", str(verification),
+                "--expected-verification-sha256", hashlib.sha256(verification.read_bytes()).hexdigest(),
+                "--expected-tokenizer-sha256", hashlib.sha256((source / "tokenizer.json").read_bytes()).hexdigest(),
+                "--output-root", str(output), "--receipt", str(receipt),
+            ], check=True, capture_output=True, text=True)
+            corrected = json.loads((output / "config.json").read_text())
+            self.assertEqual(corrected["rope_theta"], 500_000.0)
+            self.assertEqual(corrected["max_position_embeddings"], 4_096)
+            self.assertEqual(
+                {key for key in config if config[key] != corrected[key]},
+                {"rope_theta", "max_position_embeddings"},
+            )
+            frozen = json.loads(receipt.read_text())
+            self.assertTrue(frozen["zero_tensor_and_logit_drift"])
+            self.assertEqual(frozen["file_count"], 10)
+
     def test_graceful_finalizer_uses_resume_record_after_tracker_advances(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -476,6 +540,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn('[[ ! -e "$environment" && ! -e "$gate" && ! -e "$FULL8_RUN_ROOT" ]]', handoff)
         self.assertIn("--conversion-smoke", handoff)
         self.assertIn("--benchmark-receipt", handoff)
+        self.assertIn("--initial-hf-receipt", handoff)
 
 
 if __name__ == "__main__":

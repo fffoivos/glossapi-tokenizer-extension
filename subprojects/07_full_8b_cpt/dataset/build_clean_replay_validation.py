@@ -97,6 +97,22 @@ def training_overlap(path: Path, training: np.ndarray) -> tuple[int, int]:
     return total, overlap
 
 
+def require_strictly_sorted_sha256(values: np.ndarray, chunk_rows: int = 1_000_000) -> None:
+    """Validate raw SHA-256 byte order without NumPy void/string comparisons."""
+    words = values.view(">u8").reshape(-1, 4)
+    for start in range(1, words.shape[0], chunk_rows):
+        stop = min(words.shape[0], start + chunk_rows)
+        current = words[start:stop]
+        previous = words[start - 1 : stop - 1]
+        equal_prefix = np.ones(current.shape[0], dtype=bool)
+        decreases = np.zeros(current.shape[0], dtype=bool)
+        for column in range(4):
+            decreases |= equal_prefix & (current[:, column] < previous[:, column])
+            equal_prefix &= current[:, column] == previous[:, column]
+        if np.any(decreases | equal_prefix):
+            raise ValueError("selected training content inventory is not unique and sorted")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pool-receipt", type=Path, required=True)
@@ -118,8 +134,7 @@ def main() -> int:
     if sha256_file(training_path) != training_receipt["combined"]["sha256"]:
         raise ValueError("selected training content inventory drift")
     training = np.memmap(training_path, mode="r", dtype="V32")
-    if training.size > 1 and np.any(training[1:] <= training[:-1]):
-        raise ValueError("selected training content inventory is not unique and sorted")
+    require_strictly_sorted_sha256(training)
 
     full_path = args.stage_root / "inventory/catalog/old_greek_replay.sorted.catalog45"
     selected_path = args.stage_root / "inventory/catalog/old_greek_replay.source_local_selected.catalog45"

@@ -17,6 +17,7 @@ set -euo pipefail
 : "${FULL8_BENCHMARK_ROOT:?set completed benchmark root}"
 : "${FULL8_INITIAL_MEGATRON:?set verified TP2 initialization root}"
 : "${FULL8_INITIAL_CHECKPOINT_RECEIPT:?set checkpoint-tree receipt}"
+: "${FULL8_INITIAL_HF_RECEIPT:?set corrected iteration-zero HF anchor receipt}"
 : "${FULL8_INITIAL_VALIDATION_RECEIPT:?set corrected initial validation receipt}"
 : "${FULL8_INITIAL_GREEKMMLU_RECEIPT:?set corrected iteration-zero GreekMMLU receipt}"
 : "${FULL8_INITIAL_PER_DOCUMENT_ROOT:?set corrected iteration-zero per-document root}"
@@ -70,6 +71,7 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   --initial-per-document-root "$FULL8_INITIAL_PER_DOCUMENT_ROOT" \
   --initial-megatron "$FULL8_INITIAL_MEGATRON" \
   --initial-checkpoint-receipt "$FULL8_INITIAL_CHECKPOINT_RECEIPT" \
+  --initial-hf-receipt "$FULL8_INITIAL_HF_RECEIPT" \
   --conversion-smoke "$conversion" \
   --launch-environment "$environment" \
   --output "$gate"
