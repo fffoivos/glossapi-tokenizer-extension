@@ -56,6 +56,8 @@ class Full8BOrchestrationTests(unittest.TestCase):
         submit = (ROOT / "clariden/submit_parallelism_benchmark.sh").read_text()
         train = (ROOT / "clariden/train_segment.sbatch").read_text()
         self.assertEqual(submit.count("FULL8_EXACT_LOAD_ITERATION=160"), 2)
+        self.assertIn('initial_common="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=160"', submit)
+        self.assertNotIn('FULL8_BENCHMARK_SAVE_ITERATIONS=160,FULL8_BENCHMARK_SAVE_ITERATIONS=', submit)
         self.assertIn("benchmark_load_views", train)
         self.assertIn("latest_checkpointed_iteration.txt", train)
 
