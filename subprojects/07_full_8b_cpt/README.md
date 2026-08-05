@@ -47,6 +47,10 @@ The resource and provenance map remains
   `/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T093500Z-megatron-production-c92402e-v1.receipt.json`
   (SHA-256 `99b9ecbd...`) is revalidated against the live tree before every
   training segment;
+- a dependency-closed `sitecustomize.py` restores Megatron's historical
+  `numpy.product` checkpoint-validation alias and preserves its dynamic
+  distributed-checkpoint metadata under PyTorch 2.9.1/NumPy 2; this affects
+  checkpoint format compatibility only, not tensors or optimizer math;
 - six safe 3,208-update Clariden segments on 16 nodes / 64 GH200 GPUs;
 - 13 fixed source-conditioned validation panels every 25 updates;
 - 20 native GreekMMLU measurements: initialization, post-warmup, about every

@@ -80,6 +80,14 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn('--data-cache-path "$DATA_CACHE"', train)
         self.assertNotIn('--data-cache-path "$FULL8_STAGE_ROOT', train)
 
+    def test_checkpoint_compatibility_is_dependency_closed_and_preloaded(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        shim = (ROOT / "runtime_compat/sitecustomize.py").read_text()
+        self.assertIn('RUNTIME_COMPAT="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/runtime_compat"', train)
+        self.assertIn('export PYTHONPATH="$RUNTIME_COMPAT:$MEGATRON:$TRAINING_CODE"', train)
+        self.assertIn('np.product = np.prod', shim)
+        self.assertIn('_apertus_preserves_dynamic_metadata', shim)
+
     def test_profiles_preserve_global_batch(self) -> None:
         for profile in ("dp32_16node", "dp64_32node"):
             subprocess.run(

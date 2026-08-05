@@ -32,6 +32,7 @@ TOKENIZER=${FULL8_TOKENIZER_ROOT:-/iopsstor/scratch/cscs/fffoivos/tokenizers/ape
 MEGATRON=${FULL8_MEGATRON_ROOT:-/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T093500Z-megatron-production-c92402e-v1}
 MEGATRON_RUNTIME_RECEIPT=${FULL8_MEGATRON_RUNTIME_RECEIPT:-/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T093500Z-megatron-production-c92402e-v1.receipt.json}
 TRAINING_CODE="$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/training"
+RUNTIME_COMPAT="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/runtime_compat"
 SEGMENT_ROOT="$FULL8_RUN_ROOT/segments/updates_${FULL8_START_ITERATION}_${FULL8_END_ITERATION}"
 if [[ -n "${FULL8_SEGMENT_ID:-}" ]]; then
   SEGMENT_ROOT="$FULL8_RUN_ROOT/segments/segment_${FULL8_SEGMENT_ID}/attempt_${FULL8_ATTEMPT:-0}_updates_${FULL8_START_ITERATION}_${FULL8_END_ITERATION}"
@@ -77,6 +78,9 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/validate_megatron_runtime.py" \
   --receipt "$MEGATRON_RUNTIME_RECEIPT" --megatron-root "$MEGATRON"
 [[ -s "$TOKENIZER/tokenizer.json" && -s "$TOKEN_BYTES" && -d "$FULL8_LOAD_CHECKPOINT" ]]
+[[ -f "$RUNTIME_COMPAT/sitecustomize.py" ]] || {
+  echo "missing frozen checkpoint compatibility shim" >&2; exit 2;
+}
 
 readarray -t profile < <(uenv run pytorch/v2.9.1:v2 --view=default -- python3 - "$RECIPE" "$PROFILES" "$PROFILE_ID" <<'PY'
 import json,sys
@@ -132,7 +136,7 @@ export MINI_SCHEDULE_ALLOW_PREFIX=0
 export MINI_TOKEN_BYTE_LENGTHS="$TOKEN_BYTES"
 export MINI_SCHEDULE_SAVE_ITERATIONS="$(IFS=,; echo "${SAVE_ITERATIONS[*]}")"
 export MINI_SCHEDULE_EVAL_ITERATIONS="$MINI_SCHEDULE_SAVE_ITERATIONS"
-export PYTHONPATH="$MEGATRON:$TRAINING_CODE"
+export PYTHONPATH="$RUNTIME_COMPAT:$MEGATRON:$TRAINING_CODE"
 export CUDA_DEVICE_MAX_CONNECTIONS=1
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
 export TORCH_NCCL_AVOID_RECORD_STREAMS=1
