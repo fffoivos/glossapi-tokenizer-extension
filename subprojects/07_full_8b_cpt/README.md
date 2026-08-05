@@ -55,6 +55,9 @@ The resource and provenance map remains
 - 13 fixed source-conditioned validation panels every 25 updates;
 - 20 native GreekMMLU measurements: initialization, post-warmup, about every
   5B tokens, cooldown start and terminal checkpoint;
+- a 75-minute allocation for every full 8B GreekMMLU job, based on the
+  measured 54m11s initialization baseline (the inherited 30-minute Mini
+  allocation is insufficient for Apertus-8B);
 - per-document validation at initialization, cooldown start and final model.
 
 WSD-10 is the settled baseline, not a new LR winner claim. The T10/T20/T30

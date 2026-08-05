@@ -32,7 +32,7 @@ fi
 convert=$(submit --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
   --export="ALL,EVALUATION_BUNDLE=$EVALUATION_BUNDLE,MEGATRON_DIR=$MEGATRON,SOURCE_CHECKPOINT_ROOT=$source,SOURCE_ITERATION=160,TOKENIZER_DIR=$TOKENIZER,EXPORT_ROOT=$root/export,PYTHON_COMPAT_DIR=$COMPAT,TOKENIZER_SHA=$TOKENIZER_SHA" \
   "$EVALUATION_BUNDLE/clariden/convert_checkpoint_for_native_greekmmlu.sbatch")
-evaluate=$(submit --dependency="afterok:$convert" --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
+evaluate=$(submit --time=01:15:00 --dependency="afterok:$convert" --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
   --export="ALL,NATIVE_GREEK_EVAL_ROOT=$NATIVE_ROOT,EXPORT_ROOT=$root/export,GREEKMMLU_ROOT=$root/greekmmlu,MODEL_LABEL=full8b_conversion_smoke,EVALUATION_NAMESPACE=full8b_conversion_smoke,EVAL_DTYPE=float32" \
   "$EVALUATION_BUNDLE/clariden/run_checkpoint_native_greekmmlu.sbatch")
 receipt=$(submit --dependency="afterok:$evaluate" --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \

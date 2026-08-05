@@ -46,7 +46,7 @@ convert=$(sbatch --parsable --dependency="$FULL8_DEPENDENCY" \
   --error="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.err" \
   --export="ALL,EVALUATION_BUNDLE=$EVALUATION_BUNDLE,MEGATRON_DIR=$MEGATRON,SOURCE_CHECKPOINT_ROOT=$FULL8_RUN_ROOT/checkpoints,SOURCE_ITERATION=$FULL8_ITERATION,TOKENIZER_DIR=$TOKENIZER,EXPORT_ROOT=$export_root,PYTHON_COMPAT_DIR=$COMPAT,TOKENIZER_SHA=$TOKENIZER_SHA" \
   "$EVALUATION_BUNDLE/clariden/convert_checkpoint_for_native_greekmmlu.sbatch")
-evaluate=$(sbatch --parsable --dependency="afterok:$convert" \
+evaluate=$(sbatch --parsable --time=01:15:00 --dependency="afterok:$convert" \
   --output="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.out" \
   --error="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.err" \
   --export="ALL,NATIVE_GREEK_EVAL_ROOT=$NATIVE_ROOT,EXPORT_ROOT=$export_root,GREEKMMLU_ROOT=$eval_root,MODEL_LABEL=$label,EVALUATION_NAMESPACE=$namespace,EVAL_DTYPE=float32" \

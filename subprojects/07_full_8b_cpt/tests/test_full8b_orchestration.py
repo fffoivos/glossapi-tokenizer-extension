@@ -88,6 +88,14 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn('np.product = np.prod', shim)
         self.assertIn('_apertus_preserves_dynamic_metadata', shim)
 
+    def test_full_8b_greekmmlu_jobs_have_measured_wall_time_margin(self) -> None:
+        initial = (ROOT / "clariden/run_initial_greekmmlu.sbatch").read_text()
+        prelaunch = (ROOT / "clariden/submit_conversion_smoke.sh").read_text()
+        production = (ROOT / "evaluation/submit_greekmmlu_checkpoint.sh").read_text()
+        self.assertIn("#SBATCH --time=01:15:00", initial)
+        self.assertIn("--time=01:15:00", prelaunch)
+        self.assertIn("--time=01:15:00", production)
+
     def test_profiles_preserve_global_batch(self) -> None:
         for profile in ("dp32_16node", "dp64_32node"):
             subprocess.run(
