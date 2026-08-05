@@ -40,6 +40,13 @@ fi
 if [[ "${FULL8_INITIAL_VALIDATION_ONLY:-0}" == 1 ]]; then
   SEGMENT_ROOT="$FULL8_RUN_ROOT/initial_validation"
 fi
+if [[ "${FULL8_CHECKPOINT_VALIDATION_ONLY:-0}" == 1 ]]; then
+  : "${FULL8_CHECKPOINT_VALIDATION_OUTPUT:?set checkpoint validation output root}"
+  SEGMENT_ROOT="$FULL8_CHECKPOINT_VALIDATION_OUTPUT"
+fi
+[[ "$(( ${FULL8_INITIAL_VALIDATION_ONLY:-0} + ${FULL8_CHECKPOINT_VALIDATION_ONLY:-0} ))" -le 1 ]] || {
+  echo "initial and checkpoint validation-only modes are mutually exclusive" >&2; exit 2;
+}
 CHECKPOINT_ROOT="$FULL8_RUN_ROOT/checkpoints"
 DATA_CACHE="$FULL8_RUN_ROOT/dataset_cache"
 mkdir -p "$SEGMENT_ROOT" "$CHECKPOINT_ROOT" "$DATA_CACHE" "$FULL8_RUN_ROOT/triggers"
@@ -136,11 +143,13 @@ NODES=${PROFILE[nodes]}
 WORLD_SIZE=${PROFILE[world_size]}
 [[ "$SLURM_NNODES" == "$NODES" ]] || { echo "allocation/profile node drift: $SLURM_NNODES != $NODES" >&2; exit 2; }
 
-readarray -t contract < <(python3 - "$RECIPE" "$VALIDATION" "$FULL8_START_ITERATION" "$FULL8_END_ITERATION" "${PROFILE[boundaries]}" "${FULL8_BENCHMARK_MODE:-0}" "${FULL8_BENCHMARK_SAVE_ITERATIONS:-}" "${FULL8_RECOVERY_MODE:-0}" <<'PY'
+readarray -t contract < <(python3 - "$RECIPE" "$VALIDATION" "$FULL8_START_ITERATION" "$FULL8_END_ITERATION" "${PROFILE[boundaries]}" "${FULL8_BENCHMARK_MODE:-0}" "${FULL8_BENCHMARK_SAVE_ITERATIONS:-}" "${FULL8_RECOVERY_MODE:-0}" "${FULL8_CHECKPOINT_VALIDATION_ONLY:-0}" <<'PY'
 import json,sys
 r=json.load(open(sys.argv[1])); v=json.load(open(sys.argv[2])); start,end=map(int,sys.argv[3:5])
-b=list(map(int,sys.argv[5].split(','))); benchmark=sys.argv[6]=='1'; recovery=sys.argv[8]=='1'
-if benchmark:
+b=list(map(int,sys.argv[5].split(','))); benchmark=sys.argv[6]=='1'; recovery=sys.argv[8]=='1'; validation_only=sys.argv[9]=='1'
+if validation_only:
+ if not 0 <= start < end <= max(b): raise SystemExit("invalid checkpoint validation range")
+elif benchmark:
  if not (0 <= start < end <= 288): raise SystemExit("invalid benchmark range")
  saves=[int(x) for x in sys.argv[7].split(',') if x]
 else:
@@ -151,8 +160,9 @@ else:
  elif start not in b or end not in b or b.index(end)!=b.index(start)+1:
   raise SystemExit("invalid segment boundary")
  saves=r["evaluation"]["checkpoint_updates"]
-for i in saves:
- if start < i <= end: print(f"SAVE\t{i}")
+if not validation_only:
+ for i in saves:
+  if start < i <= end: print(f"SAVE\t{i}")
 for p in v["panels"]: print(f"VALID\t{p['name']}\t{p['megatron_prefix']}")
 PY
 )
@@ -227,8 +237,12 @@ cmd=(python3 "$TRAINING_CODE/pretrain_scheduled_gpt.py"
   --load "$FULL8_LOAD_CHECKPOINT" --auto-detect-ckpt-format
   --ckpt-fully-parallel-load --dist-ckpt-strictness assume_ok_unexpected
   --override-opt_param-scheduler --exit-interval "$FULL8_END_ITERATION")
-if [[ "$FULL8_START_ITERATION" == 0 ]]; then cmd+=(--no-load-optim --no-load-rng); fi
-if [[ "${FULL8_INITIAL_VALIDATION_ONLY:-0}" == 1 ]]; then cmd+=(--skip-train); fi
+if [[ "$FULL8_START_ITERATION" == 0 && "${FULL8_INITIAL_VALIDATION_ONLY:-0}" != 1 && "${FULL8_CHECKPOINT_VALIDATION_ONLY:-0}" != 1 ]]; then
+  cmd+=(--no-load-optim --no-load-rng)
+fi
+if [[ "${FULL8_INITIAL_VALIDATION_ONLY:-0}" == 1 || "${FULL8_CHECKPOINT_VALIDATION_ONLY:-0}" == 1 ]]; then
+  cmd+=(--skip-train --no-load-optim --no-load-rng)
+fi
 printf '%q ' "${cmd[@]}" >"$SEGMENT_ROOT/training_command.sh"; printf '\n' >>"$SEGMENT_ROOT/training_command.sh"
 
 cd "$MEGATRON"
@@ -278,4 +292,11 @@ if [[ "${FULL8_INITIAL_VALIDATION_ONLY:-0}" == 1 ]]; then
     --code-root "$FULL8_CODE_ROOT" --validation-manifest "$VALIDATION" \
     --log "$SEGMENT_ROOT/training.log" \
     --output "$SEGMENT_ROOT/initial_validation_receipt.json"
+fi
+if [[ "${FULL8_CHECKPOINT_VALIDATION_ONLY:-0}" == 1 ]]; then
+  uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+    "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/evaluation/finalize_source_validation_checkpoint.py" \
+    --code-root "$FULL8_CODE_ROOT" --validation-manifest "$VALIDATION" \
+    --iteration "$FULL8_START_ITERATION" --log "$SEGMENT_ROOT/training.log" \
+    --output "$SEGMENT_ROOT/source_validation_receipt.json"
 fi

@@ -478,6 +478,14 @@ class Full8BOrchestrationTests(unittest.TestCase):
             ], check=True, capture_output=True, text=True)
             self.assertEqual(json.loads(output.read_text())["status"], "passed")
 
+    def test_checkpoint_source_validation_is_exact_load_and_skip_train(self) -> None:
+        wrapper = (ROOT / "clariden/run_checkpoint_source_validation.sbatch").read_text()
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertIn('FULL8_EXACT_LOAD_ITERATION="$FULL8_SOURCE_ITERATION"', wrapper)
+        self.assertIn("FULL8_CHECKPOINT_VALIDATION_ONLY=1", wrapper)
+        self.assertIn("--skip-train --no-load-optim --no-load-rng", train)
+        self.assertIn("finalize_source_validation_checkpoint.py", train)
+
     def test_production_submit_is_receipt_gated_and_dry_run_safe(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

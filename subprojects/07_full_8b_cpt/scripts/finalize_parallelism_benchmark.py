@@ -157,7 +157,7 @@ def restart_equivalence(
             "atol": gradient_atol,
             "rtol": gradient_rtol,
             "within_tolerance": gradient_within_tolerance,
-            "reason": "cross-node floating-point collective reduction order is not bitwise invariant",
+            "reason": "cause not established; logged loss and parameter norm are exact while the DP32 logged gradient norm differs",
         },
         "absolute_deltas": {field: abs(left.get(field, math.inf) - right.get(field, math.inf)) for field in fields},
     }
