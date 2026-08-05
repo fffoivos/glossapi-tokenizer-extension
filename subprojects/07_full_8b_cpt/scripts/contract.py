@@ -39,6 +39,57 @@ def file_binding(path: Path) -> dict[str, Any]:
     }
 
 
+def verify_code_bundle_receipt(path: Path, root: Path, kind: str = "scientific") -> dict[str, Any]:
+    receipt = require_passing(path, "apertus_mini_immutable_code_bundle_v1")
+    resolved_root = root.resolve()
+    rows = receipt.get("files", [])
+    if (
+        receipt.get("kind") != kind
+        or Path(receipt.get("root", "")).resolve() != resolved_root
+        or int(receipt.get("file_count", -1)) != len(rows)
+        or not rows
+    ):
+        raise ValueError("code bundle receipt/root drift")
+    seen = set()
+    for row in rows:
+        relative = str(row.get("relative_path", ""))
+        unresolved = resolved_root / relative
+        candidate = unresolved.resolve()
+        inside = candidate.parent == resolved_root or resolved_root in candidate.parents
+        if (
+            not relative
+            or relative in seen
+            or unresolved.is_symlink()
+            or not inside
+            or not candidate.is_file()
+            or candidate.stat().st_size != int(row.get("bytes", -1))
+            or sha256_file(candidate) != row.get("sha256")
+        ):
+            raise ValueError(f"code bundle file drift: {relative}")
+        seen.add(relative)
+    exclusions = receipt.get("exclusions", {})
+    ignored_parts = set(exclusions.get("directory_parts", []))
+    ignored_suffixes = tuple(exclusions.get("file_suffixes", []))
+    observed = set()
+    for candidate in resolved_root.rglob("*"):
+        relative = candidate.relative_to(resolved_root)
+        if any(part in ignored_parts for part in relative.parts):
+            continue
+        if candidate.is_symlink():
+            raise ValueError(f"code bundle contains a symlink: {relative.as_posix()}")
+        if candidate.is_file() and not candidate.name.endswith(ignored_suffixes):
+            observed.add(relative.as_posix())
+    if observed != seen:
+        raise ValueError(
+            f"code bundle inventory drift: missing={sorted(seen - observed)}, "
+            f"extra={sorted(observed - seen)}"
+        )
+    canonical = json.dumps(rows, separators=(",", ":"), sort_keys=True).encode()
+    if hashlib.sha256(canonical).hexdigest() != receipt.get("tree_sha256"):
+        raise ValueError("code bundle tree hash drift")
+    return receipt
+
+
 def atomic_write_json(path: Path, value: Any, *, exclusive: bool = True) -> None:
     path = path.resolve()
     path.parent.mkdir(parents=True, exist_ok=True)

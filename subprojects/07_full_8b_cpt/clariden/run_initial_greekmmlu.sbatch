@@ -13,10 +13,14 @@
 
 set -euo pipefail
 : "${FULL8_CODE_ROOT:?set immutable CSCS code root}"
+: "${FULL8_CODE_BUNDLE_RECEIPT:?set immutable code receipt}"
 : "${FULL8_INITIAL_HF:?set verified roundtrip HF initialization}"
 : "${FULL8_INITIAL_EVAL_ROOT:?set new output root}"
 [[ ! -e "$FULL8_INITIAL_EVAL_ROOT" ]] || { echo "refusing to overwrite initial evaluation" >&2; exit 2; }
 mkdir -p "$FULL8_INITIAL_EVAL_ROOT/greekmmlu"
+uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+  "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
+  --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
 NATIVE_ROOT="$FULL8_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval"
 CLEAN_SUBSET=${FULL8_GREEKMMLU_CLEAN_SUBSET:-/capstor/scratch/cscs/fffoivos/cpt_runs/dataset-scheduling-0p5b/20260803T064000Z-static-prelaunch-v2/greekmmlu_clean_subset_manifest.json}
 EVAL_VENV=${EVAL_VENV:-/iopsstor/scratch/cscs/fffoivos/python_envs/native_greek_eval_py312_aug2026}

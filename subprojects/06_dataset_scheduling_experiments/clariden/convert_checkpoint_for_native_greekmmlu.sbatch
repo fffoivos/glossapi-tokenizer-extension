@@ -19,6 +19,13 @@ set -euo pipefail
 : "${EXPORT_ROOT:?set unique export root}"
 : "${PYTHON_COMPAT_DIR:?set frozen NumPy compatibility shim directory}"
 
+if [[ -n "${EVALUATION_CODE_BUNDLE_RECEIPT:-}" ]]; then
+  : "${EVALUATION_CODE_BUNDLE_ROOT:?set immutable code-bundle root}"
+  uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+    "$EVALUATION_CODE_BUNDLE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
+    --root "$EVALUATION_CODE_BUNDLE_ROOT" --receipt "$EVALUATION_CODE_BUNDLE_RECEIPT" --kind scientific
+fi
+
 UENV_IMAGE=${UENV_IMAGE:-pytorch/v2.9.1:v2}
 EVAL_VENV=${EVAL_VENV:-/iopsstor/scratch/cscs/fffoivos/python_envs/native_greek_eval_py312_aug2026}
 LOADER_TRANSFORMER_IMPL=${LOADER_TRANSFORMER_IMPL:-transformer_engine}

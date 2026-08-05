@@ -14,12 +14,16 @@
 
 set -euo pipefail
 : "${FULL8_CODE_ROOT:?set immutable CSCS code root}"
+: "${FULL8_CODE_BUNDLE_RECEIPT:?set immutable code receipt}"
 : "${FULL8_VALIDATION_MANIFEST:?set frozen 13-panel validation manifest}"
 : "${FULL8_HF_MODEL:?set one HF model/checkpoint path}"
 : "${FULL8_HF_TOKENIZER:?set tokenizer path}"
 : "${FULL8_DOCVAL_OUTPUT:?set checkpoint-specific output directory}"
 GROUP=${SLURM_ARRAY_TASK_ID}
 mkdir -p "$FULL8_DOCVAL_OUTPUT"
+uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+  "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
+  --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
 
 mapfile -t rows < <(python3 - "$FULL8_VALIDATION_MANIFEST" "$GROUP" <<'PY'
 import json,sys

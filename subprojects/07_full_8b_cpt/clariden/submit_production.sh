@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 : "${FULL8_CODE_ROOT:?set immutable CSCS code root}"
+: "${FULL8_CODE_BUNDLE_RECEIPT:?set executing code-bundle receipt}"
 : "${FULL8_STAGE_ROOT:?set frozen data root}"
 : "${FULL8_RUN_ROOT:?set new production run root}"
 : "${FULL8_INITIAL_MEGATRON:?set verified TP2 initialization root}"
@@ -10,12 +11,14 @@ set -euo pipefail
 DRY_RUN=${DRY_RUN:-1}
 [[ "$DRY_RUN" == 0 || "$DRY_RUN" == 1 ]] || { echo "DRY_RUN must be 0 or 1" >&2; exit 2; }
 
-readarray -t selected < <(python3 - "$FULL8_SELECTED_PROFILE" "$FULL8_LAUNCH_GATE" <<'PY'
+readarray -t selected < <(python3 - "$FULL8_SELECTED_PROFILE" "$FULL8_LAUNCH_GATE" "$FULL8_INITIAL_MEGATRON" <<'PY'
 import json,sys
+from pathlib import Path
 p=json.load(open(sys.argv[1])); g=json.load(open(sys.argv[2]))
 if p.get("schema_version")!="apertus_full_8b_selected_execution_profile_v1" or p.get("status")!="frozen": raise SystemExit("selected profile is not frozen")
 if g.get("schema_version")!="apertus_full_8b_launch_gate_v1" or g.get("status")!="passed": raise SystemExit("launch gate is not passed")
 s=p["selection"]
+if Path(g.get("initialization_checkpoint",{}).get("root","")).resolve() != Path(sys.argv[3]).resolve(): raise SystemExit("launch checkpoint/gate drift")
 print(s["profile_id"]); print(s["nodes"]); print(s["segment_boundaries"][1])
 PY
 )
@@ -38,7 +41,7 @@ submit() {
   fi
 }
 
-common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_RUN_ROOT=$FULL8_RUN_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_SELECTED_PROFILE=$FULL8_SELECTED_PROFILE,FULL8_EXECUTION_PROFILE=$profile_id,FULL8_LAUNCH_GATE=$FULL8_LAUNCH_GATE"
+common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_RUN_ROOT=$FULL8_RUN_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_SELECTED_PROFILE=$FULL8_SELECTED_PROFILE,FULL8_EXECUTION_PROFILE=$profile_id,FULL8_LAUNCH_GATE=$FULL8_LAUNCH_GATE"
 train=$(submit --nodes="$nodes" --job-name=full8b_s0a0 \
   --output="$FULL8_RUN_ROOT/logs/%x-%j.out" --error="$FULL8_RUN_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_SEGMENT_ID=0,FULL8_ATTEMPT=0,FULL8_START_ITERATION=0,FULL8_END_ITERATION=$first_end,FULL8_LOAD_CHECKPOINT=$FULL8_INITIAL_MEGATRON,FULL8_RECOVERY_MODE=0" \

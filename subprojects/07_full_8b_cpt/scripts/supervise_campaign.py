@@ -9,12 +9,14 @@ import json
 import os
 import subprocess
 import sys
+import re
 from pathlib import Path
 
 from contract import atomic_write_json, read_json
 
 
 RETRYABLE = {"BOOT_FAIL", "NODE_FAIL", "PREEMPTED", "REVOKED", "TIMEOUT"}
+ITERATION = re.compile(r"iteration\s+(\d+)\s*/")
 
 
 def slurm_state(job_id: str) -> str:
@@ -51,6 +53,7 @@ def common_export(args: argparse.Namespace) -> str:
     return "ALL," + ",".join(
         (
             f"FULL8_CODE_ROOT={args.code_root}",
+            f"FULL8_CODE_BUNDLE_RECEIPT={args.code_bundle_receipt}",
             f"FULL8_STAGE_ROOT={args.stage_root}",
             f"FULL8_RUN_ROOT={args.run_root}",
             f"FULL8_INITIAL_MEGATRON={args.initial_megatron}",
@@ -60,6 +63,23 @@ def common_export(args: argparse.Namespace) -> str:
             f"FULL8_PRELAUNCH_ROOT={args.prelaunch_root}",
         )
     )
+
+
+def last_logged_iteration(path: Path) -> int | None:
+    if not path.is_file():
+        return None
+    latest = None
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = ITERATION.search(line)
+        if match:
+            latest = int(match.group(1))
+    return latest
+
+
+def retryable_terminal(state: str, graceful_marker: Path, latest: int | None, end: int) -> bool:
+    if state in RETRYABLE:
+        return True
+    return graceful_marker.is_file() and latest is not None and latest < end
 
 
 def exact_load_view(args: argparse.Namespace, *, segment: int, attempt: int, iteration: int) -> Path:
@@ -103,6 +123,7 @@ def submit_attempt(args: argparse.Namespace, *, segment: int, attempt: int, star
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--code-root", type=Path, required=True)
+    parser.add_argument("--code-bundle-receipt", type=Path, required=True)
     parser.add_argument("--stage-root", type=Path, required=True)
     parser.add_argument("--run-root", type=Path, required=True)
     parser.add_argument("--initial-megatron", type=Path, required=True)
@@ -114,7 +135,7 @@ def main() -> int:
     parser.add_argument("--attempt-start", type=int, required=True)
     parser.add_argument("--train-job-id", required=True)
     args = parser.parse_args()
-    for name in ("code_root", "stage_root", "run_root", "initial_megatron", "selected_profile", "launch_gate", "prelaunch_root"):
+    for name in ("code_root", "code_bundle_receipt", "stage_root", "run_root", "initial_megatron", "selected_profile", "launch_gate", "prelaunch_root"):
         setattr(args, name, getattr(args, name).resolve())
     selected = read_json(args.selected_profile)
     args.profile_id = selected["selection"]["profile_id"]
@@ -128,8 +149,11 @@ def main() -> int:
     event(args, "train_terminal", {"job_id": args.train_job_id, "slurm_state": state, "updates": [args.attempt_start, end]})
     attempt_root = args.run_root / "segments" / f"segment_{args.segment_id}" / f"attempt_{args.attempt}_updates_{args.attempt_start}_{end}"
     log = attempt_root / "training.log"
-    if state != "COMPLETED":
-        if state not in RETRYABLE or args.attempt >= 2:
+    graceful_marker = attempt_root / "graceful_stop_requested"
+    latest = last_logged_iteration(log)
+    incomplete_graceful = graceful_marker.is_file() and latest is not None and latest < end
+    if state != "COMPLETED" or incomplete_graceful:
+        if not retryable_terminal(state, graceful_marker, latest, end) or args.attempt >= 2:
             event(args, "campaign_blocked", {"reason": "nonretryable_or_exhausted_training_failure", "slurm_state": state})
             raise RuntimeError(f"training failure is not automatically recoverable: {state}")
         recovery_start = original_start
@@ -149,7 +173,7 @@ def main() -> int:
         if not recovery and recovery_start > 0:
             load_override = exact_load_view(args, segment=args.segment_id, attempt=args.attempt + 1, iteration=recovery_start)
         train, supervisor = submit_attempt(args, segment=args.segment_id, attempt=args.attempt + 1, start=recovery_start, recovery=recovery, load_override=load_override)
-        event(args, "training_retry_submitted", {"replacement_train_job": train, "replacement_supervisor_job": supervisor, "recovery_start": recovery_start, "recovery_receipt": str(recovery_receipt) if recovery else None})
+        event(args, "training_retry_submitted", {"replacement_train_job": train, "replacement_supervisor_job": supervisor, "recovery_start": recovery_start, "recovery_receipt": str(recovery_receipt) if recovery else None, "graceful_stop": incomplete_graceful, "last_logged_iteration": latest})
         return 0
 
     checkpoint_receipt = args.run_root / "checkpoint_receipts" / f"iter_{end:07d}.json"

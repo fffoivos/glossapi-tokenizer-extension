@@ -8,9 +8,16 @@ receipts; authorization never bypasses those technical gates.
 
 This subproject turns the completed 0.5B scheduling result into one normal
 full-corpus Apertus-8B CPT run. It uses stationary D0 mixing, the complete
-eligible Modern-Greek pass, 20% foreign source-family replay, 1% Old-Greek
-replay, the production 148,992-token tokenizer, and the verified untied
+eligible Modern-Greek pass, 20% foreign source-family replay, 1% Greek
+source-family replay (the legacy machine ID is `old_greek_replay`), the production 148,992-token tokenizer, and the verified untied
 layer-11 Token-Distillation initialization. Checkpoint averaging is disabled.
+
+Two provenance boundaries are explicit. Replay is source-family replay, not a
+claim that every consumed document is proven to have appeared in Apertus's
+original pretraining stream. Also, `greek_replay_apertus_original` is dominated
+by Modern-Greek HPLT and FineWiki rows; neither its 1% share nor the legacy
+`old_greek` validation ID measures Ancient-Greek capability. The validation ID
+is retained for compatibility but is displayed as **Greek replay retention**.
 
 The public-facing training contract, including the 79/20/1 training mix, is
 merged in [`eellak/greek-apertus` PR #1](https://github.com/eellak/greek-apertus/pull/1)
@@ -53,6 +60,10 @@ The resource and provenance map remains
   checkpoint format compatibility only, not tensors or optimizer math;
 - six safe 3,208-update Clariden segments on 16 nodes / 64 GH200 GPUs;
 - 13 fixed source-conditioned validation panels every 25 updates;
+- the inherited `old_greek` panel is rejected because 5,784/5,833 documents
+  are exact training-content matches; launch requires a replacement sampled
+  from unconsumed replay documents with zero exact-content overlap against all
+  selected training pools;
 - 20 native GreekMMLU measurements: initialization, post-warmup, about every
   5B tokens, cooldown start and terminal checkpoint;
 - a 75-minute allocation for every full 8B GreekMMLU job, based on the
@@ -69,6 +80,12 @@ WSD-10 is the settled baseline, not a new LR winner claim. The T10/T20/T30
 experiment did not yet produce per-document BPB uncertainty. If that rerun
 selects a different floor, change only the final LR and regenerate the recipe
 ID before launch.
+
+The complete-v2 directive also means this frozen CPT stream includes the small
+`openarchives.gr` subset whose `needs_ocr` flag is true. Earlier exclusion text
+describes the C3 tokenizer mix, where those rows were excluded; it is not a
+truthful description of this full-v2 CPT freeze. Inclusion is recorded as data
+identity, not as an OCR-quality endorsement.
 
 ## Reusing data without re-tokenizing
 

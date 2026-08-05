@@ -32,6 +32,12 @@ The remaining tokenizer-side work is:
 - machine-translated HPLT content is excluded from the final training dataset
 - `openarchives.gr` rows with `needs_ocr == true` must stay excluded from the CPT-ready dataset used for tokenizer work
 - HPLT is being prepared for the upstream HF corpus dataset, not as a separate tokenizer-only corpus
+
+Scope clarification (2026-08-05): the `needs_ocr` exclusion above is the C3
+tokenizer-work contract. The later full Apertus-8B CPT campaign follows the
+owner's complete-public-v2 directive and records the included `needs_ocr` rows
+explicitly; it must not claim that the earlier exclusion survived into that
+different frozen stream.
 - the downstream CPT/tokenizer builder is expected to stay lightweight after HF download
 - the converged tokenizer arm is **C3** — continuous BPE from Apertus
   on `GlossAPI + HPLT` at `50 / 50` by training-token mass, trained on

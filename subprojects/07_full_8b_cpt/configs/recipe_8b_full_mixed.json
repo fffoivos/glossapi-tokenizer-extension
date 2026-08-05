@@ -2,6 +2,12 @@
   "schema_version": "apertus_full_8b_mixed_cpt_recipe_v1",
   "recipe_id": "full8b-mixed-79-20-1-wsd10-v1",
   "status": "owner_authorized_pending_receipt_gates",
+  "provenance_disclosures": {
+    "learning_rate_floor": "WSD-10 was the common floor in the 8B peak-LR sweep. The separate T10/T20/T30 run did not select a floor, so WSD-10 is a settled baseline rather than an independently sweep-selected winner.",
+    "foreign_replay": "The 20% pool replays vetted source families represented in Apertus-style data; it is not a document-level proof that each consumed record appeared in the original Apertus pretraining stream.",
+    "legacy_old_greek_label": "The 1% pool and old_greek validation ID historically use an Old-Greek label, but the frozen source is greek_replay_apertus_original and is dominated by Modern-Greek HPLT and FineWiki documents. Report it as Greek replay retention, not as an Ancient-Greek capability measurement.",
+    "openarchives_needs_ocr": "The complete public v2 owner directive governs this run. It includes the small set of openarchives.gr records whose needs_ocr flag is true; earlier tokenizer/C3 exclusion language does not describe this frozen full-v2 CPT stream. No OCR-quality claim is inferred from inclusion."
+  },
   "scientific_decision": {
     "data_order": "D0_mixed",
     "reason": "Observed point-estimate leader of the completed 0.5B data-order screen",
@@ -237,6 +243,7 @@
     "nan_checks_are_enabled",
     "initial_validation_is_finite",
     "two_update_train_and_resume_smoke_passes",
+    "graceful_stop_and_resume_smoke_passes",
     "greekmmlu_checkpoint_conversion_and_eval_smoke_passes",
     "initial_per_document_validation_all_13_panels_passes",
     "at_least_6TB_checkpoint_conversion_and_evaluation_space_is_available",

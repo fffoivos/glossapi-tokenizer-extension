@@ -42,6 +42,7 @@ def main() -> int:
     parser.add_argument("--pool-receipt", type=Path, required=True)
     parser.add_argument("--neutral-manifest", type=Path, required=True)
     parser.add_argument("--neutral-corpus-receipt", type=Path, required=True)
+    parser.add_argument("--replacement-old-greek-manifest", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
@@ -53,8 +54,36 @@ def main() -> int:
         raise ValueError("unsupported pool receipt")
     if neutral.get("status") != "completed" or neutral.get("heldout_name") != "neutral_external_modern_greek":
         raise ValueError("neutral heldout is not complete")
+    replacement = read_json(args.replacement_old_greek_manifest) if args.replacement_old_greek_manifest else None
+    if replacement is not None and (
+        replacement.get("schema_version") != "apertus_full_8b_clean_replay_validation_v1"
+        or replacement.get("status") != "completed"
+        or replacement.get("name") != "old_greek"
+        or int(replacement.get("overlap_audit", {}).get("replacement_panel", {}).get("overlapping_documents", -1)) != 0
+    ):
+        raise ValueError("replacement Greek-replay validation panel is invalid")
     panels = []
     for row in pool["heldouts"]:
+        if row["name"] == "old_greek" and replacement is not None:
+            for key in ("raw_jsonl", "bin", "idx"):
+                checked(replacement[key])
+            panels.append(
+                {
+                    "name": "old_greek",
+                    "display_name": replacement["display_name"],
+                    "legacy_id_disclosure": replacement["legacy_id_disclosure"],
+                    "documents": int(replacement["documents"]),
+                    "tokens": int(replacement["tokens"]),
+                    "megatron_prefix": replacement["megatron_prefix"],
+                    "manifest_path": str(args.replacement_old_greek_manifest.resolve()),
+                    "manifest_sha256": sha256_file(args.replacement_old_greek_manifest),
+                    "raw_jsonl": replacement["raw_jsonl"],
+                    "cluster_field": None,
+                    "bootstrap_unit": "doc_id",
+                    "training_exact_content_overlap_documents": 0,
+                }
+            )
+            continue
         raw = row["raw_jsonl"]
         checked(raw)
         panels.append(

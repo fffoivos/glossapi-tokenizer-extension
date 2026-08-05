@@ -43,8 +43,21 @@ def main() -> int:
     parser.add_argument("--evaluation-root", type=Path, required=True)
     parser.add_argument("--model-label", required=True)
     parser.add_argument("--clean-subset-manifest", type=Path, required=True)
+    parser.add_argument("--expected-rope-theta", type=float, default=500000.0)
+    parser.add_argument("--expected-max-position-embeddings", type=int, default=4096)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    config_path = args.model / "config.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    geometry = {
+        "rope_theta": float(config.get("rope_theta", math.nan)),
+        "max_position_embeddings": int(config.get("max_position_embeddings", -1)),
+        "rope_scaling": config.get("rope_scaling"),
+    }
+    if geometry["rope_theta"] != args.expected_rope_theta or geometry[
+        "max_position_embeddings"
+    ] != args.expected_max_position_embeddings:
+        raise ValueError(f"HF evaluation geometry drift: {geometry}")
     predictions = args.evaluation_root / f"{args.model_label}_native_mcq_predictions.jsonl"
     rows = [json.loads(line) for line in predictions.open() if line.strip()]
     if len(rows) != 16_632:
@@ -67,6 +80,11 @@ def main() -> int:
         "schema_version": "apertus_full_8b_initial_greekmmlu_v1",
         "status": "completed",
         "model": str(args.model.resolve()),
+        "model_config": {
+            "path": str(config_path.resolve()),
+            "sha256": sha(config_path),
+            **geometry,
+        },
         "metrics": {"full": metrics(rows), "decontaminated": metrics(clean_rows)},
         "clean_subset_manifest_sha256": sha(args.clean_subset_manifest),
         "artifacts": artifacts,

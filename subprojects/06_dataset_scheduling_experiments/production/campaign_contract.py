@@ -203,19 +203,37 @@ def verify_code_bundle_receipt(path: Path, root: Path, kind: str) -> dict[str, A
     seen = set()
     for row in rows:
         relative = str(row.get("relative_path", ""))
-        candidate = (resolved_root / relative).resolve()
+        unresolved = resolved_root / relative
+        candidate = unresolved.resolve()
         if (
             not relative
             or relative in seen
+            or unresolved.is_symlink()
             or candidate.parent != resolved_root
             and resolved_root not in candidate.parents
             or not candidate.is_file()
-            or candidate.is_symlink()
             or candidate.stat().st_size != int(row.get("bytes", -1))
             or sha256_file(candidate) != row.get("sha256")
         ):
             raise ValueError(f"{kind} bundle file drift: {relative}")
         seen.add(relative)
+    exclusions = receipt.get("exclusions", {})
+    ignored_parts = set(exclusions.get("directory_parts", []))
+    ignored_suffixes = tuple(exclusions.get("file_suffixes", []))
+    observed = set()
+    for candidate in resolved_root.rglob("*"):
+        relative = candidate.relative_to(resolved_root)
+        if any(part in ignored_parts for part in relative.parts):
+            continue
+        if candidate.is_symlink():
+            raise ValueError(f"{kind} bundle contains a symlink: {relative.as_posix()}")
+        if candidate.is_file() and not candidate.name.endswith(ignored_suffixes):
+            observed.add(relative.as_posix())
+    if observed != seen:
+        raise ValueError(
+            f"{kind} bundle inventory drift: missing={sorted(seen - observed)}, "
+            f"extra={sorted(observed - seen)}"
+        )
     canonical = json.dumps(rows, separators=(",", ":"), sort_keys=True).encode("utf-8")
     if hashlib.sha256(canonical).hexdigest() != receipt.get("tree_sha256"):
         raise ValueError(f"{kind} bundle tree hash drift")

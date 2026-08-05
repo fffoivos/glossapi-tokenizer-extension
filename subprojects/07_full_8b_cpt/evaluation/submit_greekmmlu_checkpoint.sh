@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 : "${FULL8_CODE_ROOT:?set immutable CSCS code root}"
+: "${FULL8_CODE_BUNDLE_RECEIPT:?set immutable code receipt}"
 : "${FULL8_RUN_ROOT:?set run root}"
 : "${FULL8_STAGE_ROOT:?set frozen data root}"
 : "${FULL8_ITERATION:?set exact checkpoint iteration}"
@@ -45,7 +46,7 @@ mkdir -p "$root" "$FULL8_RUN_ROOT/checkpoint_evaluation_logs"
 convert=$(sbatch --parsable --dependency="$FULL8_DEPENDENCY" \
   --output="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.out" \
   --error="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.err" \
-  --export="ALL,EVALUATION_BUNDLE=$EVALUATION_BUNDLE,MEGATRON_DIR=$MEGATRON,SOURCE_CHECKPOINT_ROOT=$FULL8_RUN_ROOT/checkpoints,SOURCE_ITERATION=$FULL8_ITERATION,TOKENIZER_DIR=$TOKENIZER,EXPORT_ROOT=$export_root,PYTHON_COMPAT_DIR=$COMPAT,TOKENIZER_SHA=$TOKENIZER_SHA,EXPORT_MODEL_SCALE=8B,FULL8_EVALUATION_ROOT=$FULL8_EVALUATION_ROOT" \
+  --export="ALL,EVALUATION_BUNDLE=$EVALUATION_BUNDLE,EVALUATION_CODE_BUNDLE_ROOT=$FULL8_CODE_ROOT,EVALUATION_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,MEGATRON_DIR=$MEGATRON,SOURCE_CHECKPOINT_ROOT=$FULL8_RUN_ROOT/checkpoints,SOURCE_ITERATION=$FULL8_ITERATION,TOKENIZER_DIR=$TOKENIZER,EXPORT_ROOT=$export_root,PYTHON_COMPAT_DIR=$COMPAT,TOKENIZER_SHA=$TOKENIZER_SHA,EXPORT_MODEL_SCALE=8B,FULL8_EVALUATION_ROOT=$FULL8_EVALUATION_ROOT" \
   "$EVALUATION_BUNDLE/clariden/convert_checkpoint_for_native_greekmmlu.sbatch")
 evaluate=$(sbatch --parsable --time=01:15:00 --dependency="afterok:$convert" \
   --output="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.out" \
@@ -62,7 +63,7 @@ if [[ "$FULL8_ITERATION" == 15398 || "$FULL8_ITERATION" == 19248 ]]; then
   doc_job=$(sbatch --parsable --dependency="afterok:$convert" \
     --output="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.out" \
     --error="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.err" \
-    --export="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_VALIDATION_MANIFEST=$FULL8_STAGE_ROOT/validation/validation_manifest.json,FULL8_HF_MODEL=$export_root/hf,FULL8_HF_TOKENIZER=$TOKENIZER,FULL8_DOCVAL_OUTPUT=$root/per_document" \
+    --export="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_VALIDATION_MANIFEST=$FULL8_STAGE_ROOT/validation/validation_manifest.json,FULL8_HF_MODEL=$export_root/hf,FULL8_HF_TOKENIZER=$TOKENIZER,FULL8_DOCVAL_OUTPUT=$root/per_document" \
     "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/run_per_document_group.sbatch")
 fi
 python3 - "$submission" "$FULL8_ITERATION" "$convert" "$evaluate" "$finalize" "$doc_job" "$receipt" <<'PY'

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 : "${FULL8_CODE_ROOT:?set immutable CSCS code root}"
+: "${FULL8_CODE_BUNDLE_RECEIPT:?set immutable code receipt}"
 : "${MINI_DOCVAL_ROOT:?set new rerun output root}"
 DRY_RUN=${DRY_RUN:-1}
 MINI_VALIDATION_MANIFEST=${MINI_VALIDATION_MANIFEST:-/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T221000Z-neutral-gpp-v4/validation-frozen-v1/validation_manifest.json}
@@ -34,7 +35,7 @@ for arm in "${arms[@]}"; do
   model="$MINI_ENDPOINT_ROOT/$arm/export/hf"
   job=$(submit --dependency="afterok:$smoke" \
     --output="$MINI_DOCVAL_ROOT/logs/%x-%A_%a.out" --error="$MINI_DOCVAL_ROOT/logs/%x-%A_%a.err" \
-    --export="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_VALIDATION_MANIFEST=$manifest,FULL8_HF_MODEL=$model,FULL8_HF_TOKENIZER=$MINI_TOKENIZER,FULL8_DOCVAL_OUTPUT=$MINI_DOCVAL_ROOT/models/$arm" \
+    --export="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_VALIDATION_MANIFEST=$manifest,FULL8_HF_MODEL=$model,FULL8_HF_TOKENIZER=$MINI_TOKENIZER,FULL8_DOCVAL_OUTPUT=$MINI_DOCVAL_ROOT/models/$arm" \
     "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/run_per_document_group.sbatch")
   jobs+=("$job")
 done

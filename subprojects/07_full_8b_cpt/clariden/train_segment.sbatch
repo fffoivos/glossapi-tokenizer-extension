@@ -10,7 +10,7 @@
 #SBATCH --exclusive
 #SBATCH --mem=450G
 #SBATCH --time=12:00:00
-#SBATCH --signal=SIGUSR2@600
+#SBATCH --signal=B:USR1@600
 #SBATCH --no-requeue
 
 set -euo pipefail
@@ -44,6 +44,43 @@ CHECKPOINT_ROOT="$FULL8_RUN_ROOT/checkpoints"
 DATA_CACHE="$FULL8_RUN_ROOT/dataset_cache"
 mkdir -p "$SEGMENT_ROOT" "$CHECKPOINT_ROOT" "$DATA_CACHE" "$FULL8_RUN_ROOT/triggers"
 JOB_STARTED_EPOCH=$(date +%s)
+
+# Trigger files are run-global because Megatron polls one directory. Preserve
+# evidence from a previous attempt, then start this attempt with a clean edge.
+for trigger in save exit; do
+  if [[ -e "$FULL8_RUN_ROOT/triggers/$trigger" ]]; then
+    mv "$FULL8_RUN_ROOT/triggers/$trigger" "$SEGMENT_ROOT/inherited_trigger_$trigger"
+  fi
+done
+
+request_graceful_stop() {
+  set +e
+  touch "$FULL8_RUN_ROOT/triggers/save" "$FULL8_RUN_ROOT/triggers/exit"
+  touch "$SEGMENT_ROOT/graceful_stop_requested"
+  set -e
+}
+trap request_graceful_stop USR1 TERM INT
+
+if [[ -n "${FULL8_SEGMENT_ID:-}" && -z "${FULL8_CODE_BUNDLE_RECEIPT:-}" ]]; then
+  : "${FULL8_CODE_BUNDLE_RECEIPT:?production requires the executing bundle receipt}"
+fi
+if [[ -n "${FULL8_CODE_BUNDLE_RECEIPT:-}" ]]; then
+  uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+    "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
+    --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
+fi
+
+if [[ "$FULL8_START_ITERATION" == 0 ]]; then
+  canonical_initial=$(python3 - "$RECIPE" <<'PY'
+import json,sys
+print(json.load(open(sys.argv[1]))["initialization"]["megatron_tp2_checkpoint"])
+PY
+)
+  [[ "$(realpath "$FULL8_LOAD_CHECKPOINT")" == "$(realpath "$canonical_initial")" ]] || {
+    echo "initial checkpoint/recipe drift" >&2
+    exit 2
+  }
+fi
 
 if [[ -n "${FULL8_EXACT_LOAD_ITERATION:-}" ]]; then
   printf -v checkpoint_name 'iter_%07d' "$FULL8_EXACT_LOAD_ITERATION"
@@ -201,16 +238,35 @@ uenv run pytorch/v2.9.1:v2 --view=default -- \
   bash -c 'printf "AFFINITY host=%s rank=%s local_gpu=%s cpu=%s\n" "$(hostname)" "$SLURM_PROCID" "${CUDA_VISIBLE_DEVICES:-unset}" "$(taskset -pc $$ | sed "s/.*: //")"' \
   | tee "$SEGMENT_ROOT/affinity.log"
 [[ "$(grep -c 'AFFINITY host=' "$SEGMENT_ROOT/affinity.log")" -eq "$WORLD_SIZE" ]] || { echo "affinity rank count drift" >&2; exit 2; }
-uenv run pytorch/v2.9.1:v2 --view=default -- \
-  srun --nodes="$NODES" --ntasks="$NODES" --ntasks-per-node=1 --cpus-per-task=288 --cpu-bind=cores -lu \
-  bash -c "unset NCCL_NET_PLUGIN; export PYTHONPATH='$PYTHONPATH' MINI_SCHEDULE_MANIFEST='$MINI_SCHEDULE_MANIFEST' MINI_SCHEDULE_ARM='$MINI_SCHEDULE_ARM' MINI_SCHEDULE_ALLOW_PREFIX=0 MINI_TOKEN_BYTE_LENGTHS='$MINI_TOKEN_BYTE_LENGTHS' MINI_SCHEDULE_SAVE_ITERATIONS='$MINI_SCHEDULE_SAVE_ITERATIONS' MINI_SCHEDULE_EVAL_ITERATIONS='$MINI_SCHEDULE_EVAL_ITERATIONS'; exec torchrun --no-python --nnodes=$NODES --nproc_per_node=4 --node_rank=\$SLURM_PROCID --master_addr='$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -1)' --master_port=29600 $(printf '%q ' "${cmd[@]}")" \
-  2>&1 | tee "$SEGMENT_ROOT/training.log"
+(
+  uenv run pytorch/v2.9.1:v2 --view=default -- \
+    srun --nodes="$NODES" --ntasks="$NODES" --ntasks-per-node=1 --cpus-per-task=288 --cpu-bind=cores -lu \
+    bash -c "unset NCCL_NET_PLUGIN; export PYTHONPATH='$PYTHONPATH' MINI_SCHEDULE_MANIFEST='$MINI_SCHEDULE_MANIFEST' MINI_SCHEDULE_ARM='$MINI_SCHEDULE_ARM' MINI_SCHEDULE_ALLOW_PREFIX=0 MINI_TOKEN_BYTE_LENGTHS='$MINI_TOKEN_BYTE_LENGTHS' MINI_SCHEDULE_SAVE_ITERATIONS='$MINI_SCHEDULE_SAVE_ITERATIONS' MINI_SCHEDULE_EVAL_ITERATIONS='$MINI_SCHEDULE_EVAL_ITERATIONS'; exec torchrun --no-python --nnodes=$NODES --nproc_per_node=4 --node_rank=\$SLURM_PROCID --master_addr='$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -1)' --master_port=29600 $(printf '%q ' "${cmd[@]}")" \
+    2>&1 | tee "$SEGMENT_ROOT/training.log"
+) &
+TRAIN_PIPELINE_PID=$!
+# Bash defers a trap while synchronously waiting for a foreground process.
+# Polling a background pipeline lets B:USR1 create save/exit triggers promptly.
+while kill -0 "$TRAIN_PIPELINE_PID" 2>/dev/null; do sleep 2; done
+if wait "$TRAIN_PIPELINE_PID"; then
+  TRAIN_PIPELINE_RC=0
+else
+  TRAIN_PIPELINE_RC=$?
+fi
+[[ "$TRAIN_PIPELINE_RC" -eq 0 ]] || exit "$TRAIN_PIPELINE_RC"
 
 JOB_FINISHED_EPOCH=$(date +%s)
-python3 - "$SEGMENT_ROOT/training_job_receipt.json" "$PROFILE_ID" "$FULL8_START_ITERATION" "$FULL8_END_ITERATION" "$JOB_STARTED_EPOCH" "$JOB_FINISHED_EPOCH" "$SLURM_JOB_ID" "$NODES" "$WORLD_SIZE" "${PROFILE[data_parallel]}" "${PROFILE[gradient_accumulation_steps]}" "${PROFILE[scientific_digest]}" <<'PY'
-import datetime,json,os,sys,tempfile
-out,profile,start,end,begun,finished,job,nodes,world,dp,acc,digest=sys.argv[1:]
-payload={"schema_version":"apertus_full_8b_training_job_v1","status":"completed","completed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"job_id":job,"profile_id":profile,"start_iteration":int(start),"end_iteration":int(end),"elapsed_seconds":int(finished)-int(begun),"nodes":int(nodes),"world_size":int(world),"data_parallel":int(dp),"gradient_accumulation_steps":int(acc),"scientific_digest":digest}
+python3 - "$SEGMENT_ROOT/training_job_receipt.json" "$PROFILE_ID" "$FULL8_START_ITERATION" "$FULL8_END_ITERATION" "$JOB_STARTED_EPOCH" "$JOB_FINISHED_EPOCH" "$SLURM_JOB_ID" "$NODES" "$WORLD_SIZE" "${PROFILE[data_parallel]}" "${PROFILE[gradient_accumulation_steps]}" "${PROFILE[scientific_digest]}" "$SEGMENT_ROOT/training.log" "$SEGMENT_ROOT/graceful_stop_requested" <<'PY'
+import datetime,json,os,re,sys,tempfile
+out,profile,start,end,begun,finished,job,nodes,world,dp,acc,digest,log,marker=sys.argv[1:]
+latest=None
+pattern=re.compile(r"iteration\s+(\d+)\s*/")
+if os.path.isfile(log):
+ for line in open(log,errors="replace"):
+  match=pattern.search(line)
+  if match: latest=int(match.group(1))
+graceful=os.path.isfile(marker) and latest is not None and latest<int(end)
+payload={"schema_version":"apertus_full_8b_training_job_v1","status":"gracefully_stopped" if graceful else "completed","completed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"job_id":job,"profile_id":profile,"start_iteration":int(start),"end_iteration":int(end),"requested_end_iteration":int(end),"last_logged_iteration":latest,"completed_to_requested_boundary":not graceful,"elapsed_seconds":int(finished)-int(begun),"nodes":int(nodes),"world_size":int(world),"data_parallel":int(dp),"gradient_accumulation_steps":int(acc),"scientific_digest":digest}
 fd,tmp=tempfile.mkstemp(prefix=".training-job.",suffix=".partial",dir=os.path.dirname(out))
 with os.fdopen(fd,"w") as f: json.dump(payload,f,indent=2,sort_keys=True); f.write("\n"); f.flush(); os.fsync(f.fileno())
 os.replace(tmp,out)

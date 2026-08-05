@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import importlib.util
 import re
 import subprocess
+import sys
 import tempfile
 import unittest
 from datetime import datetime, timedelta
@@ -63,6 +66,40 @@ def benchmark_receipts(root: Path, *, elapsed: float, profile: str) -> None:
 
 
 class Full8BOrchestrationTests(unittest.TestCase):
+    def test_code_bundle_verifier_rejects_unreceipted_files(self) -> None:
+        path = ROOT / "scripts/contract.py"
+        spec = importlib.util.spec_from_file_location("full8_contract", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "bundle"
+            root.mkdir()
+            payload = root / "entry.py"
+            payload.write_text("value = 1\n", encoding="utf-8")
+            row = {
+                "relative_path": "entry.py",
+                "bytes": payload.stat().st_size,
+                "sha256": hashlib.sha256(payload.read_bytes()).hexdigest(),
+            }
+            receipt = Path(temporary) / "receipt.json"
+            write(receipt, {
+                "schema_version": "apertus_mini_immutable_code_bundle_v1",
+                "status": "frozen",
+                "kind": "scientific",
+                "root": str(root.resolve()),
+                "file_count": 1,
+                "tree_sha256": hashlib.sha256(
+                    json.dumps([row], separators=(",", ":"), sort_keys=True).encode()
+                ).hexdigest(),
+                "files": [row],
+                "exclusions": {"directory_parts": [], "file_suffixes": []},
+            })
+            module.verify_code_bundle_receipt(receipt, root)
+            (root / "unreceipted.py").write_text("value = 2\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "inventory drift"):
+                module.verify_code_bundle_receipt(receipt, root)
+
     def test_every_code_root_literal_exists_in_the_frozen_repository(self) -> None:
         repository_root = ROOT.parents[1]
         pattern = re.compile(r'\$FULL8_CODE_ROOT/([^"\\\s]+)')
@@ -293,15 +330,65 @@ class Full8BOrchestrationTests(unittest.TestCase):
             root = Path(temporary)
             selected = root / "selected.json"; gate = root / "gate.json"
             write(selected, {"schema_version":"apertus_full_8b_selected_execution_profile_v1", "status":"frozen", "selection":{"profile_id":"dp64_32node","nodes":32,"segment_boundaries":[0,6416,12832,19248]}})
-            write(gate, {"schema_version":"apertus_full_8b_launch_gate_v1", "status":"passed"})
+            write(gate, {"schema_version":"apertus_full_8b_launch_gate_v1", "status":"passed", "initialization_checkpoint":{"root":"/init"}})
             env = {
-                "FULL8_CODE_ROOT":str(ROOT.parents[1]), "FULL8_STAGE_ROOT":"/stage", "FULL8_RUN_ROOT":"/new-run",
+                "FULL8_CODE_ROOT":str(ROOT.parents[1]), "FULL8_CODE_BUNDLE_RECEIPT":"/bundle.json",
+                "FULL8_STAGE_ROOT":"/stage", "FULL8_RUN_ROOT":"/new-run",
                 "FULL8_INITIAL_MEGATRON":"/init", "FULL8_PRELAUNCH_ROOT":"/prelaunch",
                 "FULL8_SELECTED_PROFILE":str(selected), "FULL8_LAUNCH_GATE":str(gate), "DRY_RUN":"1",
             }
             result = subprocess.run([str(ROOT / "clariden/submit_production.sh")], env={**__import__("os").environ, **env}, text=True, capture_output=True, check=True)
             self.assertIn("dp64_32node", result.stdout)
             self.assertIn("--nodes=32", result.stderr)
+
+    def test_graceful_stop_is_batch_signalled_pollable_and_retry_safe(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertIn("#SBATCH --signal=B:USR1@600", train)
+        self.assertNotIn("SIGUSR2", train)
+        self.assertIn("trap request_graceful_stop USR1 TERM INT", train)
+        self.assertIn('mv "$FULL8_RUN_ROOT/triggers/$trigger"', train)
+        self.assertIn("TRAIN_PIPELINE_PID=$!", train)
+        self.assertIn('while kill -0 "$TRAIN_PIPELINE_PID"', train)
+
+    def test_supervisor_recovers_a_signalled_incomplete_attempt(self) -> None:
+        path = ROOT / "scripts/supervise_campaign.py"
+        sys.path.insert(0, str(path.parent))
+        spec = importlib.util.spec_from_file_location("full8_supervisor", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            log = root / "training.log"
+            training_log(log, 5000.0, start=1, end=25)
+            marker = root / "graceful_stop_requested"
+            marker.touch()
+            self.assertEqual(module.last_logged_iteration(log), 25)
+            self.assertTrue(module.retryable_terminal("FAILED", marker, 25, 100))
+            marker.unlink()
+            self.assertFalse(module.retryable_terminal("FAILED", marker, 25, 100))
+            self.assertTrue(module.retryable_terminal("TIMEOUT", marker, 25, 100))
+
+    def test_initial_greekmmlu_finalizer_rejects_wrong_rope_geometry_first(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            model = root / "model"; model.mkdir()
+            write(model / "config.json", {"rope_theta": 12_000_000, "max_position_embeddings": 65_536})
+            result = subprocess.run([
+                "python3", str(ROOT / "evaluation/finalize_hf_greekmmlu.py"),
+                "--model", str(model), "--evaluation-root", str(root / "missing"),
+                "--model-label", "bad", "--clean-subset-manifest", str(root / "missing.json"),
+                "--output", str(root / "receipt.json"),
+            ], text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("HF evaluation geometry drift", result.stderr)
+
+    def test_launch_gate_is_computed_not_stamped_true(self) -> None:
+        gate = (ROOT / "scripts/build_launch_gate.py").read_text()
+        self.assertNotIn("{name: True for name in recipe", gate)
+        self.assertIn("verify_code_bundle_receipt", gate)
+        self.assertIn("initial checkpoint inventory drift", gate)
+        self.assertIn("initial validation/manifest drift", gate)
 
     def test_final_launch_handoff_is_dependency_safe_and_fail_closed(self) -> None:
         handoff = (ROOT / "clariden/finalize_and_submit_production.sbatch").read_text()
