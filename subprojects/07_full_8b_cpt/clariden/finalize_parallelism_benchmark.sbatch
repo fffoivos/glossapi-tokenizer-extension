@@ -13,7 +13,8 @@
 set -euo pipefail
 : "${FULL8_CODE_ROOT:?set immutable code root}"
 : "${FULL8_BENCHMARK_ROOT:?set benchmark root}"
-python3 "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/finalize_parallelism_benchmark.py" \
+uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/finalize_parallelism_benchmark.py" \
   --profiles "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/execution_profiles.json" \
   --benchmark-contract "$FULL8_BENCHMARK_ROOT/benchmark_contract.json" \
   --control-root "$FULL8_BENCHMARK_ROOT/control_dp32" \
@@ -25,7 +26,8 @@ import json,sys
 print(json.load(open(sys.argv[1]))["selected_profile"])
 PY
 )
-python3 "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/validate_execution_profile.py" \
+uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/validate_execution_profile.py" \
   --recipe "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json" \
   --profiles "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/execution_profiles.json" \
   --profile-id "$selected" \

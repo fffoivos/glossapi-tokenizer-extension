@@ -22,7 +22,8 @@ if [[ "$DRY_RUN" == 0 ]]; then
   }
   [[ ! -e "$FULL8_BENCHMARK_ROOT" ]] || { echo "benchmark root exists" >&2; exit 2; }
   mkdir -p "$FULL8_BENCHMARK_ROOT/logs" "$FULL8_BENCHMARK_ROOT/control_dp32" "$FULL8_BENCHMARK_ROOT/candidate_dp64"
-  python3 "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/freeze_benchmark_contract.py" \
+  uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+    "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/freeze_benchmark_contract.py" \
     --schedule-manifest "$FULL8_STAGE_ROOT/schedules/schedule_manifest.json" \
     --goldfish-implementation "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/training/scheduled_packed_dataset.py" \
     --output "$FULL8_BENCHMARK_ROOT/benchmark_contract.json"
@@ -41,11 +42,11 @@ candidate=$(submit --nodes=32 --time=02:00:00 --job-name=full8b-dp64-candidate \
 
 control_restart=$(submit --nodes=16 --time=01:00:00 --job-name=full8b-dp32-restart --dependency="afterok:$control" \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
-  --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/control_dp32,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/control_dp32/checkpoints" \
+  --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/control_dp32,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/control_dp32/checkpoints" \
   "$sbatch_file")
 candidate_restart=$(submit --nodes=32 --time=01:00:00 --job-name=full8b-dp64-restart --dependency="afterok:$candidate" \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
-  --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/candidate_dp64,FULL8_EXECUTION_PROFILE=dp64_32node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/candidate_dp64/checkpoints" \
+  --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/candidate_dp64,FULL8_EXECUTION_PROFILE=dp64_32node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/candidate_dp64/checkpoints" \
   "$sbatch_file")
 gate=$(submit --dependency="afterok:$control_restart:$candidate_restart" \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \

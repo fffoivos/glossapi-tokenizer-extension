@@ -43,6 +43,20 @@ CHECKPOINT_ROOT="$FULL8_RUN_ROOT/checkpoints"
 mkdir -p "$SEGMENT_ROOT" "$CHECKPOINT_ROOT" "$FULL8_RUN_ROOT/triggers"
 JOB_STARTED_EPOCH=$(date +%s)
 
+if [[ -n "${FULL8_EXACT_LOAD_ITERATION:-}" ]]; then
+  printf -v checkpoint_name 'iter_%07d' "$FULL8_EXACT_LOAD_ITERATION"
+  source_checkpoint="$FULL8_LOAD_CHECKPOINT/$checkpoint_name"
+  [[ -f "$source_checkpoint/.metadata" ]] || {
+    echo "exact benchmark checkpoint is incomplete: $source_checkpoint" >&2; exit 2;
+  }
+  exact_view="$FULL8_RUN_ROOT/benchmark_load_views/${checkpoint_name}_for_${PROFILE_ID}"
+  [[ ! -e "$exact_view" ]] || { echo "exact benchmark load view exists" >&2; exit 2; }
+  mkdir -p "$exact_view"
+  ln -s "$source_checkpoint" "$exact_view/$checkpoint_name"
+  printf '%s\n' "$FULL8_EXACT_LOAD_ITERATION" >"$exact_view/latest_checkpointed_iteration.txt"
+  FULL8_LOAD_CHECKPOINT="$exact_view"
+fi
+
 if [[ -n "${FULL8_SEGMENT_ID:-}" ]]; then
   : "${FULL8_SELECTED_PROFILE:?production requires selected profile receipt}"
   : "${FULL8_LAUNCH_GATE:?production requires passed launch gate}"

@@ -18,7 +18,8 @@ set -euo pipefail
 : "${FULL8_LAUNCH_GATE:?set launch gate receipt}"
 : "${FULL8_PRELAUNCH_ROOT:?set completed prelaunch root}"
 [[ "$#" -eq 4 ]] || { echo "usage: $0 SEGMENT ATTEMPT ATTEMPT_START TRAIN_JOB" >&2; exit 2; }
-exec python3 "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/supervise_campaign.py" \
+exec uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/supervise_campaign.py" \
   --code-root "$FULL8_CODE_ROOT" --stage-root "$FULL8_STAGE_ROOT" --run-root "$FULL8_RUN_ROOT" \
   --initial-megatron "$FULL8_INITIAL_MEGATRON" --selected-profile "$FULL8_SELECTED_PROFILE" \
   --launch-gate "$FULL8_LAUNCH_GATE" --prelaunch-root "$FULL8_PRELAUNCH_ROOT" \

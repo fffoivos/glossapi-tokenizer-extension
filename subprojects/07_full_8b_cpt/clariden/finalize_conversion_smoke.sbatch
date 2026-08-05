@@ -13,7 +13,8 @@ set -euo pipefail
 : "${FULL8_CODE_ROOT:?set immutable code root}"
 : "${FULL8_SELECTED_PROFILE:?set selected profile receipt}"
 : "${FULL8_CONVERSION_SMOKE_ROOT:?set conversion smoke root}"
-python3 "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/finalize_conversion_smoke.py" \
+uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/finalize_conversion_smoke.py" \
   --selected-profile "$FULL8_SELECTED_PROFILE" \
   --export-receipt "$FULL8_CONVERSION_SMOKE_ROOT/export/checkpoint_eval_export_receipt.json" \
   --greekmmlu-receipt "$FULL8_CONVERSION_SMOKE_ROOT/exact_checkpoint_native_greekmmlu_receipt.json" \

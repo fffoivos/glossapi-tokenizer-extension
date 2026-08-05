@@ -41,6 +41,24 @@ class Full8BOrchestrationTests(unittest.TestCase):
                     missing.append(f"{script.name}: {relative}")
         self.assertEqual(missing, [])
 
+    def test_modern_campaign_modules_never_use_system_python(self) -> None:
+        unsafe = re.compile(
+            r'^(?:exec\s+)?python3\s+"\$FULL8_CODE_ROOT/(?:subprojects/07_full_8b_cpt|subprojects/06_dataset_scheduling_experiments)/[^"\s]+\.py"',
+            re.MULTILINE,
+        )
+        violations = []
+        for script in sorted((ROOT / "clariden").iterdir()):
+            if script.is_file() and unsafe.search(script.read_text(encoding="utf-8")):
+                violations.append(script.name)
+        self.assertEqual(violations, [])
+
+    def test_benchmark_restart_loads_iteration_160_not_the_terminal_288(self) -> None:
+        submit = (ROOT / "clariden/submit_parallelism_benchmark.sh").read_text()
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertEqual(submit.count("FULL8_EXACT_LOAD_ITERATION=160"), 2)
+        self.assertIn("benchmark_load_views", train)
+        self.assertIn("latest_checkpointed_iteration.txt", train)
+
     def test_profiles_preserve_global_batch(self) -> None:
         for profile in ("dp32_16node", "dp64_32node"):
             subprocess.run(
