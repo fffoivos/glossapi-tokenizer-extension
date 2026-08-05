@@ -63,9 +63,17 @@ def extract_selected_hashes(
     tasks: dict[int, dict[str, Any]],
     output: BinaryIO,
 ) -> tuple[int, int, list[dict[str, Any]]]:
-    catalog = np.memmap(catalog_path, mode="r", dtype=CATALOG_DTYPE)
-    if catalog.size and np.any(catalog["task_index"][1:] < catalog["task_index"][:-1]):
-        raise ValueError(f"source-local catalog is not task ordered: {pool}")
+    source_catalog = np.memmap(catalog_path, mode="r", dtype=CATALOG_DTYPE)
+    catalog = np.array(source_catalog, copy=True)
+    del source_catalog
+    # Selection catalogs retain the seeded schedule order. Ledger reconstruction
+    # needs source-local order, so derive it explicitly rather than assuming it.
+    catalog.sort(order=("task_index", "document_index"), kind="stable")
+    if catalog.size > 1 and np.any(
+        (catalog["task_index"][1:] == catalog["task_index"][:-1])
+        & (catalog["document_index"][1:] <= catalog["document_index"][:-1])
+    ):
+        raise ValueError(f"duplicate or unordered source-local catalog row: {pool}")
     written = 0
     tokens = 0
     bindings: list[dict[str, Any]] = []

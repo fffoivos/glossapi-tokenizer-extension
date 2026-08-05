@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import hashlib
 import importlib.util
+import io
 import re
 import subprocess
 import sys
@@ -66,6 +67,45 @@ def benchmark_receipts(root: Path, *, elapsed: float, profile: str) -> None:
 
 
 class Full8BOrchestrationTests(unittest.TestCase):
+    def test_selected_content_reader_derives_source_local_order(self) -> None:
+        path = ROOT / "dataset/freeze_selected_training_content.py"
+        spec = importlib.util.spec_from_file_location("full8_selected_content", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            tasks = {}
+            rows = []
+            for task_index, text in enumerate(("first", "second")):
+                digest = hashlib.sha256(text.encode()).digest()
+                doc_id = f"doc-{task_index}"
+                identity = hashlib.sha256(doc_id.encode() + b"\0" + digest).digest()[:16]
+                ledger = root / f"{task_index}.jsonl"
+                ledger.write_text(json.dumps({
+                    "doc_id": doc_id, "text_sha256": digest.hex(), "tokens": task_index + 3,
+                }) + "\n", encoding="utf-8")
+                manifest = root / f"{task_index}.manifest.json"
+                write(manifest, {"outputs": {"retained_ledger": {
+                    "path": str(ledger), "rows": 1,
+                }}})
+                tasks[task_index] = {
+                    "pool": "foreign_replay",
+                    "source_manifest": {"path": str(manifest)},
+                }
+                rows.append((2, task_index, 0, task_index + 3, identity, bytes([task_index + 1]) * 16))
+            catalog = root / "selected.catalog45"
+            array = module.np.asarray(list(reversed(rows)), dtype=module.CATALOG_DTYPE)
+            array.tofile(catalog)
+            output = io.BytesIO()
+            documents, tokens, bindings = module.extract_selected_hashes(
+                "foreign_replay", catalog, tasks, output,
+            )
+            self.assertEqual((documents, tokens, len(bindings)), (2, 7, 2))
+            self.assertEqual(output.getvalue(), b"".join(
+                hashlib.sha256(text.encode()).digest() for text in ("first", "second")
+            ))
+
     def test_code_bundle_verifier_rejects_unreceipted_files(self) -> None:
         path = ROOT / "scripts/contract.py"
         spec = importlib.util.spec_from_file_location("full8_contract", path)
