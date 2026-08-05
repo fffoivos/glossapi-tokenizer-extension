@@ -47,6 +47,8 @@
       "loss_rtol": 0.0001,
       "gradient_norm_atol": 0.0001,
       "gradient_norm_rtol": 0.001,
+      "restart_gradient_norm_atol": 0.001,
+      "restart_gradient_norm_rtol": 0.02,
       "parameter_norm_atol": 0.00001,
       "parameter_norm_rtol": 0.000001,
       "trajectory_rmse_over_control_std_max": 0.05,

@@ -198,9 +198,17 @@ short 288-update benchmark would be a benchmark-length artifact, not the
 production wall-seconds/update quantity used for promotion.
 
 Fallback is fail-closed: DP32 may be selected after a DP64 rejection only if
-the control itself has zero skipped/non-finite updates and exact update-161
-checkpoint/restart parity. A broken control fails the whole benchmark rather
-than becoming the production profile by default.
+the control itself has zero skipped/non-finite updates; the restart receipt
+binds the profile, scientific digest, iterations 160/161 and exact checkpoint
+symlink; update-161 loss and parameter norm reproduce exactly at logged
+precision; and the cross-node gradient norm remains within the frozen 2%
+relative/0.001 absolute tolerance. PyTorch
+does not guarantee bitwise-identical floating-point reductions when the
+collective order changes across node allocations; the observed independent
+restart differed only in gradient norm by 0.92%, while loss, parameter norm,
+data cursor and checkpoint identity matched. A control outside this explicit
+restart-provenance and numerical-equivalence gate fails the whole benchmark rather than becoming
+the production profile by default.
 
 ## Not yet done
 

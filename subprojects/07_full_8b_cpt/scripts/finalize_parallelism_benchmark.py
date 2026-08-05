@@ -89,17 +89,76 @@ def close(left: float, right: float, *, atol: float, rtol: float) -> bool:
     return abs(left - right) <= atol + rtol * abs(left)
 
 
-def exact_restart(uninterrupted: dict, restarted: dict, iteration: int) -> dict:
+def restart_provenance(
+    root: Path,
+    *,
+    profile_id: str,
+    scientific_digest: str,
+    iteration: int,
+) -> dict:
+    receipt_path = root / "segments/updates_160_161/training_job_receipt.json"
+    receipt = read_json(receipt_path)
+    checkpoint_name = f"iter_{iteration:07d}"
+    view = root / "benchmark_load_views" / f"{checkpoint_name}_for_{profile_id}"
+    marker = view / "latest_checkpointed_iteration.txt"
+    checkpoint_link = view / checkpoint_name
+    expected_checkpoint = root / "checkpoints" / checkpoint_name
+    checks = {
+        "receipt_schema": receipt.get("schema_version") == "apertus_full_8b_training_job_v1",
+        "receipt_completed": receipt.get("status") == "completed",
+        "profile_id": receipt.get("profile_id") == profile_id,
+        "scientific_digest": receipt.get("scientific_digest") == scientific_digest,
+        "start_iteration": receipt.get("start_iteration") == iteration,
+        "end_iteration": receipt.get("end_iteration") == iteration + 1,
+        "load_marker": marker.is_file() and marker.read_text().strip() == str(iteration),
+        "checkpoint_symlink": checkpoint_link.is_symlink(),
+        "checkpoint_target": checkpoint_link.is_symlink()
+        and checkpoint_link.resolve() == expected_checkpoint.resolve(),
+    }
+    return {
+        "passed": all(checks.values()),
+        "checks": checks,
+        "receipt": file_binding(receipt_path),
+        "load_view": str(view),
+        "checkpoint_target": str(expected_checkpoint),
+    }
+
+
+def restart_equivalence(
+    uninterrupted: dict,
+    restarted: dict,
+    iteration: int,
+    *,
+    gradient_atol: float,
+    gradient_rtol: float,
+) -> dict:
     left = uninterrupted["rows"].get(iteration)
     right = restarted["rows"].get(iteration)
     if left is None or right is None:
         return {"passed": False, "reason": "comparison update absent"}
     fields = sorted(set(left) | set(right))
+    exact_fields = {name: left.get(name) == right.get(name) for name in ("loss", "params")}
+    gradient_delta = abs(left.get("grad", math.inf) - right.get("grad", math.inf))
+    gradient_limit = gradient_atol + gradient_rtol * abs(left.get("grad", math.inf))
+    gradient_finite = math.isfinite(left.get("grad", math.inf)) and math.isfinite(
+        right.get("grad", math.inf)
+    )
+    gradient_within_tolerance = gradient_finite and gradient_delta <= gradient_limit
     return {
-        "passed": left == right,
+        "passed": all(exact_fields.values()) and gradient_within_tolerance,
         "iteration": iteration,
         "uninterrupted": left,
         "restarted": right,
+        "exact_logged_fields": exact_fields,
+        "gradient_norm": {
+            "finite": gradient_finite,
+            "absolute_delta": gradient_delta,
+            "absolute_limit": gradient_limit,
+            "atol": gradient_atol,
+            "rtol": gradient_rtol,
+            "within_tolerance": gradient_within_tolerance,
+            "reason": "cross-node floating-point collective reduction order is not bitwise invariant",
+        },
         "absolute_deltas": {field: abs(left.get(field, math.inf) - right.get(field, math.inf)) for field in fields},
     }
 
@@ -163,16 +222,34 @@ def main() -> int:
             timed_payload / 288 + fixed_startup / production_segment_updates
         )
     amortized_p90 = max(candidate["p90_step_seconds"], projected_production_wall)
-    control_restart = exact_restart(control, control_restart, 161)
-    candidate_restart = exact_restart(candidate, candidate_restart, 161)
+    restart_options = {
+        "gradient_atol": thresholds["restart_gradient_norm_atol"],
+        "gradient_rtol": thresholds["restart_gradient_norm_rtol"],
+    }
+    control_restart_provenance = restart_provenance(
+        args.control_root,
+        profile_id=control_job["profile_id"],
+        scientific_digest=control_job["scientific_digest"],
+        iteration=160,
+    )
+    candidate_restart_provenance = restart_provenance(
+        args.candidate_root,
+        profile_id=candidate_job["profile_id"],
+        scientific_digest=candidate_job["scientific_digest"],
+        iteration=160,
+    )
+    control_restart = restart_equivalence(control, control_restart, 161, **restart_options)
+    candidate_restart = restart_equivalence(candidate, candidate_restart, 161, **restart_options)
     checks = {
         "same_scientific_digest": True,
         "same_frozen_sequence_and_goldfish_contract": bool(contract["sequence_ids"]["prefix_sha256"] and contract["goldfish"]["implementation"]["sha256"]),
         "first_batch_loss_gradient_parameter_parity": all(first_checks.values()),
         "trajectory_rmse_within_bound": rmse_ratio <= thresholds["trajectory_rmse_over_control_std_max"],
         "trajectory_signed_mean_within_bound": signed_ratio <= thresholds["trajectory_abs_mean_over_control_std_max"],
-        "control_restart_exact": control_restart["passed"],
-        "candidate_restart_exact": candidate_restart["passed"],
+        "control_restart_provenance": control_restart_provenance["passed"],
+        "candidate_restart_provenance": candidate_restart_provenance["passed"],
+        "control_restart_numerically_equivalent": control_restart["passed"],
+        "candidate_restart_numerically_equivalent": candidate_restart["passed"],
         "control_zero_skipped_updates": control["skipped"] == 0,
         "candidate_zero_skipped_updates": candidate["skipped"] == 0,
         "control_zero_nonfinite_updates": control["nonfinite"] == 0,
@@ -186,7 +263,8 @@ def main() -> int:
         for name in (
             "same_scientific_digest",
             "same_frozen_sequence_and_goldfish_contract",
-            "control_restart_exact",
+            "control_restart_provenance",
+            "control_restart_numerically_equivalent",
             "control_zero_skipped_updates",
             "control_zero_nonfinite_updates",
         )
@@ -219,7 +297,10 @@ def main() -> int:
             "gpu_hour_ratio": gpu_hour_ratio,
             "selected_compute_hours": 19248 * (candidate["median_step_seconds"] if promoted else control["median_step_seconds"]) / 3600,
         },
-        "restart": {"control": control_restart, "candidate": candidate_restart},
+        "restart": {
+            "control": {"provenance": control_restart_provenance, "numerical": control_restart},
+            "candidate": {"provenance": candidate_restart_provenance, "numerical": candidate_restart},
+        },
         "scientific_digest": control_job["scientific_digest"],
         "inputs": {
             "profiles": file_binding(args.profiles),

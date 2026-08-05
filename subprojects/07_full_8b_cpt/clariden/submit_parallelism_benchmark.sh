@@ -41,11 +41,11 @@ candidate=$(submit --nodes=32 --time=02:00:00 --job-name=full8b-dp64-candidate \
   --export="$initial_common,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/candidate_dp64,FULL8_EXECUTION_PROFILE=dp64_32node,FULL8_START_ITERATION=0,FULL8_END_ITERATION=288,FULL8_LOAD_CHECKPOINT=$FULL8_INITIAL_MEGATRON" \
   "$sbatch_file")
 
-control_restart=$(submit --nodes=16 --time=01:00:00 --job-name=full8b-dp32-restart --dependency="afterok:$control" \
+control_restart=$(submit --nodes=16 --time=00:20:00 --job-name=full8b-dp32-restart --dependency="afterok:$control" \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/control_dp32,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/control_dp32/checkpoints" \
   "$sbatch_file")
-candidate_restart=$(submit --nodes=32 --time=01:00:00 --job-name=full8b-dp64-restart --dependency="afterok:$candidate" \
+candidate_restart=$(submit --nodes=32 --time=00:20:00 --job-name=full8b-dp64-restart --dependency="afterok:$candidate" \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/candidate_dp64,FULL8_EXECUTION_PROFILE=dp64_32node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/candidate_dp64/checkpoints" \
   "$sbatch_file")
