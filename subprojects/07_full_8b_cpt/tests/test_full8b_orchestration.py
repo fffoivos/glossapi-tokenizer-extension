@@ -303,6 +303,17 @@ class Full8BOrchestrationTests(unittest.TestCase):
             self.assertIn("dp64_32node", result.stdout)
             self.assertIn("--nodes=32", result.stderr)
 
+    def test_final_launch_handoff_is_dependency_safe_and_fail_closed(self) -> None:
+        handoff = (ROOT / "clariden/finalize_and_submit_production.sbatch").read_text()
+        self.assertIn('FULL8_LAUNCH_AUTHORIZATION:?set explicit production authorization', handoff)
+        self.assertIn('== APERTUS8B_FULL_MIXED_CPT', handoff)
+        self.assertLess(handoff.index("capture_launch_environment.py"), handoff.index("build_launch_gate.py"))
+        self.assertLess(handoff.index("build_launch_gate.py"), handoff.index("DRY_RUN=1"))
+        self.assertLess(handoff.index("DRY_RUN=1"), handoff.index("DRY_RUN=0"))
+        self.assertIn('[[ ! -e "$environment" && ! -e "$gate" && ! -e "$FULL8_RUN_ROOT" ]]', handoff)
+        self.assertIn("--conversion-smoke", handoff)
+        self.assertIn("--benchmark-receipt", handoff)
+
 
 if __name__ == "__main__":
     unittest.main()
