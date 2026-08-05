@@ -7,7 +7,7 @@
 #SBATCH --gpus-per-node=4
 #SBATCH --gres=gpu:4
 #SBATCH --cpus-per-task=288
-#SBATCH --mem=460G
+#SBATCH --mem=450G
 #SBATCH --time=03:00:00
 #SBATCH --array=0-3
 #SBATCH --no-requeue
