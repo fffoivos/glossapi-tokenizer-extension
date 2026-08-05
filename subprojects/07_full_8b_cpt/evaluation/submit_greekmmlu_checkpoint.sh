@@ -12,6 +12,7 @@ NATIVE_ROOT="$FULL8_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_ada
 MEGATRON=${FULL8_MEGATRON_ROOT:-/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T093500Z-megatron-production-c92402e-v1}
 TOKENIZER=${FULL8_TOKENIZER_ROOT:-/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_polytonic_148992}
 COMPAT=${FULL8_PYTHON_COMPAT_DIR:-/iopsstor/scratch/cscs/fffoivos/orchestration/apertus-cscs-efficiency/20260802T230000Z-mini-b2-v8/compat}
+FULL8_EVALUATION_ROOT="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/evaluation"
 CLEAN_SUBSET=${FULL8_GREEKMMLU_CLEAN_SUBSET:-/capstor/scratch/cscs/fffoivos/cpt_runs/dataset-scheduling-0p5b/20260803T064000Z-static-prelaunch-v2/greekmmlu_clean_subset_manifest.json}
 TOKENIZER_SHA=bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b
 DRY_RUN=${DRY_RUN:-1}
@@ -44,7 +45,7 @@ mkdir -p "$root" "$FULL8_RUN_ROOT/checkpoint_evaluation_logs"
 convert=$(sbatch --parsable --dependency="$FULL8_DEPENDENCY" \
   --output="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.out" \
   --error="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.err" \
-  --export="ALL,EVALUATION_BUNDLE=$EVALUATION_BUNDLE,MEGATRON_DIR=$MEGATRON,SOURCE_CHECKPOINT_ROOT=$FULL8_RUN_ROOT/checkpoints,SOURCE_ITERATION=$FULL8_ITERATION,TOKENIZER_DIR=$TOKENIZER,EXPORT_ROOT=$export_root,PYTHON_COMPAT_DIR=$COMPAT,TOKENIZER_SHA=$TOKENIZER_SHA" \
+  --export="ALL,EVALUATION_BUNDLE=$EVALUATION_BUNDLE,MEGATRON_DIR=$MEGATRON,SOURCE_CHECKPOINT_ROOT=$FULL8_RUN_ROOT/checkpoints,SOURCE_ITERATION=$FULL8_ITERATION,TOKENIZER_DIR=$TOKENIZER,EXPORT_ROOT=$export_root,PYTHON_COMPAT_DIR=$COMPAT,TOKENIZER_SHA=$TOKENIZER_SHA,EXPORT_MODEL_SCALE=8B,FULL8_EVALUATION_ROOT=$FULL8_EVALUATION_ROOT" \
   "$EVALUATION_BUNDLE/clariden/convert_checkpoint_for_native_greekmmlu.sbatch")
 evaluate=$(sbatch --parsable --time=01:15:00 --dependency="afterok:$convert" \
   --output="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.out" \

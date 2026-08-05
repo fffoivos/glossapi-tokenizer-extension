@@ -23,6 +23,15 @@ UENV_IMAGE=${UENV_IMAGE:-pytorch/v2.9.1:v2}
 EVAL_VENV=${EVAL_VENV:-/iopsstor/scratch/cscs/fffoivos/python_envs/native_greek_eval_py312_aug2026}
 LOADER_TRANSFORMER_IMPL=${LOADER_TRANSFORMER_IMPL:-transformer_engine}
 TOKENIZER_SHA=${TOKENIZER_SHA:-cc3f544817da0e8d1623e3f7484df7f67464aeb00867aece956880e9b407ef8f}
+EXPORT_MODEL_SCALE=${EXPORT_MODEL_SCALE:-0p5B}
+case "$EXPORT_MODEL_SCALE" in
+  0p5B) HF_LOGIT_TEST_FLAG=--test-logits ;;
+  8B)
+    : "${FULL8_EVALUATION_ROOT:?8B export requires its frozen evaluation root}"
+    HF_LOGIT_TEST_FLAG=
+    ;;
+  *) echo "unsupported EXPORT_MODEL_SCALE: $EXPORT_MODEL_SCALE" >&2; exit 2 ;;
+esac
 case "$LOADER_TRANSFORMER_IMPL" in
   transformer_engine|local) ;;
   *)
@@ -86,20 +95,31 @@ uenv run "$UENV_IMAGE" --view=default -- bash -lc "
     --true-vocab-size 148992 \
     --position-embedding-type rope \
     --hf-tokenizer '$TOKENIZER_DIR' \
-    --test-logits 2>&1 | tee '$EXPORT_ROOT/hf_conversion.log'
+    $HF_LOGIT_TEST_FLAG 2>&1 | tee '$EXPORT_ROOT/hf_conversion.log'
 "
 end_hf=$(date +%s)
 
 start_mapping=$(date +%s)
 printf -v intermediate_iteration 'iter_%07d' "$SOURCE_ITERATION"
-uenv run "$UENV_IMAGE" --view=default -- env PYTHONPATH="$MEGATRON_DIR" \
-  "$EVAL_VENV/bin/python" \
-  "$EVALUATION_BUNDLE/evaluation/verify_exact_checkpoint_weight_mapping.py" \
-  --intermediate-checkpoint \
-  "$EXPORT_ROOT/intermediate/torch/$intermediate_iteration/mp_rank_00/model_optim_rng.pt" \
-  --hf-model "$EXPORT_ROOT/hf/model.safetensors" \
-  --hf-config "$EXPORT_ROOT/hf/config.json" \
-  --output "$EXPORT_ROOT/exact_weight_mapping_receipt.json"
+if [[ "$EXPORT_MODEL_SCALE" == 8B ]]; then
+  uenv run "$UENV_IMAGE" --view=default -- env PYTHONPATH="$MEGATRON_DIR" \
+    "$EVAL_VENV/bin/python" \
+    "$FULL8_EVALUATION_ROOT/verify_exact_checkpoint_weight_mapping_8b.py" \
+    --intermediate-checkpoint \
+    "$EXPORT_ROOT/intermediate/torch/$intermediate_iteration/mp_rank_00/model_optim_rng.pt" \
+    --hf-root "$EXPORT_ROOT/hf" \
+    --hf-config "$EXPORT_ROOT/hf/config.json" \
+    --output "$EXPORT_ROOT/exact_weight_mapping_receipt.json"
+else
+  uenv run "$UENV_IMAGE" --view=default -- env PYTHONPATH="$MEGATRON_DIR" \
+    "$EVAL_VENV/bin/python" \
+    "$EVALUATION_BUNDLE/evaluation/verify_exact_checkpoint_weight_mapping.py" \
+    --intermediate-checkpoint \
+    "$EXPORT_ROOT/intermediate/torch/$intermediate_iteration/mp_rank_00/model_optim_rng.pt" \
+    --hf-model "$EXPORT_ROOT/hf/model.safetensors" \
+    --hf-config "$EXPORT_ROOT/hf/config.json" \
+    --output "$EXPORT_ROOT/exact_weight_mapping_receipt.json"
+fi
 end_mapping=$(date +%s)
 
 uenv run "$UENV_IMAGE" --view=default -- "$EVAL_VENV/bin/python" - \
@@ -117,8 +137,16 @@ payload={
 open(out,"w").write(json.dumps(payload,indent=2,sort_keys=True)+"\n")
 PY
 
-uenv run "$UENV_IMAGE" --view=default -- "$EVAL_VENV/bin/python" \
-  "$EVALUATION_BUNDLE/evaluation/checkpoint_eval_export_receipt.py" finalize \
-  --output-root "$EXPORT_ROOT" \
-  --tokenizer-json "$TOKENIZER_DIR/tokenizer.json" \
-  --tokenizer-json-sha256 "$TOKENIZER_SHA"
+if [[ "$EXPORT_MODEL_SCALE" == 8B ]]; then
+  uenv run "$UENV_IMAGE" --view=default -- "$EVAL_VENV/bin/python" \
+    "$FULL8_EVALUATION_ROOT/finalize_checkpoint_export_8b.py" \
+    --output-root "$EXPORT_ROOT" \
+    --tokenizer-json "$TOKENIZER_DIR/tokenizer.json" \
+    --tokenizer-json-sha256 "$TOKENIZER_SHA"
+else
+  uenv run "$UENV_IMAGE" --view=default -- "$EVAL_VENV/bin/python" \
+    "$EVALUATION_BUNDLE/evaluation/checkpoint_eval_export_receipt.py" finalize \
+    --output-root "$EXPORT_ROOT" \
+    --tokenizer-json "$TOKENIZER_DIR/tokenizer.json" \
+    --tokenizer-json-sha256 "$TOKENIZER_SHA"
+fi

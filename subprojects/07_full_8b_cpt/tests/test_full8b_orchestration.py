@@ -96,6 +96,26 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("--time=01:15:00", prelaunch)
         self.assertIn("--time=01:15:00", production)
 
+    def test_full_8b_conversion_uses_sharded_exact_mapping_without_oom_logit_test(self) -> None:
+        shared = (
+            ROOT.parent
+            / "06_dataset_scheduling_experiments/clariden/convert_checkpoint_for_native_greekmmlu.sbatch"
+        ).read_text()
+        prelaunch = (ROOT / "clariden/submit_conversion_smoke.sh").read_text()
+        production = (ROOT / "evaluation/submit_greekmmlu_checkpoint.sh").read_text()
+        verifier = (ROOT / "evaluation/verify_exact_checkpoint_weight_mapping_8b.py").read_text()
+        finalizer = (ROOT / "evaluation/finalize_checkpoint_export_8b.py").read_text()
+        self.assertIn("EXPORT_MODEL_SCALE=${EXPORT_MODEL_SCALE:-0p5B}", shared)
+        self.assertIn("verify_exact_checkpoint_weight_mapping_8b.py", shared)
+        self.assertIn("finalize_checkpoint_export_8b.py", shared)
+        self.assertIn("EXPORT_MODEL_SCALE=8B", prelaunch)
+        self.assertIn("EXPORT_MODEL_SCALE=8B", production)
+        self.assertIn('"output_layer.weight"', verifier)
+        self.assertIn('"model.safetensors.index.json"', verifier)
+        self.assertIn('"source_parameter_tensors_expected": len(expected_source)', verifier)
+        self.assertIn('"runtime_logit_diagnostics": "skipped_single_gpu_memory_limit"', finalizer)
+        self.assertIn('"parity_acceptance_path": "bit_exact_parameter_mapping"', finalizer)
+
     def test_profiles_preserve_global_batch(self) -> None:
         for profile in ("dp32_16node", "dp64_32node"):
             subprocess.run(

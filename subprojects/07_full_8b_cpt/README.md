@@ -58,6 +58,11 @@ The resource and provenance map remains
 - a 75-minute allocation for every full 8B GreekMMLU job, based on the
   measured 54m11s initialization baseline (the inherited 30-minute Mini
   allocation is insufficient for Apertus-8B);
+- an 8B-specific sharded export verifier: the converter's simultaneous
+  Megatron/HF `--test-logits` diagnostic exceeds one 96GB GH200, so the launch
+  gate instead requires all 323 learned source tensors to map bit-exactly into
+  the four HF shards (including the untied output embedding), followed by a
+  successful authoritative float32 native-GreekMMLU run of that export;
 - per-document validation at initialization, cooldown start and final model.
 
 WSD-10 is the settled baseline, not a new LR winner claim. The T10/T20/T30
