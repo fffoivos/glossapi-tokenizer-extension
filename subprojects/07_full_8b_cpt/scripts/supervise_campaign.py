@@ -10,6 +10,7 @@ import os
 import subprocess
 import sys
 import re
+import time
 from pathlib import Path
 
 from contract import atomic_write_json, read_json
@@ -19,17 +20,38 @@ RETRYABLE = {"BOOT_FAIL", "NODE_FAIL", "PREEMPTED", "REVOKED", "TIMEOUT"}
 ITERATION = re.compile(r"iteration\s+(\d+)\s*/")
 
 
-def slurm_state(job_id: str) -> str:
-    result = subprocess.run(
-        ["sacct", "-X", "-n", "-P", "-j", job_id, "--format=State"],
-        text=True, capture_output=True, check=False,
-    )
-    rows = [row.split("|")[0].split()[0].split("+")[0] for row in result.stdout.splitlines() if row.strip()]
-    return rows[0] if rows else "UNKNOWN"
+def slurm_state(job_id: str, *, attempts: int = 5, delay_seconds: float = 2.0) -> str:
+    """Read a terminal Slurm state without treating one empty sacct read as fact."""
+    for attempt in range(attempts):
+        result = subprocess.run(
+            ["sacct", "-X", "-n", "-P", "-j", job_id, "--format=State"],
+            text=True, capture_output=True, check=False,
+        )
+        rows = [
+            row.split("|")[0].split()[0].split("+")[0]
+            for row in result.stdout.splitlines()
+            if row.strip()
+        ]
+        if result.returncode == 0 and rows and rows[0] != "UNKNOWN":
+            return rows[0]
+        if attempt + 1 < attempts:
+            time.sleep(delay_seconds)
+    return "UNKNOWN"
+
+
+def allow_nested_sbatch(command: list[str]) -> list[str]:
+    """Make sbatch legal when this supervisor itself runs inside uenv."""
+    if not command or Path(command[0]).name != "sbatch":
+        raise ValueError("supervisor submit() only accepts sbatch commands")
+    if "--uenv-passthrough=ignore" in command:
+        return list(command)
+    return [command[0], "--uenv-passthrough=ignore", *command[1:]]
 
 
 def submit(command: list[str]) -> str:
-    output = subprocess.run(command, text=True, capture_output=True, check=True).stdout.strip()
+    output = subprocess.run(
+        allow_nested_sbatch(command), text=True, capture_output=True, check=True
+    ).stdout.strip()
     return output.split(";", 1)[0]
 
 

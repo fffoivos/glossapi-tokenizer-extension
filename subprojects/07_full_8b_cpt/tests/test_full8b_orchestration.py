@@ -522,6 +522,40 @@ class Full8BOrchestrationTests(unittest.TestCase):
             self.assertFalse(module.retryable_terminal("FAILED", marker, 25, 100))
             self.assertTrue(module.retryable_terminal("TIMEOUT", marker, 25, 100))
 
+    def test_supervisor_submissions_escape_the_parent_uenv(self) -> None:
+        path = ROOT / "scripts/supervise_campaign.py"
+        sys.path.insert(0, str(path.parent))
+        spec = importlib.util.spec_from_file_location("full8_supervisor_uenv", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        command = module.allow_nested_sbatch(["sbatch", "--parsable", "child.sbatch"])
+        self.assertEqual(command[1], "--uenv-passthrough=ignore")
+        self.assertEqual(command.count("--uenv-passthrough=ignore"), 1)
+        with self.assertRaises(ValueError):
+            module.allow_nested_sbatch(["srun", "child.sbatch"])
+
+    def test_nested_evaluation_and_resume_submissions_escape_uenv(self) -> None:
+        checkpoint = (ROOT / "evaluation/submit_greekmmlu_checkpoint.sh").read_text()
+        resume = (ROOT / "clariden/resume_graceful_stop_smoke.sbatch").read_text()
+        self.assertEqual(checkpoint.count("sbatch --uenv-passthrough=ignore"), 4)
+        self.assertEqual(resume.count("sbatch --uenv-passthrough=ignore"), 2)
+
+    def test_nested_sbatch_hardware_probe_uses_exact_supervisor_runtime(self) -> None:
+        wrapper = (ROOT / "clariden/prove_nested_sbatch.sbatch").read_text()
+        submitter = (ROOT / "scripts/submit_nested_sbatch_probe.py").read_text()
+        child = (ROOT / "clariden/nested_sbatch_child.sbatch").read_text()
+        self.assertIn("uenv run pytorch/v2.9.1:v2 --view=default -- python3", wrapper)
+        self.assertIn('"sbatch", "--uenv-passthrough=ignore", "--parsable"', submitter)
+        self.assertIn("verify_code_bundle.py", child)
+
+    def test_contract_cli_fails_closed_for_missing_bundle(self) -> None:
+        result = subprocess.run([
+            "python3", str(ROOT / "scripts/contract.py"), "verify-code-bundle",
+            "--root", "/nonexistent", "--receipt", "/nonexistent", "--kind", "scientific",
+        ], text=True, capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+
     def test_evaluation_iteration_transport_avoids_slurm_export_commas(self) -> None:
         supervisor_path = ROOT / "scripts/supervise_campaign.py"
         queue_path = ROOT / "evaluation/run_evaluation_queue.py"

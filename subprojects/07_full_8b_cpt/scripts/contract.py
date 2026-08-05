@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import os
@@ -117,6 +118,27 @@ def require_passing(path: Path, schema: str) -> dict[str, Any]:
     if str(value.get("status", "")).lower() not in PASS_STATUSES:
         raise ValueError(f"{path}: non-passing status")
     return value
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    verify = subparsers.add_parser(
+        "verify-code-bundle", description="Verify a frozen code bundle receipt."
+    )
+    verify.add_argument("--root", type=Path, required=True)
+    verify.add_argument("--receipt", type=Path, required=True)
+    verify.add_argument("--kind", choices=("scientific", "efficiency"), required=True)
+    args = parser.parse_args()
+    if args.command == "verify-code-bundle":
+        value = verify_code_bundle_receipt(args.receipt, args.root, args.kind)
+        print(json.dumps({"ok": True, "kind": args.kind, "tree_sha256": value["tree_sha256"]}, sort_keys=True))
+        return 0
+    raise AssertionError(args.command)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
 
 
 def scientific_digest(recipe: dict[str, Any]) -> str:
