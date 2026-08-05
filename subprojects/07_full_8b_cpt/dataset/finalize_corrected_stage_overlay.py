@@ -29,6 +29,7 @@ def main() -> int:
     parser.add_argument("--stage-root", type=Path, required=True)
     parser.add_argument("--clean-panel-manifest", type=Path, required=True)
     parser.add_argument("--training-content-receipt", type=Path, required=True)
+    parser.add_argument("--all-panel-audit", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
@@ -42,6 +43,7 @@ def main() -> int:
         "token_byte_lengths": args.stage_root / "validation/token_utf8_byte_lengths.receipt.json",
         "clean_replay_panel": args.clean_panel_manifest,
         "selected_training_content": args.training_content_receipt,
+        "all_panel_training_content_audit": args.all_panel_audit,
     }
     values = {name: json.loads(path.read_text(encoding="utf-8")) for name, path in paths.items()}
     if values["pool_corpus"].get("status") != "completed" or values["packed_corpus"].get("status") != "completed":
@@ -50,9 +52,23 @@ def main() -> int:
         raise ValueError("corrected stage schedule/validation is not complete")
     if values["clean_replay_panel"].get("overlap_audit", {}).get("replacement_panel", {}).get("overlapping_documents") != 0:
         raise ValueError("replacement replay panel overlaps training")
+    audit = values["all_panel_training_content_audit"]
+    if (
+        audit.get("schema_version") != "apertus_full_8b_all_panel_training_content_audit_v1"
+        or audit.get("status") != "passed"
+        or audit.get("all_final_panels_training_disjoint") is not True
+        or len(audit.get("panels", [])) != 13
+        or any(int(row.get("final_training_exact_content_overlap_documents", -1)) != 0 for row in audit["panels"])
+    ):
+        raise ValueError("all-panel training-content audit failed")
     old = next(row for row in values["validation"]["panels"] if row["name"] == "old_greek")
     if old.get("training_exact_content_overlap_documents") != 0 or old.get("display_name") != "Greek replay retention":
         raise ValueError("validation manifest did not adopt the clean replay panel")
+    if (
+        values["validation"].get("all_panels_training_exact_content_disjoint") is not True
+        or any(int(row.get("training_exact_content_overlap_documents", -1)) != 0 for row in values["validation"]["panels"])
+    ):
+        raise ValueError("validation manifest contains a training-overlap panel")
     payload = {
         "schema_version": "apertus_full8b_data_stage_v2",
         "status": "completed",
@@ -60,7 +76,7 @@ def main() -> int:
         "stage_root": str(args.stage_root.resolve()),
         "parent_stage": str(args.parent_stage.resolve()),
         "training_data_identity_changed": False,
-        "validation_change": "legacy old_greek ID now points to exact-training-content-disjoint Greek replay",
+        "validation_change": "all 13 panels are exact-training-content disjoint; leaking English, HPLT, non-HPLT and legacy old_greek rows were replaced or removed",
         "receipts": {name: binding(path) for name, path in paths.items()},
     }
     args.output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")

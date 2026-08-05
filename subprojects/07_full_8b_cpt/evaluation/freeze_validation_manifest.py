@@ -42,7 +42,7 @@ def main() -> int:
     parser.add_argument("--pool-receipt", type=Path, required=True)
     parser.add_argument("--neutral-manifest", type=Path, required=True)
     parser.add_argument("--neutral-corpus-receipt", type=Path, required=True)
-    parser.add_argument("--replacement-old-greek-manifest", type=Path)
+    parser.add_argument("--replacement-old-greek-manifest", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
@@ -54,8 +54,8 @@ def main() -> int:
         raise ValueError("unsupported pool receipt")
     if neutral.get("status") != "completed" or neutral.get("heldout_name") != "neutral_external_modern_greek":
         raise ValueError("neutral heldout is not complete")
-    replacement = read_json(args.replacement_old_greek_manifest) if args.replacement_old_greek_manifest else None
-    if replacement is not None and (
+    replacement = read_json(args.replacement_old_greek_manifest)
+    if (
         replacement.get("schema_version") != "apertus_full_8b_clean_replay_validation_v1"
         or replacement.get("status") != "completed"
         or replacement.get("name") != "old_greek"
@@ -64,7 +64,7 @@ def main() -> int:
         raise ValueError("replacement Greek-replay validation panel is invalid")
     panels = []
     for row in pool["heldouts"]:
-        if row["name"] == "old_greek" and replacement is not None:
+        if row["name"] == "old_greek":
             for key in ("raw_jsonl", "bin", "idx"):
                 checked(replacement[key])
             panels.append(

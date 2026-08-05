@@ -594,6 +594,18 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("verify_code_bundle_receipt", gate)
         self.assertIn("initial checkpoint inventory drift", gate)
         self.assertIn("initial validation/manifest drift", gate)
+        self.assertIn("validation panels are not proven training-content disjoint", gate)
+        self.assertIn("nested sbatch runtime proof drift", gate)
+
+    def test_canonical_validation_pipeline_is_fail_closed_on_content_overlap(self) -> None:
+        freeze = (ROOT / "evaluation/freeze_validation_manifest.py").read_text()
+        canonical = (ROOT / "clariden/finalize_data.sbatch").read_text()
+        overlay = (ROOT / "clariden/build_all_panel_validation_overlay.sbatch").read_text()
+        self.assertIn('"--replacement-old-greek-manifest", type=Path, required=True', freeze)
+        self.assertIn("freeze_selected_training_content.py", canonical)
+        self.assertIn("build_clean_replay_validation.py", canonical)
+        self.assertIn("build_training_disjoint_validation_manifest.py", canonical)
+        self.assertIn("build_training_disjoint_validation_manifest.py", overlay)
 
     def test_final_launch_handoff_is_dependency_safe_and_fail_closed(self) -> None:
         handoff = (ROOT / "clariden/finalize_and_submit_production.sbatch").read_text()

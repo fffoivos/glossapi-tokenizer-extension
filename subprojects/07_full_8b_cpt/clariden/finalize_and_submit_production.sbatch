@@ -24,6 +24,7 @@ set -euo pipefail
 : "${FULL8_PACKED_PAYLOAD_INTEGRITY:?set completed packed-payload hash receipt}"
 : "${FULL8_CONVERSION_SMOKE_RECEIPT:?set completed checkpoint-conversion smoke receipt}"
 : "${FULL8_GRACEFUL_STOP_SMOKE:?set completed graceful-stop/restart smoke receipt}"
+: "${FULL8_NESTED_SBATCH_PROOF:?set completed nested sbatch proof}"
 : "${FULL8_RUN_ROOT:?set new production run root}"
 : "${FULL8_LAUNCH_AUTHORIZATION:?set explicit production authorization}"
 [[ "$FULL8_LAUNCH_AUTHORIZATION" == APERTUS8B_FULL_MIXED_CPT ]] || {
@@ -74,6 +75,7 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   --initial-hf-receipt "$FULL8_INITIAL_HF_RECEIPT" \
   --conversion-smoke "$conversion" \
   --launch-environment "$environment" \
+  --nested-sbatch-proof "$FULL8_NESTED_SBATCH_PROOF" \
   --output "$gate"
 
 common=(

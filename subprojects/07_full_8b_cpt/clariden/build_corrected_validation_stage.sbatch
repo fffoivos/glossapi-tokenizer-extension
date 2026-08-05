@@ -52,11 +52,20 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   --pool-receipt "$FULL8_CORRECTED_STAGE/inventory/pool_corpus_receipt.json" \
   --neutral-manifest "$neutral_manifest" --neutral-corpus-receipt "$neutral_receipt" \
   --replacement-old-greek-manifest "$panel_root/clean_replay_validation_manifest.json" \
-  --output "$FULL8_CORRECTED_STAGE/validation/validation_manifest.json"
+  --output "$FULL8_CORRECTED_STAGE/validation/validation_manifest.pre_content_audit.json"
+
+uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/dataset/build_training_disjoint_validation_manifest.py" \
+  --input-manifest "$FULL8_CORRECTED_STAGE/validation/validation_manifest.pre_content_audit.json" \
+  --training-content-receipt "$content_root/selected_training_content_receipt.json" \
+  --tokenizer-root /iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_polytonic_148992 \
+  --output-dir "$FULL8_CORRECTED_STAGE/validation/training_disjoint" \
+  --output-manifest "$FULL8_CORRECTED_STAGE/validation/validation_manifest.json"
 
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/dataset/finalize_corrected_stage_overlay.py" \
   --parent-stage "$FULL8_PARENT_STAGE" --stage-root "$FULL8_CORRECTED_STAGE" \
   --clean-panel-manifest "$panel_root/clean_replay_validation_manifest.json" \
   --training-content-receipt "$content_root/selected_training_content_receipt.json" \
+  --all-panel-audit "$FULL8_CORRECTED_STAGE/validation/training_disjoint/all_panel_training_content_audit.json" \
   --output "$FULL8_CORRECTED_STAGE/data_stage_receipt.json"

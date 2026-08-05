@@ -2,6 +2,7 @@
 set -euo pipefail
 : "${FULL8_CODE_ROOT:?set immutable CSCS code root}"
 : "${FULL8_STAGE_ROOT:?set new immutable data stage root}"
+: "${FULL8_VALIDATION_PYTHON:?set Python with numpy, pyarrow and tokenizers}"
 DRY_RUN=${DRY_RUN:-1}
 [[ "$DRY_RUN" == 0 || "$DRY_RUN" == 1 ]] || { echo "DRY_RUN must be 0 or 1" >&2; exit 2; }
 
@@ -13,7 +14,7 @@ submit() {
   fi
 }
 
-export_arg="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT"
+export_arg="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_VALIDATION_PYTHON=$FULL8_VALIDATION_PYTHON"
 if [[ "$DRY_RUN" == 0 ]]; then
   [[ ! -e "$FULL8_STAGE_ROOT" ]] || { echo "data stage root exists" >&2; exit 2; }
   mkdir -p "$FULL8_STAGE_ROOT/logs"

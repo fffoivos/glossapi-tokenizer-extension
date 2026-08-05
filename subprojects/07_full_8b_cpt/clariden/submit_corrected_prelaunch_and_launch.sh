@@ -25,6 +25,8 @@ initial_validation_receipt="$FULL8_PRELAUNCH_ROOT/initial_source_validation/init
 initial_greek_receipt="$FULL8_PRELAUNCH_ROOT/initial_greekmmlu/initial_greekmmlu_receipt.json"
 per_document_root="$FULL8_PRELAUNCH_ROOT/per_document_initial"
 packed_integrity="$FULL8_PRELAUNCH_ROOT/packed_payload_integrity.json"
+nested_root="$FULL8_PRELAUNCH_ROOT/nested_sbatch"
+nested_proof="$nested_root/nested_sbatch_proof.json"
 
 submit() {
   if [[ "$DRY_RUN" == 1 ]]; then
@@ -47,6 +49,14 @@ PY
 fi
 
 common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT"
+nested=$(submit \
+  --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
+  --export="$common,FULL8_NESTED_SMOKE_ROOT=$nested_root" \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/prove_nested_sbatch.sbatch")
+nested_wait=$(submit --dependency="afterok:$nested" \
+  --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
+  --export="ALL,FULL8_NESTED_SBATCH_PROOF=$nested_proof" \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/wait_nested_sbatch_proof.sbatch")
 stage=$(submit \
   --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_PARENT_STAGE=$FULL8_PARENT_STAGE,FULL8_CORRECTED_STAGE=$FULL8_CORRECTED_STAGE,FULL8_VALIDATION_PYTHON=$FULL8_VALIDATION_PYTHON" \
@@ -82,15 +92,15 @@ packed=$(submit --dependency="afterok:$stage" \
   --export="$common,FULL8_STAGE_ROOT=$FULL8_CORRECTED_STAGE,FULL8_PACKED_INTEGRITY_OUTPUT=$packed_integrity" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/verify_packed_payload_hashes.sbatch")
 
-handoff_dependency="afterok:$source_validation:$greek:$doc:$freeze_init:$packed"
+handoff_dependency="afterok:$source_validation:$greek:$doc:$freeze_init:$packed:$nested_wait"
 handoff=$(submit --dependency="$handoff_dependency" \
   --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
-  --export="$common,FULL8_STAGE_ROOT=$FULL8_CORRECTED_STAGE,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_BENCHMARK_ROOT=$FULL8_BENCHMARK_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_CHECKPOINT_RECEIPT=$initial_checkpoint_receipt,FULL8_INITIAL_HF_RECEIPT=$initial_hf_receipt,FULL8_INITIAL_VALIDATION_RECEIPT=$initial_validation_receipt,FULL8_INITIAL_GREEKMMLU_RECEIPT=$initial_greek_receipt,FULL8_INITIAL_PER_DOCUMENT_ROOT=$per_document_root,FULL8_PACKED_PAYLOAD_INTEGRITY=$packed_integrity,FULL8_CONVERSION_SMOKE_RECEIPT=$FULL8_CONVERSION_SMOKE_RECEIPT,FULL8_GRACEFUL_STOP_SMOKE=$FULL8_GRACEFUL_STOP_SMOKE,FULL8_RUN_ROOT=$FULL8_PRODUCTION_RUN_ROOT,FULL8_LAUNCH_AUTHORIZATION=$FULL8_LAUNCH_AUTHORIZATION" \
+  --export="$common,FULL8_STAGE_ROOT=$FULL8_CORRECTED_STAGE,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_BENCHMARK_ROOT=$FULL8_BENCHMARK_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_CHECKPOINT_RECEIPT=$initial_checkpoint_receipt,FULL8_INITIAL_HF_RECEIPT=$initial_hf_receipt,FULL8_INITIAL_VALIDATION_RECEIPT=$initial_validation_receipt,FULL8_INITIAL_GREEKMMLU_RECEIPT=$initial_greek_receipt,FULL8_INITIAL_PER_DOCUMENT_ROOT=$per_document_root,FULL8_PACKED_PAYLOAD_INTEGRITY=$packed_integrity,FULL8_CONVERSION_SMOKE_RECEIPT=$FULL8_CONVERSION_SMOKE_RECEIPT,FULL8_GRACEFUL_STOP_SMOKE=$FULL8_GRACEFUL_STOP_SMOKE,FULL8_NESTED_SBATCH_PROOF=$nested_proof,FULL8_RUN_ROOT=$FULL8_PRODUCTION_RUN_ROOT,FULL8_LAUNCH_AUTHORIZATION=$FULL8_LAUNCH_AUTHORIZATION" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/finalize_and_submit_production.sbatch")
 
-graph=$(python3 - "$stage" "$freeze_init" "$materialize_hf" "$source_validation" "$greek" "$doc" "$packed" "$handoff" <<'PY'
+graph=$(python3 - "$nested" "$nested_wait" "$stage" "$freeze_init" "$materialize_hf" "$source_validation" "$greek" "$doc" "$packed" "$handoff" <<'PY'
 import json,sys
-names=("corrected_stage","freeze_initial_checkpoint","materialize_corrected_initial_hf","initial_source_validation","initial_greekmmlu","initial_per_document","packed_payload_integrity","launch_gate_and_production_handoff")
+names=("nested_sbatch_parent","nested_sbatch_proof_waiter","corrected_stage","freeze_initial_checkpoint","materialize_corrected_initial_hf","initial_source_validation","initial_greekmmlu","initial_per_document","packed_payload_integrity","launch_gate_and_production_handoff")
 print(json.dumps(dict(zip(names,sys.argv[1:])),separators=(",",":")))
 PY
 )

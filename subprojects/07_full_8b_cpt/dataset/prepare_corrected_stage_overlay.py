@@ -36,7 +36,7 @@ def main() -> int:
         "status": "prepared",
         "parent_stage": str(args.parent_stage.resolve()),
         "training_payloads_reused_byte_for_byte": True,
-        "change_scope": "replace contaminated legacy old_greek validation panel only",
+        "change_scope": "make every validation panel exact-training-content disjoint",
     }
     (args.output_stage / "stage_lineage.json").write_text(
         json.dumps(lineage, indent=2, sort_keys=True) + "\n", encoding="utf-8"

@@ -49,6 +49,7 @@ def main() -> int:
     parser.add_argument("--initial-hf-receipt", type=Path, required=True)
     parser.add_argument("--conversion-smoke", type=Path, required=True)
     parser.add_argument("--launch-environment", type=Path, required=True)
+    parser.add_argument("--nested-sbatch-proof", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     bundle = verify_code_bundle_receipt(args.code_bundle_receipt, args.code_root)
@@ -79,6 +80,25 @@ def main() -> int:
     validation = read_json(args.validation_manifest)
     if validation.get("schema_version") != "apertus_full_8b_validation_manifest_v1" or validation.get("status") != "frozen" or len(validation.get("panels", [])) != 13:
         raise ValueError("validation manifest drift")
+    audit_binding = validation.get("training_content_overlap_audit", {})
+    audit_path = Path(audit_binding.get("path", ""))
+    if (
+        validation.get("all_panels_training_exact_content_disjoint") is not True
+        or any(int(row.get("training_exact_content_overlap_documents", -1)) != 0 for row in validation["panels"])
+        or not audit_path.is_file()
+        or audit_path.stat().st_size != int(audit_binding.get("bytes", -1))
+        or sha256_file(audit_path) != audit_binding.get("sha256")
+    ):
+        raise ValueError("validation panels are not proven training-content disjoint")
+    validation_audit = status(
+        audit_path, {"apertus_full_8b_all_panel_training_content_audit_v1"}
+    )
+    if (
+        validation_audit.get("all_final_panels_training_disjoint") is not True
+        or len(validation_audit.get("panels", [])) != 13
+        or any(int(row.get("final_training_exact_content_overlap_documents", -1)) != 0 for row in validation_audit["panels"])
+    ):
+        raise ValueError("all-panel validation-content audit drift")
     status(args.token_bytes_receipt, {"apertus_token_utf8_byte_lengths_v1"})
     benchmark = status(args.benchmark_receipt, {"apertus_full_8b_parallelism_benchmark_v1"})
     if benchmark.get("selected_profile") != selected["selection"]["profile_id"]:
@@ -136,6 +156,18 @@ def main() -> int:
     environment = status(args.launch_environment, {"apertus_full_8b_launch_environment_v1"})
     if environment.get("nodes") != selected["selection"]["nodes"]:
         raise ValueError("scheduler snapshot/profile node drift")
+    nested_submit = status(
+        args.nested_sbatch_proof, {"apertus_full_8b_nested_sbatch_proof_v1"}
+    )
+    if (
+        Path(nested_submit.get("code_root", "")).resolve() != args.code_root.resolve()
+        or Path(nested_submit.get("code_bundle_receipt", "")).resolve() != args.code_bundle_receipt.resolve()
+        or nested_submit.get("parent_runtime") != "uenv run pytorch/v2.9.1:v2 --view=default -- python3"
+        or nested_submit.get("nested_submit_flag") != "--uenv-passthrough=ignore"
+        or not nested_submit.get("parent_job_id")
+        or not nested_submit.get("child_job_id")
+    ):
+        raise ValueError("nested sbatch runtime proof drift")
     per_document = sorted(args.initial_per_document_root.glob("*.receipt.json"))
     if len(per_document) != 13:
         raise ValueError("initial per-document receipt count drift")
@@ -194,7 +226,7 @@ def main() -> int:
         "D0_selection_confirmed_after_per_document_rerun_or_explicit_point_estimate_acceptance": owner["decisions"]["D0_selection_confirmed_after_per_document_rerun_or_explicit_point_estimate_acceptance"]["accepted"] is True,
         "libduth_permission_evidence_conflict_is_reconciled_or_explicitly_accepted": owner["decisions"]["libduth_permission_evidence_conflict_is_reconciled_or_explicitly_accepted"]["accepted"] is True,
         "packed_schedule_receipt_matches_recipe": packed.get("status") == "completed" and schedule.get("status") == "completed" and packed_integrity.get("status") == "passed",
-        "all_13_validation_panels_are_frozen": len(validation["panels"]) == 13,
+        "all_13_validation_panels_are_frozen": len(validation["panels"]) == 13 and validation.get("all_panels_training_exact_content_disjoint") is True,
         "tokenizer_and_initialization_hashes_pass": pool["tokenizer"]["tokenizer_json_sha256"] == recipe["tokenizer"]["tokenizer_json_sha256"] and initial_tree.get("status") == "frozen" and initial_hf.get("status") == "completed",
         "nan_checks_are_enabled": recipe["optimization"]["nan_and_inf_checks_enabled"] is True,
         "initial_validation_is_finite": initial_validation_finite and initial_validation.get("validation_manifest_sha256") == validation_sha,
@@ -230,6 +262,8 @@ def main() -> int:
             "initial_greekmmlu": args.initial_greekmmlu,
             "conversion_smoke": args.conversion_smoke,
             "launch_environment": args.launch_environment,
+            "nested_sbatch_proof": args.nested_sbatch_proof,
+            "validation_training_content_audit": audit_path,
             "production_initialization": production_init,
             "roundtrip_initialization": roundtrip_init,
             "initial_checkpoint_tree": args.initial_checkpoint_receipt,
@@ -249,6 +283,13 @@ def main() -> int:
         "checkpoint_averaging": False,
         "executing_code_bundle": {"root": str(args.code_root.resolve()), "tree_sha256": bundle["tree_sha256"]},
         "initialization_checkpoint": {"root": str(initial_root), "tree_sha256": initial_tree["tree_sha256"]},
+        "restart_gate_disclosure": {
+            "gradient_tolerance_was_added_after_the_observed_control_delta": True,
+            "restart_is_not_claimed_bitwise_exact": True,
+            "exact_logged_fields": control_restart.get("numerical", {}).get("exact_logged_fields", {}),
+            "gradient_norm": control_restart.get("numerical", {}).get("gradient_norm", {}),
+            "acceptance_basis": "exact logged loss and parameter norm, finite bounded gradient difference, and an independent real graceful-stop/resume smoke",
+        },
     }
     atomic_write_json(args.output, payload)
     print(json.dumps({"ok": True, "gates": len(gates), "selected_profile": selected["selection"]["profile_id"]}, sort_keys=True))
