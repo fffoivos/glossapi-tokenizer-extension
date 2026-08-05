@@ -17,6 +17,7 @@ from contract import atomic_write_json, file_binding, read_json
 ITERATION = re.compile(r"iteration\s+(\d+)\s*/")
 METRIC = re.compile(r"(?:^|\|)\s*([^|:]+?)\s*:\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)")
 STEP_MS = re.compile(r"elapsed time per iteration \(ms\):\s*([0-9]+(?:\.[0-9]+)?)", re.I)
+WALL_TIMESTAMP = re.compile(r"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s+iteration")
 
 
 def normalize(value: str) -> str:
@@ -31,6 +32,7 @@ def percentile(values: list[float], fraction: float) -> float:
 def parse_log(path: Path, *, require_full: bool = True) -> dict:
     rows: dict[int, dict[str, float]] = {}
     step_ms: list[float] = []
+    iteration_timestamps: dict[int, dt.datetime] = {}
     skipped = 0
     nonfinite = 0
     for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
@@ -40,13 +42,19 @@ def parse_log(path: Path, *, require_full: bool = True) -> dict:
         iteration = ITERATION.search(line)
         if not iteration:
             continue
+        iteration_number = int(iteration.group(1))
+        timestamp = WALL_TIMESTAMP.search(line)
+        if timestamp:
+            iteration_timestamps[iteration_number] = dt.datetime.strptime(
+                timestamp.group(1), "%Y-%m-%d %H:%M:%S"
+            )
         metrics = {normalize(key): float(raw) for key, raw in METRIC.findall(line)}
         row = {}
         for source, target in (("lm loss", "loss"), ("grad norm", "grad"), ("params norm", "params")):
             if source in metrics:
                 row[target] = metrics[source]
         if row:
-            rows[int(iteration.group(1))] = row
+            rows[iteration_number] = row
         skipped += int(metrics.get("number of skipped iterations", 0))
         if any(not math.isfinite(value) for value in row.values()):
             nonfinite += 1
@@ -55,11 +63,22 @@ def parse_log(path: Path, *, require_full: bool = True) -> dict:
     if not rows:
         raise ValueError(f"benchmark log contains no iteration rows: {path}")
     measured = step_ms[32:288] if require_full else step_ms
+    timed_payload_seconds = None
+    if require_full and 1 in iteration_timestamps and 288 in iteration_timestamps:
+        # Megatron logs each wall timestamp after the corresponding update.  The
+        # interval from update 1 through update 288 therefore contains updates
+        # 2..288 plus every intervening validation/save pause.  Add update 1's
+        # measured duration to retain the entire timed payload while excluding
+        # only fixed process/model/dataset startup before the first update.
+        timed_payload_seconds = (
+            iteration_timestamps[288] - iteration_timestamps[1]
+        ).total_seconds() + step_ms[0] / 1000
     return {
         "rows": rows,
         "median_step_seconds": statistics.median(measured) / 1000 if measured else None,
         "p90_step_seconds": percentile(measured, 0.90) / 1000 if measured else None,
         "observations": len(measured),
+        "timed_payload_seconds": timed_payload_seconds,
         "skipped": skipped,
         "nonfinite": nonfinite,
         "binding": file_binding(path),
@@ -125,8 +144,25 @@ def main() -> int:
         signed_ratio = abs(statistics.mean(deltas)) / control_std
     speedup = control["median_step_seconds"] / candidate["median_step_seconds"]
     gpu_hour_ratio = 2.0 / speedup
-    candidate_wall = float(candidate_job["elapsed_seconds"]) / 288
-    amortized_p90 = max(candidate["p90_step_seconds"], candidate_wall)
+    candidate_elapsed = float(candidate_job["elapsed_seconds"])
+    candidate_benchmark_wall = candidate_elapsed / 288
+    candidate_profile = profiles["profiles"][candidate_job["profile_id"]]
+    segment_boundaries = candidate_profile["segment_boundaries"]
+    production_segment_updates = min(
+        right - left for left, right in zip(segment_boundaries, segment_boundaries[1:])
+    )
+    timed_payload = candidate["timed_payload_seconds"]
+    if timed_payload is None:
+        # Legacy/synthetic logs have no wall timestamps. Keep the conservative
+        # historical behavior rather than inventing a startup estimate.
+        fixed_startup = None
+        projected_production_wall = candidate_benchmark_wall
+    else:
+        fixed_startup = max(0.0, candidate_elapsed - timed_payload)
+        projected_production_wall = (
+            timed_payload / 288 + fixed_startup / production_segment_updates
+        )
+    amortized_p90 = max(candidate["p90_step_seconds"], projected_production_wall)
     checks = {
         "same_scientific_digest": True,
         "same_frozen_sequence_and_goldfish_contract": bool(contract["sequence_ids"]["prefix_sha256"] and contract["goldfish"]["implementation"]["sha256"]),
@@ -158,7 +194,11 @@ def main() -> int:
             "control_p90_step_seconds": control["p90_step_seconds"],
             "candidate_median_step_seconds": candidate["median_step_seconds"],
             "candidate_p90_step_seconds": candidate["p90_step_seconds"],
-            "candidate_amortized_wall_seconds_per_update": candidate_wall,
+            "candidate_benchmark_wall_seconds_per_update": candidate_benchmark_wall,
+            "candidate_timed_payload_seconds": timed_payload,
+            "candidate_fixed_startup_seconds": fixed_startup,
+            "production_segment_updates": production_segment_updates,
+            "candidate_projected_production_wall_seconds_per_update": projected_production_wall,
             "candidate_p90_amortized_wall_seconds_per_update": amortized_p90,
             "median_throughput_speedup": speedup,
             "gpu_hour_ratio": gpu_hour_ratio,

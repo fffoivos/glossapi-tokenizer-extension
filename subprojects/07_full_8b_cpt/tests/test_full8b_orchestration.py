@@ -5,6 +5,7 @@ import re
 import subprocess
 import tempfile
 import unittest
+from datetime import datetime, timedelta
 from pathlib import Path
 
 
@@ -16,11 +17,23 @@ def write(path: Path, value: dict) -> None:
     path.write_text(json.dumps(value) + "\n", encoding="utf-8")
 
 
-def training_log(path: Path, milliseconds: float, *, start: int = 1, end: int = 288) -> None:
+def training_log(
+    path: Path,
+    milliseconds: float,
+    *,
+    start: int = 1,
+    end: int = 288,
+    timestamps: bool = False,
+) -> None:
     rows = []
+    epoch = datetime(2026, 8, 5, 12, 0, 0)
     for iteration in range(start, end + 1):
+        wall = ""
+        if timestamps:
+            finished = epoch + timedelta(milliseconds=milliseconds * iteration)
+            wall = f"[{finished:%Y-%m-%d %H:%M:%S}] "
         rows.append(
-            f"iteration {iteration}/ 19248 | elapsed time per iteration (ms): {milliseconds:.3f} | "
+            f"{wall}iteration {iteration}/ 19248 | elapsed time per iteration (ms): {milliseconds:.3f} | "
             "lm loss: 6.000000 | grad norm: 0.500000 | params norm: 100.000000 | "
             "number of skipped iterations: 0 | number of nan iterations: 0"
         )
@@ -95,7 +108,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 (control, 8500.0, 2600, "dp32_16node"),
                 (candidate, 5000.0, 1440, "dp64_32node"),
             ):
-                training_log(target / "segments/updates_0_288/training.log", ms)
+                training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
                 training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
                 write(target / "segments/updates_0_288/training_job_receipt.json", {
                     "schema_version":"apertus_full_8b_training_job_v1", "status":"completed",
@@ -116,6 +129,35 @@ class Full8BOrchestrationTests(unittest.TestCase):
             self.assertTrue(result["candidate_promoted"])
             self.assertEqual(result["selected_profile"], "dp64_32node")
             self.assertTrue(all(result["checks"].values()))
+
+    def test_benchmark_fixed_startup_is_amortized_over_production_segment(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            control = root / "control"; candidate = root / "candidate"
+            for target, ms, elapsed, profile in (
+                (control, 8500.0, 288 * 8.5 + 160, "dp32_16node"),
+                (candidate, 5000.0, 288 * 5.0 + 160, "dp64_32node"),
+            ):
+                training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
+                training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
+                write(target / "segments/updates_0_288/training_job_receipt.json", {
+                    "schema_version":"apertus_full_8b_training_job_v1", "status":"completed",
+                    "elapsed_seconds":elapsed, "scientific_digest":"same", "profile_id":profile,
+                })
+            contract = root / "contract.json"
+            write(contract, {
+                "schema_version":"apertus_full_8b_parallelism_benchmark_contract_v1", "status":"frozen", "updates":288,
+                "sequence_ids":{"prefix_sha256":"abc"}, "goldfish":{"implementation":{"sha256":"def"}},
+            })
+            output = root / "promotion.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/finalize_parallelism_benchmark.py"),
+                "--profiles", str(ROOT / "configs/execution_profiles.json"), "--benchmark-contract", str(contract),
+                "--control-root", str(control), "--candidate-root", str(candidate), "--output", str(output),
+            ], check=True, capture_output=True, text=True)
+            performance = json.loads(output.read_text())["performance"]
+            self.assertGreater(performance["candidate_benchmark_wall_seconds_per_update"], 5.5)
+            self.assertLess(performance["candidate_projected_production_wall_seconds_per_update"], 5.1)
 
     def test_training_attempt_requires_all_thirteen_panels(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
