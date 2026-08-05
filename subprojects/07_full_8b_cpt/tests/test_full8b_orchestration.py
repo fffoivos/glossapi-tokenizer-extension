@@ -142,6 +142,10 @@ class Full8BOrchestrationTests(unittest.TestCase):
             }
             for name in names:
                 (source / name).write_bytes(name.encode())
+            (source / "tokenizer.json").write_text(
+                json.dumps({"version": "1.0", "model": {"vocab": {"a": 0}}}),
+                encoding="utf-8",
+            )
             verification = root / "verification.json"
             write(verification, {
                 "standard_max_abs_diff": 0.0, "r17_max_abs_diff": 0.0,
@@ -152,11 +156,16 @@ class Full8BOrchestrationTests(unittest.TestCase):
             })
             output = root / "model"
             receipt = root / "receipt.json"
+            canonical_tokenizer = root / "canonical-tokenizer.json"
+            canonical_tokenizer.write_text(json.dumps(
+                json.loads((source / "tokenizer.json").read_text()), indent=2,
+            ) + "\n", encoding="utf-8")
             subprocess.run([
                 "python3", str(ROOT / "evaluation/materialize_corrected_initial_hf.py"),
                 "--source", str(source), "--roundtrip-verification", str(verification),
                 "--expected-verification-sha256", hashlib.sha256(verification.read_bytes()).hexdigest(),
-                "--expected-tokenizer-sha256", hashlib.sha256((source / "tokenizer.json").read_bytes()).hexdigest(),
+                "--expected-tokenizer-sha256", hashlib.sha256(canonical_tokenizer.read_bytes()).hexdigest(),
+                "--canonical-tokenizer-json", str(canonical_tokenizer),
                 "--output-root", str(output), "--receipt", str(receipt),
             ], check=True, capture_output=True, text=True)
             corrected = json.loads((output / "config.json").read_text())
@@ -168,6 +177,10 @@ class Full8BOrchestrationTests(unittest.TestCase):
             )
             frozen = json.loads(receipt.read_text())
             self.assertTrue(frozen["zero_tensor_and_logit_drift"])
+            self.assertEqual(
+                hashlib.sha256((output / "tokenizer.json").read_bytes()).hexdigest(),
+                hashlib.sha256(canonical_tokenizer.read_bytes()).hexdigest(),
+            )
             self.assertEqual(frozen["file_count"], 10)
 
     def test_graceful_finalizer_uses_resume_record_after_tracker_advances(self) -> None:

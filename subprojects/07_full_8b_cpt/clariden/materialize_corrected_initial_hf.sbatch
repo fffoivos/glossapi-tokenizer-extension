@@ -24,4 +24,5 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   --roundtrip-verification /capstor/scratch/cscs/fffoivos/models/greek-cpt25b-init-roundtrip/20260731T124000Z-cpt25b-v1/work/verification.json \
   --expected-verification-sha256 06ddc69f4787f470b85d4be55992f898b98d8ab4fd8ab34a89a4d3bb96eb7e33 \
   --expected-tokenizer-sha256 bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b \
+  --canonical-tokenizer-json /iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_polytonic_148992/tokenizer.json \
   --output-root "$FULL8_INITIAL_HF_ROOT" --receipt "$FULL8_INITIAL_HF_RECEIPT"

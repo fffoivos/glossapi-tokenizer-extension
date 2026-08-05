@@ -112,7 +112,10 @@ def main() -> int:
         or initial_hf.get("geometry") != expected_geometry
         or initial_hf.get("config_changed_fields") != ["max_position_embeddings", "rope_theta"]
         or initial_hf.get("zero_tensor_and_logit_drift") is not True
-        or initial_hf.get("non_config_files_hardlinked_to_source") is not True
+        or initial_hf.get("model_and_support_files_hardlinked_to_zero_drift_source") is not True
+        or initial_hf.get("tokenizer_json_copied_from_frozen_release") is not True
+        or initial_hf.get("tokenizer_semantically_identical_to_roundtrip") is not True
+        or initial_hf.get("canonical_tokenizer", {}).get("sha256") != recipe["tokenizer"]["tokenizer_json_sha256"]
         or initial_hf.get("source_roundtrip_verification", {}).get("sha256")
         != recipe["initialization"]["roundtrip_verification_file_sha256"]
     ):
