@@ -29,6 +29,15 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   --output-dir "$FULL8_STAGE_ROOT/schedules" \
   --global-batch-sequences 1024
 
+mkdir -p "$FULL8_STAGE_ROOT/contracts"
+uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/derive_sanitized_contracts.py" \
+  --base-recipe "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json" \
+  --base-profiles "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/execution_profiles.json" \
+  --pool-receipt "$FULL8_STAGE_ROOT/inventory/pool_corpus_receipt.json" \
+  --recipe-output "$FULL8_STAGE_ROOT/contracts/recipe_8b_full_mixed.sanitized.json" \
+  --profiles-output "$FULL8_STAGE_ROOT/contracts/execution_profiles.sanitized.json"
+
 content_root="$FULL8_STAGE_ROOT/evidence/selected_training_content"
 uenv run pytorch/v2.9.1:v2 --view=default -- "$FULL8_VALIDATION_PYTHON" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/dataset/freeze_selected_training_content.py" \
@@ -81,6 +90,6 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
 
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/validate_recipe.py" \
-  --recipe "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json" \
+  --recipe "$FULL8_STAGE_ROOT/contracts/recipe_8b_full_mixed.sanitized.json" \
   --pool-receipt "$FULL8_STAGE_ROOT/inventory/pool_corpus_receipt.json" \
   --schedule-manifest "$FULL8_STAGE_ROOT/schedules/schedule_manifest.json"

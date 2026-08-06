@@ -4,6 +4,9 @@ set -euo pipefail
 : "${FULL8_STAGE_ROOT:?set frozen full-8B data root}"
 : "${FULL8_BENCHMARK_ROOT:?set new benchmark root}"
 : "${FULL8_INITIAL_MEGATRON:?set verified TP2 initialization root}"
+: "${FULL8_CODE_BUNDLE_RECEIPT:?set immutable code receipt}"
+FULL8_RECIPE=${FULL8_RECIPE:-$FULL8_STAGE_ROOT/contracts/recipe_8b_full_mixed.sanitized.json}
+FULL8_PROFILES=${FULL8_PROFILES:-$FULL8_STAGE_ROOT/contracts/execution_profiles.sanitized.json}
 DRY_RUN=${DRY_RUN:-1}
 [[ "$DRY_RUN" == 0 || "$DRY_RUN" == 1 ]] || { echo "DRY_RUN must be 0 or 1" >&2; exit 2; }
 
@@ -21,7 +24,7 @@ if [[ "$DRY_RUN" == 0 ]]; then
     echo "set CONFIRM_GPU_BENCHMARK=APERTUS8B_DP32_DP64" >&2; exit 2;
   }
   [[ ! -e "$FULL8_BENCHMARK_ROOT" ]] || { echo "benchmark root exists" >&2; exit 2; }
-  mkdir -p "$FULL8_BENCHMARK_ROOT/logs" "$FULL8_BENCHMARK_ROOT/control_dp32" "$FULL8_BENCHMARK_ROOT/candidate_dp64"
+  mkdir -p "$FULL8_BENCHMARK_ROOT/logs" "$FULL8_BENCHMARK_ROOT/control_dp32" "$FULL8_BENCHMARK_ROOT/control_dp32_repeat" "$FULL8_BENCHMARK_ROOT/candidate_dp64"
   uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
     "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/freeze_benchmark_contract.py" \
     --schedule-manifest "$FULL8_STAGE_ROOT/schedules/schedule_manifest.json" \
@@ -30,7 +33,7 @@ if [[ "$DRY_RUN" == 0 ]]; then
 fi
 
 sbatch_file="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch"
-common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_BENCHMARK_MODE=1"
+common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_RECIPE=$FULL8_RECIPE,FULL8_PROFILES=$FULL8_PROFILES,FULL8_BENCHMARK_MODE=1"
 initial_common="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=160"
 control=$(submit --nodes=16 --time=02:00:00 --job-name=full8b-dp32-control \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
@@ -49,14 +52,18 @@ candidate_restart=$(submit --nodes=32 --time=00:20:00 --job-name=full8b-dp64-res
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/candidate_dp64,FULL8_EXECUTION_PROFILE=dp64_32node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/candidate_dp64/checkpoints" \
   "$sbatch_file")
-gate=$(submit --dependency="afterok:$control_restart:$candidate_restart" \
+control_restart_repeat=$(submit --nodes=16 --time=00:20:00 --job-name=full8b-dp32-restart-r2 --dependency="afterok:$control" \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
-  --export="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_BENCHMARK_ROOT=$FULL8_BENCHMARK_ROOT" \
+  --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/control_dp32_repeat,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/control_dp32/checkpoints" \
+  "$sbatch_file")
+gate=$(submit --dependency="afterok:$control_restart:$control_restart_repeat:$candidate_restart" \
+  --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
+  --export="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_BENCHMARK_ROOT=$FULL8_BENCHMARK_ROOT,FULL8_RECIPE=$FULL8_RECIPE,FULL8_PROFILES=$FULL8_PROFILES" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/finalize_parallelism_benchmark.sbatch")
 
-graph=$(python3 - "$control" "$candidate" "$control_restart" "$candidate_restart" "$gate" <<'PY'
+graph=$(python3 - "$control" "$candidate" "$control_restart" "$control_restart_repeat" "$candidate_restart" "$gate" <<'PY'
 import json,sys
-print(json.dumps({"control":sys.argv[1],"candidate":sys.argv[2],"control_restart":sys.argv[3],"candidate_restart":sys.argv[4],"promotion_gate":sys.argv[5]},separators=(",",":")))
+print(json.dumps({"control":sys.argv[1],"candidate":sys.argv[2],"control_restart":sys.argv[3],"control_restart_repeat":sys.argv[4],"candidate_restart":sys.argv[5],"promotion_gate":sys.argv[6]},separators=(",",":")))
 PY
 )
 if [[ "$DRY_RUN" == 0 ]]; then

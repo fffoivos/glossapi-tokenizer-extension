@@ -7,7 +7,7 @@ set -euo pipefail
 : "${FULL8_ITERATION:?set exact checkpoint iteration}"
 : "${FULL8_DEPENDENCY:?set afterok dependency for the segment producing this checkpoint}"
 
-RECIPE="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json"
+RECIPE=${FULL8_RECIPE:-$FULL8_STAGE_ROOT/contracts/recipe_8b_full_mixed.sanitized.json}
 EVALUATION_BUNDLE="$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments"
 NATIVE_ROOT="$FULL8_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval"
 MEGATRON=${FULL8_MEGATRON_ROOT:-/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T093500Z-megatron-production-c92402e-v1}
@@ -59,7 +59,12 @@ finalize=$(sbatch --uenv-passthrough=ignore --parsable --dependency="afterok:$ev
   --export="ALL,EVALUATION_BUNDLE=$EVALUATION_BUNDLE,EXPORT_RECEIPT=$export_root/checkpoint_eval_export_receipt.json,GREEKMMLU_ROOT=$eval_root,MODEL_LABEL=$label,OUTPUT_RECEIPT=$receipt,GREEKMMLU_CLEAN_SUBSET=$CLEAN_SUBSET,EVALUATION_NAMESPACE=$namespace" \
   "$EVALUATION_BUNDLE/clariden/finalize_checkpoint_greekmmlu.sbatch")
 doc_job=""
-if [[ "$FULL8_ITERATION" == 15398 || "$FULL8_ITERATION" == 19248 ]]; then
+if python3 - "$RECIPE" "$FULL8_ITERATION" <<'PY'
+import json,sys
+r=json.load(open(sys.argv[1])); i=int(sys.argv[2])
+raise SystemExit(0 if i in set(r["evaluation"]["per_document_validation"]["milestone_updates"])-{0} else 1)
+PY
+then
   doc_job=$(sbatch --uenv-passthrough=ignore --parsable --dependency="afterok:$convert" \
     --output="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.out" \
     --error="$FULL8_RUN_ROOT/checkpoint_evaluation_logs/%x-%j.err" \

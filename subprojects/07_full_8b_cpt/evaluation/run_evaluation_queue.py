@@ -67,6 +67,7 @@ def submit_pipeline(args: argparse.Namespace, iteration: int, attempt: int) -> N
         FULL8_DEPENDENCY=f"afterok:{args.train_job_id}",
         FULL8_EVAL_ATTEMPT=str(attempt),
         DRY_RUN="0",
+        FULL8_RECIPE=str(args.recipe),
     )
     subprocess.run(
         [str(args.code_root / "subprojects/07_full_8b_cpt/evaluation/submit_greekmmlu_checkpoint.sh")],
@@ -92,7 +93,11 @@ def canonicalize(iteration_root: Path, attempt: Path) -> None:
 
 def inspect(args: argparse.Namespace, iteration: int) -> tuple[str, int | None]:
     root = args.run_root / "checkpoint_evaluations" / f"iter_{iteration:07d}"
-    needs_doc = iteration in {15398, 19248}
+    recipe = read_json(args.recipe)
+    needs_doc = iteration in {
+        int(value)
+        for value in recipe["evaluation"]["per_document_validation"]["milestone_updates"]
+    } - {0}
     canonical = root / "authoritative_attempt.json"
     if canonical.is_file():
         chosen = Path(read_json(canonical)["attempt_root"])
@@ -126,6 +131,7 @@ def main() -> int:
     parser.add_argument("--code-root", type=Path, required=True)
     parser.add_argument("--stage-root", type=Path, required=True)
     parser.add_argument("--run-root", type=Path, required=True)
+    parser.add_argument("--recipe", type=Path, required=True)
     parser.add_argument("--train-job-id", required=True)
     parser.add_argument("--iterations", required=True)
     parser.add_argument("--max-active", type=int, default=4)
@@ -133,7 +139,7 @@ def main() -> int:
     parser.add_argument("--max-seconds", type=int, default=41400)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    args.code_root = args.code_root.resolve(); args.stage_root = args.stage_root.resolve(); args.run_root = args.run_root.resolve()
+    args.code_root = args.code_root.resolve(); args.stage_root = args.stage_root.resolve(); args.run_root = args.run_root.resolve(); args.recipe = args.recipe.resolve()
     iterations = decode_evaluation_iterations(args.iterations)
     started = time.monotonic()
     while True:

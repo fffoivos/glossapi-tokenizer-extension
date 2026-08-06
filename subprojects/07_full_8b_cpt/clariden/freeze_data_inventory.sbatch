@@ -12,13 +12,16 @@
 set -euo pipefail
 : "${FULL8_CODE_ROOT:?set immutable CSCS code root}"
 : "${FULL8_STAGE_ROOT:?set new immutable data stage root}"
-SOURCE_ROOT=${FULL8_SOURCE_ROOT:-/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/cpt25b_midtraining/20260731T124000Z-cpt25b-v1}
+: "${FULL8_SOURCE_ROOT:?set sanitized source root}"
+: "${FULL8_SANITIZED_BRIDGE_RECEIPT:?set sanitized bridge receipt}"
+SOURCE_ROOT=$FULL8_SOURCE_ROOT
 TOKENIZER_ROOT=${FULL8_TOKENIZER_ROOT:-/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_polytonic_148992}
 
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/dataset/freeze_source_inventory.py" \
   --source-root "$SOURCE_ROOT" --output-dir "$FULL8_STAGE_ROOT/inventory" \
-  --tokenizer-root "$TOKENIZER_ROOT"
+  --tokenizer-root "$TOKENIZER_ROOT" \
+  --sanitized-bridge-receipt "$FULL8_SANITIZED_BRIDGE_RECEIPT"
 
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/dataset/build_packing_plan.py" \

@@ -21,8 +21,8 @@ set -euo pipefail
 : "${FULL8_END_ITERATION:?set exact segment end}"
 : "${FULL8_LOAD_CHECKPOINT:?set init or resume checkpoint root}"
 
-RECIPE="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json"
-PROFILES="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/execution_profiles.json"
+RECIPE=${FULL8_RECIPE:-$FULL8_STAGE_ROOT/contracts/recipe_8b_full_mixed.sanitized.json}
+PROFILES=${FULL8_PROFILES:-$FULL8_STAGE_ROOT/contracts/execution_profiles.sanitized.json}
 PROFILE_ID=${FULL8_EXECUTION_PROFILE:-dp32_16node}
 SCHEDULE="$FULL8_STAGE_ROOT/schedules/schedule_manifest.json"
 POOL_RECEIPT="$FULL8_STAGE_ROOT/inventory/pool_corpus_receipt.json"
@@ -135,6 +135,12 @@ for key in ("nodes","world_size","data_parallel","gradient_accumulation_steps"):
  print(f"{key}\t{v[key]}")
 print("boundaries\t" + ",".join(map(str,v["segment_boundaries"])))
 print(f"scientific_digest\t{v['scientific_digest']}")
+print(f"training_samples\t{r['batch_and_parallelism']['training_samples']}")
+print(f"beta3_warmup_updates\t{r['optimization']['beta3_warmup_updates']}")
+print(f"alpha_warmup_updates\t{r['optimization']['alpha_warmup_updates']}")
+print(f"lr_decay_samples\t{r['optimization']['learning_rate']['cooldown_updates'] * r['batch_and_parallelism']['global_batch_sequences']}")
+print(f"lr_warmup_samples\t{r['optimization']['learning_rate']['warmup_updates'] * r['batch_and_parallelism']['global_batch_sequences']}")
+print(f"eval_interval\t{r['evaluation']['source_conditioned']['interval_updates']}")
 PY
 )
 declare -A PROFILE=()
@@ -214,14 +220,14 @@ cmd=(python3 "$TRAINING_CODE/pretrain_scheduled_gpt.py"
   --make-vocab-size-divisible-by 256 --normalization RMSNorm --xielu --qk-layernorm
   --qknorm-impl apex --disable-bias-linear --untie-embeddings-and-output-weights
   --attention-dropout 0.0 --hidden-dropout 0.0 --init-method-std 0.008944
-  --micro-batch-size 2 --global-batch-size 1024 --train-samples 19709952
+  --micro-batch-size 2 --global-batch-size 1024 --train-samples "${PROFILE[training_samples]}"
   --seq-length 4096 --tensor-model-parallel-size 2 --pipeline-model-parallel-size 1
   --context-parallel-size 1 --optimizer ademamix --adam-beta1 0.9 --adam-beta2 0.999
   --ademamix-beta3 0.999 --ademamix-alpha 4.0
-  --ademamix-beta3-warmup 19248 --ademamix-alpha-warmup 19248
+  --ademamix-beta3-warmup "${PROFILE[beta3_warmup_updates]}" --ademamix-alpha-warmup "${PROFILE[alpha_warmup_updates]}"
   --weight-decay 0.1 --clip-grad 0.1 --lr 5.5e-5 --min-lr 5.5e-6
   --lr-decay-style WSD --lr-wsd-decay-style 1-sqrt
-  --lr-wsd-decay-samples 3942400 --lr-warmup-samples 409600 --lr-warmup-init 5.5e-6
+  --lr-wsd-decay-samples "${PROFILE[lr_decay_samples]}" --lr-warmup-samples "${PROFILE[lr_warmup_samples]}" --lr-warmup-init 5.5e-6
   --bf16 --main-grads-dtype fp32 --cross-entropy-loss-fusion
   --use-distributed-optimizer --overlap-grad-reduce --overlap-param-gather
   --goldfish-loss --goldfish-k 50 --goldfish-h 50
@@ -230,7 +236,7 @@ cmd=(python3 "$TRAINING_CODE/pretrain_scheduled_gpt.py"
   --data-cache-path "$DATA_CACHE"
   --split 100,0,0 --num-workers 4 --num-dataset-builder-threads 4
   --dataloader-type single --seed 20260609 --log-throughput --log-params-norm --log-interval 1
-  --eval-interval 25 --eval-iters 1 --extra-valid-data-path "${VALID_ARGS[@]}"
+  --eval-interval "${PROFILE[eval_interval]}" --eval-iters 1 --extra-valid-data-path "${VALID_ARGS[@]}"
   --manual-gc --manual-gc-interval 500 --exit-signal-handler
   --distributed-timeout-minutes 60 --trigger-path "$FULL8_RUN_ROOT/triggers"
   --save "$CHECKPOINT_ROOT" --save-interval 1000000 --ckpt-format torch_dist --async-save

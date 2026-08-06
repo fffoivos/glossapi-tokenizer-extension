@@ -24,6 +24,7 @@
       "name": "GreekMMLU",
       "source_type": "hf_dataset",
       "source": "dascim/GreekMMLU",
+      "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
       "config": "All",
       "split": "test",
       "license": "mit",

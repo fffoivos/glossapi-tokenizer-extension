@@ -70,6 +70,63 @@ def main() -> int:
     if visibility.get("public") is not True:
         raise ValueError("dataset v2 is not public")
     pool = status(args.pool_receipt, {"apertus_schedule_pool_corpus_v1"})
+    sanitized_binding = pool.get("sanitized_bridge", {})
+    sanitized_path = Path(sanitized_binding.get("path", ""))
+    if (
+        not sanitized_path.is_file()
+        or sanitized_path.stat().st_size != int(sanitized_binding.get("bytes", -1))
+        or sha256_file(sanitized_path) != sanitized_binding.get("sha256")
+    ):
+        raise ValueError("sanitized bridge binding drift")
+    sanitized = status(
+        sanitized_path, {"full_cpt_sanitized_training_bridge_v1"}
+    )
+    eligibility_binding = sanitized.get("eligibility_audit", {})
+    eligibility_path = Path(eligibility_binding.get("path", ""))
+    if (
+        not eligibility_path.is_file()
+        or eligibility_path.stat().st_size != int(eligibility_binding.get("bytes", -1))
+        or sha256_file(eligibility_path) != eligibility_binding.get("sha256")
+    ):
+        raise ValueError("sanitized eligibility-audit binding drift")
+    eligibility = status(
+        eligibility_path, {"full_cpt_sanitized_eligibility_audit_v1"}
+    )
+    if (
+        int(eligibility.get("counts", {}).get("raw_matching_rows", -1)) != 6648
+        or int(eligibility.get("counts", {}).get("manifest_policy_excluded_rows", -1))
+        != 6648
+        or int(eligibility.get("counts", {}).get("retained_matching_rows", -1)) != 0
+        or eligibility.get("pii_replacement_token_ids")
+        != {"<iban-pii>": 36, "<email-pii>": 37, "<ip-pii>": 38}
+    ):
+        raise ValueError("sanitized eligibility policy did not close")
+    postmask_binding = sanitized.get("postmask_dedup", {})
+    postmask_path = Path(postmask_binding.get("path", ""))
+    if (
+        not postmask_path.is_file()
+        or postmask_path.stat().st_size != int(postmask_binding.get("bytes", -1))
+        or sha256_file(postmask_path) != postmask_binding.get("sha256")
+    ):
+        raise ValueError("post-mask deduplication binding drift")
+    postmask = status(postmask_path, {"full_cpt_postmask_deduplication_v1"})
+    if (
+        postmask.get("policy", {}).get("validation_representation")
+        != "union_of_raw_and_masked_frozen_utf8_text"
+    ):
+        raise ValueError("masked validation-collision policy drift")
+    recipe_sanitized = recipe.get("data", {}).get("sanitized_source_receipt", {})
+    if (
+        recipe.get("recipe_id") != "full8b-mixed-79-20-1-wsd10-sanitized-v1"
+        or recipe_sanitized.get("sha256") != sanitized_binding.get("sha256")
+        or recipe_sanitized.get("pool_receipt", {}).get("sha256")
+        != sha256_file(args.pool_receipt)
+        or recipe.get("initialization", {})
+        .get("token_distillation_dropout_context", {})
+        .get("existing_verified_initialization_preserved")
+        is not True
+    ):
+        raise ValueError("sanitized derived recipe binding drift")
     packed = status(args.packed_receipt, {"apertus_packed_sequence_corpus_v1"})
     packed_integrity = status(args.packed_payload_integrity, {"apertus_full_8b_packed_payload_integrity_v1"})
     if packed_integrity.get("packed_receipt", {}).get("sha256") != sha256_file(args.packed_receipt):
@@ -118,6 +175,17 @@ def main() -> int:
     if initial_validation.get("validation_manifest_sha256") != validation_sha:
         raise ValueError("initial validation/manifest drift")
     initial_greek = status(args.initial_greekmmlu, {"apertus_full_8b_initial_greekmmlu_v1"})
+    initial_greek_dataset = initial_greek.get("dataset", {})
+    if (
+        initial_greek_dataset.get("source") != recipe["evaluation"]["greekmmlu"]["dataset"]
+        or initial_greek_dataset.get("revision")
+        != recipe["evaluation"]["greekmmlu"]["revision"]
+        or initial_greek_dataset.get("resolved_split") != "test"
+        or int(initial_greek_dataset.get("rows_before_sampling", -1))
+        != int(recipe["evaluation"]["greekmmlu"]["public_items"])
+        or not initial_greek_dataset.get("fingerprint")
+    ):
+        raise ValueError("iteration-zero GreekMMLU dataset binding drift")
     expected_geometry = {
         "rope_theta": float(recipe["model"]["rope"]["base"]),
         "max_position_embeddings": int(recipe["model"]["max_position_embeddings"]),
@@ -233,7 +301,11 @@ def main() -> int:
         "tokenizer_and_initialization_hashes_pass": pool["tokenizer"]["tokenizer_json_sha256"] == recipe["tokenizer"]["tokenizer_json_sha256"] and initial_tree.get("status") == "frozen" and initial_hf.get("status") == "completed",
         "nan_checks_are_enabled": recipe["optimization"]["nan_and_inf_checks_enabled"] is True,
         "initial_validation_is_finite": initial_validation_finite and initial_validation.get("validation_manifest_sha256") == validation_sha,
-        "two_update_train_and_resume_smoke_passes": control_restart.get("provenance", {}).get("passed") is True and control_restart.get("numerical", {}).get("passed") is True,
+        "two_update_train_and_resume_smoke_passes": control_restart.get("provenance", {}).get("passed") is True
+        and control_restart.get("numerical", {}).get("passed") is True
+        and control_restart.get("independent_repeat", {}).get("provenance", {}).get("passed") is True
+        and control_restart.get("independent_repeat", {}).get("numerical", {}).get("passed") is True
+        and control_restart.get("two_independent_restart_allocations_passed") is True,
         "graceful_stop_and_resume_smoke_passes": graceful_smoke.get("status") == "passed" and graceful_smoke.get("resume", {}).get("passed") is True,
         "greekmmlu_checkpoint_conversion_and_eval_smoke_passes": conversion_smoke.get("status") == "passed" and model_config.get("rope_theta") == expected_geometry["rope_theta"] and model_config.get("max_position_embeddings") == expected_geometry["max_position_embeddings"],
         "initial_per_document_validation_all_13_panels_passes": observed_panels == set(expected_panels),
@@ -254,6 +326,9 @@ def main() -> int:
             "owner_decisions": args.owner_decisions,
             "hf_visibility": args.hf_visibility,
             "pool": args.pool_receipt,
+            "sanitized_bridge": sanitized_path,
+            "sanitized_eligibility_audit": eligibility_path,
+            "postmask_deduplication": postmask_path,
             "packed": args.packed_receipt,
             "packed_payload_integrity": args.packed_payload_integrity,
             "schedule": args.schedule_manifest,
@@ -291,7 +366,8 @@ def main() -> int:
             "restart_is_not_claimed_bitwise_exact": True,
             "exact_logged_fields": control_restart.get("numerical", {}).get("exact_logged_fields", {}),
             "gradient_norm": control_restart.get("numerical", {}).get("gradient_norm", {}),
-            "acceptance_basis": "exact logged loss and parameter norm, finite bounded gradient difference, and an independent real graceful-stop/resume smoke",
+            "independent_repeat": control_restart.get("independent_repeat", {}),
+            "acceptance_basis": "two independent DP32 restart allocations with exact logged loss and parameter norm plus frozen finite bounded gradient tolerance, and an independent real graceful-stop/resume smoke",
         },
     }
     atomic_write_json(args.output, payload)

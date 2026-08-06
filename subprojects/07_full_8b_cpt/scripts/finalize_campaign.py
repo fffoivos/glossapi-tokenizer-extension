@@ -45,9 +45,24 @@ def active_job_ids(submissions: list[Path]) -> list[str]:
 def inspect(args: argparse.Namespace) -> dict:
     recipe = read_json(args.recipe)
     greek = [int(value) for value in recipe["evaluation"]["greekmmlu"]["checkpoint_updates"]]
-    initial_greek = args.prelaunch_root / "initial_greekmmlu/initial_greekmmlu_receipt.json"
+    per_document_updates = {
+        int(value)
+        for value in recipe["evaluation"]["per_document_validation"]["milestone_updates"]
+    }
+    launch_gate = read_json(args.launch_gate)
+    if (
+        launch_gate.get("schema_version") != "apertus_full_8b_launch_gate_v1"
+        or launch_gate.get("status") != "passed"
+    ):
+        raise ValueError("campaign finalizer requires a passing launch gate")
+    evidence_bindings = launch_gate.get("evidence", {})
+    initial_greek = Path(evidence_bindings["initial_greekmmlu"]["path"])
     greek_receipts = [file_binding(initial_greek)] if passing(initial_greek) else []
-    doc_receipts = [path for path in (args.prelaunch_root / "per_document_initial").glob("*.receipt.json") if passing(path)]
+    doc_receipts = [
+        Path(binding["path"])
+        for binding in evidence_bindings.get("initial_per_document", [])
+        if passing(Path(binding["path"])) and file_binding(Path(binding["path"])) == binding
+    ]
     authoritative = []
     for iteration in greek[1:]:
         canonical = args.run_root / "checkpoint_evaluations" / f"iter_{iteration:07d}" / "authoritative_attempt.json"
@@ -59,13 +74,19 @@ def inspect(args: argparse.Namespace) -> dict:
             continue
         greek_receipts.append(file_binding(receipt))
         authoritative.append(file_binding(canonical))
-        if iteration in {15398, 19248}:
+        if iteration in per_document_updates:
             root = Path(choice["per_document_root"])
             doc_receipts.extend(path for path in root.glob("*.receipt.json") if passing(path))
     selected = read_json(args.selected_profile)
     segments = len(selected["selection"]["segment_boundaries"]) - 1
     audits = [path for path in (args.run_root / "training_audits").glob("segment_*_attempt_*.json") if passing(path)]
-    terminal_canonical = args.run_root / "checkpoint_evaluations/iter_0019248/authoritative_attempt.json"
+    terminal_iteration = greek[-1]
+    terminal_canonical = (
+        args.run_root
+        / "checkpoint_evaluations"
+        / f"iter_{terminal_iteration:07d}"
+        / "authoritative_attempt.json"
+    )
     terminal_export = None
     if passing(terminal_canonical):
         attempt = Path(read_json(terminal_canonical)["attempt_root"])
@@ -82,13 +103,16 @@ def inspect(args: argparse.Namespace) -> dict:
         "required_training_segments": segments,
         "terminal_export": terminal_export,
         "active_evaluation_jobs": active_job_ids(submissions),
+        "expected_greekmmlu": len(greek),
+        "expected_authoritative": len(greek) - 1,
+        "expected_per_document": 13 * len(per_document_updates),
     }
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-root", type=Path, required=True)
-    parser.add_argument("--prelaunch-root", type=Path, required=True)
+    parser.add_argument("--launch-gate", type=Path, required=True)
     parser.add_argument("--recipe", type=Path, required=True)
     parser.add_argument("--selected-profile", type=Path, required=True)
     parser.add_argument("--training-receipt", type=Path, required=True)
@@ -102,9 +126,9 @@ def main() -> int:
     while True:
         evidence = inspect(args)
         complete = (
-            len(evidence["greekmmlu"]) == 20
-            and len(evidence["authoritative"]) == 19
-            and len(evidence["per_document"]) == 39
+            len(evidence["greekmmlu"]) == evidence["expected_greekmmlu"]
+            and len(evidence["authoritative"]) == evidence["expected_authoritative"]
+            and len(evidence["per_document"]) == evidence["expected_per_document"]
             and len(evidence["training_audits"]) >= evidence["required_training_segments"]
             and evidence["terminal_export"] is not None
             and not evidence["active_evaluation_jobs"]
@@ -115,17 +139,26 @@ def main() -> int:
                 "status": "completed",
                 "completed_at": dt.datetime.now(dt.timezone.utc).isoformat(),
                 "training_completion": file_binding(args.training_receipt),
+                "launch_gate": file_binding(args.launch_gate),
                 "selected_profile": file_binding(args.selected_profile),
                 "greekmmlu_receipts": evidence["greekmmlu"],
                 "authoritative_checkpoint_evaluations": evidence["authoritative"],
                 "per_document_panel_receipts": evidence["per_document"],
                 "training_attempt_audits": evidence["training_audits"],
                 "terminal_model_export": evidence["terminal_export"],
-                "counts": {"greekmmlu": 20, "per_document_panels": 39, "source_validated_segments": evidence["required_training_segments"]},
+                "counts": {
+                    "greekmmlu": evidence["expected_greekmmlu"],
+                    "per_document_panels": evidence["expected_per_document"],
+                    "source_validated_segments": evidence["required_training_segments"],
+                },
                 "checkpoint_averaging": False,
             }
             atomic_write_json(args.output, payload)
-            print(json.dumps({"ok": True, "greekmmlu": 20, "per_document": 39}))
+            print(json.dumps({
+                "ok": True,
+                "greekmmlu": evidence["expected_greekmmlu"],
+                "per_document": evidence["expected_per_document"],
+            }))
             return 0
         if time.monotonic() - started > args.max_seconds:
             state = args.run_root / "orchestration/evidence_finalizer_timeout.json"

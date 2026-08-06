@@ -88,6 +88,19 @@ def main() -> int:
         or metadata.get("example_batch_size") != 16
     ):
         raise ValueError("GreekMMLU run metadata is not bound to the exact HF export")
+    dataset_bindings = metadata.get("dataset_bindings")
+    if (
+        not isinstance(dataset_bindings, list)
+        or len(dataset_bindings) != 1
+        or dataset_bindings[0].get("id") != "greekmmlu"
+        or dataset_bindings[0].get("source") != "dascim/GreekMMLU"
+        or dataset_bindings[0].get("revision")
+        != "6a03aa06b68beb932fb75edff3a34e50b3674649"
+        or dataset_bindings[0].get("resolved_split") != "test"
+        or int(dataset_bindings[0].get("rows_before_sampling", -1)) != 16632
+        or not dataset_bindings[0].get("fingerprint")
+    ):
+        raise ValueError("GreekMMLU dataset revision/fingerprint binding drift")
     headline_rows = read_json(artifacts["headline"])
     if not isinstance(headline_rows, list) or len(headline_rows) != 1:
         raise ValueError("unexpected GreekMMLU headline structure")
@@ -136,6 +149,7 @@ def main() -> int:
             "candidate_batch_size": 16,
             "example_batch_size": 16,
         },
+        "dataset": dataset_bindings[0],
         "checkpoint": {
             "iteration": export["source"]["iteration"],
             "source_tree_manifest_sha256": export["source"]["source_tree_manifest_sha256"],

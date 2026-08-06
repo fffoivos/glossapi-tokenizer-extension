@@ -25,6 +25,25 @@ def main() -> int:
     recipe = read(args.recipe)
     if recipe.get("schema_version") != "apertus_full_8b_mixed_cpt_recipe_v1":
         raise ValueError("unsupported recipe")
+    if recipe.get("recipe_id") == "full8b-mixed-79-20-1-wsd10-sanitized-v1":
+        sanitized = recipe.get("data", {}).get("sanitized_source_receipt", {})
+        eligibility = recipe.get("data", {}).get("eligibility_policy", {})
+        dropout = recipe.get("initialization", {}).get(
+            "token_distillation_dropout_context", {}
+        )
+        if (
+            not sanitized.get("sha256")
+            or eligibility.get("openarchives_needs_ocr_true") != "excluded"
+            or dropout
+            != {
+                "model_mode_during_teacher_hidden_state_extraction": "train",
+                "attention_dropout": 0.1,
+                "hidden_dropout": 0.1,
+                "existing_verified_initialization_preserved": True,
+                "claim": "dropout_active_token_distillation_initialization",
+            }
+        ):
+            raise ValueError("sanitized recipe disclosure drift")
     tokenizer = recipe["tokenizer"]
     if tokenizer["vocab_size"] != 148_992 or tokenizer["vocab_size"] % tokenizer["alignment_divisor"]:
         raise ValueError("tokenizer alignment drift")
@@ -68,6 +87,11 @@ def main() -> int:
         raise ValueError("checkpoint averaging was explicitly excluded")
     if len(recipe["evaluation"]["source_conditioned"]["panels"]) != 13:
         raise ValueError("source-conditioned panel count drift")
+    if (
+        recipe.get("recipe_id") == "full8b-mixed-79-20-1-wsd10-sanitized-v1"
+        and recipe["evaluation"]["source_conditioned"]["interval_updates"] != 238
+    ):
+        raise ValueError("source-conditioned validation cadence drift")
     libduth = recipe["data"]["source_dataset"]["libduth"]
     if libduth["legal_conclusion_claimed"] is not False:
         raise ValueError("recipe must not manufacture a libduth legal conclusion")

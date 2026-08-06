@@ -77,8 +77,7 @@ def event(args: argparse.Namespace, name: str, payload: dict) -> None:
 
 
 def common_export(args: argparse.Namespace) -> str:
-    return "ALL," + ",".join(
-        (
+    values = [
             f"FULL8_CODE_ROOT={args.code_root}",
             f"FULL8_CODE_BUNDLE_RECEIPT={args.code_bundle_receipt}",
             f"FULL8_STAGE_ROOT={args.stage_root}",
@@ -88,8 +87,42 @@ def common_export(args: argparse.Namespace) -> str:
             f"FULL8_EXECUTION_PROFILE={args.profile_id}",
             f"FULL8_LAUNCH_GATE={args.launch_gate}",
             f"FULL8_PRELAUNCH_ROOT={args.prelaunch_root}",
-        )
-    )
+            f"FULL8_RECIPE={args.recipe}",
+            f"FULL8_PROFILES={args.profiles}",
+    ]
+    if args.prequeued_manifest is not None:
+        values.append(f"FULL8_PREQUEUED_MANIFEST={args.prequeued_manifest}")
+    return "ALL," + ",".join(values)
+
+
+def cancel_prequeued_suffix(args: argparse.Namespace) -> list[str]:
+    """Cancel only the rejected happy-path suffix before dynamic recovery."""
+
+    if args.prequeued_manifest is None:
+        return []
+    graph = read_json(args.prequeued_manifest)
+    if (
+        graph.get("schema_version") != "apertus_full_8b_prequeued_launch_graph_v1"
+        or graph.get("status") != "submitted"
+    ):
+        raise ValueError("prequeued launch graph drift")
+    job_ids: list[str] = []
+    for row in graph.get("segments", []):
+        if int(row["segment_id"]) >= args.segment_id:
+            for key in ("evaluation_queue_job",):
+                if row.get(key):
+                    job_ids.append(str(row[key]))
+        if int(row["segment_id"]) > args.segment_id:
+            for key in ("train_job", "supervisor_job"):
+                if row.get(key):
+                    job_ids.append(str(row[key]))
+    if graph.get("evidence_finalizer_job"):
+        job_ids.append(str(graph["evidence_finalizer_job"]))
+    job_ids = sorted(set(job_ids))
+    if job_ids:
+        subprocess.run(["scancel", *job_ids], check=True)
+    args.prequeued_manifest = None
+    return job_ids
 
 
 def last_logged_iteration(path: Path) -> int | None:
@@ -162,6 +195,7 @@ def main() -> int:
     parser.add_argument("--selected-profile", type=Path, required=True)
     parser.add_argument("--launch-gate", type=Path, required=True)
     parser.add_argument("--prelaunch-root", type=Path, required=True)
+    parser.add_argument("--prequeued-manifest", type=Path)
     parser.add_argument("--segment-id", type=int, required=True)
     parser.add_argument("--attempt", type=int, required=True)
     parser.add_argument("--attempt-start", type=int, required=True)
@@ -169,10 +203,14 @@ def main() -> int:
     args = parser.parse_args()
     for name in ("code_root", "code_bundle_receipt", "stage_root", "run_root", "initial_megatron", "selected_profile", "launch_gate", "prelaunch_root"):
         setattr(args, name, getattr(args, name).resolve())
+    if args.prequeued_manifest is not None:
+        args.prequeued_manifest = args.prequeued_manifest.resolve()
     selected = read_json(args.selected_profile)
     args.profile_id = selected["selection"]["profile_id"]
     args.boundaries = [int(value) for value in selected["selection"]["segment_boundaries"]]
     args.nodes = int(selected["selection"]["nodes"])
+    args.recipe = args.stage_root / "contracts/recipe_8b_full_mixed.sanitized.json"
+    args.profiles = args.stage_root / "contracts/execution_profiles.sanitized.json"
     if not 0 <= args.segment_id < len(args.boundaries) - 1:
         raise ValueError("segment id outside selected profile")
     original_start = args.boundaries[args.segment_id]
@@ -215,8 +253,9 @@ def main() -> int:
         load_override = None
         if not recovery and recovery_start > 0:
             load_override = exact_load_view(args, segment=args.segment_id, attempt=args.attempt + 1, iteration=recovery_start)
+        cancelled = cancel_prequeued_suffix(args)
         train, supervisor = submit_attempt(args, segment=args.segment_id, attempt=args.attempt + 1, start=recovery_start, recovery=recovery, load_override=load_override)
-        event(args, "training_retry_submitted", {"replacement_train_job": train, "replacement_supervisor_job": supervisor, "recovery_start": recovery_start, "recovery_receipt": str(recovery_receipt) if recovery else None, "graceful_stop": incomplete_graceful, "last_logged_iteration": latest})
+        event(args, "training_retry_submitted", {"replacement_train_job": train, "replacement_supervisor_job": supervisor, "recovery_start": recovery_start, "recovery_receipt": str(recovery_receipt) if recovery else None, "graceful_stop": incomplete_graceful, "last_logged_iteration": latest, "cancelled_prequeued_suffix_jobs": cancelled})
         return 0
 
     checkpoint_receipt = args.run_root / "checkpoint_receipts" / f"iter_{end:07d}.json"
@@ -225,12 +264,13 @@ def main() -> int:
         subprocess.run([
             sys.executable, str(args.code_root / "subprojects/07_full_8b_cpt/train/audit_training_attempt.py"),
             "--log", str(log), "--validation-manifest", str(args.stage_root / "validation/validation_manifest.json"),
-            "--start", str(args.attempt_start), "--end", str(end), "--output", str(audit_receipt),
+            "--recipe", str(args.recipe), "--start", str(args.attempt_start),
+            "--end", str(end), "--output", str(audit_receipt),
         ], check=True)
         subprocess.run([
             sys.executable, str(args.code_root / "subprojects/07_full_8b_cpt/train/freeze_checkpoint.py"),
             "--checkpoint-root", str(args.run_root / "checkpoints"), "--iteration", str(end),
-            "--recipe", str(args.code_root / "subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json"),
+            "--recipe", str(args.recipe),
             "--selected-profile", str(args.selected_profile),
             "--schedule-manifest", str(args.stage_root / "schedules/schedule_manifest.json"),
             "--output", str(checkpoint_receipt),
@@ -238,32 +278,52 @@ def main() -> int:
     except Exception:
         event(args, "campaign_blocked", {"reason": "checkpoint_or_scientific_gate_failed", "checkpoint_iteration": end})
         raise
-    recipe = read_json(args.code_root / "subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json")
+    recipe = read_json(args.recipe)
     evaluations = [int(value) for value in recipe["evaluation"]["greekmmlu"]["checkpoint_updates"] if original_start < int(value) <= end]
     queue_receipt = args.run_root / "evaluation_queues" / f"segment_{args.segment_id}.json"
-    queue = submit([
-        "sbatch", "--parsable", f"--job-name=full8b_evalq_s{args.segment_id}",
-        f"--output={args.run_root}/logs/%x-%j.out", f"--error={args.run_root}/logs/%x-%j.err",
-        f"--export={common_export(args)},FULL8_TRAIN_JOB_ID={args.train_job_id},FULL8_EVALUATION_ITERATIONS={encode_evaluation_iterations(evaluations)},FULL8_EVALUATION_QUEUE_RECEIPT={queue_receipt}",
-        str(args.code_root / "subprojects/07_full_8b_cpt/clariden/run_evaluation_queue.sbatch"),
-    ])
+    if args.prequeued_manifest is None:
+        queue = submit([
+            "sbatch", "--parsable", f"--job-name=full8b_evalq_s{args.segment_id}",
+            f"--output={args.run_root}/logs/%x-%j.out", f"--error={args.run_root}/logs/%x-%j.err",
+            f"--export={common_export(args)},FULL8_TRAIN_JOB_ID={args.train_job_id},FULL8_EVALUATION_ITERATIONS={encode_evaluation_iterations(evaluations)},FULL8_EVALUATION_QUEUE_RECEIPT={queue_receipt}",
+            str(args.code_root / "subprojects/07_full_8b_cpt/clariden/run_evaluation_queue.sbatch"),
+        ])
+    else:
+        graph = read_json(args.prequeued_manifest)
+        queue = str(graph["segments"][args.segment_id]["evaluation_queue_job"])
     event(args, "segment_checkpoint_gated", {"checkpoint_iteration": end, "checkpoint_receipt": str(checkpoint_receipt), "evaluation_queue_job": queue, "evaluation_iterations": evaluations})
-    if args.segment_id + 1 < len(args.boundaries) - 1:
+    if args.prequeued_manifest is not None:
+        if args.segment_id + 1 < len(args.boundaries) - 1:
+            graph = read_json(args.prequeued_manifest)
+            next_row = graph["segments"][args.segment_id + 1]
+            event(args, "next_segment_prequeued", {
+                "next_segment": args.segment_id + 1,
+                "train_job": next_row["train_job"],
+                "supervisor_job": next_row["supervisor_job"],
+                "updates": [end, args.boundaries[args.segment_id + 2]],
+            })
+            return 0
+    elif args.segment_id + 1 < len(args.boundaries) - 1:
         train, supervisor = submit_attempt(args, segment=args.segment_id + 1, attempt=0, start=end, recovery=False)
         event(args, "next_segment_submitted", {"next_segment": args.segment_id + 1, "train_job": train, "supervisor_job": supervisor, "updates": [end, args.boundaries[args.segment_id + 2]]})
-    else:
+        return 0
+    if args.segment_id + 1 == len(args.boundaries) - 1:
         training_receipt = args.run_root / "training_completion_receipt.json"
         subprocess.run([
             sys.executable, str(args.code_root / "subprojects/07_full_8b_cpt/scripts/finalize_training.py"),
             "--run-root", str(args.run_root), "--selected-profile", str(args.selected_profile),
-            "--launch-gate", str(args.launch_gate), "--output", str(training_receipt),
+            "--launch-gate", str(args.launch_gate), "--recipe", str(args.recipe),
+            "--output", str(training_receipt),
         ], check=True)
-        finalizer = submit([
-            "sbatch", "--parsable", "--job-name=full8b_evidence_finalizer",
-            f"--output={args.run_root}/logs/%x-%j.out", f"--error={args.run_root}/logs/%x-%j.err",
-            f"--export={common_export(args)},FULL8_TRAINING_RECEIPT={training_receipt}",
-            str(args.code_root / "subprojects/07_full_8b_cpt/clariden/finalize_campaign.sbatch"),
-        ])
+        if args.prequeued_manifest is None:
+            finalizer = submit([
+                "sbatch", "--parsable", "--job-name=full8b_evidence_finalizer",
+                f"--output={args.run_root}/logs/%x-%j.out", f"--error={args.run_root}/logs/%x-%j.err",
+                f"--export={common_export(args)},FULL8_TRAINING_RECEIPT={training_receipt}",
+                str(args.code_root / "subprojects/07_full_8b_cpt/clariden/finalize_campaign.sbatch"),
+            ])
+        else:
+            finalizer = str(read_json(args.prequeued_manifest)["evidence_finalizer_job"])
         event(args, "training_completed", {"training_completion_receipt": str(training_receipt), "evidence_finalizer_job": finalizer})
     return 0
 

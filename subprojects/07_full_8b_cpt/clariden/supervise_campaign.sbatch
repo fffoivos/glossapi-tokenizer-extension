@@ -19,10 +19,14 @@ set -euo pipefail
 : "${FULL8_LAUNCH_GATE:?set launch gate receipt}"
 : "${FULL8_PRELAUNCH_ROOT:?set completed prelaunch root}"
 [[ "$#" -eq 4 ]] || { echo "usage: $0 SEGMENT ATTEMPT ATTEMPT_START TRAIN_JOB" >&2; exit 2; }
-exec uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+command=(uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/supervise_campaign.py" \
   --code-root "$FULL8_CODE_ROOT" --stage-root "$FULL8_STAGE_ROOT" --run-root "$FULL8_RUN_ROOT" \
   --code-bundle-receipt "$FULL8_CODE_BUNDLE_RECEIPT" \
   --initial-megatron "$FULL8_INITIAL_MEGATRON" --selected-profile "$FULL8_SELECTED_PROFILE" \
   --launch-gate "$FULL8_LAUNCH_GATE" --prelaunch-root "$FULL8_PRELAUNCH_ROOT" \
-  --segment-id "$1" --attempt "$2" --attempt-start "$3" --train-job-id "$4"
+  --segment-id "$1" --attempt "$2" --attempt-start "$3" --train-job-id "$4")
+if [[ -n "${FULL8_PREQUEUED_MANIFEST:-}" ]]; then
+  command+=(--prequeued-manifest "$FULL8_PREQUEUED_MANIFEST")
+fi
+exec "${command[@]}"

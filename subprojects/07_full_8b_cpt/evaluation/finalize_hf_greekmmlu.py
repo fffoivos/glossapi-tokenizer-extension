@@ -59,6 +59,21 @@ def main() -> int:
     ] != args.expected_max_position_embeddings:
         raise ValueError(f"HF evaluation geometry drift: {geometry}")
     predictions = args.evaluation_root / f"{args.model_label}_native_mcq_predictions.jsonl"
+    run_metadata_path = args.evaluation_root / "run_metadata.json"
+    run_metadata = json.loads(run_metadata_path.read_text(encoding="utf-8"))
+    dataset_bindings = run_metadata.get("dataset_bindings")
+    if (
+        not isinstance(dataset_bindings, list)
+        or len(dataset_bindings) != 1
+        or dataset_bindings[0].get("id") != "greekmmlu"
+        or dataset_bindings[0].get("source") != "dascim/GreekMMLU"
+        or dataset_bindings[0].get("revision")
+        != "6a03aa06b68beb932fb75edff3a34e50b3674649"
+        or dataset_bindings[0].get("resolved_split") != "test"
+        or int(dataset_bindings[0].get("rows_before_sampling", -1)) != 16632
+        or not dataset_bindings[0].get("fingerprint")
+    ):
+        raise ValueError("GreekMMLU dataset revision/fingerprint binding drift")
     rows = [json.loads(line) for line in predictions.open() if line.strip()]
     if len(rows) != 16_632:
         raise ValueError("GreekMMLU full prediction count drift")
@@ -86,6 +101,7 @@ def main() -> int:
             **geometry,
         },
         "metrics": {"full": metrics(rows), "decontaminated": metrics(clean_rows)},
+        "dataset": dataset_bindings[0],
         "clean_subset_manifest_sha256": sha(args.clean_subset_manifest),
         "artifacts": artifacts,
     }

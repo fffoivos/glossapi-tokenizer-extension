@@ -49,13 +49,27 @@ def main() -> int:
     )
     args = parser.parse_args()
     selected = read_json(args.selected_profile)
+    recipe_path = Path(
+        selected.get("recipe", {}).get(
+            "path",
+            Path(__file__).resolve().parents[1]
+            / "configs"
+            / "recipe_8b_full_mixed.json",
+        )
+    )
+    recipe = read_json(recipe_path)
     boundaries = [int(value) for value in selected["selection"]["segment_boundaries"]]
     completed = [iteration for iteration in boundaries[1:] if passing(args.run_root / "checkpoint_receipts" / f"iter_{iteration:07d}.json")]
     completed_update = max(completed, default=0)
     authoritative = list(args.run_root.glob("checkpoint_evaluations/iter_*/authoritative_attempt.json"))
     initial_docs = [path for path in (args.prelaunch_root / "per_document_initial").glob("*.receipt.json") if passing(path)]
     endpoint_docs = []
-    for iteration in (15398, 19248):
+    per_document_updates = [
+        int(value)
+        for value in recipe["evaluation"]["per_document_validation"]["milestone_updates"]
+        if int(value) != 0
+    ]
+    for iteration in per_document_updates:
         canonical = args.run_root / "checkpoint_evaluations" / f"iter_{iteration:07d}" / "authoritative_attempt.json"
         if passing(canonical):
             root = Path(read_json(canonical)["per_document_root"])
@@ -74,17 +88,17 @@ def main() -> int:
         "nodes": selected["selection"]["nodes"],
         "progress": {
             "completed_checkpoint_gated_updates": completed_update,
-            "required_updates": 19248,
+            "required_updates": int(recipe["batch_and_parallelism"]["training_updates"]),
             "completed_token_slots": completed_update * 4_194_304,
-            "required_token_slots": 80_731_963_392,
+            "required_token_slots": int(recipe["data"]["planning_training_slots_tokens"]),
             "segments_completed": len(completed),
             "segments_required": len(boundaries) - 1,
         },
         "evidence": {
             "greekmmlu_completed": (1 if passing(initial_greekmmlu) else 0) + sum(passing(path) for path in authoritative),
-            "greekmmlu_required": 20,
+            "greekmmlu_required": len(recipe["evaluation"]["greekmmlu"]["checkpoint_updates"]),
             "per_document_panels_completed": len(initial_docs) + len(endpoint_docs),
-            "per_document_panels_required": 39,
+            "per_document_panels_required": 13 * len(recipe["evaluation"]["per_document_validation"]["milestone_updates"]),
             "training_complete": passing(args.run_root / "training_completion_receipt.json"),
             "evidence_complete": passing(args.run_root / "campaign_evidence_completion_receipt.json"),
         },

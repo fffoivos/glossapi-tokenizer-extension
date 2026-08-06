@@ -32,8 +32,8 @@ set -euo pipefail
   exit 2
 }
 
-recipe="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json"
-profiles="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/execution_profiles.json"
+recipe=${FULL8_RECIPE:-$FULL8_STAGE_ROOT/contracts/recipe_8b_full_mixed.sanitized.json}
+profiles=${FULL8_PROFILES:-$FULL8_STAGE_ROOT/contracts/execution_profiles.sanitized.json}
 owner="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/owner_decisions_20260805.json"
 selected="$FULL8_BENCHMARK_ROOT/selected_execution_profile.json"
 environment="$FULL8_PRELAUNCH_ROOT/launch_environment.json"
@@ -87,6 +87,8 @@ common=(
   FULL8_PRELAUNCH_ROOT="$FULL8_PRELAUNCH_ROOT"
   FULL8_SELECTED_PROFILE="$selected"
   FULL8_LAUNCH_GATE="$gate"
+  FULL8_RECIPE="$recipe"
+  FULL8_PROFILES="$profiles"
 )
 env "${common[@]}" DRY_RUN=1 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/submit_production.sh" \

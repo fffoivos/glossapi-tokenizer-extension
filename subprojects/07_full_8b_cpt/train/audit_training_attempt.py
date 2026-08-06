@@ -24,6 +24,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--log", type=Path, required=True)
     parser.add_argument("--validation-manifest", type=Path, required=True)
+    parser.add_argument("--recipe", type=Path, required=True)
     parser.add_argument("--start", type=int, required=True)
     parser.add_argument("--end", type=int, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -63,7 +64,11 @@ def main() -> int:
     for name in VALIDATION.findall(text):
         if name in observed:
             observed[name] += 1
-    expected_regular = args.end // 25 - args.start // 25
+    recipe = read_json(args.recipe)
+    interval = int(recipe["evaluation"]["source_conditioned"]["interval_updates"])
+    if interval <= 0:
+        raise ValueError("source validation interval must be positive")
+    expected_regular = args.end // interval - args.start // interval
     if any(count < expected_regular for count in observed.values()):
         raise ValueError(f"source validation cadence drift: expected at least {expected_regular}, observed {observed}")
     payload = {
@@ -76,6 +81,8 @@ def main() -> int:
         "skipped_updates": skipped,
         "nonfinite_metrics": nonfinite,
         "minimum_expected_regular_validation_points_per_panel": expected_regular,
+        "source_validation_interval_updates": interval,
+        "recipe": file_binding(args.recipe),
         "validation_points_by_panel": observed,
         "training_log": file_binding(args.log),
         "validation_manifest": file_binding(args.validation_manifest),

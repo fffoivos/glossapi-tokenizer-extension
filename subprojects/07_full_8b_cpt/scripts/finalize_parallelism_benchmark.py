@@ -95,6 +95,7 @@ def restart_provenance(
     profile_id: str,
     scientific_digest: str,
     iteration: int,
+    checkpoint_root: Path | None = None,
 ) -> dict:
     receipt_path = root / "segments/updates_160_161/training_job_receipt.json"
     receipt = read_json(receipt_path)
@@ -102,7 +103,7 @@ def restart_provenance(
     view = root / "benchmark_load_views" / f"{checkpoint_name}_for_{profile_id}"
     marker = view / "latest_checkpointed_iteration.txt"
     checkpoint_link = view / checkpoint_name
-    expected_checkpoint = root / "checkpoints" / checkpoint_name
+    expected_checkpoint = (checkpoint_root or root / "checkpoints") / checkpoint_name
     checks = {
         "receipt_schema": receipt.get("schema_version") == "apertus_full_8b_training_job_v1",
         "receipt_completed": receipt.get("status") == "completed",
@@ -169,6 +170,7 @@ def main() -> int:
     parser.add_argument("--benchmark-contract", type=Path, required=True)
     parser.add_argument("--control-root", type=Path, required=True)
     parser.add_argument("--candidate-root", type=Path, required=True)
+    parser.add_argument("--control-repeat-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     profiles = read_json(args.profiles)
@@ -180,6 +182,10 @@ def main() -> int:
     candidate = parse_log(args.candidate_root / "segments/updates_0_288/training.log")
     control_restart = parse_log(args.control_root / "segments/updates_160_161/training.log", require_full=False)
     candidate_restart = parse_log(args.candidate_root / "segments/updates_160_161/training.log", require_full=False)
+    control_repeat_restart = parse_log(
+        args.control_repeat_root / "segments/updates_160_161/training.log",
+        require_full=False,
+    )
     control_job = read_json(args.control_root / "segments/updates_0_288/training_job_receipt.json")
     candidate_job = read_json(args.candidate_root / "segments/updates_0_288/training_job_receipt.json")
     if control_job.get("scientific_digest") != candidate_job.get("scientific_digest"):
@@ -238,7 +244,17 @@ def main() -> int:
         scientific_digest=candidate_job["scientific_digest"],
         iteration=160,
     )
+    control_repeat_restart_provenance = restart_provenance(
+        args.control_repeat_root,
+        profile_id=control_job["profile_id"],
+        scientific_digest=control_job["scientific_digest"],
+        iteration=160,
+        checkpoint_root=args.control_root / "checkpoints",
+    )
     control_restart = restart_equivalence(control, control_restart, 161, **restart_options)
+    control_repeat_restart = restart_equivalence(
+        control, control_repeat_restart, 161, **restart_options
+    )
     candidate_restart = restart_equivalence(candidate, candidate_restart, 161, **restart_options)
     checks = {
         "same_scientific_digest": True,
@@ -247,8 +263,10 @@ def main() -> int:
         "trajectory_rmse_within_bound": rmse_ratio <= thresholds["trajectory_rmse_over_control_std_max"],
         "trajectory_signed_mean_within_bound": signed_ratio <= thresholds["trajectory_abs_mean_over_control_std_max"],
         "control_restart_provenance": control_restart_provenance["passed"],
+        "control_repeat_restart_provenance": control_repeat_restart_provenance["passed"],
         "candidate_restart_provenance": candidate_restart_provenance["passed"],
         "control_restart_numerically_equivalent": control_restart["passed"],
+        "control_repeat_restart_numerically_equivalent": control_repeat_restart["passed"],
         "candidate_restart_numerically_equivalent": candidate_restart["passed"],
         "control_zero_skipped_updates": control["skipped"] == 0,
         "candidate_zero_skipped_updates": candidate["skipped"] == 0,
@@ -265,6 +283,8 @@ def main() -> int:
             "same_frozen_sequence_and_goldfish_contract",
             "control_restart_provenance",
             "control_restart_numerically_equivalent",
+            "control_repeat_restart_provenance",
+            "control_repeat_restart_numerically_equivalent",
             "control_zero_skipped_updates",
             "control_zero_nonfinite_updates",
         )
@@ -295,10 +315,25 @@ def main() -> int:
             "candidate_p90_amortized_wall_seconds_per_update": amortized_p90,
             "median_throughput_speedup": speedup,
             "gpu_hour_ratio": gpu_hour_ratio,
-            "selected_compute_hours": 19248 * (candidate["median_step_seconds"] if promoted else control["median_step_seconds"]) / 3600,
+            "selected_compute_hours": int(profiles["scientific_invariants"]["training_updates"])
+            * (candidate["median_step_seconds"] if promoted else control["median_step_seconds"])
+            / 3600,
         },
         "restart": {
-            "control": {"provenance": control_restart_provenance, "numerical": control_restart},
+            "control": {
+                "provenance": control_restart_provenance,
+                "numerical": control_restart,
+                "independent_repeat": {
+                    "provenance": control_repeat_restart_provenance,
+                    "numerical": control_repeat_restart,
+                },
+                "two_independent_restart_allocations_passed": bool(
+                    control_restart_provenance["passed"]
+                    and control_restart["passed"]
+                    and control_repeat_restart_provenance["passed"]
+                    and control_repeat_restart["passed"]
+                ),
+            },
             "candidate": {"provenance": candidate_restart_provenance, "numerical": candidate_restart},
         },
         "scientific_digest": control_job["scientific_digest"],

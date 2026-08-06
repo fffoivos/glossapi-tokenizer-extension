@@ -16,8 +16,10 @@ set -euo pipefail
 : "${FULL8_TRAIN_JOB_ID:?set completed training job id}"
 : "${FULL8_EVALUATION_ITERATIONS:?set comma-separated checkpoint updates}"
 : "${FULL8_EVALUATION_QUEUE_RECEIPT:?set output receipt}"
+: "${FULL8_RECIPE:?set derived sanitized recipe}"
 exec uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/evaluation/run_evaluation_queue.py" \
   --code-root "$FULL8_CODE_ROOT" --stage-root "$FULL8_STAGE_ROOT" --run-root "$FULL8_RUN_ROOT" \
+  --recipe "$FULL8_RECIPE" \
   --train-job-id "$FULL8_TRAIN_JOB_ID" --iterations "$FULL8_EVALUATION_ITERATIONS" \
   --max-active 4 --output "$FULL8_EVALUATION_QUEUE_RECEIPT"

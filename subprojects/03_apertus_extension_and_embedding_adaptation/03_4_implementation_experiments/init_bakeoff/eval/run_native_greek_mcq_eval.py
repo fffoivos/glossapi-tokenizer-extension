@@ -128,8 +128,13 @@ def _load_dataset(spec: dict[str, Any]):
             ds = load_dataset(dataset_id, config, **kwargs)
             if isinstance(ds, dict):
                 split_name = "test" if "test" in ds else next(iter(ds))
-                return ds[split_name], split_name
-            return ds, candidate or str(getattr(ds, "split", None) or "default")
+                selected = ds[split_name]
+                return selected, split_name, str(getattr(selected, "_fingerprint", ""))
+            return (
+                ds,
+                candidate or str(getattr(ds, "split", None) or "default"),
+                str(getattr(ds, "_fingerprint", "")),
+            )
         except Exception as exc:
             last_error = exc
     raise RuntimeError(f"Could not load {dataset_id}: {last_error!r}")
@@ -470,6 +475,17 @@ def main() -> None:
         "candidate_batch_size": args.candidate_batch_size,
         "example_batch_size": args.example_batch_size,
         "registry": str(args.registry.resolve()),
+        "benchmark_specs": [
+            {
+                "id": spec["id"],
+                "source": spec["source"],
+                "revision": spec.get("revision"),
+                "config": spec.get("config"),
+                "split": spec.get("split"),
+            }
+            for spec in specs
+        ],
+        "dataset_bindings": [],
         "metrics": [
             "official_zero_shot_accuracy_from_average_answer_token_logprob",
             "multiple_choice_cross_entropy_from_normalized_average_answer_token_logprob",
@@ -486,8 +502,20 @@ def main() -> None:
     )
 
     rows = []
+    dataset_bindings = []
     for spec in specs:
-        dataset, split = _load_dataset(spec)
+        dataset, split, fingerprint = _load_dataset(spec)
+        dataset_bindings.append(
+            {
+                "id": spec["id"],
+                "source": spec["source"],
+                "revision": spec.get("revision"),
+                "config": spec.get("config"),
+                "resolved_split": split,
+                "fingerprint": fingerprint,
+                "rows_before_sampling": len(dataset),
+            }
+        )
         examples = []
         for row_index, row in enumerate(dataset):
             example = examples_from_row(spec, row, row_index)
@@ -519,6 +547,11 @@ def main() -> None:
             done = min(start + len(chunk), len(examples))
             if done % 100 == 0 or done == len(examples):
                 print(f"[{spec['id']}] {done}/{len(examples)}", flush=True)
+
+    metadata["dataset_bindings"] = dataset_bindings
+    (args.output_dir / "run_metadata.json").write_text(
+        json.dumps(metadata, ensure_ascii=False, indent=2) + "\n"
+    )
 
     predictions_path = args.output_dir / f"{model_label}_native_mcq_predictions.jsonl"
     with predictions_path.open("w") as fh:

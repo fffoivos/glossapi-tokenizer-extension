@@ -14,10 +14,11 @@ set -euo pipefail
 : "${FULL8_RUN_ROOT:?set run root}"
 : "${FULL8_SELECTED_PROFILE:?set selected profile}"
 : "${FULL8_TRAINING_RECEIPT:?set training receipt}"
-: "${FULL8_PRELAUNCH_ROOT:?set completed prelaunch root}"
+: "${FULL8_LAUNCH_GATE:?set passing launch gate}"
+: "${FULL8_RECIPE:?set derived sanitized recipe}"
 exec uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/finalize_campaign.py" \
-  --run-root "$FULL8_RUN_ROOT" --prelaunch-root "$FULL8_PRELAUNCH_ROOT" \
-  --recipe "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json" \
+  --run-root "$FULL8_RUN_ROOT" --launch-gate "$FULL8_LAUNCH_GATE" \
+  --recipe "$FULL8_RECIPE" \
   --selected-profile "$FULL8_SELECTED_PROFILE" --training-receipt "$FULL8_TRAINING_RECEIPT" \
   --output "$FULL8_RUN_ROOT/campaign_evidence_completion_receipt.json"

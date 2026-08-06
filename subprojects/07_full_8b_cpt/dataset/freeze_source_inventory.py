@@ -99,14 +99,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source-root", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--tokenizer-root", type=Path, required=True)
-    parser.add_argument("--expected-modern-tokens", type=int, default=63_776_651_867)
-    parser.add_argument("--expected-foreign-tokens", type=int, default=45_299_005_189)
-    parser.add_argument("--expected-old-greek-tokens", type=int, default=2_666_110_500)
+    parser.add_argument("--sanitized-bridge-receipt", type=Path, required=True)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    bridge_path = args.sanitized_bridge_receipt.resolve()
+    bridge = read_json(bridge_path)
+    if (
+        bridge.get("schema_version") != "full_cpt_sanitized_training_bridge_v1"
+        or bridge.get("status") != "completed"
+        or Path(bridge.get("stage_root", "")).resolve() != args.source_root.resolve()
+        or int(bridge.get("eligibility_audit", {}).get("bytes", -1)) <= 0
+    ):
+        raise ValueError("source root is not bound to a completed sanitized bridge")
+    bridge_counts = bridge["expected_inventory_tokens"]
     if args.output_dir.exists():
         raise SystemExit(f"refusing to overwrite output directory: {args.output_dir}")
     megatron_root = args.source_root / "megatron"
@@ -222,11 +230,11 @@ def main() -> int:
         pool_counts["hplt_new_greek"]["tokens"]
         + pool_counts["non_hplt_new_greek"]["tokens"]
     )
-    if modern_before != args.expected_modern_tokens:
+    if modern_before != int(bridge_counts["modern"]):
         raise ValueError(f"Modern-Greek token drift: {modern_before}")
-    if pool_counts["foreign_replay"]["tokens"] != args.expected_foreign_tokens:
+    if pool_counts["foreign_replay"]["tokens"] != int(bridge_counts["foreign"]):
         raise ValueError("foreign-replay token drift")
-    if pool_counts["old_greek_replay"]["tokens"] != args.expected_old_greek_tokens:
+    if pool_counts["old_greek_replay"]["tokens"] != int(bridge_counts["old_greek"]):
         raise ValueError("Old-Greek replay token drift")
 
     contents = np.memmap(modern_content_path, mode="r", dtype=CONTENT_DTYPE)
@@ -326,6 +334,13 @@ def main() -> int:
         "schema_version": "apertus_schedule_pool_corpus_v1",
         "status": "completed",
         "source_root": str(args.source_root.resolve()),
+        "sanitized_bridge": {
+            "path": str(bridge_path),
+            "sha256": sha256_file(bridge_path),
+            "bytes": bridge_path.stat().st_size,
+            "eligibility_audit": bridge["eligibility_audit"],
+            "postmask_dedup": bridge["postmask_dedup"],
+        },
         "tokenizer": {
             "root": str(args.tokenizer_root.resolve()),
             "tokenizer_json_sha256": sha256_file(tokenizer_json),

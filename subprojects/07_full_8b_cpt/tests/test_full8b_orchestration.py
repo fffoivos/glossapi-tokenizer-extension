@@ -67,7 +67,63 @@ def benchmark_receipts(root: Path, *, elapsed: float, profile: str) -> None:
     (view / "iter_0000160").symlink_to(checkpoint)
 
 
+def benchmark_repeat(root: Path, source: Path) -> None:
+    common = {
+        "schema_version": "apertus_full_8b_training_job_v1",
+        "status": "completed",
+        "scientific_digest": "same",
+        "profile_id": "dp32_16node",
+        "elapsed_seconds": 1,
+        "start_iteration": 160,
+        "end_iteration": 161,
+    }
+    write(root / "segments/updates_160_161/training_job_receipt.json", common)
+    training_log(root / "segments/updates_160_161/training.log", 8500, start=161, end=161)
+    checkpoint = source / "checkpoints/iter_0000160"
+    view = root / "benchmark_load_views/iter_0000160_for_dp32_16node"
+    view.mkdir(parents=True)
+    (view / "latest_checkpointed_iteration.txt").write_text("160\n")
+    (view / "iter_0000160").symlink_to(checkpoint)
+
+
 class Full8BOrchestrationTests(unittest.TestCase):
+    def test_sanitized_contract_derives_exact_horizon_and_cadence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            pool = root / "pool.json"
+            active = 80_000_000_001
+            write(pool, {
+                "schema_version": "apertus_schedule_pool_corpus_v1",
+                "status": "completed",
+                "source_root": "/sanitized",
+                "sanitized_bridge": {
+                    "path": "/bridge.json", "sha256": "a" * 64, "bytes": 10,
+                    "eligibility_audit": {"path": "/audit.json", "sha256": "b" * 64, "bytes": 10},
+                    "postmask_dedup": {"path": "/dedup.json", "sha256": "c" * 64, "bytes": 10},
+                },
+                "integer_79_20_1_geometry": {"active_tokens": active},
+                "raw_counts": {
+                    "hplt_new_greek": {"tokens": 43}, "non_hplt_new_greek": {"tokens": 20},
+                    "foreign_replay": {"tokens": 16}, "old_greek_replay": {"tokens": 1},
+                },
+            })
+            recipe = root / "recipe.json"; profiles = root / "profiles.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/derive_sanitized_contracts.py"),
+                "--base-recipe", str(ROOT / "configs/recipe_8b_full_mixed.json"),
+                "--base-profiles", str(ROOT / "configs/execution_profiles.json"),
+                "--pool-receipt", str(pool), "--recipe-output", str(recipe),
+                "--profiles-output", str(profiles),
+            ], check=True, capture_output=True, text=True)
+            derived = json.loads(recipe.read_text())
+            updates = (active + 4_194_304 - 1) // 4_194_304
+            self.assertEqual(derived["batch_and_parallelism"]["training_updates"], updates)
+            self.assertEqual(derived["evaluation"]["source_conditioned"]["interval_updates"], 238)
+            self.assertEqual(derived["optimization"]["beta3_warmup_updates"], updates)
+            self.assertEqual(derived["evaluation"]["greekmmlu"]["checkpoint_updates"][-1], updates)
+            self.assertEqual(derived["evaluation"]["per_document_validation"]["milestone_updates"], [0, int(0.8 * updates), updates])
+            self.assertTrue(derived["initialization"]["token_distillation_dropout_context"]["existing_verified_initialization_preserved"])
+
     def test_selected_content_reader_derives_source_local_order(self) -> None:
         path = ROOT / "dataset/freeze_selected_training_content.py"
         spec = importlib.util.spec_from_file_location("full8_selected_content", path)
@@ -280,12 +336,12 @@ class Full8BOrchestrationTests(unittest.TestCase):
     def test_benchmark_restart_loads_iteration_160_not_the_terminal_288(self) -> None:
         submit = (ROOT / "clariden/submit_parallelism_benchmark.sh").read_text()
         train = (ROOT / "clariden/train_segment.sbatch").read_text()
-        self.assertEqual(submit.count("FULL8_EXACT_LOAD_ITERATION=160"), 2)
+        self.assertEqual(submit.count("FULL8_EXACT_LOAD_ITERATION=160"), 3)
         self.assertIn('initial_common="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=160"', submit)
         self.assertNotIn('FULL8_BENCHMARK_SAVE_ITERATIONS=160,FULL8_BENCHMARK_SAVE_ITERATIONS=', submit)
         self.assertIn("benchmark_load_views", train)
         self.assertIn("latest_checkpointed_iteration.txt", train)
-        self.assertEqual(submit.count("--time=00:20:00"), 2)
+        self.assertEqual(submit.count("--time=00:20:00"), 3)
 
     def test_megatron_cache_is_writable_run_state_not_frozen_dataset_state(self) -> None:
         train = (ROOT / "clariden/train_segment.sbatch").read_text()
@@ -352,7 +408,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
     def test_parallelism_benchmark_promotes_only_passing_candidate(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            control = root / "control"; candidate = root / "candidate"
+            control = root / "control"; candidate = root / "candidate"; repeat = root / "repeat"
             for target, ms, elapsed, profile in (
                 (control, 8500.0, 2600, "dp32_16node"),
                 (candidate, 5000.0, 1440, "dp64_32node"),
@@ -360,6 +416,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
                 training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
                 benchmark_receipts(target, elapsed=elapsed, profile=profile)
+            benchmark_repeat(repeat, control)
             contract = root / "contract.json"
             write(contract, {
                 "schema_version":"apertus_full_8b_parallelism_benchmark_contract_v1", "status":"frozen", "updates":288,
@@ -369,7 +426,8 @@ class Full8BOrchestrationTests(unittest.TestCase):
             subprocess.run([
                 "python3", str(ROOT / "scripts/finalize_parallelism_benchmark.py"),
                 "--profiles", str(ROOT / "configs/execution_profiles.json"), "--benchmark-contract", str(contract),
-                "--control-root", str(control), "--candidate-root", str(candidate), "--output", str(output),
+                "--control-root", str(control), "--candidate-root", str(candidate),
+                "--control-repeat-root", str(repeat), "--output", str(output),
             ], check=True, capture_output=True, text=True)
             result = json.loads(output.read_text())
             self.assertTrue(result["candidate_promoted"])
@@ -379,7 +437,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
     def test_benchmark_fixed_startup_is_amortized_over_production_segment(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            control = root / "control"; candidate = root / "candidate"
+            control = root / "control"; candidate = root / "candidate"; repeat = root / "repeat"
             for target, ms, elapsed, profile in (
                 (control, 8500.0, 288 * 8.5 + 160, "dp32_16node"),
                 (candidate, 5000.0, 288 * 5.0 + 160, "dp64_32node"),
@@ -387,6 +445,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
                 training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
                 benchmark_receipts(target, elapsed=elapsed, profile=profile)
+            benchmark_repeat(repeat, control)
             contract = root / "contract.json"
             write(contract, {
                 "schema_version":"apertus_full_8b_parallelism_benchmark_contract_v1", "status":"frozen", "updates":288,
@@ -396,7 +455,8 @@ class Full8BOrchestrationTests(unittest.TestCase):
             subprocess.run([
                 "python3", str(ROOT / "scripts/finalize_parallelism_benchmark.py"),
                 "--profiles", str(ROOT / "configs/execution_profiles.json"), "--benchmark-contract", str(contract),
-                "--control-root", str(control), "--candidate-root", str(candidate), "--output", str(output),
+                "--control-root", str(control), "--candidate-root", str(candidate),
+                "--control-repeat-root", str(repeat), "--output", str(output),
             ], check=True, capture_output=True, text=True)
             performance = json.loads(output.read_text())["performance"]
             self.assertGreater(performance["candidate_benchmark_wall_seconds_per_update"], 5.5)
@@ -405,7 +465,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
     def test_benchmark_never_falls_back_to_a_control_with_failed_restart(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            control = root / "control"; candidate = root / "candidate"
+            control = root / "control"; candidate = root / "candidate"; repeat = root / "repeat"
             for target, ms, elapsed, profile in (
                 (control, 8500.0, 2600, "dp32_16node"),
                 (candidate, 5000.0, 1440, "dp64_32node"),
@@ -413,6 +473,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
                 training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
                 benchmark_receipts(target, elapsed=elapsed, profile=profile)
+            benchmark_repeat(repeat, control)
             restart = control / "segments/updates_160_161/training.log"
             restart.write_text(restart.read_text().replace("lm loss: 6.000000", "lm loss: 6.100000"))
             contract = root / "contract.json"
@@ -424,7 +485,8 @@ class Full8BOrchestrationTests(unittest.TestCase):
             result = subprocess.run([
                 "python3", str(ROOT / "scripts/finalize_parallelism_benchmark.py"),
                 "--profiles", str(ROOT / "configs/execution_profiles.json"), "--benchmark-contract", str(contract),
-                "--control-root", str(control), "--candidate-root", str(candidate), "--output", str(output),
+                "--control-root", str(control), "--candidate-root", str(candidate),
+                "--control-repeat-root", str(repeat), "--output", str(output),
             ], capture_output=True, text=True)
             receipt = json.loads(output.read_text())
             self.assertNotEqual(result.returncode, 0)
@@ -435,7 +497,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
     def test_cross_node_restart_allows_bounded_gradient_reduction_roundoff(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            control = root / "control"; candidate = root / "candidate"
+            control = root / "control"; candidate = root / "candidate"; repeat = root / "repeat"
             for target, ms, elapsed, profile in (
                 (control, 8500.0, 2600, "dp32_16node"),
                 (candidate, 5000.0, 1440, "dp64_32node"),
@@ -443,6 +505,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
                 training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
                 benchmark_receipts(target, elapsed=elapsed, profile=profile)
+            benchmark_repeat(repeat, control)
             restart = control / "segments/updates_160_161/training.log"
             restart.write_text(restart.read_text().replace("grad norm: 0.500000", "grad norm: 0.505000"))
             contract = root / "contract.json"
@@ -454,7 +517,8 @@ class Full8BOrchestrationTests(unittest.TestCase):
             subprocess.run([
                 "python3", str(ROOT / "scripts/finalize_parallelism_benchmark.py"),
                 "--profiles", str(ROOT / "configs/execution_profiles.json"), "--benchmark-contract", str(contract),
-                "--control-root", str(control), "--candidate-root", str(candidate), "--output", str(output),
+                "--control-root", str(control), "--candidate-root", str(candidate),
+                "--control-repeat-root", str(repeat), "--output", str(output),
             ], check=True, capture_output=True, text=True)
             receipt = json.loads(output.read_text())
             self.assertTrue(receipt["checks"]["control_restart_provenance"])
@@ -472,10 +536,12 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 for row in panels:
                     handle.write(f"validation loss at iteration 25 on [{row['name']}] | lm loss: 1.0\n")
             manifest = root / "validation.json"; write(manifest, {"panels":panels})
+            recipe = root / "recipe.json"; write(recipe, {"evaluation":{"source_conditioned":{"interval_updates":25}}})
             output = root / "audit.json"
             subprocess.run([
                 "python3", str(ROOT / "train/audit_training_attempt.py"), "--log", str(log),
-                "--validation-manifest", str(manifest), "--start", "0", "--end", "25", "--output", str(output),
+                "--validation-manifest", str(manifest), "--recipe", str(recipe),
+                "--start", "0", "--end", "25", "--output", str(output),
             ], check=True, capture_output=True, text=True)
             self.assertEqual(json.loads(output.read_text())["status"], "passed")
 
@@ -490,14 +556,16 @@ class Full8BOrchestrationTests(unittest.TestCase):
     def test_production_submit_is_receipt_gated_and_dry_run_safe(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            selected = root / "selected.json"; gate = root / "gate.json"
-            write(selected, {"schema_version":"apertus_full_8b_selected_execution_profile_v1", "status":"frozen", "selection":{"profile_id":"dp64_32node","nodes":32,"segment_boundaries":[0,6416,12832,19248]}})
+            selected = root / "selected.json"; gate = root / "gate.json"; recipe = root / "recipe.json"
+            write(recipe, {"evaluation":{"greekmmlu":{"checkpoint_updates":[0,6416,12832,19248]}}})
+            write(selected, {"schema_version":"apertus_full_8b_selected_execution_profile_v1", "status":"frozen", "recipe":{"path":str(recipe.resolve())}, "selection":{"profile_id":"dp64_32node","nodes":32,"segment_boundaries":[0,6416,12832,19248]}})
             write(gate, {"schema_version":"apertus_full_8b_launch_gate_v1", "status":"passed", "initialization_checkpoint":{"root":"/init"}})
             env = {
                 "FULL8_CODE_ROOT":str(ROOT.parents[1]), "FULL8_CODE_BUNDLE_RECEIPT":"/bundle.json",
                 "FULL8_STAGE_ROOT":"/stage", "FULL8_RUN_ROOT":"/new-run",
                 "FULL8_INITIAL_MEGATRON":"/init", "FULL8_PRELAUNCH_ROOT":"/prelaunch",
                 "FULL8_SELECTED_PROFILE":str(selected), "FULL8_LAUNCH_GATE":str(gate), "DRY_RUN":"1",
+                "FULL8_RECIPE":str(recipe), "FULL8_PROFILES":"/profiles.json",
             }
             result = subprocess.run([str(ROOT / "clariden/submit_production.sh")], env={**__import__("os").environ, **env}, text=True, capture_output=True, check=True)
             self.assertIn("dp64_32node", result.stdout)
