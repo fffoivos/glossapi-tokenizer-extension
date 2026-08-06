@@ -11,8 +11,12 @@
 #SBATCH --no-requeue
 
 set -euo pipefail
+HOST_PYTHON=${HOST_PYTHON:-/usr/bin/python3.11}
 : "${FULL8_CODE_ROOT:?set immutable CSCS code root}"
+: "${FULL8_CODE_BUNDLE_RECEIPT:?set immutable code-bundle receipt}"
 : "${FULL8_STAGE_ROOT:?set immutable data stage root}"
+"$HOST_PYTHON" "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
+  --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/dataset/pack_catalog_bucket.py" \
   --packing-plan "$FULL8_STAGE_ROOT/inventory/packing_plan.json" \

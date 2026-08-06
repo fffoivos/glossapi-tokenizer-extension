@@ -730,6 +730,16 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("build_training_disjoint_validation_manifest.py", canonical)
         self.assertIn("build_training_disjoint_validation_manifest.py", overlay)
 
+    def test_data_pipeline_is_bound_to_the_executing_code_bundle(self) -> None:
+        launcher = (ROOT / "clariden/submit_data_pipeline.sh").read_text()
+        self.assertIn('FULL8_CODE_BUNDLE_RECEIPT:?set immutable code-bundle receipt', launcher)
+        self.assertIn('FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT', launcher)
+        for name in ("freeze_data_inventory.sbatch", "pack_full_data.sbatch", "finalize_data.sbatch"):
+            wrapper = (ROOT / "clariden" / name).read_text()
+            self.assertIn('FULL8_CODE_BUNDLE_RECEIPT:?set immutable code-bundle receipt', wrapper)
+            self.assertIn("verify_code_bundle.py", wrapper)
+            self.assertIn('--receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific', wrapper)
+
     def test_final_launch_handoff_is_dependency_safe_and_fail_closed(self) -> None:
         handoff = (ROOT / "clariden/finalize_and_submit_production.sbatch").read_text()
         environment = (ROOT / "scripts/capture_launch_environment.py").read_text()

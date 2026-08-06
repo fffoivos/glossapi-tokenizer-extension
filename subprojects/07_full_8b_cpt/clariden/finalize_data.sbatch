@@ -10,12 +10,17 @@
 #SBATCH --no-requeue
 
 set -euo pipefail
+HOST_PYTHON=${HOST_PYTHON:-/usr/bin/python3.11}
 : "${FULL8_CODE_ROOT:?set immutable CSCS code root}"
+: "${FULL8_CODE_BUNDLE_RECEIPT:?set immutable code-bundle receipt}"
 : "${FULL8_STAGE_ROOT:?set immutable data stage root}"
 : "${FULL8_VALIDATION_PYTHON:?set Python with numpy, pyarrow and tokenizers}"
 DATASET_CODE="$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/dataset"
 NEUTRAL_CORPUS=${FULL8_NEUTRAL_CORPUS_RECEIPT:-/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T221000Z-neutral-gpp-v4/heldout-corrected-v1/neutral_external_corpus.json}
 TOKENIZER_ROOT=${FULL8_TOKENIZER_ROOT:-/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_polytonic_148992}
+
+"$HOST_PYTHON" "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
+  --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
 
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$DATASET_CODE/finalize_packed_corpus.py" \
