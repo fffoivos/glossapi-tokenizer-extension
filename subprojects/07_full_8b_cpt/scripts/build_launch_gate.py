@@ -164,6 +164,8 @@ def main() -> int:
         or Path(nested_submit.get("code_bundle_receipt", "")).resolve() != args.code_bundle_receipt.resolve()
         or nested_submit.get("parent_runtime") != "uenv run pytorch/v2.9.1:v2 --view=default -- python3"
         or nested_submit.get("nested_submit_flag") != "--uenv-passthrough=ignore"
+        or nested_submit.get("rank_runtime") != "uenv run pytorch/v2.9.1:v2 --view=default -- torchrun"
+        or not nested_submit.get("rank_torchrun")
         or not nested_submit.get("parent_job_id")
         or not nested_submit.get("child_job_id")
     ):

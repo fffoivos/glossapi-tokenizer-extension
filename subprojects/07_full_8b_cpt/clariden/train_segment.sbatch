@@ -255,7 +255,7 @@ uenv run pytorch/v2.9.1:v2 --view=default -- \
 (
   uenv run pytorch/v2.9.1:v2 --view=default -- \
     srun --nodes="$NODES" --ntasks="$NODES" --ntasks-per-node=1 --cpus-per-task=288 --cpu-bind=cores -lu \
-    bash -c "unset NCCL_NET_PLUGIN; export PYTHONPATH='$PYTHONPATH' MINI_SCHEDULE_MANIFEST='$MINI_SCHEDULE_MANIFEST' MINI_SCHEDULE_ARM='$MINI_SCHEDULE_ARM' MINI_SCHEDULE_ALLOW_PREFIX=0 MINI_TOKEN_BYTE_LENGTHS='$MINI_TOKEN_BYTE_LENGTHS' MINI_SCHEDULE_SAVE_ITERATIONS='$MINI_SCHEDULE_SAVE_ITERATIONS' MINI_SCHEDULE_EVAL_ITERATIONS='$MINI_SCHEDULE_EVAL_ITERATIONS'; exec torchrun --no-python --nnodes=$NODES --nproc_per_node=4 --node_rank=\$SLURM_PROCID --master_addr='$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -1)' --master_port=29600 $(printf '%q ' "${cmd[@]}")" \
+    bash -c "unset NCCL_NET_PLUGIN; export PYTHONPATH='$PYTHONPATH' MINI_SCHEDULE_MANIFEST='$MINI_SCHEDULE_MANIFEST' MINI_SCHEDULE_ARM='$MINI_SCHEDULE_ARM' MINI_SCHEDULE_ALLOW_PREFIX=0 MINI_TOKEN_BYTE_LENGTHS='$MINI_TOKEN_BYTE_LENGTHS' MINI_SCHEDULE_SAVE_ITERATIONS='$MINI_SCHEDULE_SAVE_ITERATIONS' MINI_SCHEDULE_EVAL_ITERATIONS='$MINI_SCHEDULE_EVAL_ITERATIONS'; exec uenv run pytorch/v2.9.1:v2 --view=default -- torchrun --no-python --nnodes=$NODES --nproc_per_node=4 --node_rank=\$SLURM_PROCID --master_addr='$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -1)' --master_port=29600 $(printf '%q ' "${cmd[@]}")" \
     2>&1 | tee "$SEGMENT_ROOT/training.log"
 ) &
 TRAIN_PIPELINE_PID=$!
