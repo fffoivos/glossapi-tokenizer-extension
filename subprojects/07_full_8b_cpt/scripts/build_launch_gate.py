@@ -166,6 +166,7 @@ def main() -> int:
         or nested_submit.get("nested_submit_flag") != "--uenv-passthrough=ignore"
         or nested_submit.get("rank_runtime") != "uenv run pytorch/v2.9.1:v2 --view=default -- torchrun"
         or not nested_submit.get("rank_torchrun")
+        or nested_submit.get("rank_megatron_import") != "megatron-import-ok"
         or not nested_submit.get("parent_job_id")
         or not nested_submit.get("child_job_id")
     ):

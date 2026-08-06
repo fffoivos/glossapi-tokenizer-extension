@@ -562,7 +562,9 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("verify_code_bundle.py", child)
         self.assertIn("srun --nodes=1 --ntasks=1", child)
         train = (ROOT / "clariden/train_segment.sbatch").read_text()
-        self.assertIn("exec uenv run pytorch/v2.9.1:v2 --view=default -- torchrun", train)
+        self.assertIn("exec uenv run pytorch/v2.9.1:v2 --view=default -- bash -lc", train)
+        self.assertIn("export PYTHONPATH=", train)
+        self.assertIn("import megatron", child)
 
     def test_contract_cli_fails_closed_for_missing_bundle(self) -> None:
         result = subprocess.run([
@@ -647,6 +649,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("validation panels are not proven training-content disjoint", gate)
         self.assertIn("nested sbatch runtime proof drift", gate)
         self.assertIn('nested_submit.get("rank_runtime")', gate)
+        self.assertIn('nested_submit.get("rank_megatron_import")', gate)
 
     def test_canonical_validation_pipeline_is_fail_closed_on_content_overlap(self) -> None:
         freeze = (ROOT / "evaluation/freeze_validation_manifest.py").read_text()
