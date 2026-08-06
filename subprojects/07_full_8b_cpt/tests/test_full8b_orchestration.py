@@ -565,6 +565,7 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("exec uenv run pytorch/v2.9.1:v2 --view=default -- bash -lc", train)
         self.assertIn("export PYTHONPATH=", train)
         self.assertIn("import megatron", child)
+        self.assertIn("megatron-import-ok", child)
 
     def test_contract_cli_fails_closed_for_missing_bundle(self) -> None:
         result = subprocess.run([
