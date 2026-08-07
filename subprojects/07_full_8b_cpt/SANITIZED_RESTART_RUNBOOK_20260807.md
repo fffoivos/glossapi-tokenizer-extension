@@ -44,6 +44,11 @@ pre-sanitization trajectory remains exploratory evidence only.
   exactly 1,457. Bridge v2 requires `index_entries == documents + tasks` and
   reconciles retained plus dropped documents to the post-mask dedup input. The
   D0 inventory and launch gate reject the obsolete bridge schema.
+- Reconstruct replay heldouts through the same frozen PII masker before
+  comparing their text hashes or token lengths with sanitized shard ledgers.
+  Comparing raw source Parquet text to masked training text fails on any
+  selected document containing an email, IP address or IBAN and must remain a
+  hard error rather than silently dropping the document.
 
 ## Scientific contract
 

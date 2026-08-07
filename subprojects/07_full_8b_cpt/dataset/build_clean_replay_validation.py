@@ -10,11 +10,22 @@ import json
 import math
 import os
 import struct
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
 
 import numpy as np
+
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+MASKER_ROOT = (
+    REPO_ROOT
+    / "subprojects/05_token_distillation_cpt/02_corpus_preparation/40_anonymize/scripts"
+)
+if str(MASKER_ROOT) not in sys.path:
+    sys.path.insert(0, str(MASKER_ROOT))
+from pii_masker import mask as mask_pii  # noqa: E402
 
 
 INDEX_HEADER = b"MMIDIDX\x00\x00"
@@ -81,6 +92,12 @@ def document_key(source_dataset: object, source_doc_id: object) -> str:
     }
     encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return "docv2:" + hashlib.sha256(encoded).hexdigest()
+
+
+def sanitize_replay_text(text: str) -> str:
+    """Reconstruct the exact PII-masked text used by sanitized training shards."""
+    sanitized, _ = mask_pii(text)
+    return sanitized
 
 
 def training_overlap(path: Path, training: np.ndarray) -> tuple[int, int]:
@@ -247,7 +264,10 @@ def main() -> int:
                 expected = wanted_by_doc_id.get(doc_id)
                 if expected is None:
                     continue
-                text = values["text"][offset]
+                source_text = values["text"][offset]
+                if not isinstance(source_text, str):
+                    raise ValueError(f"source text is not a string: {doc_id}")
+                text = sanitize_replay_text(source_text)
                 content = hashlib.sha256(text.encode("utf-8")).digest()
                 ids = tokenizer.encode(text, add_special_tokens=False).ids + [int(eos_id)]
                 if content != expected["content"] or len(ids) != expected["tokens"]:

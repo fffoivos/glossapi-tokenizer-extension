@@ -7,12 +7,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 ANON = ROOT / "subprojects/07_full_8b_cpt/dataset/anonymization"
+DATASET = ROOT / "subprojects/07_full_8b_cpt/dataset"
 MASKER = ROOT / "subprojects/05_token_distillation_cpt/02_corpus_preparation/40_anonymize/scripts"
-for path in (ANON, MASKER):
+for path in (ANON, DATASET, MASKER):
     sys.path.insert(0, str(path))
 
 from anonymization_common import REPO_ROOT, absolute_receipt  # noqa: E402
 from build_sanitized_binary_shard import consume_postmask_drop, load_drops  # noqa: E402
+from build_clean_replay_validation import sanitize_replay_text  # noqa: E402
 from finalize_postmask_dedup import (  # noqa: E402
     DropWriters,
     parse_catalog_line,
@@ -36,6 +38,12 @@ def test_masking_creates_deterministic_collision_key_without_logging_value() -> 
     right, right_counts = mask("contact beta@example.org")
     assert left == right == "contact <email-pii>"
     assert left_counts == right_counts == {"email": 1, "ip": 0, "iban": 0}
+
+
+def test_replay_validation_reconstructs_the_sanitized_training_text() -> None:
+    assert sanitize_replay_text("mail alpha@example.org from 192.0.2.1") == (
+        "mail <email-pii> from <ip-pii>"
+    )
 
 
 def test_postmask_catalog_parser_uses_deterministic_order_fields() -> None:
