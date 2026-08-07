@@ -54,6 +54,14 @@ receipt must also contain the resolved dataset fingerprint. Per-document
 validation runs at initialization, cooldown start, and the terminal checkpoint.
 Checkpoint averaging remains disabled.
 
+Before this restart, forgetting alerts are pre-registered on the fixed English,
+German, Russian, Chinese, code, math and Greek-replay panels. Relative to each
+panel's post-warmup running minimum, two consecutive observations at +0.05 nats
+raise a warning; +0.08 on any panel or +0.05 on the macro mean raises a critical
+endpoint-selection flag. These are reporting constraints, not automatic stop
+rules: the earlier trajectory established drift but no validated mid-run
+intervention, and cooldown recovery must remain measurable.
+
 ## Operational contract
 
 - Benchmark 288 updates with 32-update burn-in on the sanitized D0 prefix.

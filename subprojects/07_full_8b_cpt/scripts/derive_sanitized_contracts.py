@@ -90,6 +90,12 @@ def main() -> int:
     )
 
     recipe["recipe_id"] = "full8b-mixed-79-20-1-wsd10-sanitized-v1"
+    recipe["provenance_disclosures"]["openarchives_needs_ocr"] = (
+        "The sanitized training derivative excludes exactly 6,648 "
+        "openarchives.gr rows whose needs_ocr flag is true. The exclusion and "
+        "zero retained matches are receipt-gated; no OCR-quality claim is made "
+        "about other OpenArchives rows."
+    )
     data = recipe["data"]
     data["source_binary_root"] = pool["source_root"]
     data["sanitized_source_receipt"] = {

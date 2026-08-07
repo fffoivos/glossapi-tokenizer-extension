@@ -92,6 +92,29 @@ def main() -> int:
         and recipe["evaluation"]["source_conditioned"]["interval_updates"] != 238
     ):
         raise ValueError("source-conditioned validation cadence drift")
+    if recipe.get("recipe_id") == "full8b-mixed-79-20-1-wsd10-sanitized-v1":
+        retention = recipe["evaluation"].get("retention_alerts", {})
+        if (
+            retention.get("status") != "pre_registered_before_sanitized_restart"
+            or retention.get("metric") != "fixed_panel_mean_nll_nats"
+            or retention.get("reference")
+            != {"type": "running_minimum_after_warmup", "start_update": 400}
+            or retention.get("warning")
+            != {"any_panel_increase_nats": 0.05, "consecutive_observations": 2}
+            or retention.get("critical")
+            != {
+                "any_panel_increase_nats": 0.08,
+                "macro_mean_increase_nats": 0.05,
+                "consecutive_observations": 2,
+            }
+            or retention.get("action", {}).get("automatic_training_stop") is not False
+        ):
+            raise ValueError("pre-registered retention alert policy drift")
+        disclosure = recipe.get("provenance_disclosures", {}).get(
+            "openarchives_needs_ocr", ""
+        )
+        if "excludes exactly 6,648" not in disclosure:
+            raise ValueError("sanitized OpenArchives exclusion disclosure drift")
     libduth = recipe["data"]["source_dataset"]["libduth"]
     if libduth["legal_conclusion_claimed"] is not False:
         raise ValueError("recipe must not manufacture a libduth legal conclusion")

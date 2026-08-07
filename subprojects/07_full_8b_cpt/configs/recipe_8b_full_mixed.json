@@ -178,6 +178,31 @@
       ],
       "metrics": ["nll", "bpb", "base_target_nll", "added_target_nll"]
     },
+    "retention_alerts": {
+      "status": "pre_registered_before_sanitized_restart",
+      "metric": "fixed_panel_mean_nll_nats",
+      "panels": ["english", "de", "ru", "zh", "code", "math", "old_greek"],
+      "old_greek_display_name": "Greek replay retention",
+      "reference": {
+        "type": "running_minimum_after_warmup",
+        "start_update": 400
+      },
+      "warning": {
+        "any_panel_increase_nats": 0.05,
+        "consecutive_observations": 2
+      },
+      "critical": {
+        "any_panel_increase_nats": 0.08,
+        "macro_mean_increase_nats": 0.05,
+        "consecutive_observations": 2
+      },
+      "action": {
+        "automatic_training_stop": false,
+        "warning": "record a retention alert and verify the next checkpoint evaluation queue",
+        "critical": "record a failed retention constraint for endpoint selection and surface it immediately to the owner",
+        "rationale": "The prior trajectory established the sign of drift but not a causal mid-run intervention; cooldown recovery must remain observable."
+      }
+    },
     "greekmmlu": {
       "dataset": "dascim/GreekMMLU",
       "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",

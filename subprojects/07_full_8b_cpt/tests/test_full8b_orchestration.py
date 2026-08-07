@@ -123,6 +123,14 @@ class Full8BOrchestrationTests(unittest.TestCase):
             self.assertEqual(derived["evaluation"]["greekmmlu"]["checkpoint_updates"][-1], updates)
             self.assertEqual(derived["evaluation"]["per_document_validation"]["milestone_updates"], [0, int(0.8 * updates), updates])
             self.assertTrue(derived["initialization"]["token_distillation_dropout_context"]["existing_verified_initialization_preserved"])
+            retention = derived["evaluation"]["retention_alerts"]
+            self.assertEqual(retention["warning"]["any_panel_increase_nats"], 0.05)
+            self.assertEqual(retention["critical"]["any_panel_increase_nats"], 0.08)
+            self.assertFalse(retention["action"]["automatic_training_stop"])
+            self.assertIn(
+                "excludes exactly 6,648",
+                derived["provenance_disclosures"]["openarchives_needs_ocr"],
+            )
 
     def test_selected_content_reader_derives_source_local_order(self) -> None:
         path = ROOT / "dataset/freeze_selected_training_content.py"
