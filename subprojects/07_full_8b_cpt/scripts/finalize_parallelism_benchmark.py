@@ -107,6 +107,7 @@ def restart_provenance(
     checks = {
         "receipt_schema": receipt.get("schema_version") == "apertus_full_8b_training_job_v1",
         "receipt_completed": receipt.get("status") == "completed",
+        "synchronous_checkpoint_save": receipt.get("checkpoint_save_mode") == "synchronous",
         "profile_id": receipt.get("profile_id") == profile_id,
         "scientific_digest": receipt.get("scientific_digest") == scientific_digest,
         "start_iteration": receipt.get("start_iteration") == iteration,
@@ -190,6 +191,10 @@ def main() -> int:
     candidate_job = read_json(args.candidate_root / "segments/updates_0_288/training_job_receipt.json")
     if control_job.get("scientific_digest") != candidate_job.get("scientific_digest"):
         raise ValueError("control/candidate scientific digest drift")
+    main_jobs_synchronous = all(
+        job.get("checkpoint_save_mode") == "synchronous"
+        for job in (control_job, candidate_job)
+    )
     first_control = control["rows"][1]
     first_candidate = candidate["rows"][1]
     first_checks = {
@@ -259,6 +264,7 @@ def main() -> int:
     checks = {
         "same_scientific_digest": True,
         "same_frozen_sequence_and_goldfish_contract": bool(contract["sequence_ids"]["prefix_sha256"] and contract["goldfish"]["implementation"]["sha256"]),
+        "synchronous_checkpoint_save_mode": main_jobs_synchronous,
         "first_batch_loss_gradient_parameter_parity": all(first_checks.values()),
         "trajectory_rmse_within_bound": rmse_ratio <= thresholds["trajectory_rmse_over_control_std_max"],
         "trajectory_signed_mean_within_bound": signed_ratio <= thresholds["trajectory_abs_mean_over_control_std_max"],
@@ -281,6 +287,7 @@ def main() -> int:
         for name in (
             "same_scientific_digest",
             "same_frozen_sequence_and_goldfish_contract",
+            "synchronous_checkpoint_save_mode",
             "control_restart_provenance",
             "control_restart_numerically_equivalent",
             "control_repeat_restart_provenance",
@@ -337,6 +344,10 @@ def main() -> int:
             "candidate": {"provenance": candidate_restart_provenance, "numerical": candidate_restart},
         },
         "scientific_digest": control_job["scientific_digest"],
+        "checkpointing": {
+            "save_mode": "synchronous" if main_jobs_synchronous else "unverified_or_async",
+            "async_save_forbidden_for_resumable_boundaries": True,
+        },
         "inputs": {
             "profiles": file_binding(args.profiles),
             "benchmark_contract": file_binding(args.benchmark_contract),

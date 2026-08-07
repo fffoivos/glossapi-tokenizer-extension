@@ -52,6 +52,7 @@ def benchmark_receipts(root: Path, *, elapsed: float, profile: str) -> None:
         "status": "completed",
         "scientific_digest": "same",
         "profile_id": profile,
+        "checkpoint_save_mode": "synchronous",
     }
     write(root / "segments/updates_0_288/training_job_receipt.json", {
         **common, "elapsed_seconds": elapsed, "start_iteration": 0, "end_iteration": 288,
@@ -73,6 +74,7 @@ def benchmark_repeat(root: Path, source: Path) -> None:
         "status": "completed",
         "scientific_digest": "same",
         "profile_id": "dp32_16node",
+        "checkpoint_save_mode": "synchronous",
         "elapsed_seconds": 1,
         "start_iteration": 160,
         "end_iteration": 161,
@@ -87,6 +89,64 @@ def benchmark_repeat(root: Path, source: Path) -> None:
 
 
 class Full8BOrchestrationTests(unittest.TestCase):
+    def test_resumable_training_forbids_async_checkpoint_save(self) -> None:
+        wrapper = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertNotIn("--async-save", wrapper)
+        self.assertIn('checkpoint_save_mode=sys.argv[1:]', wrapper)
+        self.assertIn('synchronous <<\'PY\'', wrapper)
+
+    def test_sync_checkpoint_parity_smoke_is_dependency_closed(self) -> None:
+        submit = (ROOT / "clariden/submit_checkpoint_parity_smoke.sh").read_text()
+        self.assertIn("APERTUS8B_SYNC_DP32_RESTART", submit)
+        self.assertIn("FULL8_END_ITERATION=162", submit)
+        self.assertEqual(submit.count("FULL8_EXACT_LOAD_ITERATION=160"), 2)
+        self.assertIn('afterok:$restart:$repeat', submit)
+        self.assertNotIn("dp64_32node", submit)
+
+    def test_sync_checkpoint_parity_receipt_passes_two_restarts(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            control = root / "control"
+            repeat = root / "repeat"
+            stage = root / "stage"
+            write(stage / "schedules/schedule_manifest.json", {"status": "frozen"})
+            training_log(control / "segments/updates_0_162/training.log", 8500, end=162)
+            training_log(control / "segments/updates_160_161/training.log", 8500, start=161, end=161)
+            training_log(repeat / "segments/updates_160_161/training.log", 8500, start=161, end=161)
+            common = {
+                "schema_version": "apertus_full_8b_training_job_v1",
+                "status": "completed",
+                "scientific_digest": "41998a042d1c9d7ee88700b8692b488b2b6b1f936512a9f7bd07aff79542b666",
+                "profile_id": "dp32_16node",
+                "checkpoint_save_mode": "synchronous",
+            }
+            write(control / "segments/updates_0_162/training_job_receipt.json", {
+                **common, "start_iteration": 0, "end_iteration": 162,
+            })
+            write(control / "segments/updates_160_161/training_job_receipt.json", {
+                **common, "start_iteration": 160, "end_iteration": 161,
+            })
+            write(repeat / "segments/updates_160_161/training_job_receipt.json", {
+                **common, "start_iteration": 160, "end_iteration": 161,
+            })
+            checkpoint = control / "checkpoints/iter_0000160"
+            checkpoint.mkdir(parents=True)
+            for target in (control, repeat):
+                view = target / "benchmark_load_views/iter_0000160_for_dp32_16node"
+                view.mkdir(parents=True)
+                (view / "latest_checkpointed_iteration.txt").write_text("160\n")
+                (view / "iter_0000160").symlink_to(checkpoint)
+            output = root / "receipt.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/finalize_checkpoint_parity_smoke.py"),
+                "--profiles", str(ROOT / "configs/execution_profiles.json"),
+                "--stage-root", str(stage), "--control-root", str(control),
+                "--control-repeat-root", str(repeat), "--output", str(output),
+            ], check=True, capture_output=True, text=True)
+            receipt = json.loads(output.read_text())
+            self.assertEqual(receipt["status"], "passed")
+            self.assertTrue(all(receipt["checks"].values()))
+
     def test_sanitized_contract_derives_exact_horizon_and_cadence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
