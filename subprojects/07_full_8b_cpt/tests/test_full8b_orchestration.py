@@ -350,6 +350,22 @@ class Full8BOrchestrationTests(unittest.TestCase):
             )
             self.assertEqual(frozen["file_count"], 10)
 
+    def test_prelaunch_keeps_hardlinked_hf_anchor_on_capstor(self) -> None:
+        for name in (
+            "submit_sanitized_prelaunch_and_launch.sh",
+            "submit_corrected_prelaunch_and_launch.sh",
+        ):
+            script = (ROOT / "clariden" / name).read_text(encoding="utf-8")
+            self.assertIn(
+                'default_initial_hf_anchor="/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/_preflight/$prelaunch_name/initial_hf_anchor"',
+                script,
+            )
+            self.assertIn('initial_hf_root="$initial_hf_anchor_root/model"', script)
+            self.assertIn('! -e "$initial_hf_anchor_root"', script)
+            self.assertNotIn(
+                'initial_hf_root="$FULL8_PRELAUNCH_ROOT/initial_hf_anchor/model"', script,
+            )
+
     def test_graceful_finalizer_uses_resume_record_after_tracker_advances(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

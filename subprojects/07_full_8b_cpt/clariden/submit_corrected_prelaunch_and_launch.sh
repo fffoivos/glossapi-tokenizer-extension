@@ -18,8 +18,13 @@ DRY_RUN=${DRY_RUN:-1}
 selected="$FULL8_BENCHMARK_ROOT/selected_execution_profile.json"
 tokenizer=/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_polytonic_148992
 initial_hf_source=${FULL8_INITIAL_HF_SOURCE:-/capstor/scratch/cscs/fffoivos/models/greek-cpt25b-init-roundtrip/20260731T124000Z-cpt25b-v1/hf_roundtrip}
-initial_hf_root="$FULL8_PRELAUNCH_ROOT/initial_hf_anchor/model"
-initial_hf_receipt="$FULL8_PRELAUNCH_ROOT/initial_hf_anchor/receipt.json"
+# Keep the anchor on the source filesystem so its model files remain
+# hard-linked to the verified zero-drift HF source.
+prelaunch_name=$(basename "$FULL8_PRELAUNCH_ROOT")
+default_initial_hf_anchor="/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/_preflight/$prelaunch_name/initial_hf_anchor"
+initial_hf_anchor_root=${FULL8_INITIAL_HF_ANCHOR_ROOT:-$default_initial_hf_anchor}
+initial_hf_root="$initial_hf_anchor_root/model"
+initial_hf_receipt="$initial_hf_anchor_root/receipt.json"
 initial_checkpoint_receipt="$FULL8_PRELAUNCH_ROOT/initial_checkpoint_tree.json"
 initial_validation_receipt="$FULL8_PRELAUNCH_ROOT/initial_source_validation/initial_validation/initial_validation_receipt.json"
 initial_greek_receipt="$FULL8_PRELAUNCH_ROOT/initial_greekmmlu/initial_greekmmlu_receipt.json"
@@ -38,8 +43,8 @@ submit() {
 }
 
 if [[ "$DRY_RUN" == 0 ]]; then
-  [[ ! -e "$FULL8_CORRECTED_STAGE" && ! -e "$FULL8_PRELAUNCH_ROOT" && ! -e "$FULL8_PRODUCTION_RUN_ROOT" ]] || {
-    echo "corrected stage, prelaunch root, or production root already exists" >&2; exit 2;
+  [[ ! -e "$FULL8_CORRECTED_STAGE" && ! -e "$FULL8_PRELAUNCH_ROOT" && ! -e "$FULL8_PRODUCTION_RUN_ROOT" && ! -e "$initial_hf_anchor_root" ]] || {
+    echo "corrected stage, prelaunch root, production root, or corrected HF anchor root already exists" >&2; exit 2;
   }
   mkdir -p "$FULL8_PRELAUNCH_ROOT/logs"
   python3 - "$FULL8_HF_VISIBILITY_SOURCE" "$FULL8_PRELAUNCH_ROOT/hf_visibility.json" <<'PY'
