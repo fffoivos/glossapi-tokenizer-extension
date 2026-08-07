@@ -108,7 +108,7 @@ def main() -> int:
     bridge_path = args.sanitized_bridge_receipt.resolve()
     bridge = read_json(bridge_path)
     if (
-        bridge.get("schema_version") != "full_cpt_sanitized_training_bridge_v1"
+        bridge.get("schema_version") != "full_cpt_sanitized_training_bridge_v2"
         or bridge.get("status") != "completed"
         or Path(bridge.get("stage_root", "")).resolve() != args.source_root.resolve()
         or int(bridge.get("eligibility_audit", {}).get("bytes", -1)) <= 0
@@ -236,6 +236,12 @@ def main() -> int:
         raise ValueError("foreign-replay token drift")
     if pool_counts["old_greek_replay"]["tokens"] != int(bridge_counts["old_greek"]):
         raise ValueError("Old-Greek replay token drift")
+    bridge_pool_counts = bridge.get("pool_counts", {})
+    for pool in POOLS:
+        if int(bridge_pool_counts.get(pool, {}).get("documents", -1)) != int(
+            pool_counts[pool]["documents"]
+        ):
+            raise ValueError(f"sanitized bridge document-count drift: {pool}")
 
     contents = np.memmap(modern_content_path, mode="r", dtype=CONTENT_DTYPE)
     content_order = np.argsort(contents["content"], kind="stable")

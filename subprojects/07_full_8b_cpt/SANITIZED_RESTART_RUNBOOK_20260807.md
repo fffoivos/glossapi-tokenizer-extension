@@ -38,6 +38,12 @@ pre-sanitization trajectory remains exploratory evidence only.
 - The sanitized bridge itself must prove sufficient foreign and Old-Greek
   capacity under exact integer-nearest 79/20/1 arithmetic. The launch gate
   rejects a bridge without that passed capacity receipt.
+- Report logical retained documents separately from Megatron document-index
+  entries. Every shard index has one terminal sentinel, including an empty
+  shard; summing index entries as documents inflated the v1 bridge display by
+  exactly 1,457. Bridge v2 requires `index_entries == documents + tasks` and
+  reconciles retained plus dropped documents to the post-mask dedup input. The
+  D0 inventory and launch gate reject the obsolete bridge schema.
 
 ## Scientific contract
 

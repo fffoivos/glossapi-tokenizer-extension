@@ -27,6 +27,22 @@ from anonymization_common import (
 from bridge_common import iter_index_lengths, task_output_prefix
 
 
+BRIDGE_SCHEMA = "full_cpt_sanitized_training_bridge_v2"
+
+
+def accumulate_index_accounting(
+    row: dict[str, int], sequences: int, index_entries: int, tokens: int
+) -> None:
+    """Accumulate logical documents separately from Megatron index sentinels."""
+    if index_entries != sequences + 1:
+        raise ValueError(
+            f"Megatron document-index geometry drift: {index_entries} != {sequences} + 1"
+        )
+    row["documents"] += sequences
+    row["document_index_entries"] += index_entries
+    row["tokens"] += tokens
+
+
 def nearest_ratio_total(modern: int) -> int:
     quotient, remainder = divmod(modern * 100, 79)
     return quotient + int(remainder * 2 >= 79)
@@ -74,13 +90,18 @@ def main() -> int:
     output = stage / "sanitized_bridge_receipt.json"
     if output.exists():
         value = read_json(output)
-        if value.get("overlay_sha256") != sha256_file(overlay_path):
+        if (
+            value.get("schema_version") != BRIDGE_SCHEMA
+            or value.get("status") != "completed"
+            or value.get("overlay_sha256") != sha256_file(overlay_path)
+        ):
             raise ValueError("existing sanitized bridge receipt drift")
         print(json.dumps({"ok": True, "resumed": True, "output": str(output)}, sort_keys=True))
         return 0
 
     pool_counts: dict[str, dict[str, int]] = collections.defaultdict(
-        lambda: {"tasks": 0, "documents": 0, "tokens": 0, "masked_documents": 0,
+        lambda: {"tasks": 0, "documents": 0, "document_index_entries": 0,
+                 "tokens": 0, "masked_documents": 0,
                  "email_matches": 0, "ip_matches": 0, "iban_matches": 0,
                  "greekmmlu_dropped": 0, "postmask_dropped": 0,
                  "policy_excluded_rows": 0}
@@ -102,17 +123,18 @@ def main() -> int:
             raise ValueError(f"invalid sanitized shard manifest: {path}")
         for key in ("bin", "idx", "dropped_ledger", "retained_ledger"):
             validate_file_receipt(value["outputs"][key])
-        sequences, documents, tokens = iter_index_lengths(Path(value["outputs"]["idx"]["path"]))
+        sequences, index_entries, tokens = iter_index_lengths(
+            Path(value["outputs"]["idx"]["path"])
+        )
         counts = value["counts"]
-        if (sequences, documents, tokens) != (
+        if (sequences, index_entries, tokens) != (
             int(counts["documents"]), int(counts["document_index_entries"]), int(counts["tokens"])
         ):
             raise ValueError(f"sanitized shard index accounting drift: {path}")
         logical_pool = str(task["output_prefix"]).split("/", 2)[1]
         row = pool_counts[logical_pool]
         row["tasks"] += 1
-        row["documents"] += documents
-        row["tokens"] += tokens
+        accumulate_index_accounting(row, sequences, index_entries, tokens)
         row["masked_documents"] += int(counts["masked_documents"])
         row["email_matches"] += int(counts["email_matches"])
         row["ip_matches"] += int(counts["ip_matches"])
@@ -122,19 +144,39 @@ def main() -> int:
         row["policy_excluded_rows"] += int(counts["policy_excluded_rows"])
         manifests.append({"task_index": task_index, **absolute_receipt(path)})
 
+    total_documents = sum(row["documents"] for row in pool_counts.values())
+    total_index_entries = sum(row["document_index_entries"] for row in pool_counts.values())
+    total_dropped = sum(row["postmask_dropped"] for row in pool_counts.values())
+    dedup_counts = dedup["counts"]
+    if total_documents != int(dedup_counts["retained_documents"]):
+        raise ValueError(
+            "sanitized retained-document accounting does not match post-mask dedup receipt: "
+            f"{total_documents} != {dedup_counts['retained_documents']}"
+        )
+    if total_dropped != int(dedup_counts["dropped_documents"]):
+        raise ValueError(
+            "sanitized dropped-document accounting does not match post-mask dedup receipt: "
+            f"{total_dropped} != {dedup_counts['dropped_documents']}"
+        )
+    if total_documents + total_dropped != int(dedup_counts["input_documents"]):
+        raise ValueError("sanitized input-document accounting does not close")
+    if total_index_entries != total_documents + len(tasks):
+        raise ValueError("Megatron terminal-sentinel accounting does not close")
+
     # Reuse the frozen raw validation binaries without copying payloads. The
     # copied manifests remain byte-identical and point to the immutable parent.
     parent_stage = Path(overlay["parent_heldout_manifest"]["path"]).resolve().parents[1]
     source_heldout_dir = parent_stage / "megatron" / "heldout"
     target_heldout_dir = stage / "megatron" / "heldout"
-    target_heldout_dir.mkdir(parents=True, exist_ok=False)
+    target_heldout_dir.mkdir(parents=True, exist_ok=True)
     heldout_manifests: list[dict[str, Any]] = []
     for source in sorted(source_heldout_dir.glob("*.manifest.json")):
         value = read_json(source)
         if value.get("status") != "completed" or value.get("kind") != "heldout":
             raise ValueError(f"invalid parent heldout binary: {source}")
         target = target_heldout_dir / source.name
-        shutil.copyfile(source, target)
+        if not target.exists():
+            shutil.copyfile(source, target)
         if sha256_file(source) != sha256_file(target):
             raise RuntimeError("heldout manifest copy drift")
         heldout_manifests.append(absolute_receipt(target))
@@ -175,7 +217,7 @@ def main() -> int:
         },
     }
     payload = {
-        "schema_version": "full_cpt_sanitized_training_bridge_v1",
+        "schema_version": BRIDGE_SCHEMA,
         "status": "completed",
         "completed_at": utc_now(),
         "stage_root": str(stage),
@@ -186,6 +228,16 @@ def main() -> int:
         "task_manifests": manifests,
         "heldout_manifests": heldout_manifests,
         "pool_counts": dict(pool_counts),
+        "document_accounting": {
+            "policy": "logical_documents_exclude_one_terminal_index_sentinel_per_task_v1",
+            "tasks": len(tasks),
+            "input_documents": int(dedup_counts["input_documents"]),
+            "retained_documents": total_documents,
+            "dropped_documents": total_dropped,
+            "document_index_entries": total_index_entries,
+            "terminal_index_sentinels": total_index_entries - total_documents,
+            "status": "passed",
+        },
         "expected_inventory_tokens": {
             "modern": modern_tokens,
             "foreign": pool_counts["foreign_replay"]["tokens"],

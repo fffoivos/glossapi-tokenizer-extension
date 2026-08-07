@@ -18,7 +18,11 @@ from finalize_postmask_dedup import (  # noqa: E402
     parse_catalog_line,
     survivor_key,
 )
-from finalize_sanitized_bridge import nearest_percent, nearest_ratio_total  # noqa: E402
+from finalize_sanitized_bridge import (  # noqa: E402
+    accumulate_index_accounting,
+    nearest_percent,
+    nearest_ratio_total,
+)
 from pii_masker import mask  # noqa: E402
 
 
@@ -92,3 +96,10 @@ def test_stationary_capacity_rounding_closes_to_integer_79_20_1() -> None:
     assert active == modern + foreign + old_greek
     assert old_greek == 800_323_298
     assert foreign == 16_006_465_967
+
+
+def test_bridge_counts_logical_documents_not_terminal_index_sentinels() -> None:
+    row = {"documents": 0, "document_index_entries": 0, "tokens": 0}
+    accumulate_index_accounting(row, sequences=0, index_entries=1, tokens=0)
+    accumulate_index_accounting(row, sequences=17, index_entries=18, tokens=91)
+    assert row == {"documents": 17, "document_index_entries": 19, "tokens": 91}

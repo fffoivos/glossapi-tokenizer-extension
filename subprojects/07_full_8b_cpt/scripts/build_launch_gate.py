@@ -79,8 +79,20 @@ def main() -> int:
     ):
         raise ValueError("sanitized bridge binding drift")
     sanitized = status(
-        sanitized_path, {"full_cpt_sanitized_training_bridge_v1"}
+        sanitized_path, {"full_cpt_sanitized_training_bridge_v2"}
     )
+    document_accounting = sanitized.get("document_accounting", {})
+    if (
+        document_accounting.get("status") != "passed"
+        or document_accounting.get("policy")
+        != "logical_documents_exclude_one_terminal_index_sentinel_per_task_v1"
+        or int(document_accounting.get("terminal_index_sentinels", -1))
+        != int(document_accounting.get("tasks", -2))
+        or int(document_accounting.get("retained_documents", -1))
+        + int(document_accounting.get("dropped_documents", -1))
+        != int(document_accounting.get("input_documents", -2))
+    ):
+        raise ValueError("sanitized bridge document accounting drift")
     capacity = sanitized.get("stationary_79_20_1_capacity", {})
     capacity_targets = capacity.get("targets", {})
     capacity_available = capacity.get("available", {})
