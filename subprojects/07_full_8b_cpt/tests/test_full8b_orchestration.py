@@ -902,6 +902,9 @@ class Full8BOrchestrationTests(unittest.TestCase):
 
     def test_final_launch_handoff_is_dependency_safe_and_fail_closed(self) -> None:
         handoff = (ROOT / "clariden/finalize_and_submit_production.sbatch").read_text()
+        coordinator = (
+            ROOT / "clariden/start_sanitized_prelaunch_after_benchmark.sbatch"
+        ).read_text()
         environment = (ROOT / "scripts/capture_launch_environment.py").read_text()
         self.assertIn('FULL8_LAUNCH_AUTHORIZATION:?set explicit production authorization', handoff)
         self.assertIn('== APERTUS8B_FULL_MIXED_CPT', handoff)
@@ -909,6 +912,10 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertLess(handoff.index("build_launch_gate.py"), handoff.index("DRY_RUN=1"))
         self.assertLess(handoff.index("DRY_RUN=1"), handoff.index("DRY_RUN=0"))
         self.assertIn('[[ ! -e "$environment" && ! -e "$gate" && ! -e "$FULL8_RUN_ROOT" ]]', handoff)
+        self.assertIn("verify_code_bundle.py", coordinator)
+        self.assertIn("promotion_receipt.json", coordinator)
+        self.assertLess(coordinator.index("DRY_RUN=1"), coordinator.index("DRY_RUN=0"))
+        self.assertIn("submit_sanitized_prelaunch_and_launch.sh", coordinator)
         self.assertIn("--conversion-smoke", handoff)
         self.assertIn("--benchmark-receipt", handoff)
         self.assertIn("--initial-hf-receipt", handoff)
