@@ -11,9 +11,13 @@ MASKER = ROOT / "subprojects/05_token_distillation_cpt/02_corpus_preparation/40_
 for path in (ANON, MASKER):
     sys.path.insert(0, str(path))
 
-from anonymization_common import REPO_ROOT  # noqa: E402
-from build_sanitized_binary_shard import consume_postmask_drop  # noqa: E402
-from finalize_postmask_dedup import parse_catalog_line, survivor_key  # noqa: E402
+from anonymization_common import REPO_ROOT, absolute_receipt  # noqa: E402
+from build_sanitized_binary_shard import consume_postmask_drop, load_drops  # noqa: E402
+from finalize_postmask_dedup import (  # noqa: E402
+    DropWriters,
+    parse_catalog_line,
+    survivor_key,
+)
 from finalize_sanitized_bridge import nearest_percent, nearest_ratio_total  # noqa: E402
 from pii_masker import mask  # noqa: E402
 
@@ -58,6 +62,26 @@ def test_postmask_drop_consumes_exact_content_multiplicity_not_every_doc_id() ->
     assert not consume_postmask_drop(remaining, "repeated-doc-id", digest)
     assert not consume_postmask_drop(remaining, "repeated-doc-id", other_digest)
     assert not remaining
+
+
+def test_drop_receipt_preserves_row_multiplicity_and_masked_identity(tmp_path: Path) -> None:
+    digest = "a" * 64
+    other_digest = "b" * 64
+    writers = DropWriters(tmp_path / "drops")
+    writers.write(7, "repeated-doc-id", digest, "postmask_exact_duplicate")
+    writers.write(7, "repeated-doc-id", digest, "postmask_exact_duplicate")
+    writers.write(7, "repeated-doc-id", other_digest, "validation_content_collision")
+    writers.close()
+    path = tmp_path / "drops" / "task_00007.drops.tsv"
+    receipt = {
+        "task_drop_files": [
+            {"task_index": 7, **absolute_receipt(path, rows=3)}
+        ]
+    }
+    counts, _ = load_drops(receipt, 7)
+    assert counts[("repeated-doc-id", digest)] == 2
+    assert counts[("repeated-doc-id", other_digest)] == 1
+    assert sum(counts.values()) == 3
 
 
 def test_stationary_capacity_rounding_closes_to_integer_79_20_1() -> None:
