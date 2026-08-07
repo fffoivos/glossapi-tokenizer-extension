@@ -15,6 +15,13 @@ dp32_exclude=$("$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_lea
 dp64_exclude=$("$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$FULL8_DP64_LEAF_SWITCH" 32)
 dp32_placement=(--switches=1 --exclude="$dp32_exclude")
 dp64_placement=(--switches=1 --exclude="$dp64_exclude")
+initial_dependency=()
+if [[ -n "${FULL8_BENCHMARK_DEPENDENCY:-}" ]]; then
+  [[ "$FULL8_BENCHMARK_DEPENDENCY" =~ ^afterok:[0-9]+$ ]] || {
+    echo "FULL8_BENCHMARK_DEPENDENCY must be afterok:JOBID" >&2; exit 2;
+  }
+  initial_dependency=(--dependency="$FULL8_BENCHMARK_DEPENDENCY")
+fi
 
 submit() {
   if [[ "$DRY_RUN" == 1 ]]; then
@@ -41,11 +48,11 @@ fi
 sbatch_file="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch"
 common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_RECIPE=$FULL8_RECIPE,FULL8_PROFILES=$FULL8_PROFILES,FULL8_BENCHMARK_MODE=1"
 initial_common="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=160"
-control=$(submit "${dp32_placement[@]}" --nodes=16 --time=02:00:00 --job-name=full8b-dp32-control \
+control=$(submit "${initial_dependency[@]}" "${dp32_placement[@]}" --nodes=16 --time=02:00:00 --job-name=full8b-dp32-control \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$initial_common,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/control_dp32,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=0,FULL8_END_ITERATION=288,FULL8_LOAD_CHECKPOINT=$FULL8_INITIAL_MEGATRON" \
   "$sbatch_file")
-candidate=$(submit "${dp64_placement[@]}" --nodes=32 --time=02:00:00 --job-name=full8b-dp64-candidate \
+candidate=$(submit "${initial_dependency[@]}" "${dp64_placement[@]}" --nodes=32 --time=02:00:00 --job-name=full8b-dp64-candidate \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$initial_common,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/candidate_dp64,FULL8_EXECUTION_PROFILE=dp64_32node,FULL8_START_ITERATION=0,FULL8_END_ITERATION=288,FULL8_LOAD_CHECKPOINT=$FULL8_INITIAL_MEGATRON" \
   "$sbatch_file")

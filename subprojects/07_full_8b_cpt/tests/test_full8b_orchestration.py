@@ -452,6 +452,8 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("benchmark_load_views", train)
         self.assertIn("latest_checkpointed_iteration.txt", train)
         self.assertEqual(submit.count("--time=00:20:00"), 3)
+        self.assertIn('FULL8_BENCHMARK_DEPENDENCY must be afterok:JOBID', submit)
+        self.assertEqual(submit.count('"${initial_dependency[@]}"'), 2)
 
     def test_megatron_cache_is_writable_run_state_not_frozen_dataset_state(self) -> None:
         train = (ROOT / "clariden/train_segment.sbatch").read_text()
