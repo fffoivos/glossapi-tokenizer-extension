@@ -20,6 +20,7 @@ from finalize_postmask_dedup import (  # noqa: E402
 )
 from finalize_sanitized_bridge import (  # noqa: E402
     accumulate_index_accounting,
+    bound_overlay_script,
     nearest_percent,
     nearest_ratio_total,
 )
@@ -103,3 +104,17 @@ def test_bridge_counts_logical_documents_not_terminal_index_sentinels() -> None:
     accumulate_index_accounting(row, sequences=0, index_entries=1, tokens=0)
     accumulate_index_accounting(row, sequences=17, index_entries=18, tokens=91)
     assert row == {"documents": 17, "document_index_entries": 19, "tokens": 91}
+
+
+def test_bridge_migration_preserves_original_overlay_code_binding() -> None:
+    overlay = {
+        "repository": {
+            "code_files": [
+                {"path": "/immutable/v27/finalize_sanitized_bridge.py"},
+                {"path": "/immutable/v27/anonymization_common.py"},
+            ]
+        }
+    }
+    assert bound_overlay_script(overlay, "finalize_sanitized_bridge.py") == Path(
+        "/immutable/v27/finalize_sanitized_bridge.py"
+    )

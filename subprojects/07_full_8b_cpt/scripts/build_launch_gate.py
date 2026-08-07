@@ -81,6 +81,20 @@ def main() -> int:
     sanitized = status(
         sanitized_path, {"full_cpt_sanitized_training_bridge_v2"}
     )
+    bridge_finalizer_binding = sanitized.get("bridge_finalizer", {})
+    bridge_finalizer_path = Path(bridge_finalizer_binding.get("path", "")).resolve()
+    try:
+        bridge_finalizer_path.relative_to(args.code_root.resolve())
+    except ValueError as exc:
+        raise ValueError("sanitized bridge finalizer is outside executing code bundle") from exc
+    if (
+        not bridge_finalizer_path.is_file()
+        or bridge_finalizer_path.stat().st_size
+        != int(bridge_finalizer_binding.get("bytes", -1))
+        or sha256_file(bridge_finalizer_path)
+        != bridge_finalizer_binding.get("sha256")
+    ):
+        raise ValueError("sanitized bridge finalizer binding drift")
     document_accounting = sanitized.get("document_accounting", {})
     if (
         document_accounting.get("status") != "passed"

@@ -19,11 +19,13 @@ DATA_RUNTIME_RECEIPT=${FULL8_DATA_RUNTIME_RECEIPT:-/iopsstor/scratch/cscs/fffoiv
 test -s "$DATA_RUNTIME_RECEIPT"
 "$HOST_PYTHON" "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
   --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
-uenv run pytorch/v2.9.1:v2 --view=default -- "$DATA_PYTHON" \
-  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/dataset/anonymization/audit_sanitized_eligibility.py" \
-  --overlay "$FULL8_ANON_STAGE_ROOT/anonymization_overlay.json" \
-  --stage-root "$FULL8_ANON_STAGE_ROOT" \
-  --output "$FULL8_ANON_STAGE_ROOT/eligibility_audit.json"
+if [[ ! -s "$FULL8_ANON_STAGE_ROOT/eligibility_audit.json" ]]; then
+  uenv run pytorch/v2.9.1:v2 --view=default -- "$DATA_PYTHON" \
+    "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/dataset/anonymization/audit_sanitized_eligibility.py" \
+    --overlay "$FULL8_ANON_STAGE_ROOT/anonymization_overlay.json" \
+    --stage-root "$FULL8_ANON_STAGE_ROOT" \
+    --output "$FULL8_ANON_STAGE_ROOT/eligibility_audit.json"
+fi
 uenv run pytorch/v2.9.1:v2 --view=default -- "$DATA_PYTHON" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/dataset/anonymization/finalize_sanitized_bridge.py" \
   --overlay "$FULL8_ANON_STAGE_ROOT/anonymization_overlay.json" \

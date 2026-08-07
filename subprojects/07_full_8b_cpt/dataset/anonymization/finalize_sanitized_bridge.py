@@ -30,6 +30,19 @@ from bridge_common import iter_index_lengths, task_output_prefix
 BRIDGE_SCHEMA = "full_cpt_sanitized_training_bridge_v2"
 
 
+def bound_overlay_script(overlay: dict[str, Any], filename: str) -> Path:
+    candidates = [
+        Path(str(row.get("path", ""))).resolve()
+        for row in overlay.get("repository", {}).get("code_files", [])
+        if Path(str(row.get("path", ""))).name == filename
+    ]
+    if len(candidates) != 1:
+        raise ValueError(
+            f"overlay must bind exactly one {filename} implementation: {candidates}"
+        )
+    return candidates[0]
+
+
 def accumulate_index_accounting(
     row: dict[str, int], sequences: int, index_entries: int, tokens: int
 ) -> None:
@@ -63,7 +76,11 @@ def main() -> int:
     args = parser.parse_args()
 
     overlay_path = args.overlay.resolve()
-    overlay = validate_overlay(overlay_path, Path(__file__))
+    unvalidated_overlay = read_json(overlay_path)
+    overlay_bound_finalizer = bound_overlay_script(
+        unvalidated_overlay, Path(__file__).name
+    )
+    overlay = validate_overlay(overlay_path, overlay_bound_finalizer)
     load_parent(overlay)
     tasks = overlay["tasks"]
     heldouts = load_overlay_heldouts(overlay, overlay_path, args.heldout_manifest)
@@ -223,6 +240,8 @@ def main() -> int:
         "stage_root": str(stage),
         "overlay": absolute_receipt(overlay_path),
         "overlay_sha256": sha256_file(overlay_path),
+        "overlay_bound_bridge_finalizer": absolute_receipt(overlay_bound_finalizer),
+        "bridge_finalizer": absolute_receipt(Path(__file__).resolve()),
         "postmask_dedup": absolute_receipt(dedup_path),
         "eligibility_audit": absolute_receipt(audit_path),
         "task_manifests": manifests,
