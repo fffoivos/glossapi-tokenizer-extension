@@ -118,6 +118,20 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn('[[ "${#PLACEMENT_LEAF_SWITCHES[@]}" -eq 1 ]]', train)
         self.assertIn('"single_leaf_switch"', train)
 
+    def test_leaf_switch_restriction_is_scheduler_hard_and_export_safe(self) -> None:
+        helper = (ROOT / "clariden/resolve_leaf_switch_exclusion.sh").read_text()
+        parity = (ROOT / "clariden/submit_checkpoint_parity_smoke.sh").read_text()
+        benchmark = (ROOT / "clariden/submit_parallelism_benchmark.sh").read_text()
+        production = (ROOT / "clariden/submit_production.sh").read_text()
+        supervisor = (ROOT / "scripts/supervise_campaign.py").read_text()
+        self.assertIn("scontrol show topology", helper)
+        self.assertIn("scontrol show hostlist", helper)
+        self.assertIn('--exclude="$dp32_exclude"', parity)
+        self.assertIn('--exclude="$dp64_exclude"', benchmark)
+        self.assertIn('--exclude="$train_exclude"', production)
+        self.assertIn('f"--exclude={args.train_exclude}"', supervisor)
+        self.assertNotIn("FULL8_TRAIN_EXCLUDE=", production)
+
     def test_sync_checkpoint_parity_smoke_is_dependency_closed(self) -> None:
         submit = (ROOT / "clariden/submit_checkpoint_parity_smoke.sh").read_text()
         self.assertIn("APERTUS8B_SYNC_DP32_RESTART", submit)
@@ -694,15 +708,22 @@ class Full8BOrchestrationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             selected = root / "selected.json"; gate = root / "gate.json"; recipe = root / "recipe.json"
+            prelaunch = root / "prelaunch"
             write(recipe, {"evaluation":{"greekmmlu":{"checkpoint_updates":[0,6416,12832,19248]}}})
             write(selected, {"schema_version":"apertus_full_8b_selected_execution_profile_v1", "status":"frozen", "recipe":{"path":str(recipe.resolve())}, "selection":{"profile_id":"dp64_32node","nodes":32,"segment_boundaries":[0,6416,12832,19248]}})
             write(gate, {"schema_version":"apertus_full_8b_launch_gate_v1", "status":"passed", "initialization_checkpoint":{"root":"/init"}})
+            write(prelaunch / "launch_environment.json", {
+                "schema_version":"apertus_full_8b_launch_environment_v1",
+                "status":"passed", "placement":{"leaf_switch":"group36"},
+            })
             env = {
                 "FULL8_CODE_ROOT":str(ROOT.parents[1]), "FULL8_CODE_BUNDLE_RECEIPT":"/bundle.json",
                 "FULL8_STAGE_ROOT":"/stage", "FULL8_RUN_ROOT":"/new-run",
-                "FULL8_INITIAL_MEGATRON":"/init", "FULL8_PRELAUNCH_ROOT":"/prelaunch",
+                "FULL8_INITIAL_MEGATRON":"/init", "FULL8_PRELAUNCH_ROOT":str(prelaunch),
                 "FULL8_SELECTED_PROFILE":str(selected), "FULL8_LAUNCH_GATE":str(gate), "DRY_RUN":"1",
                 "FULL8_RECIPE":str(recipe), "FULL8_PROFILES":"/profiles.json",
+                "FULL8_TRAIN_LEAF_SWITCH":"group36",
+                "FULL8_TRAIN_EXCLUDE_DRY_RUN_OVERRIDE":"nid[000001-000010]",
             }
             result = subprocess.run([str(ROOT / "clariden/submit_production.sh")], env={**__import__("os").environ, **env}, text=True, capture_output=True, check=True)
             self.assertIn("dp64_32node", result.stdout)

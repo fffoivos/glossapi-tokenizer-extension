@@ -27,6 +27,7 @@ set -euo pipefail
 : "${FULL8_NESTED_SBATCH_PROOF:?set completed nested sbatch proof}"
 : "${FULL8_RUN_ROOT:?set new production run root}"
 : "${FULL8_LAUNCH_AUTHORIZATION:?set explicit production authorization}"
+: "${FULL8_TRAIN_LEAF_SWITCH:?set pinned Clariden leaf switch}"
 [[ "$FULL8_LAUNCH_AUTHORIZATION" == APERTUS8B_FULL_MIXED_CPT ]] || {
   echo "invalid production launch authorization" >&2
   exit 2
@@ -39,6 +40,11 @@ selected="$FULL8_BENCHMARK_ROOT/selected_execution_profile.json"
 environment="$FULL8_PRELAUNCH_ROOT/launch_environment.json"
 gate="$FULL8_PRELAUNCH_ROOT/launch_gate.json"
 conversion="$FULL8_CONVERSION_SMOKE_RECEIPT"
+train_exclude=$("$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$FULL8_TRAIN_LEAF_SWITCH" "$(python3 - "$selected" <<'PY'
+import json,sys
+print(json.load(open(sys.argv[1]))["selection"]["nodes"])
+PY
+)")
 [[ ! -e "$environment" && ! -e "$gate" && ! -e "$FULL8_RUN_ROOT" ]] || {
   echo "refusing to overwrite launch evidence or production run root" >&2
   exit 2
@@ -47,6 +53,8 @@ conversion="$FULL8_CONVERSION_SMOKE_RECEIPT"
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/capture_launch_environment.py" \
   --selected-profile "$selected" \
+  --leaf-switch "$FULL8_TRAIN_LEAF_SWITCH" \
+  --leaf-exclusion "$train_exclude" \
   --storage-path /capstor/scratch/cscs/fffoivos/runs \
   --output "$environment"
 
@@ -89,6 +97,7 @@ common=(
   FULL8_LAUNCH_GATE="$gate"
   FULL8_RECIPE="$recipe"
   FULL8_PROFILES="$profiles"
+  FULL8_TRAIN_LEAF_SWITCH="$FULL8_TRAIN_LEAF_SWITCH"
 )
 env "${common[@]}" DRY_RUN=1 \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/submit_production.sh" \

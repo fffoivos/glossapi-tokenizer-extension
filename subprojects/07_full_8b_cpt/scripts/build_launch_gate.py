@@ -266,6 +266,17 @@ def main() -> int:
     environment = status(args.launch_environment, {"apertus_full_8b_launch_environment_v1"})
     if environment.get("nodes") != selected["selection"]["nodes"]:
         raise ValueError("scheduler snapshot/profile node drift")
+    placement = environment.get("placement", {})
+    if (
+        not str(placement.get("leaf_switch", "")).startswith("group")
+        or not placement.get("excluded_nodes")
+        or "--switches=1" not in environment.get("test_only", {}).get("command", [])
+        or not any(
+            str(value).startswith("--exclude=")
+            for value in environment.get("test_only", {}).get("command", [])
+        )
+    ):
+        raise ValueError("scheduler single-leaf placement evidence drift")
     nested_submit = status(
         args.nested_sbatch_proof, {"apertus_full_8b_nested_sbatch_proof_v1"}
     )

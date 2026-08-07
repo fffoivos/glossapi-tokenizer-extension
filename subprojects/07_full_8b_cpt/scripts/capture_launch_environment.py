@@ -21,6 +21,8 @@ def run(command: list[str]) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--selected-profile", type=Path, required=True)
+    parser.add_argument("--leaf-switch", required=True)
+    parser.add_argument("--leaf-exclusion", required=True)
     parser.add_argument("--storage-path", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--minimum-free-bytes", type=int, default=6_000_000_000_000)
@@ -32,12 +34,15 @@ def main() -> int:
     test_only = run([
         "sbatch", "--test-only", "--uenv-passthrough=ignore",
         "--account=a0140", "--partition=normal", f"--nodes={nodes}",
+        "--switches=1", f"--exclude={args.leaf_exclusion}",
         "--exclusive", "--mem=450G", "--time=12:00:00", "--wrap=true",
     ])
     checks = {
         "storage_headroom_at_least_6TB": storage.free >= args.minimum_free_bytes,
         "normal_partition_snapshot_succeeded": scheduler["returncode"] == 0,
         "test_only_prediction_succeeded": test_only["returncode"] == 0,
+        "leaf_switch_is_explicit": args.leaf_switch.startswith("group"),
+        "leaf_exclusion_is_nonempty": bool(args.leaf_exclusion),
     }
     payload = {
         "schema_version": "apertus_full_8b_launch_environment_v1",
@@ -47,6 +52,11 @@ def main() -> int:
         "nodes": nodes,
         "storage": {"path": str(args.storage_path.resolve()), "total_bytes": storage.total, "used_bytes": storage.used, "free_bytes": storage.free, "minimum_free_bytes": args.minimum_free_bytes},
         "scheduler": scheduler,
+        "placement": {
+            "leaf_switch": args.leaf_switch,
+            "excluded_nodes": args.leaf_exclusion,
+            "policy": "scheduler exclusion confines every training allocation to one Clariden Level=0 leaf switch",
+        },
         "test_only": {**test_only, "is_prediction_not_reservation": True},
         "checks": checks,
     }

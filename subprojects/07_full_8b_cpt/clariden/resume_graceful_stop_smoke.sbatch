@@ -18,6 +18,7 @@ set -euo pipefail
 : "${FULL8_SELECTED_PROFILE:?set selected execution profile receipt}"
 : "${FULL8_EXECUTION_PROFILE:?set selected profile id}"
 : "${FULL8_SMOKE_NODES:?set selected profile node count}"
+: "${FULL8_TRAIN_LEAF_SWITCH:?set pinned Clariden leaf switch}"
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
   --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
@@ -33,7 +34,8 @@ x=json.load(open(sys.argv[1])); latest=int(sys.argv[2])
 if x.get("status")!="gracefully_stopped" or not 0 < latest <= int(x.get("last_logged_iteration",-1)): raise SystemExit("graceful-stop receipt/checkpoint drift")
 PY
 end=$((latest + 1))
-restart=$(sbatch --uenv-passthrough=ignore --parsable --nodes="$FULL8_SMOKE_NODES" --time=00:20:00 \
+train_exclude=$("$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$FULL8_TRAIN_LEAF_SWITCH" "$FULL8_SMOKE_NODES")
+restart=$(sbatch --uenv-passthrough=ignore --parsable --switches=1 --exclude="$train_exclude" --nodes="$FULL8_SMOKE_NODES" --time=00:20:00 \
   --output="$FULL8_SMOKE_RUN_ROOT/logs/%x-%j.out" --error="$FULL8_SMOKE_RUN_ROOT/logs/%x-%j.err" \
   --export="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_RUN_ROOT=$FULL8_SMOKE_RUN_ROOT,FULL8_START_ITERATION=$latest,FULL8_END_ITERATION=$end,FULL8_LOAD_CHECKPOINT=$FULL8_SMOKE_RUN_ROOT/checkpoints,FULL8_BENCHMARK_MODE=1,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_SELECTED_PROFILE=$FULL8_SELECTED_PROFILE,FULL8_EXECUTION_PROFILE=$FULL8_EXECUTION_PROFILE,FULL8_SMOKE_NODES=$FULL8_SMOKE_NODES" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch")

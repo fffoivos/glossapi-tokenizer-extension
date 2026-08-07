@@ -5,10 +5,13 @@ set -euo pipefail
 : "${FULL8_STAGE_ROOT:?set frozen full-8B data root}"
 : "${FULL8_PARITY_ROOT:?set new checkpoint-parity root}"
 : "${FULL8_INITIAL_MEGATRON:?set verified TP2 initialization root}"
+: "${FULL8_DP32_LEAF_SWITCH:?set pinned Clariden leaf switch for DP32}"
 FULL8_RECIPE=${FULL8_RECIPE:-$FULL8_STAGE_ROOT/contracts/recipe_8b_full_mixed.sanitized.json}
 FULL8_PROFILES=${FULL8_PROFILES:-$FULL8_STAGE_ROOT/contracts/execution_profiles.sanitized.json}
 DRY_RUN=${DRY_RUN:-1}
 [[ "$DRY_RUN" == 0 || "$DRY_RUN" == 1 ]] || { echo "DRY_RUN must be 0 or 1" >&2; exit 2; }
+dp32_exclude=$("$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$FULL8_DP32_LEAF_SWITCH" 16)
+dp32_placement=(--switches=1 --exclude="$dp32_exclude")
 
 submit() {
   if [[ "$DRY_RUN" == 1 ]]; then
@@ -29,15 +32,15 @@ fi
 
 train="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch"
 common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_RECIPE=$FULL8_RECIPE,FULL8_PROFILES=$FULL8_PROFILES,FULL8_BENCHMARK_MODE=1"
-control=$(submit --nodes=16 --time=01:00:00 --job-name=full8b-sync-parity-control \
+control=$(submit "${dp32_placement[@]}" --nodes=16 --time=01:00:00 --job-name=full8b-sync-parity-control \
   --output="$FULL8_PARITY_ROOT/logs/%x-%j.out" --error="$FULL8_PARITY_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=160,FULL8_RUN_ROOT=$FULL8_PARITY_ROOT/control_dp32,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=0,FULL8_END_ITERATION=162,FULL8_LOAD_CHECKPOINT=$FULL8_INITIAL_MEGATRON" \
   "$train")
-restart=$(submit --nodes=16 --time=00:20:00 --job-name=full8b-sync-parity-r1 --dependency="afterok:$control" \
+restart=$(submit "${dp32_placement[@]}" --nodes=16 --time=00:20:00 --job-name=full8b-sync-parity-r1 --dependency="afterok:$control" \
   --output="$FULL8_PARITY_ROOT/logs/%x-%j.out" --error="$FULL8_PARITY_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_PARITY_ROOT/control_dp32,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_PARITY_ROOT/control_dp32/checkpoints" \
   "$train")
-repeat=$(submit --nodes=16 --time=00:20:00 --job-name=full8b-sync-parity-r2 --dependency="afterok:$control" \
+repeat=$(submit "${dp32_placement[@]}" --nodes=16 --time=00:20:00 --job-name=full8b-sync-parity-r2 --dependency="afterok:$control" \
   --output="$FULL8_PARITY_ROOT/logs/%x-%j.out" --error="$FULL8_PARITY_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_PARITY_ROOT/control_dp32_repeat,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_PARITY_ROOT/control_dp32/checkpoints" \
   "$train")

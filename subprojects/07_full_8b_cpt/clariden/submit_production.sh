@@ -8,6 +8,7 @@ set -euo pipefail
 : "${FULL8_PRELAUNCH_ROOT:?set completed prelaunch root}"
 : "${FULL8_SELECTED_PROFILE:?set benchmark-selected execution profile receipt}"
 : "${FULL8_LAUNCH_GATE:?set completed authoritative launch gate}"
+: "${FULL8_TRAIN_LEAF_SWITCH:?set pinned Clariden leaf switch}"
 DRY_RUN=${DRY_RUN:-1}
 [[ "$DRY_RUN" == 0 || "$DRY_RUN" == 1 ]] || { echo "DRY_RUN must be 0 or 1" >&2; exit 2; }
 
@@ -15,20 +16,26 @@ RECIPE=${FULL8_RECIPE:-$FULL8_STAGE_ROOT/contracts/recipe_8b_full_mixed.sanitize
 PROFILES=${FULL8_PROFILES:-$FULL8_STAGE_ROOT/contracts/execution_profiles.sanitized.json}
 PREQUEUED_MANIFEST="$FULL8_RUN_ROOT/submissions/prequeued_launch_graph.json"
 
-readarray -t selected < <(python3 - "$FULL8_SELECTED_PROFILE" "$FULL8_LAUNCH_GATE" "$FULL8_INITIAL_MEGATRON" "$RECIPE" <<'PY'
+readarray -t selected < <(python3 - "$FULL8_SELECTED_PROFILE" "$FULL8_LAUNCH_GATE" "$FULL8_INITIAL_MEGATRON" "$RECIPE" "$FULL8_PRELAUNCH_ROOT/launch_environment.json" "$FULL8_TRAIN_LEAF_SWITCH" <<'PY'
 import json,sys
 from pathlib import Path
-p=json.load(open(sys.argv[1])); g=json.load(open(sys.argv[2]))
+p=json.load(open(sys.argv[1])); g=json.load(open(sys.argv[2])); e=json.load(open(sys.argv[5]))
 if p.get("schema_version")!="apertus_full_8b_selected_execution_profile_v1" or p.get("status")!="frozen": raise SystemExit("selected profile is not frozen")
 if g.get("schema_version")!="apertus_full_8b_launch_gate_v1" or g.get("status")!="passed": raise SystemExit("launch gate is not passed")
 s=p["selection"]
 if Path(g.get("initialization_checkpoint",{}).get("root","")).resolve() != Path(sys.argv[3]).resolve(): raise SystemExit("launch checkpoint/gate drift")
 if Path(p.get("recipe",{}).get("path","")).resolve()!=Path(sys.argv[4]).resolve(): raise SystemExit("selected profile/derived recipe drift")
+if e.get("status")!="passed" or e.get("placement",{}).get("leaf_switch")!=sys.argv[6]: raise SystemExit("launch placement drift")
 print(s["profile_id"]); print(s["nodes"]); print(":".join(map(str,s["segment_boundaries"])))
 PY
 )
 profile_id=${selected[0]}; nodes=${selected[1]}; IFS=: read -r -a boundaries <<<"${selected[2]}"
 (( ${#boundaries[@]} >= 2 )) || { echo "selected profile has no segments" >&2; exit 2; }
+if [[ "$DRY_RUN" == 1 && -n "${FULL8_TRAIN_EXCLUDE_DRY_RUN_OVERRIDE:-}" ]]; then
+  train_exclude=$FULL8_TRAIN_EXCLUDE_DRY_RUN_OVERRIDE
+else
+  train_exclude=$("$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$FULL8_TRAIN_LEAF_SWITCH" "$nodes")
+fi
 
 if [[ "$DRY_RUN" == 0 ]]; then
   [[ "${CONFIRM_GPU_LAUNCH:-}" == "APERTUS8B_FULL_MIXED_CPT" ]] || {
@@ -47,7 +54,7 @@ submit() {
   fi
 }
 
-common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_RUN_ROOT=$FULL8_RUN_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_SELECTED_PROFILE=$FULL8_SELECTED_PROFILE,FULL8_EXECUTION_PROFILE=$profile_id,FULL8_LAUNCH_GATE=$FULL8_LAUNCH_GATE,FULL8_RECIPE=$RECIPE,FULL8_PROFILES=$PROFILES,FULL8_PREQUEUED_MANIFEST=$PREQUEUED_MANIFEST"
+common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_RUN_ROOT=$FULL8_RUN_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_SELECTED_PROFILE=$FULL8_SELECTED_PROFILE,FULL8_EXECUTION_PROFILE=$profile_id,FULL8_LAUNCH_GATE=$FULL8_LAUNCH_GATE,FULL8_RECIPE=$RECIPE,FULL8_PROFILES=$PROFILES,FULL8_PREQUEUED_MANIFEST=$PREQUEUED_MANIFEST,FULL8_TRAIN_LEAF_SWITCH=$FULL8_TRAIN_LEAF_SWITCH"
 records=()
 previous_supervisor=""
 segment_count=$((${#boundaries[@]} - 1))
@@ -58,7 +65,7 @@ for ((segment=0; segment<segment_count; segment++)); do
   [[ "$segment" -eq 0 ]] && load="$FULL8_INITIAL_MEGATRON"
   dependency=()
   [[ -n "$previous_supervisor" ]] && dependency=(--dependency="afterok:$previous_supervisor")
-  train=$(submit "${dependency[@]}" --nodes="$nodes" --job-name="full8b_s${segment}a0" \
+  train=$(submit "${dependency[@]}" --switches=1 --exclude="$train_exclude" --nodes="$nodes" --job-name="full8b_s${segment}a0" \
     --output="$FULL8_RUN_ROOT/logs/%x-%j.out" --error="$FULL8_RUN_ROOT/logs/%x-%j.err" \
     --export="$common,FULL8_SEGMENT_ID=$segment,FULL8_ATTEMPT=0,FULL8_START_ITERATION=$start,FULL8_END_ITERATION=$end,FULL8_LOAD_CHECKPOINT=$load,FULL8_RECOVERY_MODE=0" \
     "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch")

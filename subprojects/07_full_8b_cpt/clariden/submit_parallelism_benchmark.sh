@@ -5,10 +5,16 @@ set -euo pipefail
 : "${FULL8_BENCHMARK_ROOT:?set new benchmark root}"
 : "${FULL8_INITIAL_MEGATRON:?set verified TP2 initialization root}"
 : "${FULL8_CODE_BUNDLE_RECEIPT:?set immutable code receipt}"
+: "${FULL8_DP32_LEAF_SWITCH:?set pinned Clariden leaf switch for DP32}"
+: "${FULL8_DP64_LEAF_SWITCH:?set pinned Clariden leaf switch for DP64}"
 FULL8_RECIPE=${FULL8_RECIPE:-$FULL8_STAGE_ROOT/contracts/recipe_8b_full_mixed.sanitized.json}
 FULL8_PROFILES=${FULL8_PROFILES:-$FULL8_STAGE_ROOT/contracts/execution_profiles.sanitized.json}
 DRY_RUN=${DRY_RUN:-1}
 [[ "$DRY_RUN" == 0 || "$DRY_RUN" == 1 ]] || { echo "DRY_RUN must be 0 or 1" >&2; exit 2; }
+dp32_exclude=$("$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$FULL8_DP32_LEAF_SWITCH" 16)
+dp64_exclude=$("$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$FULL8_DP64_LEAF_SWITCH" 32)
+dp32_placement=(--switches=1 --exclude="$dp32_exclude")
+dp64_placement=(--switches=1 --exclude="$dp64_exclude")
 
 submit() {
   if [[ "$DRY_RUN" == 1 ]]; then
@@ -35,24 +41,24 @@ fi
 sbatch_file="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch"
 common="ALL,FULL8_CODE_ROOT=$FULL8_CODE_ROOT,FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,FULL8_STAGE_ROOT=$FULL8_STAGE_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_RECIPE=$FULL8_RECIPE,FULL8_PROFILES=$FULL8_PROFILES,FULL8_BENCHMARK_MODE=1"
 initial_common="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=160"
-control=$(submit --nodes=16 --time=02:00:00 --job-name=full8b-dp32-control \
+control=$(submit "${dp32_placement[@]}" --nodes=16 --time=02:00:00 --job-name=full8b-dp32-control \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$initial_common,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/control_dp32,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=0,FULL8_END_ITERATION=288,FULL8_LOAD_CHECKPOINT=$FULL8_INITIAL_MEGATRON" \
   "$sbatch_file")
-candidate=$(submit --nodes=32 --time=02:00:00 --job-name=full8b-dp64-candidate \
+candidate=$(submit "${dp64_placement[@]}" --nodes=32 --time=02:00:00 --job-name=full8b-dp64-candidate \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$initial_common,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/candidate_dp64,FULL8_EXECUTION_PROFILE=dp64_32node,FULL8_START_ITERATION=0,FULL8_END_ITERATION=288,FULL8_LOAD_CHECKPOINT=$FULL8_INITIAL_MEGATRON" \
   "$sbatch_file")
 
-control_restart=$(submit --nodes=16 --time=00:20:00 --job-name=full8b-dp32-restart --dependency="afterok:$control" \
+control_restart=$(submit "${dp32_placement[@]}" --nodes=16 --time=00:20:00 --job-name=full8b-dp32-restart --dependency="afterok:$control" \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/control_dp32,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/control_dp32/checkpoints" \
   "$sbatch_file")
-candidate_restart=$(submit --nodes=32 --time=00:20:00 --job-name=full8b-dp64-restart --dependency="afterok:$candidate" \
+candidate_restart=$(submit "${dp64_placement[@]}" --nodes=32 --time=00:20:00 --job-name=full8b-dp64-restart --dependency="afterok:$candidate" \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/candidate_dp64,FULL8_EXECUTION_PROFILE=dp64_32node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/candidate_dp64/checkpoints" \
   "$sbatch_file")
-control_restart_repeat=$(submit --nodes=16 --time=00:20:00 --job-name=full8b-dp32-restart-r2 --dependency="afterok:$control" \
+control_restart_repeat=$(submit "${dp32_placement[@]}" --nodes=16 --time=00:20:00 --job-name=full8b-dp32-restart-r2 --dependency="afterok:$control" \
   --output="$FULL8_BENCHMARK_ROOT/logs/%x-%j.out" --error="$FULL8_BENCHMARK_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=,FULL8_EXACT_LOAD_ITERATION=160,FULL8_RUN_ROOT=$FULL8_BENCHMARK_ROOT/control_dp32_repeat,FULL8_EXECUTION_PROFILE=dp32_16node,FULL8_START_ITERATION=160,FULL8_END_ITERATION=161,FULL8_LOAD_CHECKPOINT=$FULL8_BENCHMARK_ROOT/control_dp32/checkpoints" \
   "$sbatch_file")

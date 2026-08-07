@@ -89,6 +89,7 @@ def common_export(args: argparse.Namespace) -> str:
             f"FULL8_PRELAUNCH_ROOT={args.prelaunch_root}",
             f"FULL8_RECIPE={args.recipe}",
             f"FULL8_PROFILES={args.profiles}",
+            f"FULL8_TRAIN_LEAF_SWITCH={args.train_leaf_switch}",
     ]
     if args.prequeued_manifest is not None:
         values.append(f"FULL8_PREQUEUED_MANIFEST={args.prequeued_manifest}")
@@ -172,7 +173,7 @@ def submit_attempt(args: argparse.Namespace, *, segment: int, attempt: int, star
         )
     )
     train = submit([
-        "sbatch", "--parsable", f"--nodes={args.nodes}", f"--job-name=full8b_s{segment}a{attempt}",
+        "sbatch", "--parsable", "--switches=1", f"--exclude={args.train_exclude}", f"--nodes={args.nodes}", f"--job-name=full8b_s{segment}a{attempt}",
         f"--output={logs}/%x-%j.out", f"--error={logs}/%x-%j.err", f"--export={exports}",
         str(args.code_root / "subprojects/07_full_8b_cpt/clariden/train_segment.sbatch"),
     ])
@@ -195,6 +196,7 @@ def main() -> int:
     parser.add_argument("--selected-profile", type=Path, required=True)
     parser.add_argument("--launch-gate", type=Path, required=True)
     parser.add_argument("--prelaunch-root", type=Path, required=True)
+    parser.add_argument("--train-leaf-switch", required=True)
     parser.add_argument("--prequeued-manifest", type=Path)
     parser.add_argument("--segment-id", type=int, required=True)
     parser.add_argument("--attempt", type=int, required=True)
@@ -209,6 +211,18 @@ def main() -> int:
     args.profile_id = selected["selection"]["profile_id"]
     args.boundaries = [int(value) for value in selected["selection"]["segment_boundaries"]]
     args.nodes = int(selected["selection"]["nodes"])
+    args.train_exclude = subprocess.run(
+        [
+            str(args.code_root / "subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh"),
+            args.train_leaf_switch,
+            str(args.nodes),
+        ],
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+    if not args.train_exclude:
+        raise ValueError("empty leaf-switch exclusion")
     args.recipe = args.stage_root / "contracts/recipe_8b_full_mixed.sanitized.json"
     args.profiles = args.stage_root / "contracts/execution_profiles.sanitized.json"
     if not 0 <= args.segment_id < len(args.boundaries) - 1:

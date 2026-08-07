@@ -230,8 +230,9 @@ control outside this explicit restart-provenance and numerical-equivalence
 gate fails the whole benchmark rather than becoming the production profile by
 default.
 
-Multi-node training allocations also require `--switches=1` and verify the
-actual allocation against Clariden's leaf-switch topology before model setup.
+Multi-node training allocations also require `--switches=1`, exclude every
+node outside a predeclared Clariden leaf group, and verify the actual allocation
+against Clariden's live leaf-switch topology before model setup.
 The sanitized v36 parity attempt was spread over six leaf switches and showed
 8.7--72.0 second updates, versus the proven approximately 8.74-second DP32
 single-switch trajectory. The allocation leaf switch and nodelist are recorded

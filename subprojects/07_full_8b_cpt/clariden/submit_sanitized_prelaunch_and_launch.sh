@@ -9,6 +9,7 @@ set -euo pipefail
 : "${FULL8_BENCHMARK_ROOT:?set completed sanitized benchmark root}"
 : "${FULL8_HF_VISIBILITY_SOURCE:?set completed public-dataset receipt}"
 : "${FULL8_LAUNCH_AUTHORIZATION:?set explicit launch authorization}"
+: "${FULL8_TRAIN_LEAF_SWITCH:?set pinned Clariden leaf switch for training}"
 DRY_RUN=${DRY_RUN:-1}
 [[ "$DRY_RUN" == 0 || "$DRY_RUN" == 1 ]] || { echo "DRY_RUN must be 0 or 1" >&2; exit 2; }
 [[ "$FULL8_LAUNCH_AUTHORIZATION" == APERTUS8B_FULL_MIXED_CPT ]] || { echo "invalid launch authorization" >&2; exit 2; }
@@ -92,7 +93,8 @@ import json,sys
 print(json.load(open(sys.argv[1]))["selection"]["profile_id"])
 PY
 )
-source_validation=$(submit --nodes="$nodes" \
+train_exclude=$("$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$FULL8_TRAIN_LEAF_SWITCH" "$nodes")
+source_validation=$(submit --switches=1 --exclude="$train_exclude" --nodes="$nodes" \
   --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
   --export="$common,FULL8_RUN_ROOT=$FULL8_PRELAUNCH_ROOT/initial_source_validation,FULL8_START_ITERATION=0,FULL8_END_ITERATION=$first_end,FULL8_LOAD_CHECKPOINT=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_VALIDATION_ONLY=1,FULL8_EXECUTION_PROFILE=$profile_id" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch")
@@ -117,6 +119,7 @@ conversion_gate=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["gate"
 graceful=$(DRY_RUN="$DRY_RUN" FULL8_CODE_ROOT="$FULL8_CODE_ROOT" FULL8_CODE_BUNDLE_RECEIPT="$FULL8_CODE_BUNDLE_RECEIPT" \
   FULL8_STAGE_ROOT="$FULL8_STAGE_ROOT" FULL8_INITIAL_MEGATRON="$FULL8_INITIAL_MEGATRON" \
   FULL8_SMOKE_RUN_ROOT="$smoke_root" FULL8_SELECTED_PROFILE="$selected" \
+  FULL8_TRAIN_LEAF_SWITCH="$FULL8_TRAIN_LEAF_SWITCH" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/submit_graceful_stop_smoke.sh")
 graceful_gate=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["resume_coordinator"])' <<<"$graceful")
 graceful_wait=$(submit --dependency="afterok:$graceful_gate" \
@@ -127,7 +130,7 @@ graceful_wait=$(submit --dependency="afterok:$graceful_gate" \
 handoff_dependency="afterok:$source_validation:$greek:$doc:$freeze_init:$packed:$nested_wait:$conversion_gate:$graceful_wait"
 handoff=$(submit --dependency="$handoff_dependency" \
   --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
-  --export="$common,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_BENCHMARK_ROOT=$FULL8_BENCHMARK_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_CHECKPOINT_RECEIPT=$initial_checkpoint_receipt,FULL8_INITIAL_HF_RECEIPT=$initial_hf_receipt,FULL8_INITIAL_VALIDATION_RECEIPT=$initial_validation_receipt,FULL8_INITIAL_GREEKMMLU_RECEIPT=$initial_greek_receipt,FULL8_INITIAL_PER_DOCUMENT_ROOT=$per_document_root,FULL8_PACKED_PAYLOAD_INTEGRITY=$packed_integrity,FULL8_CONVERSION_SMOKE_RECEIPT=$conversion_receipt,FULL8_GRACEFUL_STOP_SMOKE=$graceful_receipt,FULL8_NESTED_SBATCH_PROOF=$nested_proof,FULL8_RUN_ROOT=$FULL8_PRODUCTION_RUN_ROOT,FULL8_LAUNCH_AUTHORIZATION=$FULL8_LAUNCH_AUTHORIZATION" \
+  --export="$common,FULL8_PRELAUNCH_ROOT=$FULL8_PRELAUNCH_ROOT,FULL8_BENCHMARK_ROOT=$FULL8_BENCHMARK_ROOT,FULL8_INITIAL_MEGATRON=$FULL8_INITIAL_MEGATRON,FULL8_INITIAL_CHECKPOINT_RECEIPT=$initial_checkpoint_receipt,FULL8_INITIAL_HF_RECEIPT=$initial_hf_receipt,FULL8_INITIAL_VALIDATION_RECEIPT=$initial_validation_receipt,FULL8_INITIAL_GREEKMMLU_RECEIPT=$initial_greek_receipt,FULL8_INITIAL_PER_DOCUMENT_ROOT=$per_document_root,FULL8_PACKED_PAYLOAD_INTEGRITY=$packed_integrity,FULL8_CONVERSION_SMOKE_RECEIPT=$conversion_receipt,FULL8_GRACEFUL_STOP_SMOKE=$graceful_receipt,FULL8_NESTED_SBATCH_PROOF=$nested_proof,FULL8_RUN_ROOT=$FULL8_PRODUCTION_RUN_ROOT,FULL8_LAUNCH_AUTHORIZATION=$FULL8_LAUNCH_AUTHORIZATION,FULL8_TRAIN_LEAF_SWITCH=$FULL8_TRAIN_LEAF_SWITCH" \
   "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/finalize_and_submit_production.sbatch")
 
 graph=$(python3 - "$nested" "$nested_wait" "$freeze_init" "$materialize_hf" "$source_validation" "$greek" "$doc" "$packed" "$conversion_gate" "$graceful_gate" "$graceful_wait" "$handoff" <<'PY'
