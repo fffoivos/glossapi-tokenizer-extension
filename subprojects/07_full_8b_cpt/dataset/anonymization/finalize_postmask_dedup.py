@@ -84,13 +84,19 @@ class DropWriters:
         self.handles: collections.OrderedDict[int, IO[str]] = collections.OrderedDict()
         self.counts: collections.Counter[int] = collections.Counter()
 
-    def write(self, task_index: int, doc_id: str, reason: str) -> None:
+    def write(
+        self, task_index: int, doc_id: str, masked_sha256: str, reason: str
+    ) -> None:
         handle = self.handles.pop(task_index, None)
         if handle is None:
             path = self.root / f"task_{task_index:05d}.drops.tsv"
             handle = path.open("a", encoding="ascii")
         self.handles[task_index] = handle
-        handle.write(f"{doc_id}\t{reason}\n")
+        # doc_id is not guaranteed to identify one physical source row.  Bind
+        # each decision to the masked content and preserve repeated lines as a
+        # multiplicity count.  The shard builder consumes exactly this many
+        # occurrences of (doc_id, masked_sha256), leaving the selected survivor.
+        handle.write(f"{doc_id}\t{masked_sha256}\t{reason}\n")
         self.counts[task_index] += 1
         if len(self.handles) > self.limit:
             _, oldest = self.handles.popitem(last=False)
@@ -209,7 +215,9 @@ def main() -> int:
             validation_collision_groups += 1
             validation_collision_documents += len(rows)
             for task_index, doc_id in rows:
-                writers.write(task_index, doc_id, "validation_content_collision")
+                writers.write(
+                    task_index, doc_id, digest, "validation_content_collision"
+                )
             return
         kept_documents += 1
         if len(rows) > 1:
@@ -219,7 +227,9 @@ def main() -> int:
             if prioritized[0] != rows[0]:
                 old_greek_priority_overrides += 1
             for task_index, doc_id in prioritized[1:]:
-                writers.write(task_index, doc_id, "postmask_exact_duplicate")
+                writers.write(
+                    task_index, doc_id, digest, "postmask_exact_duplicate"
+                )
 
     with sorted_path.open("r", encoding="ascii") as handle:
         for line in handle:
@@ -259,6 +269,7 @@ def main() -> int:
             "survivor_reason": "preserve_exactly_once_global_dedup_and_the_predeclared_1pct_old_greek_capacity",
             "validation_collision_action": "drop_all_training_rows",
             "validation_representation": "union_of_raw_and_masked_frozen_utf8_text",
+            "drop_identity": "doc_id_plus_masked_sha256_with_row_multiplicity_v1",
         },
         "counts": {
             "tasks": task_count,

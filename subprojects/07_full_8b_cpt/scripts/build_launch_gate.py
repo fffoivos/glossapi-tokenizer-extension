@@ -121,12 +121,14 @@ def main() -> int:
         or sha256_file(postmask_path) != postmask_binding.get("sha256")
     ):
         raise ValueError("post-mask deduplication binding drift")
-    postmask = status(postmask_path, {"full_cpt_postmask_deduplication_v1"})
+    postmask = status(postmask_path, {"full_cpt_postmask_deduplication_v2"})
     if (
         postmask.get("policy", {}).get("validation_representation")
         != "union_of_raw_and_masked_frozen_utf8_text"
         or postmask.get("policy", {}).get("survivor")
         != "old_greek_replay_first_then_lowest_task_index_then_document_id"
+        or postmask.get("policy", {}).get("drop_identity")
+        != "doc_id_plus_masked_sha256_with_row_multiplicity_v1"
     ):
         raise ValueError("post-mask deduplication policy drift")
     recipe_sanitized = recipe.get("data", {}).get("sanitized_source_receipt", {})

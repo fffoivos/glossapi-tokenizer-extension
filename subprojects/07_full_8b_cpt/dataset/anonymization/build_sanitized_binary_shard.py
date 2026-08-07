@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import collections
 import hashlib
 import json
 import multiprocessing as mp
@@ -35,7 +36,6 @@ from pii_masker import mask
 
 
 PARENT: Any = None
-DROP_IDS: set[str] = set()
 
 
 def worker_init(tokenizer_dir: str, vocab_size: int, tokenizer_sha: str) -> None:
@@ -51,8 +51,6 @@ def encode(record: tuple[str, str]) -> dict[str, Any]:
             return {"doc_id": doc_id, "drop": "greekmmlu", "reason": reason, "evidence": evidence, "raw_sha256": raw_sha}
     masked, pii = mask(text)
     masked_sha = hashlib.sha256(masked.encode("utf-8")).hexdigest()
-    if doc_id in DROP_IDS:
-        return {"doc_id": doc_id, "drop": "postmask", "raw_sha256": raw_sha, "masked_sha256": masked_sha, "pii": pii, "changed": masked != text}
     token_ids = PARENT._TOKENIZER.encode(masked, add_special_tokens=False).ids
     token_ids.append(PARENT._EOS_ID)
     if not token_ids or min(token_ids) < 0 or max(token_ids) >= PARENT._VOCAB_SIZE:
@@ -68,26 +66,45 @@ def encode(record: tuple[str, str]) -> dict[str, Any]:
     }
 
 
-def load_drops(receipt: dict[str, Any], task_index: int) -> tuple[set[str], dict[str, Any]]:
+def load_drops(
+    receipt: dict[str, Any], task_index: int
+) -> tuple[collections.Counter[tuple[str, str]], dict[str, Any]]:
     matches = [row for row in receipt.get("task_drop_files", []) if int(row["task_index"]) == task_index]
     if not matches:
-        return set(), {"rows": 0}
+        return collections.Counter(), {"rows": 0}
     if len(matches) != 1:
         raise ValueError("duplicate task drop-file receipts")
     row = matches[0]
     path = validate_file_receipt(row)
-    result: set[str] = set()
+    result: collections.Counter[tuple[str, str]] = collections.Counter()
     with path.open("r", encoding="ascii") as handle:
         for line in handle:
             fields = line.rstrip("\n").split("\t")
-            if len(fields) != 2 or fields[1] not in {"postmask_exact_duplicate", "validation_content_collision"}:
+            if (
+                len(fields) != 3
+                or len(fields[1]) != 64
+                or fields[2]
+                not in {"postmask_exact_duplicate", "validation_content_collision"}
+            ):
                 raise ValueError(f"malformed drop row: {path}")
-            if fields[0] in result:
-                raise ValueError(f"duplicate document in task drop file: {path}")
-            result.add(fields[0])
-    if len(result) != int(row["rows"]):
+            int(fields[1], 16)
+            result[(fields[0], fields[1])] += 1
+    if sum(result.values()) != int(row["rows"]):
         raise ValueError("task drop-file row accounting drift")
     return result, dict(row)
+
+
+def consume_postmask_drop(
+    remaining: collections.Counter[tuple[str, str]], doc_id: str, masked_sha256: str
+) -> bool:
+    """Consume one row-level drop while preserving any selected survivor."""
+    key = (doc_id, masked_sha256)
+    if remaining[key] <= 0:
+        return False
+    remaining[key] -= 1
+    if remaining[key] == 0:
+        del remaining[key]
+    return True
 
 
 def validate_resume(path: Path, task: dict[str, Any], overlay_sha: str, dedup_sha: str) -> bool:
@@ -147,8 +164,10 @@ def main() -> int:
         or dedup.get("overlay_sha256") != sha256_file(overlay_path)
     ):
         raise ValueError("post-mask deduplication receipt is not valid for this overlay")
-    global DROP_IDS, PARENT
-    DROP_IDS, drop_binding = load_drops(dedup, args.task_index)
+    drop_counts, drop_binding = load_drops(dedup, args.task_index)
+    remaining_drops = drop_counts.copy()
+    expected_postmask_dropped_rows = sum(drop_counts.values())
+    global PARENT
     PARENT = import_parent_builder()
     if task["decontaminate_greekmmlu"]:
         PARENT._install_decontaminator(parent)
@@ -209,7 +228,9 @@ def main() -> int:
             for name in ("email", "ip", "iban"):
                 counters[f"{name}_matches"] += int(result["pii"][name])
             counters["masked_documents"] += int(result["changed"])
-            if result["drop"] == "postmask":
+            if consume_postmask_drop(
+                remaining_drops, result["doc_id"], result["masked_sha256"]
+            ):
                 counters["postmask_dropped_rows"] += 1
                 dropped.write(json.dumps({
                     "doc_id": result["doc_id"], "reason": "postmask_dedup_or_validation_collision",
@@ -237,7 +258,9 @@ def main() -> int:
         raise RuntimeError("sanitized binary byte accounting does not close")
     if counters["candidate_rows"] != counters["documents"] + counters["contaminated_rows"] + counters["postmask_dropped_rows"]:
         raise RuntimeError("sanitized candidate accounting does not close")
-    if counters["postmask_dropped_rows"] != len(DROP_IDS):
+    if remaining_drops:
+        raise RuntimeError("task post-mask drop identities do not close")
+    if counters["postmask_dropped_rows"] != expected_postmask_dropped_rows:
         raise RuntimeError("task post-mask drop receipt does not close")
     for key, path in outputs.items():
         os.replace(temporary[key], path)

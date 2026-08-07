@@ -37,7 +37,7 @@ from bridge_common import (  # noqa: E402
 
 OVERLAY_SCHEMA = "full_cpt_anonymization_overlay_v1"
 INVENTORY_SCHEMA = "full_cpt_anonymization_task_inventory_v1"
-DEDUP_SCHEMA = "full_cpt_postmask_deduplication_v1"
+DEDUP_SCHEMA = "full_cpt_postmask_deduplication_v2"
 SHARD_SCHEMA = "full_cpt_megatron_shard_v1"
 
 

@@ -15,6 +15,12 @@ pre-sanitization trajectory remains exploratory evidence only.
 - Globally exact-deduplicate the masked text. Training is also checked against
   the union of raw and masked representations of every frozen validation
   document.
+- Materialize each dedup decision by `(doc_id, masked SHA-256)` and preserve its
+  row multiplicity. `doc_id` alone is not a physical-row identity: v7 found 27
+  repeated IDs spanning 32 additional records in one shard. A set of document
+  IDs could therefore drop the wrong text or every copy. The v2 receipt keeps
+  one selected row per masked-text group and the shard gate consumes exactly
+  the recorded number of matching occurrences.
 - Within a safe duplicate group, prefer the quota-limited Old-Greek replay row
   and otherwise preserve the legacy lowest-task-index/document-ID ordering.
   This transfers ownership only: every exact text still survives once. The
@@ -71,3 +77,7 @@ Checkpoint averaging remains disabled.
   The distributed per-task drop-ledger tail is materially slower than v6's two
   concentrated Old-Greek ledgers; the checked-in default is one hour. Forecast
   this step from sorted-catalog read progress, not drop-ledger byte growth.
+- Treat a shard accounting failure as an artifact-contract failure, not as a
+  retryable scheduler event. Preserve completed outputs, diagnose the exact
+  identity mismatch, and start a new stage when the dedup receipt schema or
+  contents change; never weaken a row-closure assertion to make the shard pass.
