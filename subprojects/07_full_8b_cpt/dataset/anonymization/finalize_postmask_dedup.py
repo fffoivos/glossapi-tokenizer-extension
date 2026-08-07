@@ -114,6 +114,20 @@ def parse_catalog_line(line: str) -> tuple[str, int, str]:
     return fields[0], task_index, doc_id
 
 
+def survivor_key(tasks: list[dict[str, Any]], task_index: int, doc_id: str) -> tuple[int, int, str]:
+    """Prefer quota-limited Old-Greek replay, then preserve the legacy ordering.
+
+    The original task-index rule accidentally made the two Old-Greek replay
+    tasks (the final tasks in the frozen overlay) lose every cross-pool exact
+    duplicate.  That destroyed the capacity required for the predeclared 1%
+    replay stream.  The text still survives only once: ownership is transferred
+    to Old Greek when a duplicate group contains an Old-Greek replay row.
+    """
+    task = tasks[task_index]
+    old_greek_priority = 0 if task.get("pool") == "old_greek_replay" else 1
+    return old_greek_priority, task_index, doc_id
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--overlay", type=Path, required=True)
@@ -181,12 +195,14 @@ def main() -> int:
     validation_collision_documents = 0
     kept_documents = 0
     observed_rows = 0
+    old_greek_priority_overrides = 0
     current_hash: str | None = None
     group: list[tuple[int, str]] = []
 
     def close_group(digest: str | None, rows: list[tuple[int, str]]) -> None:
         nonlocal duplicate_groups, duplicate_documents
         nonlocal validation_collision_groups, validation_collision_documents, kept_documents
+        nonlocal old_greek_priority_overrides
         if digest is None or not rows:
             return
         if digest in validation_set:
@@ -199,7 +215,10 @@ def main() -> int:
         if len(rows) > 1:
             duplicate_groups += 1
             duplicate_documents += len(rows) - 1
-            for task_index, doc_id in rows[1:]:
+            prioritized = sorted(rows, key=lambda row: survivor_key(tasks, row[0], row[1]))
+            if prioritized[0] != rows[0]:
+                old_greek_priority_overrides += 1
+            for task_index, doc_id in prioritized[1:]:
                 writers.write(task_index, doc_id, "postmask_exact_duplicate")
 
     with sorted_path.open("r", encoding="ascii") as handle:
@@ -236,7 +255,8 @@ def main() -> int:
         "policy": {
             "key": "sha256(masked_utf8_text)",
             "scope": "all_training_pools_and_phases",
-            "survivor": "lowest_task_index_then_document_id",
+            "survivor": "old_greek_replay_first_then_lowest_task_index_then_document_id",
+            "survivor_reason": "preserve_exactly_once_global_dedup_and_the_predeclared_1pct_old_greek_capacity",
             "validation_collision_action": "drop_all_training_rows",
             "validation_representation": "union_of_raw_and_masked_frozen_utf8_text",
         },
@@ -247,6 +267,7 @@ def main() -> int:
             "dropped_documents": dropped_documents,
             "duplicate_groups": duplicate_groups,
             "duplicate_documents_dropped": duplicate_documents,
+            "old_greek_priority_overrides": old_greek_priority_overrides,
             "validation_unique_hashes": len(validation_set),
             "validation_hash_representations": validation_hash_counts,
             "validation_collision_groups": validation_collision_groups,

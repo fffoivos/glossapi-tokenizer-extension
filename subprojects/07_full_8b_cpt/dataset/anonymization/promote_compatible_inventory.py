@@ -101,8 +101,8 @@ def main() -> int:
             "payload": dict(prior_manifest["output"]),
         })
 
-    if not promoted or not changed:
-        raise ValueError("reuse gate expected both compatible and changed tasks")
+    if not promoted and not already_built:
+        raise ValueError("reuse gate did not find any compatible inventory")
     if any(tasks[index].get("source_name") != "cleaned_greek_v2" for index in changed):
         raise ValueError("a non-Modern-Greek task unexpectedly changed")
     payload = {
@@ -116,6 +116,7 @@ def main() -> int:
             "promoted_identical_tasks": len(promoted),
             "compatible_tasks_already_built_by_smoke": len(already_built),
             "changed_tasks_requiring_rebuild": len(changed),
+            "all_tasks_inventory_compatible": not changed,
         },
         "promoted": promoted,
         "changed_task_indices_sha256": canonical_sha256(changed),

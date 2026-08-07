@@ -27,6 +27,16 @@ from anonymization_common import (
 from bridge_common import iter_index_lengths, task_output_prefix
 
 
+def nearest_ratio_total(modern: int) -> int:
+    quotient, remainder = divmod(modern * 100, 79)
+    return quotient + int(remainder * 2 >= 79)
+
+
+def nearest_percent(total: int) -> int:
+    quotient, remainder = divmod(total, 100)
+    return quotient + int(remainder * 2 >= 100)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--overlay", type=Path, required=True)
@@ -132,6 +142,38 @@ def main() -> int:
         raise ValueError("heldout binary inventory does not close")
 
     modern_tokens = pool_counts["hplt_new_greek"]["tokens"] + pool_counts["non_hplt_new_greek"]["tokens"]
+    active_tokens = nearest_ratio_total(modern_tokens)
+    old_greek_target = nearest_percent(active_tokens)
+    foreign_target = active_tokens - modern_tokens - old_greek_target
+    foreign_available = pool_counts["foreign_replay"]["tokens"]
+    old_greek_available = pool_counts["old_greek_replay"]["tokens"]
+    if foreign_available < foreign_target:
+        raise ValueError(
+            f"foreign replay capacity below exact 20% quota: {foreign_available} < {foreign_target}"
+        )
+    if old_greek_available < old_greek_target:
+        raise ValueError(
+            f"Old-Greek replay capacity below exact 1% quota: {old_greek_available} < {old_greek_target}"
+        )
+    capacity = {
+        "status": "passed",
+        "policy": "integer_nearest_79_20_1_v1",
+        "active_tokens": active_tokens,
+        "targets": {
+            "modern": modern_tokens,
+            "foreign": foreign_target,
+            "old_greek": old_greek_target,
+        },
+        "available": {
+            "modern": modern_tokens,
+            "foreign": foreign_available,
+            "old_greek": old_greek_available,
+        },
+        "capacity_margin": {
+            "foreign": foreign_available - foreign_target,
+            "old_greek": old_greek_available - old_greek_target,
+        },
+    }
     payload = {
         "schema_version": "full_cpt_sanitized_training_bridge_v1",
         "status": "completed",
@@ -149,6 +191,7 @@ def main() -> int:
             "foreign": pool_counts["foreign_replay"]["tokens"],
             "old_greek": pool_counts["old_greek_replay"]["tokens"],
         },
+        "stationary_79_20_1_capacity": capacity,
         "anonymization": overlay["anonymization"],
         "eligibility": overlay["eligibility"],
         "validation_is_raw_and_frozen": True,

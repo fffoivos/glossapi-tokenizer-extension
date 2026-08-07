@@ -81,6 +81,18 @@ def main() -> int:
     sanitized = status(
         sanitized_path, {"full_cpt_sanitized_training_bridge_v1"}
     )
+    capacity = sanitized.get("stationary_79_20_1_capacity", {})
+    capacity_targets = capacity.get("targets", {})
+    capacity_available = capacity.get("available", {})
+    if (
+        capacity.get("status") != "passed"
+        or capacity.get("policy") != "integer_nearest_79_20_1_v1"
+        or int(capacity_available.get("foreign", -1))
+        < int(capacity_targets.get("foreign", 0))
+        or int(capacity_available.get("old_greek", -1))
+        < int(capacity_targets.get("old_greek", 0))
+    ):
+        raise ValueError("sanitized bridge lacks exact 79/20/1 replay capacity")
     eligibility_binding = sanitized.get("eligibility_audit", {})
     eligibility_path = Path(eligibility_binding.get("path", ""))
     if (
@@ -113,8 +125,10 @@ def main() -> int:
     if (
         postmask.get("policy", {}).get("validation_representation")
         != "union_of_raw_and_masked_frozen_utf8_text"
+        or postmask.get("policy", {}).get("survivor")
+        != "old_greek_replay_first_then_lowest_task_index_then_document_id"
     ):
-        raise ValueError("masked validation-collision policy drift")
+        raise ValueError("post-mask deduplication policy drift")
     recipe_sanitized = recipe.get("data", {}).get("sanitized_source_receipt", {})
     if (
         recipe.get("recipe_id") != "full8b-mixed-79-20-1-wsd10-sanitized-v1"
