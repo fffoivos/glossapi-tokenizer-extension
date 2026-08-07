@@ -21,8 +21,7 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
   --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
 export FULL8_NESTED_RANK_TORCHRUN FULL8_NESTED_RANK_MEGATRON
-rank_runtime=$(uenv run pytorch/v2.9.1:v2 --view=default -- \
-  srun --nodes=1 --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1 --cpu-bind=cores \
+rank_runtime=$(srun --nodes=1 --ntasks=1 --ntasks-per-node=1 --cpus-per-task=1 --cpu-bind=cores \
   bash -lc "exec uenv run pytorch/v2.9.1:v2 --view=default -- bash -lc 'export PYTHONPATH=\"$RUNTIME_COMPAT:$MEGATRON:$TRAINING_CODE\"; command -v torchrun; python3 -c \"import megatron\"; printf \"%s\\n\" megatron-import-ok'")
 FULL8_NESTED_RANK_TORCHRUN=$(printf '%s\n' "$rank_runtime" | sed -n '1p')
 FULL8_NESTED_RANK_MEGATRON=$(printf '%s\n' "$rank_runtime" | sed -n '2p')

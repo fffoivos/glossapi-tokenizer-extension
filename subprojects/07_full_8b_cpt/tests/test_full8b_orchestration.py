@@ -412,6 +412,26 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertNotIn("from validate_execution_profile import validate", train)
         self.assertNotIn("rsplit('/', 2)[0] + '/scripts'", train)
 
+    def test_rank_local_uenv_is_not_nested_inside_an_outer_uenv_session(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        nested = (ROOT / "clariden/nested_sbatch_child.sbatch").read_text()
+        self.assertNotIn(
+            'uenv run pytorch/v2.9.1:v2 --view=default -- \\\n+    srun --nodes="$NODES" --ntasks="$NODES"',
+            train,
+        )
+        self.assertNotIn(
+            "rank_runtime=$(uenv run pytorch/v2.9.1:v2 --view=default --",
+            nested,
+        )
+        self.assertIn(
+            'exec uenv run pytorch/v2.9.1:v2 --view=default -- bash -lc',
+            train,
+        )
+        self.assertIn(
+            'rank_runtime=$(srun --nodes=1',
+            nested,
+        )
+
     def test_graceful_stop_smokes_use_the_real_bundle_verifier(self) -> None:
         for name in (
             "signal_graceful_stop_smoke.sbatch",

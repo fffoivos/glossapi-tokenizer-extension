@@ -107,3 +107,9 @@ intervention, and cooldown recovery must remain measurable.
   Its 16-node control failed before training; the dependent 32-node arm was
   cancelled before allocation. A replacement bundle must pass the exact CLI
   preflight and the full DP benchmark graph before it can produce a launch gate.
+- Start `srun` from the ordinary batch environment and mount the pinned uenv
+  once inside each node-local rank launcher. Wrapping `srun` in `uenv run` and
+  then invoking `uenv run` again inside its tasks is invalid on Clariden; the
+  v34 DP32 control failed before its first optimizer update with the explicit
+  `a uenv session is already running` guard. The nested-submit proof must use
+  the same single-mount rank pattern as training.
