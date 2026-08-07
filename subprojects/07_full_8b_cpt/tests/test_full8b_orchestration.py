@@ -404,6 +404,27 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 ], check=True, capture_output=True, text=True,
             )
 
+    def test_training_launcher_uses_the_dependency_closed_profile_cli(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertIn('PROFILE_RECEIPT="$SEGMENT_ROOT/execution_profile.json"', train)
+        self.assertIn('scripts/validate_execution_profile.py"', train)
+        self.assertIn('--output "$PROFILE_RECEIPT"', train)
+        self.assertNotIn("from validate_execution_profile import validate", train)
+        self.assertNotIn("rsplit('/', 2)[0] + '/scripts'", train)
+
+    def test_graceful_stop_smokes_use_the_real_bundle_verifier(self) -> None:
+        for name in (
+            "signal_graceful_stop_smoke.sbatch",
+            "resume_graceful_stop_smoke.sbatch",
+            "finalize_graceful_stop_smoke.sbatch",
+        ):
+            wrapper = (ROOT / "clariden" / name).read_text()
+            self.assertIn(
+                "06_dataset_scheduling_experiments/production/verify_code_bundle.py",
+                wrapper,
+            )
+            self.assertNotIn('scripts/contract.py" verify-code-bundle', wrapper)
+
     def test_owner_decisions_record_risk_without_legal_claim(self) -> None:
         subprocess.run(
             [

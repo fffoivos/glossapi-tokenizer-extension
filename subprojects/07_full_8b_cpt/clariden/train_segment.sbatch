@@ -126,11 +126,17 @@ uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
   echo "missing frozen checkpoint compatibility shim" >&2; exit 2;
 }
 
-readarray -t profile < <(uenv run pytorch/v2.9.1:v2 --view=default -- python3 - "$RECIPE" "$PROFILES" "$PROFILE_ID" <<'PY'
+PROFILE_RECEIPT="$SEGMENT_ROOT/execution_profile.json"
+uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
+  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/validate_execution_profile.py" \
+  --recipe "$RECIPE" --profiles "$PROFILES" --profile-id "$PROFILE_ID" \
+  --output "$PROFILE_RECEIPT"
+readarray -t profile < <(python3 - "$RECIPE" "$PROFILE_RECEIPT" <<'PY'
 import json,sys
-sys.path.insert(0, sys.argv[1].rsplit('/', 2)[0] + '/scripts')
-from validate_execution_profile import validate
-r=json.load(open(sys.argv[1])); p=json.load(open(sys.argv[2])); v=validate(r,p,sys.argv[3])
+r=json.load(open(sys.argv[1])); receipt=json.load(open(sys.argv[2]))
+if receipt.get("schema_version") != "apertus_full_8b_selected_execution_profile_v1" or receipt.get("status") != "frozen":
+ raise SystemExit("execution-profile receipt drift")
+v=receipt["selection"]
 for key in ("nodes","world_size","data_parallel","gradient_accumulation_steps"):
  print(f"{key}\t{v[key]}")
 print("boundaries\t" + ",".join(map(str,v["segment_boundaries"])))

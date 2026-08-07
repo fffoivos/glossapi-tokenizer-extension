@@ -15,7 +15,7 @@ set -euo pipefail
 : "${FULL8_SMOKE_RUN_ROOT:?set smoke root}"
 : "${FULL8_SMOKE_TRAIN_JOB:?set training job id}"
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
-  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/contract.py" verify-code-bundle \
+  "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
   --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
 log="$FULL8_SMOKE_RUN_ROOT/segments/updates_0_288/training.log"
 for _ in $(seq 1 600); do

@@ -19,7 +19,7 @@ set -euo pipefail
 : "${FULL8_EXECUTION_PROFILE:?set selected profile id}"
 : "${FULL8_SMOKE_NODES:?set selected profile node count}"
 uenv run pytorch/v2.9.1:v2 --view=default -- python3 \
-  "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/scripts/contract.py" verify-code-bundle \
+  "$FULL8_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
   --root "$FULL8_CODE_ROOT" --receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific
 interrupted="$FULL8_SMOKE_RUN_ROOT/segments/updates_0_288"
 receipt="$interrupted/training_job_receipt.json"

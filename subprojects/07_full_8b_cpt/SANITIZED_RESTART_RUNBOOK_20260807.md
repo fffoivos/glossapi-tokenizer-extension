@@ -100,3 +100,10 @@ intervention, and cooldown recovery must remain measurable.
   retryable scheduler event. Preserve completed outputs, diagnose the exact
   identity mismatch, and start a new stage when the dedup receipt schema or
   contents change; never weaken a row-closure assertion to make the shard pass.
+- Run execution-profile validation through the frozen bundle's CLI before
+  launching ranks. Do not import it by deriving a Python path from the data
+  recipe: the first sanitized benchmark attempt did that and resolved
+  `stage/scripts` instead of `code_bundle/subprojects/07_full_8b_cpt/scripts`.
+  Its 16-node control failed before training; the dependent 32-node arm was
+  cancelled before allocation. A replacement bundle must pass the exact CLI
+  preflight and the full DP benchmark graph before it can produce a launch gate.
