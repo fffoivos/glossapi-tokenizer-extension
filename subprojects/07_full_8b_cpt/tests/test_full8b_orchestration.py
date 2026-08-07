@@ -716,6 +716,13 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("DRY_RUN", submit)
         self.assertIn('[[ ! -e "$FULL8_BENCHMARK_ROOT" ]]', submit)
 
+    def test_conversion_smoke_resolves_dp32_fallback_parity_checkpoint(self) -> None:
+        wrapper = (ROOT / "clariden/submit_conversion_smoke.sh").read_text()
+        self.assertIn("apertus_full_8b_dp32_fallback_selection_v1", wrapper)
+        self.assertIn('parity.name != "checkpoint_parity_receipt.json"', wrapper)
+        self.assertIn('parity.parent / "control_dp32/checkpoints"', wrapper)
+        self.assertIn('[[ -d "$source" ]]', wrapper)
+
     def test_benchmark_fixed_startup_is_amortized_over_production_segment(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

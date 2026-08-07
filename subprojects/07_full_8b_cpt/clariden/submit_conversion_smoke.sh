@@ -22,9 +22,28 @@ PY
 )
 case "$profile" in
   dp64_32node) source="$FULL8_BENCHMARK_ROOT/candidate_dp64/checkpoints" ;;
-  dp32_16node) source="$FULL8_BENCHMARK_ROOT/control_dp32/checkpoints" ;;
+  dp32_16node)
+    source=$(python3 - "$FULL8_BENCHMARK_ROOT/promotion_receipt.json" "$FULL8_BENCHMARK_ROOT" <<'PY'
+import json,sys
+from pathlib import Path
+
+receipt=json.load(open(sys.argv[1]))
+schema=receipt.get("schema_version")
+if schema == "apertus_full_8b_dp32_fallback_selection_v1":
+    parity=Path(receipt.get("parity",{}).get("receipt",{}).get("path","")).resolve()
+    if parity.name != "checkpoint_parity_receipt.json":
+        raise SystemExit("DP32 fallback parity binding drift")
+    print(parity.parent / "control_dp32/checkpoints")
+elif schema == "apertus_full_8b_parallelism_benchmark_v1":
+    print(Path(sys.argv[2]).resolve() / "control_dp32/checkpoints")
+else:
+    raise SystemExit("unknown DP32 selection receipt schema")
+PY
+    )
+    ;;
   *) echo "unknown selected profile" >&2; exit 2 ;;
 esac
+[[ -d "$source" ]] || { echo "selected conversion checkpoint root is absent: $source" >&2; exit 2; }
 root="$FULL8_PRELAUNCH_ROOT/conversion_smoke"
 submit() { if [[ "$DRY_RUN" == 1 ]]; then { printf 'sbatch'; printf ' %q' "$@"; printf '\n'; } >&2; echo DRY_JOB; else sbatch --parsable "$@"; fi; }
 if [[ "$DRY_RUN" == 0 ]]; then
