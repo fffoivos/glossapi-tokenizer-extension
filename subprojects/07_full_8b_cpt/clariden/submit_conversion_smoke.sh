@@ -48,7 +48,10 @@ root="$FULL8_PRELAUNCH_ROOT/conversion_smoke"
 submit() { if [[ "$DRY_RUN" == 1 ]]; then { printf 'sbatch'; printf ' %q' "$@"; printf '\n'; } >&2; echo DRY_JOB; else sbatch --parsable "$@"; fi; }
 if [[ "$DRY_RUN" == 0 ]]; then
   [[ ! -e "$root" ]] || { echo "conversion smoke root exists" >&2; exit 2; }
-  mkdir -p "$root/export" "$root/greekmmlu" "$FULL8_PRELAUNCH_ROOT/logs"
+  # The immutable native-Greek evaluator owns this leaf and deliberately
+  # refuses to overwrite an existing output directory.  Create its parent,
+  # but leave the result leaf absent until the evaluator starts.
+  mkdir -p "$root/export" "$FULL8_PRELAUNCH_ROOT/logs"
 fi
 convert=$(submit --output="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.out" --error="$FULL8_PRELAUNCH_ROOT/logs/%x-%j.err" \
   --export="ALL,EVALUATION_BUNDLE=$EVALUATION_BUNDLE,EVALUATION_CODE_BUNDLE_ROOT=$FULL8_CODE_ROOT,EVALUATION_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT,MEGATRON_DIR=$MEGATRON,SOURCE_CHECKPOINT_ROOT=$source,SOURCE_ITERATION=160,TOKENIZER_DIR=$TOKENIZER,EXPORT_ROOT=$root/export,PYTHON_COMPAT_DIR=$COMPAT,TOKENIZER_SHA=$TOKENIZER_SHA,EXPORT_MODEL_SCALE=8B,FULL8_EVALUATION_ROOT=$FULL8_EVALUATION_ROOT" \

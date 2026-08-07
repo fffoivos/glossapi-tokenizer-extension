@@ -739,6 +739,16 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn('parity.parent / "control_dp32/checkpoints"', wrapper)
         self.assertIn('[[ -d "$source" ]]', wrapper)
 
+    def test_conversion_smoke_leaves_native_greek_result_leaf_for_evaluator(self) -> None:
+        wrapper = (ROOT / "clariden/submit_conversion_smoke.sh").read_text()
+        evaluator = (
+            ROOT.parent
+            / "06_dataset_scheduling_experiments/clariden/run_checkpoint_native_greekmmlu.sbatch"
+        ).read_text()
+        self.assertIn('mkdir -p "$root/export" "$FULL8_PRELAUNCH_ROOT/logs"', wrapper)
+        self.assertNotIn('mkdir -p "$root/export" "$root/greekmmlu"', wrapper)
+        self.assertIn('[[ ! -e "$GREEKMMLU_ROOT" ]]', evaluator)
+
     def test_benchmark_fixed_startup_is_amortized_over_production_segment(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
