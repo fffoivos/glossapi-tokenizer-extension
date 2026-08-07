@@ -53,6 +53,11 @@ def benchmark_receipts(root: Path, *, elapsed: float, profile: str) -> None:
         "scientific_digest": "same",
         "profile_id": profile,
         "checkpoint_save_mode": "synchronous",
+        "allocation": {
+            "nodelist": "nid[007500-007515]",
+            "leaf_switches": ["group36"],
+            "single_leaf_switch": True,
+        },
     }
     write(root / "segments/updates_0_288/training_job_receipt.json", {
         **common, "elapsed_seconds": elapsed, "start_iteration": 0, "end_iteration": 288,
@@ -75,6 +80,11 @@ def benchmark_repeat(root: Path, source: Path) -> None:
         "scientific_digest": "same",
         "profile_id": "dp32_16node",
         "checkpoint_save_mode": "synchronous",
+        "allocation": {
+            "nodelist": "nid[007500-007515]",
+            "leaf_switches": ["group36"],
+            "single_leaf_switch": True,
+        },
         "elapsed_seconds": 1,
         "start_iteration": 160,
         "end_iteration": 161,
@@ -92,8 +102,21 @@ class Full8BOrchestrationTests(unittest.TestCase):
     def test_resumable_training_forbids_async_checkpoint_save(self) -> None:
         wrapper = (ROOT / "clariden/train_segment.sbatch").read_text()
         self.assertNotIn("--async-save", wrapper)
-        self.assertIn('checkpoint_save_mode=sys.argv[1:]', wrapper)
-        self.assertIn('synchronous <<\'PY\'', wrapper)
+        self.assertIn(
+            'checkpoint_save_mode,nodelist,leaf_switches=sys.argv[1:]', wrapper
+        )
+        self.assertIn('synchronous "$SLURM_JOB_NODELIST"', wrapper)
+
+    def test_multinode_training_is_single_leaf_switch_and_receipted(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        checkpoint_validation = (
+            ROOT / "clariden/run_checkpoint_source_validation.sbatch"
+        ).read_text()
+        self.assertIn("#SBATCH --switches=1", train)
+        self.assertIn("#SBATCH --switches=1", checkpoint_validation)
+        self.assertIn("scontrol show topology", train)
+        self.assertIn('[[ "${#PLACEMENT_LEAF_SWITCHES[@]}" -eq 1 ]]', train)
+        self.assertIn('"single_leaf_switch"', train)
 
     def test_sync_checkpoint_parity_smoke_is_dependency_closed(self) -> None:
         submit = (ROOT / "clariden/submit_checkpoint_parity_smoke.sh").read_text()
@@ -119,6 +142,11 @@ class Full8BOrchestrationTests(unittest.TestCase):
                 "scientific_digest": "41998a042d1c9d7ee88700b8692b488b2b6b1f936512a9f7bd07aff79542b666",
                 "profile_id": "dp32_16node",
                 "checkpoint_save_mode": "synchronous",
+                "allocation": {
+                    "nodelist": "nid[007500-007515]",
+                    "leaf_switches": ["group36"],
+                    "single_leaf_switch": True,
+                },
             }
             write(control / "segments/updates_0_162/training_job_receipt.json", {
                 **common, "start_iteration": 0, "end_iteration": 162,

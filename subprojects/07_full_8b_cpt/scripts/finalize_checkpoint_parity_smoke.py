@@ -73,6 +73,10 @@ def main() -> int:
             and control_job.get("end_iteration") == 162
         ),
         "synchronous_checkpoint_save": control_job.get("checkpoint_save_mode") == "synchronous",
+        "single_leaf_switch_placement": (
+            control_job.get("allocation", {}).get("single_leaf_switch") is True
+            and len(control_job.get("allocation", {}).get("leaf_switches", [])) == 1
+        ),
         "control_zero_skipped_updates": control["skipped"] == 0,
         "control_zero_nonfinite_updates": control["nonfinite"] == 0,
         "first_restart_provenance": provenance["passed"],

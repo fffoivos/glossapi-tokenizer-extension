@@ -3,6 +3,7 @@
 #SBATCH --account=a0140
 #SBATCH --partition=normal
 #SBATCH --nodes=16
+#SBATCH --switches=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=4
 #SBATCH --gres=gpu:4

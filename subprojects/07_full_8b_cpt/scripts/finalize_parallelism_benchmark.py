@@ -108,6 +108,7 @@ def restart_provenance(
         "receipt_schema": receipt.get("schema_version") == "apertus_full_8b_training_job_v1",
         "receipt_completed": receipt.get("status") == "completed",
         "synchronous_checkpoint_save": receipt.get("checkpoint_save_mode") == "synchronous",
+        "single_leaf_switch": receipt.get("allocation", {}).get("single_leaf_switch") is True,
         "profile_id": receipt.get("profile_id") == profile_id,
         "scientific_digest": receipt.get("scientific_digest") == scientific_digest,
         "start_iteration": receipt.get("start_iteration") == iteration,
@@ -195,6 +196,11 @@ def main() -> int:
         job.get("checkpoint_save_mode") == "synchronous"
         for job in (control_job, candidate_job)
     )
+    main_jobs_single_leaf = all(
+        job.get("allocation", {}).get("single_leaf_switch") is True
+        and len(job.get("allocation", {}).get("leaf_switches", [])) == 1
+        for job in (control_job, candidate_job)
+    )
     first_control = control["rows"][1]
     first_candidate = candidate["rows"][1]
     first_checks = {
@@ -265,6 +271,7 @@ def main() -> int:
         "same_scientific_digest": True,
         "same_frozen_sequence_and_goldfish_contract": bool(contract["sequence_ids"]["prefix_sha256"] and contract["goldfish"]["implementation"]["sha256"]),
         "synchronous_checkpoint_save_mode": main_jobs_synchronous,
+        "single_leaf_switch_placement": main_jobs_single_leaf,
         "first_batch_loss_gradient_parameter_parity": all(first_checks.values()),
         "trajectory_rmse_within_bound": rmse_ratio <= thresholds["trajectory_rmse_over_control_std_max"],
         "trajectory_signed_mean_within_bound": signed_ratio <= thresholds["trajectory_abs_mean_over_control_std_max"],
@@ -288,6 +295,7 @@ def main() -> int:
             "same_scientific_digest",
             "same_frozen_sequence_and_goldfish_contract",
             "synchronous_checkpoint_save_mode",
+            "single_leaf_switch_placement",
             "control_restart_provenance",
             "control_restart_numerically_equivalent",
             "control_repeat_restart_provenance",
@@ -325,6 +333,11 @@ def main() -> int:
             "selected_compute_hours": int(profiles["scientific_invariants"]["training_updates"])
             * (candidate["median_step_seconds"] if promoted else control["median_step_seconds"])
             / 3600,
+        },
+        "placement": {
+            "policy": "one Clariden Level=0 leaf switch per allocation",
+            "control": control_job.get("allocation"),
+            "candidate": candidate_job.get("allocation"),
         },
         "restart": {
             "control": {

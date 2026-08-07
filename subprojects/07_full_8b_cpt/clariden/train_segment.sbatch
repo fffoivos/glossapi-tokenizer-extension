@@ -3,6 +3,7 @@
 #SBATCH --account=a0140
 #SBATCH --partition=normal
 #SBATCH --nodes=16
+#SBATCH --switches=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=4
 #SBATCH --gres=gpu:4
@@ -51,6 +52,39 @@ CHECKPOINT_ROOT="$FULL8_RUN_ROOT/checkpoints"
 DATA_CACHE="$FULL8_RUN_ROOT/dataset_cache"
 mkdir -p "$SEGMENT_ROOT" "$CHECKPOINT_ROOT" "$DATA_CACHE" "$FULL8_RUN_ROOT/triggers"
 JOB_STARTED_EPOCH=$(date +%s)
+
+# The 2026-08-07 v36 checkpoint-parity smoke was spread over six Clariden
+# leaf switches and suffered 8.7--72.0 second updates instead of the proven
+# ~8.74 second single-switch DP32 trajectory. Placement changes no training
+# arithmetic, but a fragmented allocation can miss its wall-time boundary.
+# Request one leaf switch above and fail closed if Slurm violates the request.
+mapfile -t ALLOCATION_NODES < <(scontrol show hostnames "$SLURM_JOB_NODELIST")
+declare -A ALLOCATION_NODE_SET=()
+for node in "${ALLOCATION_NODES[@]}"; do
+  ALLOCATION_NODE_SET["$node"]=1
+done
+PLACEMENT_LEAF_SWITCHES=()
+while IFS='|' read -r leaf_switch leaf_nodes; do
+  matched=0
+  while IFS= read -r node; do
+    if [[ -n "${ALLOCATION_NODE_SET[$node]:-}" ]]; then
+      matched=1
+      break
+    fi
+  done < <(scontrol show hostnames "$leaf_nodes")
+  [[ "$matched" -eq 1 ]] && PLACEMENT_LEAF_SWITCHES+=("$leaf_switch")
+done < <(
+  scontrol show topology | awk '$2 == "Level=0" {
+    switch_name=$1; sub(/^SwitchName=/, "", switch_name)
+    nodes=$4; sub(/^Nodes=/, "", nodes)
+    print switch_name "|" nodes
+  }'
+)
+[[ "${#PLACEMENT_LEAF_SWITCHES[@]}" -eq 1 ]] || {
+  echo "training allocation spans ${#PLACEMENT_LEAF_SWITCHES[@]} leaf switches: ${PLACEMENT_LEAF_SWITCHES[*]:-none}" >&2
+  exit 2
+}
+PLACEMENT_LEAF_SWITCHES_JSON=$(IFS=:; printf '%s' "${PLACEMENT_LEAF_SWITCHES[*]}")
 
 # Trigger files are run-global because Megatron polls one directory. Preserve
 # evidence from a previous attempt, then start this attempt with a clean edge.
@@ -285,9 +319,9 @@ fi
 [[ "$TRAIN_PIPELINE_RC" -eq 0 ]] || exit "$TRAIN_PIPELINE_RC"
 
 JOB_FINISHED_EPOCH=$(date +%s)
-python3 - "$SEGMENT_ROOT/training_job_receipt.json" "$PROFILE_ID" "$FULL8_START_ITERATION" "$FULL8_END_ITERATION" "$JOB_STARTED_EPOCH" "$JOB_FINISHED_EPOCH" "$SLURM_JOB_ID" "$NODES" "$WORLD_SIZE" "${PROFILE[data_parallel]}" "${PROFILE[gradient_accumulation_steps]}" "${PROFILE[scientific_digest]}" "$SEGMENT_ROOT/training.log" "$SEGMENT_ROOT/graceful_stop_requested" synchronous <<'PY'
+python3 - "$SEGMENT_ROOT/training_job_receipt.json" "$PROFILE_ID" "$FULL8_START_ITERATION" "$FULL8_END_ITERATION" "$JOB_STARTED_EPOCH" "$JOB_FINISHED_EPOCH" "$SLURM_JOB_ID" "$NODES" "$WORLD_SIZE" "${PROFILE[data_parallel]}" "${PROFILE[gradient_accumulation_steps]}" "${PROFILE[scientific_digest]}" "$SEGMENT_ROOT/training.log" "$SEGMENT_ROOT/graceful_stop_requested" synchronous "$SLURM_JOB_NODELIST" "$PLACEMENT_LEAF_SWITCHES_JSON" <<'PY'
 import datetime,json,os,re,sys,tempfile
-out,profile,start,end,begun,finished,job,nodes,world,dp,acc,digest,log,marker,checkpoint_save_mode=sys.argv[1:]
+out,profile,start,end,begun,finished,job,nodes,world,dp,acc,digest,log,marker,checkpoint_save_mode,nodelist,leaf_switches=sys.argv[1:]
 latest=None
 pattern=re.compile(r"iteration\s+(\d+)\s*/")
 if os.path.isfile(log):
@@ -295,7 +329,7 @@ if os.path.isfile(log):
   match=pattern.search(line)
   if match: latest=int(match.group(1))
 graceful=os.path.isfile(marker) and latest is not None and latest<int(end)
-payload={"schema_version":"apertus_full_8b_training_job_v1","status":"gracefully_stopped" if graceful else "completed","completed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"job_id":job,"profile_id":profile,"start_iteration":int(start),"end_iteration":int(end),"requested_end_iteration":int(end),"last_logged_iteration":latest,"completed_to_requested_boundary":not graceful,"elapsed_seconds":int(finished)-int(begun),"nodes":int(nodes),"world_size":int(world),"data_parallel":int(dp),"gradient_accumulation_steps":int(acc),"scientific_digest":digest,"checkpoint_save_mode":checkpoint_save_mode}
+payload={"schema_version":"apertus_full_8b_training_job_v1","status":"gracefully_stopped" if graceful else "completed","completed_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"job_id":job,"profile_id":profile,"start_iteration":int(start),"end_iteration":int(end),"requested_end_iteration":int(end),"last_logged_iteration":latest,"completed_to_requested_boundary":not graceful,"elapsed_seconds":int(finished)-int(begun),"nodes":int(nodes),"world_size":int(world),"data_parallel":int(dp),"gradient_accumulation_steps":int(acc),"scientific_digest":digest,"checkpoint_save_mode":checkpoint_save_mode,"allocation":{"nodelist":nodelist,"leaf_switches":[value for value in leaf_switches.split(":") if value],"single_leaf_switch":len([value for value in leaf_switches.split(":") if value])==1}}
 fd,tmp=tempfile.mkstemp(prefix=".training-job.",suffix=".partial",dir=os.path.dirname(out))
 with os.fdopen(fd,"w") as f: json.dump(payload,f,indent=2,sort_keys=True); f.write("\n"); f.flush(); os.fsync(f.fileno())
 os.replace(tmp,out)
