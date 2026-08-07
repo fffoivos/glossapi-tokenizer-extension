@@ -15,14 +15,23 @@ pre-sanitization trajectory remains exploratory evidence only.
 - Globally exact-deduplicate the masked text. Training is also checked against
   the union of raw and masked representations of every frozen validation
   document.
-- A completed v5 masked inventory may be reused only when the canonical task
+- Within a safe duplicate group, prefer the quota-limited Old-Greek replay row
+  and otherwise preserve the legacy lowest-task-index/document-ID ordering.
+  This transfers ownership only: every exact text still survives once. The
+  original task-index-only rule left 11,529,074 Old-Greek tokens and failed the
+  1% capacity gate; the source has 2,666,110,500 pre-sanitization tokens.
+- A completed prior masked inventory may be reused only when the canonical task
   contract and masker SHA-256 are identical. Every Modern-Greek task is rebuilt
-  because its eligibility policy changed. Binary training shards are all built
-  anew.
+  when its eligibility policy changes. A dedup-policy-only retry may promote
+  all inventories only when the receipt closes to all 1,457 tasks; binary
+  training shards are built anew against the new dedup receipt.
 - Recompute the complete D0 79/20/1 schedule from the exact retained Modern
   Greek token mass. Consume the eligible sanitized Modern-Greek pool once and
   derive replay quotas and the optimizer horizon from the receipt; do not carry
   forward the old 19,248-update constant.
+- The sanitized bridge itself must prove sufficient foreign and Old-Greek
+  capacity under exact integer-nearest 79/20/1 arithmetic. The launch gate
+  rejects a bridge without that passed capacity receipt.
 
 ## Scientific contract
 
@@ -54,3 +63,11 @@ Checkpoint averaging remains disabled.
 - The finalizer reads initial evidence exclusively through the passed launch
   gate and derives all expected counts and terminal updates from the sanitized
   recipe.
+- When an all-compatible promotion receipt accounts for every inventory task,
+  the redundant resume-only inventory array may be bypassed; post-mask dedup
+  independently revalidates every promoted manifest and payload. Do not use
+  this shortcut when any task is marked changed.
+- Reserve at least 45 minutes for the Old-Greek-priority post-mask dedup pass.
+  The distributed per-task drop-ledger tail is materially slower than v6's two
+  concentrated Old-Greek ledgers; the checked-in default is one hour. Forecast
+  this step from sorted-catalog read progress, not drop-ledger byte growth.
