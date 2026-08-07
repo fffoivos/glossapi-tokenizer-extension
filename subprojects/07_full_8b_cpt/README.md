@@ -185,8 +185,10 @@ The forecast input is
    initial full/clean GreekMMLU, and all 13 initial per-document panels.
 4. Review finite metrics, exact checkpoint conversion and available storage
    (minimum 6TB for checkpoints plus conversion/evaluation artifacts).
-5. Run the matched 288-update DP32/DP64 benchmark and freeze the promoted or
-   fallback execution profile.
+5. Either run the matched 288-update DP32/DP64 benchmark, or—when DP64 is not
+   being reconsidered—run the exact-recipe DP32 synchronous parity smoke and
+   freeze the explicit DP32 fallback selection. The latter makes no DP64
+   speedup claim and cannot promote DP64.
 6. Run the checkpoint-conversion/native-GreekMMLU smoke, then build the single
    authoritative launch-gate receipt.
 7. Dry-run `clariden/submit_production.sh`, refresh scheduler/storage evidence,
@@ -229,6 +231,16 @@ safe. A fresh synchronous-save parity smoke and full benchmark must pass; a
 control outside this explicit restart-provenance and numerical-equivalence
 gate fails the whole benchmark rather than becoming the production profile by
 default.
+
+The no-rebenchmark path is independently fail-closed. It is implemented by
+`scripts/finalize_dp32_fallback_selection.py` and accepts only the declared
+`dp32_16node` proven fallback after the exact sanitized recipe has completed a
+single-leaf 162-update control plus two synchronous iteration-160 restarts.
+Every parity check, code-bundle binding, recipe/profile digest, schedule/log
+binding and restart receipt must match. Its receipt records
+`candidate_evaluated: false` and `candidate_promoted: false`; the production
+launch gate validates those semantics rather than treating the file name as a
+benchmark result.
 
 Multi-node training allocations also require `--switches=1`, exclude every
 node outside a predeclared Clariden leaf group, and verify the actual allocation

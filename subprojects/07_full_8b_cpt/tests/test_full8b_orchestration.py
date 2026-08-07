@@ -587,6 +587,135 @@ class Full8BOrchestrationTests(unittest.TestCase):
             self.assertEqual(result["selected_profile"], "dp64_32node")
             self.assertTrue(all(result["checks"].values()))
 
+    def test_dp32_fallback_selection_is_exact_recipe_and_parity_bound(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            recipe = ROOT / "configs/recipe_8b_full_mixed.json"
+            profiles = ROOT / "configs/execution_profiles.json"
+            selected = root / "selected.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/validate_execution_profile.py"),
+                "--recipe", str(recipe), "--profiles", str(profiles),
+                "--profile-id", "dp32_16node", "--output", str(selected),
+            ], check=True, capture_output=True, text=True)
+            scientific_digest = json.loads(selected.read_text())["selection"]["scientific_digest"]
+
+            stage = root / "stage"
+            schedule = stage / "schedules/schedule_manifest.json"
+            write(schedule, {"schema_version": "apertus_data_order_schedules_v1", "status": "frozen"})
+            parity_root = root / "parity"
+            control_log = parity_root / "control_dp32/segments/updates_0_162/training.log"
+            training_log(control_log, 8500, end=162)
+            main_receipt = parity_root / "control_dp32/segments/updates_0_162/training_job_receipt.json"
+            first_receipt = parity_root / "control_dp32/segments/updates_160_161/training_job_receipt.json"
+            second_receipt = parity_root / "control_dp32_repeat/segments/updates_160_161/training_job_receipt.json"
+            common = {
+                "schema_version": "apertus_full_8b_training_job_v1",
+                "status": "completed", "profile_id": "dp32_16node",
+                "scientific_digest": scientific_digest,
+                "checkpoint_save_mode": "synchronous",
+                "allocation": {"single_leaf_switch": True, "leaf_switches": ["group29"]},
+            }
+            write(main_receipt, {**common, "job_id": "control", "start_iteration": 0, "end_iteration": 162})
+            write(first_receipt, {**common, "job_id": "restart-1", "start_iteration": 160, "end_iteration": 161})
+            write(second_receipt, {**common, "job_id": "restart-2", "start_iteration": 160, "end_iteration": 161})
+
+            def binding(path: Path) -> dict:
+                return {
+                    "path": str(path.resolve()), "bytes": path.stat().st_size,
+                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                }
+
+            parity_checks = {
+                "control_completed_to_162": True,
+                "synchronous_checkpoint_save": True,
+                "single_leaf_switch_placement": True,
+                "control_zero_skipped_updates": True,
+                "control_zero_nonfinite_updates": True,
+                "first_restart_provenance": True,
+                "second_restart_provenance": True,
+                "first_restart_numerically_equivalent": True,
+                "second_restart_numerically_equivalent": True,
+                "independent_restarts_identical": True,
+            }
+            profile_values = json.loads(profiles.read_text())
+            parity = parity_root / "checkpoint_parity_receipt.json"
+            write(parity, {
+                "schema_version": "apertus_full_8b_checkpoint_parity_smoke_v1",
+                "status": "passed", "profile_id": "dp32_16node",
+                "checkpoint_save_mode": "synchronous", "checks": parity_checks,
+                "thresholds": {
+                    "gradient_atol": profile_values["benchmark"]["promotion"]["restart_gradient_norm_atol"],
+                    "gradient_rtol": profile_values["benchmark"]["promotion"]["restart_gradient_norm_rtol"],
+                },
+                "inputs": {
+                    "profiles": binding(profiles), "schedule_manifest": binding(schedule),
+                    "control_log": binding(control_log),
+                },
+                "restart": {
+                    "first": {"provenance": {"passed": True, "receipt": binding(first_receipt)}, "numerical": {"passed": True}},
+                    "second": {"provenance": {"passed": True, "receipt": binding(second_receipt)}, "numerical": {"passed": True}},
+                    "independent_identity": {"passed": True},
+                },
+            })
+
+            selection_code = root / "selection-code"; selection_code.mkdir()
+            (selection_code / "marker").write_text("selection\n")
+            parity_code = root / "parity-code"
+            finalizer = parity_code / "subprojects/07_full_8b_cpt/scripts/finalize_checkpoint_parity_smoke.py"
+            finalizer.parent.mkdir(parents=True)
+            finalizer.write_text("# frozen parity finalizer\n")
+            selection_bundle = root / "selection-code.receipt.json"
+            parity_bundle = root / "parity-code.receipt.json"
+            freezer = ROOT.parents[0] / "06_dataset_scheduling_experiments/production/freeze_code_bundle.py"
+            for code_root, receipt in ((selection_code, selection_bundle), (parity_code, parity_bundle)):
+                subprocess.run([
+                    "python3", str(freezer), "--root", str(code_root),
+                    "--kind", "scientific", "--output", str(receipt),
+                ], check=True, capture_output=True, text=True)
+
+            output = root / "promotion.json"
+            command = [
+                "python3", str(ROOT / "scripts/finalize_dp32_fallback_selection.py"),
+                "--code-root", str(selection_code), "--code-bundle-receipt", str(selection_bundle),
+                "--parity-code-root", str(parity_code), "--parity-code-bundle-receipt", str(parity_bundle),
+                "--recipe", str(recipe), "--profiles", str(profiles), "--stage-root", str(stage),
+                "--parity-root", str(parity_root), "--output", str(output),
+            ]
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            result = json.loads(output.read_text())
+            self.assertEqual(result["selected_profile"], "dp32_16node")
+            self.assertFalse(result["candidate_evaluated"])
+            self.assertTrue(result["fallback_control_viable"])
+            self.assertTrue(all(result["checks"].values()))
+
+            broken = json.loads(parity.read_text())
+            broken["checks"]["independent_restarts_identical"] = False
+            write(parity, broken)
+            rejected = subprocess.run(
+                [*command[:-1], str(root / "rejected.json")],
+                capture_output=True, text=True,
+            )
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("did not pass every frozen check", rejected.stderr)
+
+    def test_dp32_fallback_selection_wrapper_is_immutable_and_no_overwrite(self) -> None:
+        wrapper = (
+            ROOT / "clariden/finalize_dp32_fallback_selection.sbatch"
+        ).read_text()
+        submit = (
+            ROOT / "clariden/submit_dp32_fallback_selection.sh"
+        ).read_text()
+        self.assertEqual(wrapper.count("verify_code_bundle.py"), 2)
+        self.assertIn('[[ ! -e "$FULL8_BENCHMARK_ROOT" ]]', wrapper)
+        self.assertIn("finalize_dp32_fallback_selection.py", wrapper)
+        self.assertIn("--profile-id dp32_16node", wrapper)
+        self.assertNotIn("dp64_32node", wrapper)
+        self.assertIn('afterok:$FULL8_PARITY_GATE_JOB_ID', submit)
+        self.assertIn("APERTUS8B_SELECT_PROVEN_DP32", submit)
+        self.assertIn("DRY_RUN", submit)
+        self.assertIn('[[ ! -e "$FULL8_BENCHMARK_ROOT" ]]', submit)
+
     def test_benchmark_fixed_startup_is_amortized_over_production_segment(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -879,6 +1008,8 @@ class Full8BOrchestrationTests(unittest.TestCase):
         self.assertIn("nested sbatch runtime proof drift", gate)
         self.assertIn('nested_submit.get("rank_runtime")', gate)
         self.assertIn('nested_submit.get("rank_megatron_import")', gate)
+        self.assertIn("apertus_full_8b_dp32_fallback_selection_v1", gate)
+        self.assertIn("DP32 fallback selection evidence drift", gate)
 
     def test_canonical_validation_pipeline_is_fail_closed_on_content_overlap(self) -> None:
         freeze = (ROOT / "evaluation/freeze_validation_manifest.py").read_text()
