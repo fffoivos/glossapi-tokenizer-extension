@@ -33,7 +33,7 @@ PY
 )
 
 pids=()
-for spec in legacy_fp32:float32:legacy:1:16 suffix_fp32:float32:suffix:16:128 suffix_bf16:bfloat16:suffix:16:128; do
+for spec in legacy_fp32:float32:legacy:1:16 suffix_fp32:float32:suffix:1:32 suffix_bf16:bfloat16:suffix:16:32; do
   IFS=: read -r label dtype mode batch sample <<<"$spec"
   srun --exclusive --exact --nodes=1 --ntasks=1 --cpus-per-task=72 --mem=220G \
     --gpus-per-node=1 --gpus-per-task=1 --cpu-bind=cores \
