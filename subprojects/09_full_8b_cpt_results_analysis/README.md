@@ -39,6 +39,7 @@ in subproject 07.
 | Full 8B adaptation and retention | [`FULL8_RESULTS.html`](presentations/FULL8_RESULTS.html) | [`FULL8_RESULTS.data.json`](presentations/FULL8_RESULTS.data.json) |
 | 8B versus five 0.5B arms | [`FULL8_VS_0P5B.html`](presentations/FULL8_VS_0P5B.html) | [`FULL8_VS_0P5B.data.json`](presentations/FULL8_VS_0P5B.data.json) |
 | Checkpoint behavior and source exposure | [`CHECKPOINT_BEHAVIOR.html`](presentations/CHECKPOINT_BEHAVIOR.html) | [`CHECKPOINT_BEHAVIOR.data.json`](presentations/CHECKPOINT_BEHAVIOR.data.json) |
+| Native-Greek three-checkpoint benchmark screen | [`NATIVE_GREEK_3CP_BENCHMARKS.html`](presentations/NATIVE_GREEK_3CP_BENCHMARKS.html) | [`NATIVE_GREEK_3CP_BENCHMARKS.data.json`](presentations/NATIVE_GREEK_3CP_BENCHMARKS.data.json) |
 
 The payloads retain their original CSCS receipt paths and hashes. Verify the
 copied package with:

@@ -24,6 +24,13 @@ class ResultsContractTest(unittest.TestCase):
                 encoding="utf-8"
             )
         )
+        cls.native = json.loads(
+            (
+                ROOT
+                / "presentations"
+                / "NATIVE_GREEK_3CP_BENCHMARKS.data.json"
+            ).read_text(encoding="utf-8")
+        )
 
     def test_completed_terminal_evidence(self) -> None:
         self.assertEqual(self.full["completion"]["status"], "completed")
@@ -50,6 +57,29 @@ class ResultsContractTest(unittest.TestCase):
         self.assertFalse(self.scale["selection"]["winner_selected"])
         self.assertEqual(
             self.scale["selection"]["provisional_observed_leader"], "D0_mixed"
+        )
+
+    def test_native_screen_checkpoint_contract(self) -> None:
+        self.assertEqual(
+            [row["iteration"] for row in self.native["checkpoints"]],
+            [0, 9_536, 18_284],
+        )
+        self.assertEqual(len(self.native["benchmarks"]), 9)
+        self.assertEqual(self.native["contamination"]["scored_examples"], 83_970)
+
+    def test_native_screen_exclusion_accounting(self) -> None:
+        filtered = [
+            row
+            for row in self.native["benchmarks"]
+            if not row.get("already_decontaminated", False)
+        ]
+        self.assertEqual(
+            sum(row["excluded_examples"] for row in filtered),
+            self.native["contamination"]["excluded_scored_examples"],
+        )
+        self.assertEqual(
+            sum(row["n_filtered"] for row in filtered),
+            self.native["contamination"]["retained_scored_examples"],
         )
 
 
