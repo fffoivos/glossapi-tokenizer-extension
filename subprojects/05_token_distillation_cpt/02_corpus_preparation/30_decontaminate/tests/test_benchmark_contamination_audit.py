@@ -21,6 +21,7 @@ def load(name: str, filename: str):
 builder = load("benchmark_query_builder", "build_decontamination_queries.py")
 scanner = load("benchmark_contamination_scanner", "audit_benchmark_contamination_parquet.py")
 publisher = load("benchmark_contamination_publisher", "publish_benchmark_contamination_audit.py")
+sampler = load("benchmark_contamination_sampler", "sample_benchmark_contamination_evidence.py")
 
 
 class QueryBuilderTests(unittest.TestCase):
@@ -60,6 +61,21 @@ class PublisherTests(unittest.TestCase):
             self.assertEqual(set(payload), {"audit_receipt.json", "publish_manifest.json"})
             self.assertEqual(payload["publish_manifest.json"]["bytes"], manifest.stat().st_size)
             self.assertEqual(payload["publish_manifest.json"]["sha256"], publisher.sha256(manifest))
+
+
+class ReviewSamplerTests(unittest.TestCase):
+    def test_stable_rank_is_deterministic_and_uses_document_locator(self) -> None:
+        row = {
+            "benchmark": "demosqa",
+            "evaluation_unit_id": "7",
+            "source_dataset": "demo",
+            "source_doc_id": "doc-1",
+            "dataset_shard": "data/000001.parquet",
+            "dataset_row_index": 9,
+        }
+        self.assertEqual(sampler.stable_rank(row), sampler.stable_rank(dict(row)))
+        changed = dict(row, dataset_row_index=10)
+        self.assertNotEqual(sampler.stable_rank(row), sampler.stable_rank(changed))
 
 
 class ScannerTests(unittest.TestCase):

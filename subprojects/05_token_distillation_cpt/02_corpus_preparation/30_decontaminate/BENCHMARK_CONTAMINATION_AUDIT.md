@@ -27,7 +27,10 @@ The reusable path therefore uses:
    published Parquet revision without changing it;
 3. `scripts/finalize_benchmark_contamination_audit.py` to emit complete,
    receipt-bound Hugging Face tables;
-4. `subprojects/09_full_8b_cpt_results_analysis/evaluation/rescore_contamination_filtered.py`
+4. `scripts/sample_benchmark_contamination_evidence.py` to produce a
+   deterministic, query-joined manual-review sample for every benchmark and
+   match category;
+5. `subprojects/09_full_8b_cpt_results_analysis/evaluation/rescore_contamination_filtered.py`
    to report both full and strict-filtered scores for already-trained models.
 
 ## Match and discount policy
@@ -70,7 +73,9 @@ The auxiliary payload is uploaded below the audited dataset as
   including unmatched units;
 - `recommended_excluded_example_ids.jsonl`: the strict score filter;
 - `audit_receipt.json`: dataset revision, query and shard bindings and counts;
-- `publish_manifest.json`: hashes of the exact HF payload.
+- `README.md`: the public method and interpretation boundary;
+- `publish_manifest.json`: hashes of the exact non-recursive payload, while the
+  publication receipt separately covers the manifest itself.
 
 The current panel excludes text-only Protipa because its Hugging Face access
 gate has not been approved. When access is granted, freeze its exact examples,
