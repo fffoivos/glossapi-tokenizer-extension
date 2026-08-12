@@ -3,7 +3,7 @@
 #SBATCH --account=a0140
 #SBATCH --partition=debug
 #SBATCH --nodes=4
-#SBATCH --ntasks=15
+#SBATCH --ntasks=16
 #SBATCH --ntasks-per-node=4
 #SBATCH --gpus-per-node=4
 #SBATCH --gpus-per-task=1
@@ -20,8 +20,8 @@ set -euo pipefail
 : "${EVAL_OUTPUT_ROOT:?set new output root}"
 : "${EVAL_VENV:?set evaluation venv}"
 : "${EVAL_EXECUTION_GATE:?set passing execution-profile receipt}"
-: "${EVAL_SEGMENT_INDEX:?set matrix segment index 0, 1, or 2}"
-[[ "$EVAL_SEGMENT_INDEX" =~ ^[012]$ ]] || { echo "invalid EVAL_SEGMENT_INDEX=$EVAL_SEGMENT_INDEX" >&2; exit 2; }
+: "${EVAL_SEGMENT_INDEX:?set matrix segment index 0, 1, 2, or 3}"
+[[ "$EVAL_SEGMENT_INDEX" =~ ^[0123]$ ]] || { echo "invalid EVAL_SEGMENT_INDEX=$EVAL_SEGMENT_INDEX" >&2; exit 2; }
 
 runner="$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/run_checkpoint_suite.py"
 aggregator="$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/aggregate_checkpoint_shards.py"
@@ -90,8 +90,8 @@ pids=()
 global_task_index=0
 for binding in "${bindings[@]}"; do
   label=${binding%%=*}
-  for shard in demos other_mcq oyxoy_other oyxoy_wsd0 oyxoy_wsd1 oyxoy_wsd2 oyxoy_wsd3 oyxoy_wsd4 oyxoy_wic0 oyxoy_wic1 oyxoy_wic2 oyxoy_wic3 oyxoy_wic4 oyxoy_wic5 oyxoy_wic6; do
-    assigned_segment=$((global_task_index % 3))
+  for shard in demos other_mcq oyxoy_other oyxoy_wsd{0..9} oyxoy_wic{0..7}; do
+    assigned_segment=$((global_task_index % 4))
     global_task_index=$((global_task_index + 1))
     [[ "$assigned_segment" -eq "$EVAL_SEGMENT_INDEX" ]] || continue
     row_shard_index=0
@@ -100,18 +100,8 @@ for binding in "${bindings[@]}"; do
       demos) benchmarks=demosqa ;;
       other_mcq) benchmarks=medical_mcqa,asep_mcqa,gpcr ;;
       oyxoy_other) benchmarks=oyxoy_nli,oyxoy_metaphor ;;
-      oyxoy_wsd0) benchmarks=oyxoy_wsd_definition; row_shard_count=5 ;;
-      oyxoy_wsd1) benchmarks=oyxoy_wsd_definition; row_shard_index=1; row_shard_count=5 ;;
-      oyxoy_wsd2) benchmarks=oyxoy_wsd_definition; row_shard_index=2; row_shard_count=5 ;;
-      oyxoy_wsd3) benchmarks=oyxoy_wsd_definition; row_shard_index=3; row_shard_count=5 ;;
-      oyxoy_wsd4) benchmarks=oyxoy_wsd_definition; row_shard_index=4; row_shard_count=5 ;;
-      oyxoy_wic0) benchmarks=oyxoy_wic; row_shard_count=7 ;;
-      oyxoy_wic1) benchmarks=oyxoy_wic; row_shard_index=1; row_shard_count=7 ;;
-      oyxoy_wic2) benchmarks=oyxoy_wic; row_shard_index=2; row_shard_count=7 ;;
-      oyxoy_wic3) benchmarks=oyxoy_wic; row_shard_index=3; row_shard_count=7 ;;
-      oyxoy_wic4) benchmarks=oyxoy_wic; row_shard_index=4; row_shard_count=7 ;;
-      oyxoy_wic5) benchmarks=oyxoy_wic; row_shard_index=5; row_shard_count=7 ;;
-      oyxoy_wic6) benchmarks=oyxoy_wic; row_shard_index=6; row_shard_count=7 ;;
+      oyxoy_wsd*) benchmarks=oyxoy_wsd_definition; row_shard_index=${shard#oyxoy_wsd}; row_shard_count=10 ;;
+      oyxoy_wic*) benchmarks=oyxoy_wic; row_shard_index=${shard#oyxoy_wic}; row_shard_count=8 ;;
     esac
     srun --exclusive --exact --nodes=1 --ntasks=1 --cpus-per-task=54 --mem=160G \
       --gpus-per-node=1 --gpus-per-task=1 --cpu-bind=cores \
@@ -126,7 +116,9 @@ for binding in "${bindings[@]}"; do
     pids+=("$!")
   done
 done
-[[ ${#pids[@]} -eq 15 ]]
+expected_tasks=16
+[[ "$EVAL_SEGMENT_INDEX" -eq 3 ]] && expected_tasks=15
+[[ ${#pids[@]} -eq "$expected_tasks" ]]
 
 status=0
 for pid in "${pids[@]}"; do
@@ -149,13 +141,13 @@ for path in sorted(root.glob('iter_*/*/receipt.json')):
  d=json.load(open(path))
  if d.get('status')!='completed': raise SystemExit(f'incomplete shard {path}')
  receipts.append({'path':str(path.resolve()),'sha256':sha(path)})
-expected=15*(segment+1)
+expected=(16,32,48,63)[segment]
 if len(receipts)!=expected: raise SystemExit(f'expected {expected} cumulative shard receipts, got {len(receipts)}')
 out={'schema_version':'apertus_full8_native_greek_matrix_segment_v1','status':'completed','segment_index':segment,'slurm_job_id':__import__('os').environ.get('SLURM_JOB_ID'),'cumulative_shard_receipts':receipts}
 (root/f'segment_{segment}_receipt.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
 PY
 
-if [[ "$EVAL_SEGMENT_INDEX" -eq 2 ]]; then
+if [[ "$EVAL_SEGMENT_INDEX" -eq 3 ]]; then
   uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" "$aggregator" \
     --root "$EVAL_OUTPUT_ROOT" --contract "$EVAL_CONTRACT" --manifest "$EVAL_MANIFEST"
 fi

@@ -26,6 +26,20 @@ class FrozenRowShardingTest(unittest.TestCase):
         selected = select_frozen_rows(rows, {"wic"}, 1, 2, 2)
         self.assertEqual([row["example_id"] for row in selected["wic"]], ["w1", "w3"])
 
+    def test_ten_shards_cover_rows_once(self) -> None:
+        rows = [{"benchmark": "wsd", "example_id": f"d{i}"} for i in range(103)]
+        shard_ids = [
+            {
+                row["example_id"]
+                for row in select_frozen_rows(rows, {"wsd"}, index, 10, 0)["wsd"]
+            }
+            for index in range(10)
+        ]
+        self.assertEqual(sum(len(ids) for ids in shard_ids), 103)
+        self.assertEqual(set().union(*shard_ids), {f"d{i}" for i in range(103)})
+        for index, ids in enumerate(shard_ids):
+            self.assertTrue(all(int(example_id[1:]) % 10 == index for example_id in ids))
+
 
 if __name__ == "__main__":
     unittest.main()

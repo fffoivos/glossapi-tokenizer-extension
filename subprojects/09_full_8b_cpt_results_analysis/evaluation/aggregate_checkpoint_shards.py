@@ -45,8 +45,8 @@ def main() -> int:
     for checkpoint in contract["checkpoint_scope"]:
         label = checkpoint["label"]
         shard_receipts = sorted((args.root / label).glob("*/receipt.json"))
-        if len(shard_receipts) != 15:
-            raise ValueError(f"expected fifteen shard receipts for {label}, got {len(shard_receipts)}")
+        if len(shard_receipts) != 21:
+            raise ValueError(f"expected twenty-one shard receipts for {label}, got {len(shard_receipts)}")
         rows, bound_receipts = [], []
         for receipt_path in shard_receipts:
             receipt = json.loads(receipt_path.read_text())
@@ -97,7 +97,7 @@ def main() -> int:
         aggregate_receipts.append({"path": str(receipt_path.resolve()), "sha256": sha256(receipt_path), "model": label})
 
     matrix = {
-        "schema_version": "apertus_full8_native_greek_3cp_matrix_v3",
+        "schema_version": "apertus_full8_native_greek_3cp_matrix_v4",
         "status": "completed",
         "slurm_job_id": __import__("os").environ.get("SLURM_JOB_ID"),
         "contract_sha256": sha256(args.contract),
