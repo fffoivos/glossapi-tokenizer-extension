@@ -82,7 +82,8 @@ def verify_parent(contract: dict) -> tuple[dict, dict, dict]:
     require("D0_mixed" in arms and arms["D0_mixed"]["training_slots"] == 18284 * 1024, "parent D0 geometry drift")
     require(arms["D0_mixed"]["sequence_ids"]["sha256"] == contract["data"]["sequence_ids"]["sha256"], "D0 sequence hash drift")
     require(arms["D0_mixed"]["active_tokens"]["sha256"] == contract["data"]["active_tokens"]["sha256"], "D0 active-token hash drift")
-    require([row["name"] for row in validation["panels"]] == EXPECTED_PANELS, "validation panel identity/order drift")
+    observed_panels = [row["name"] for row in validation["panels"]]
+    require(len(observed_panels) == len(set(observed_panels)) and sorted(observed_panels) == sorted(EXPECTED_PANELS), "validation panel identity/uniqueness drift")
     require(sorted(observed_baseline_panels) == sorted(EXPECTED_PANELS), "baseline panel identity drift")
     validation_inputs = {row["name"]: row["raw_jsonl"]["sha256"] for row in validation["panels"]}
     for path in receipts:
