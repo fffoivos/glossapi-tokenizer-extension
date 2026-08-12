@@ -18,6 +18,7 @@ set -euo pipefail
 : "${EVAL_MANIFEST:?set frozen example manifest}"
 : "${EVAL_OUTPUT_ROOT:?set new output root}"
 : "${EVAL_VENV:?set evaluation venv}"
+: "${EVAL_ACCELERATION_GATE:?set passing suffix/BF16 acceleration receipt}"
 
 runner="$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/run_checkpoint_suite.py"
 native_runner="$EVAL_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/run_native_greek_mcq_eval.py"
@@ -25,6 +26,23 @@ native_runner="$EVAL_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_ad
 uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" \
   "$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/verify_eval_bundle.py" \
   --root "$EVAL_CODE_ROOT" --receipt "$EVAL_CODE_BUNDLE_RECEIPT"
+uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" - \
+  "$EVAL_ACCELERATION_GATE" "$EVAL_CODE_BUNDLE_RECEIPT" "$EVAL_CONTRACT" "$EVAL_MANIFEST" <<'PY'
+import hashlib,json,sys
+from pathlib import Path
+gate,bundle_path,contract_path,manifest_path=map(Path,sys.argv[1:])
+def sha(path):
+ d=hashlib.sha256()
+ with path.open('rb') as f:
+  for chunk in iter(lambda:f.read(8*1024*1024),b''): d.update(chunk)
+ return d.hexdigest()
+d=json.load(open(gate)); bundle=json.load(open(bundle_path))
+if d.get('schema_version')!='apertus_full8_native_greek_acceleration_gate_v1' or d.get('status')!='passed':
+    raise SystemExit('acceleration gate is not passed')
+expected={'code_tree_sha256':bundle['tree_sha256'],'contract_sha256':sha(contract_path),'manifest_sha256':sha(manifest_path)}
+if any(d.get(key)!=value for key,value in expected.items()):
+    raise SystemExit('acceleration gate is not bound to this code/contract/manifest')
+PY
 [[ ! -e "$EVAL_OUTPUT_ROOT" ]] || { echo "refusing to overwrite $EVAL_OUTPUT_ROOT" >&2; exit 2; }
 mkdir -p "$EVAL_OUTPUT_ROOT/logs"
 
@@ -36,7 +54,7 @@ PY
 )
 [[ ${#bindings[@]} -eq 3 ]]
 
-dtype=${EVAL_DTYPE:-float32}
+dtype=${EVAL_DTYPE:-bfloat16}
 candidate_batch=${EVAL_CANDIDATE_BATCH_SIZE:-16}
 example_batch=${EVAL_EXAMPLE_BATCH_SIZE:-16}
 sample_limit=${EVAL_MAX_EXAMPLES_PER_BENCHMARK:-0}
@@ -50,6 +68,7 @@ for binding in "${bindings[@]}"; do
     uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" "$runner" \
       --contract "$EVAL_CONTRACT" --manifest "$EVAL_MANIFEST" --native-runner "$native_runner" \
       --model "$binding" --output-dir "$EVAL_OUTPUT_ROOT/$label" --dtype "$dtype" \
+      --scorer-mode suffix \
       --candidate-batch-size "$candidate_batch" --example-batch-size "$example_batch" \
       --max-examples-per-benchmark "$sample_limit" &
   pids+=("$!")

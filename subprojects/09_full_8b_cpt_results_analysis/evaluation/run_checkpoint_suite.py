@@ -23,6 +23,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", required=True, help="LABEL=PATH")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--dtype", choices=["bfloat16", "float32"], required=True)
+    parser.add_argument("--scorer-mode", choices=["legacy", "suffix"], default="suffix")
     parser.add_argument("--candidate-batch-size", type=int, default=16)
     parser.add_argument("--example-batch-size", type=int, default=16)
     parser.add_argument("--max-examples-per-benchmark", type=int, default=0)
@@ -57,6 +58,69 @@ def parse_model(value: str) -> tuple[str, Path]:
     if not label or not path.is_dir():
         raise ValueError(f"invalid model binding: {value}")
     return label, path
+
+
+def suffix_choice_scorer(native):
+    """Return a scorer that materializes logits only for answer tokens.
+
+    Left padding aligns every candidate's answer at the end of the tensor.
+    Explicit position ids preserve the unpadded positions used by the legacy
+    right-padded scorer.
+    """
+
+    class SuffixChoiceScorer(native.ChoiceScorer):
+        def _score_candidates(self, candidates: list[dict[str, Any]]) -> list[dict[str, float]]:
+            import torch
+
+            scores: list[dict[str, float] | None] = [None] * len(candidates)
+            live = [(index, candidate) for index, candidate in enumerate(candidates) if candidate.get("input_ids")]
+            for index, candidate in enumerate(candidates):
+                if not candidate.get("input_ids"):
+                    scores[index] = candidate["score"]
+            if not live:
+                return [score or {"sum_logprob": -math.inf, "avg_logprob": -math.inf, "num_tokens": 0} for score in scores]
+
+            max_len = max(len(candidate["input_ids"]) for _, candidate in live)
+            max_choice_len = max(int(candidate["choice_len"]) for _, candidate in live)
+            pad_id = self.tokenizer.pad_token_id
+            input_ids = []
+            attention_mask = []
+            for _, candidate in live:
+                ids = candidate["input_ids"]
+                pad_len = max_len - len(ids)
+                input_ids.append([pad_id] * pad_len + ids)
+                attention_mask.append([0] * pad_len + [1] * len(ids))
+
+            tensor = torch.tensor(input_ids, dtype=torch.long, device=self.device)
+            mask_tensor = torch.tensor(attention_mask, dtype=torch.long, device=self.device)
+            position_ids = mask_tensor.cumsum(-1) - 1
+            position_ids.masked_fill_(mask_tensor == 0, 0)
+            with torch.inference_mode():
+                logits = self.model(
+                    input_ids=tensor,
+                    attention_mask=mask_tensor,
+                    position_ids=position_ids,
+                    use_cache=False,
+                    logits_to_keep=max_choice_len + 1,
+                ).logits[:, :-1, :]
+                labels = tensor[:, -max_choice_len:]
+                gathered = torch.nn.functional.log_softmax(logits, dim=-1).gather(
+                    -1, labels.unsqueeze(-1)
+                ).squeeze(-1)
+
+            for batch_row, (original_index, candidate) in enumerate(live):
+                length = int(candidate["choice_len"])
+                choice_log_probs = gathered[batch_row, max_choice_len - length : max_choice_len]
+                total = float(choice_log_probs.sum().item())
+                count = int(choice_log_probs.numel())
+                scores[original_index] = {
+                    "sum_logprob": total,
+                    "avg_logprob": total / count if count else -math.inf,
+                    "num_tokens": count,
+                }
+            return [score or {"sum_logprob": -math.inf, "avg_logprob": -math.inf, "num_tokens": 0} for score in scores]
+
+    return SuffixChoiceScorer
 
 
 def verify_model(model: Path, expected: dict[str, Any]) -> dict[str, Any]:
@@ -179,7 +243,8 @@ def main() -> int:
 
     args.output_dir.mkdir(parents=True)
     started = time.monotonic()
-    scorer = native.ChoiceScorer(
+    scorer_class = native.ChoiceScorer if args.scorer_mode == "legacy" else suffix_choice_scorer(native)
+    scorer = scorer_class(
         str(model_path),
         dtype=args.dtype,
         max_input_tokens=int(contract["scoring"]["max_input_tokens"]),
@@ -241,6 +306,7 @@ def main() -> int:
         "status": "completed",
         "model": {"label": label, "path": str(model_path.resolve()), **model_verification},
         "dtype": args.dtype,
+        "scorer_mode": args.scorer_mode,
         "candidate_batch_size": args.candidate_batch_size,
         "example_batch_size": args.example_batch_size,
         "max_examples_per_benchmark": args.max_examples_per_benchmark,
