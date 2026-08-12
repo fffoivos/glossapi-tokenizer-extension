@@ -54,3 +54,8 @@ native-Greek evaluation panel. Multiple-choice and classification datasets can
 be scored over all 19 saved checkpoints. Free-generation and critic-based
 benchmarks should first use seven decision checkpoints because their cost and
 prompt sensitivity are materially higher.
+
+The first expanded screen is frozen under [`evaluation/`](evaluation/): it
+scores the iteration-zero, approximately 40B-token and terminal checkpoints on
+DemosQA, Medical MCQA, ASEP MCQA, GPCR and the four OYXOY task views. Text-only
+Protipa is contract-pinned but remains blocked on its manual Hugging Face gate.
