@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "completed_run_root": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12",
+  "source_subproject": "subprojects/07_full_8b_cpt",
+  "copied_at": "2026-08-12",
+  "artifacts": [
+    {
+      "path": "presentations/FULL8_RESULTS.html",
+      "bytes": 2445009,
+      "sha256": "4cbca82a9e22fbaa41cfc233322339ac4905328e49878e0ca23304a01a4f91f7",
+      "role": "canonical_full_trajectory_presentation"
+    },
+    {
+      "path": "presentations/FULL8_RESULTS.data.json",
+      "bytes": 3745030,
+      "sha256": "1706b3d85fdc485a44bb11c12db7388dedf535f704c9219104329d158bf3decd",
+      "role": "canonical_full_trajectory_payload"
+    },
+    {
+      "path": "presentations/FULL8_VS_0P5B.html",
+      "bytes": 554732,
+      "sha256": "5b9a71f80d5dca78ed212cbde00af4664048bec79821e542900c6674e56308f7",
+      "role": "canonical_scale_comparison_presentation"
+    },
+    {
+      "path": "presentations/FULL8_VS_0P5B.data.json",
+      "bytes": 904236,
+      "sha256": "15f5cd005279cc193b14bc1167779a2ef56818a1101f3d7e4cc900f13578b321",
+      "role": "canonical_scale_comparison_payload"
+    },
+    {
+      "path": "presentations/CHECKPOINT_BEHAVIOR.html",
+      "bytes": 660397,
+      "sha256": "d9d703d7511fce00ea58cf86bd7b0f19366c55d0fc0113c182a0ddce42f39700",
+      "role": "canonical_checkpoint_behavior_presentation"
+    },
+    {
+      "path": "presentations/CHECKPOINT_BEHAVIOR.data.json",
+      "bytes": 918965,
+      "sha256": "02b06a189da6a609d132dcc441783d1419402c0d480cbed7b87f35f6452198f1",
+      "role": "canonical_checkpoint_behavior_payload"
+    },
+    {
+      "path": "analysis/analyze_greekmmlu_answer_drift.py",
+      "bytes": 10919,
+      "sha256": "de424755dfa0aa51a547e0d7a9c6be8c112601a58d41d3a61a75bcdf8a3721f5",
+      "role": "checkpoint_answer_analysis"
+    },
+    {
+      "path": "analysis/analyze_checkpoint_source_exposure.py",
+      "bytes": 29816,
+      "sha256": "d1f679af51b2d1680a9c163fcecc4b569128793d6040a34e09285af5f8f5d115",
+      "role": "checkpoint_source_exposure_analysis"
+    },
+    {
+      "path": "analysis/analyze_per_document_endpoints.py",
+      "bytes": 6918,
+      "sha256": "d663e599f6cd62f1959f8d51164e1ba81ce5fdbfb338df810ed279a48bacd275",
+      "role": "per_document_endpoint_analysis"
+    },
+    {
+      "path": "analysis/analyze_retention_snapshot.py",
+      "bytes": 9522,
+      "sha256": "6f52be7c2c9d00d019321b610b50d4680d79168918ad706c449bce83f1eb0401",
+      "role": "retention_snapshot_analysis"
+    },
+    {
+      "path": "analysis/forecast_retention_slope.py",
+      "bytes": 10101,
+      "sha256": "159db066fafe32e8c57595c1ef141cc322b41057a2a6fa1f6fe14facfd47ae4b",
+      "role": "retention_slope_analysis"
+    }
+  ]
+}

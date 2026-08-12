@@ -41,6 +41,19 @@ The parent subprojects themselves are:
   2026-06-02 scope is the CPU-only 5B-pool benchmark-decontamination
   pilot. TD layer tests and TD launch wrappers are parked planning
   material until the TD track is explicitly resumed.
+- **`06_dataset_scheduling_experiments/`** — completed five-arm 0.5B
+  data-order study comparing stationary, hard-transition and gradual-transition
+  schedules with the optimizer, tokenizer, replay and token budget fixed.
+- **`07_full_8b_cpt/`** — execution authority for the completed sanitized
+  Apertus-8B D0/WSD-10 CPT run: dataset receipts, tokenizer and Token
+  Distillation bindings, Slurm orchestration, checkpoints and raw evaluations.
+- **`08_targeted_8b_cpt_experiments/`** — follow-up design workspace for
+  controlled replication, targeted data mixtures and cross-scale predictivity.
+  It does not contain results from the completed full run.
+- **`09_full_8b_cpt_results_analysis/`** — compact results authority for the
+  completed 8B run, organized around adaptation versus retention, checkpoint
+  capability timing, and comparison with the five 0.5B scheduling arms. It
+  also owns the native-Greek benchmark expansion plan.
 
 ---
 
