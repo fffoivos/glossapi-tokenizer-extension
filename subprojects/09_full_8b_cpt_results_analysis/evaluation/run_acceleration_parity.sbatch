@@ -33,15 +33,15 @@ PY
 )
 
 pids=()
-for spec in legacy_fp32:float32:legacy:1 suffix_fp32:float32:suffix:16 suffix_bf16:bfloat16:suffix:16; do
-  IFS=: read -r label dtype mode batch <<<"$spec"
+for spec in legacy_fp32:float32:legacy:1:16 suffix_fp32:float32:suffix:16:128 suffix_bf16:bfloat16:suffix:16:128; do
+  IFS=: read -r label dtype mode batch sample <<<"$spec"
   srun --exclusive --exact --nodes=1 --ntasks=1 --cpus-per-task=72 --mem=220G \
     --gpus-per-node=1 --gpus-per-task=1 --cpu-bind=cores \
     --output="$EVAL_OUTPUT_ROOT/logs/$label.out" --error="$EVAL_OUTPUT_ROOT/logs/$label.err" \
     uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" "$eval_root/run_checkpoint_suite.py" \
       --contract "$EVAL_CONTRACT" --manifest "$EVAL_MANIFEST" --native-runner "$native_runner" \
       --model "$model" --output-dir "$EVAL_OUTPUT_ROOT/$label" --dtype "$dtype" --scorer-mode "$mode" \
-      --candidate-batch-size "$batch" --example-batch-size 16 --max-examples-per-benchmark 128 &
+      --candidate-batch-size "$batch" --example-batch-size 16 --max-examples-per-benchmark "$sample" &
   pids+=("$!")
 done
 status=0

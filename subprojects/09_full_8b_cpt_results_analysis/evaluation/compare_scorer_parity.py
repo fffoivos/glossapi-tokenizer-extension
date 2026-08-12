@@ -35,8 +35,8 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     legacy, suffix = load(args.legacy), load(args.suffix)
-    if legacy.keys() != suffix.keys():
-        raise ValueError("legacy/suffix example identities differ")
+    if not legacy.keys() <= suffix.keys():
+        raise ValueError("legacy examples are not a subset of suffix examples")
     grouped: dict[str, list[tuple[dict, dict]]] = defaultdict(list)
     for key in sorted(legacy):
         grouped[key[0]].append((legacy[key], suffix[key]))
