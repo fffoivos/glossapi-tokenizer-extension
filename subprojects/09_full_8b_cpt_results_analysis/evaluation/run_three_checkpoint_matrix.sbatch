@@ -8,7 +8,7 @@
 #SBATCH --gpus-per-node=4
 #SBATCH --gpus-per-task=1
 #SBATCH --cpus-per-task=54
-#SBATCH --mem=840G
+#SBATCH --mem=640G
 #SBATCH --time=01:30:00
 #SBATCH --no-requeue
 
@@ -84,7 +84,7 @@ for binding in "${bindings[@]}"; do
       oyxoy_wic0) benchmarks=oyxoy_wic; row_shard_count=2 ;;
       oyxoy_wic1) benchmarks=oyxoy_wic; row_shard_index=1; row_shard_count=2 ;;
     esac
-    srun --exclusive --exact --nodes=1 --ntasks=1 --cpus-per-task=54 --mem=210G \
+    srun --exclusive --exact --nodes=1 --ntasks=1 --cpus-per-task=54 --mem=160G \
       --gpus-per-node=1 --gpus-per-task=1 --cpu-bind=cores \
       --output="$EVAL_OUTPUT_ROOT/logs/${label}-${shard}.out" --error="$EVAL_OUTPUT_ROOT/logs/${label}-${shard}.err" \
       uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" "$runner" \
