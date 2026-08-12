@@ -14,6 +14,7 @@ ALLOWED_OPERATIONAL_CHANGES = {
     "subprojects/09_full_8b_cpt_results_analysis/evaluation/aggregate_checkpoint_shards.py",
     "subprojects/09_full_8b_cpt_results_analysis/evaluation/rebind_execution_gate.py",
     "subprojects/09_full_8b_cpt_results_analysis/evaluation/run_three_checkpoint_matrix.sbatch",
+    "subprojects/09_full_8b_cpt_results_analysis/evaluation/test_native_greek_evaluation.py",
 }
 SCIENTIFIC_FILES = {
     "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/run_native_greek_mcq_eval.py",
