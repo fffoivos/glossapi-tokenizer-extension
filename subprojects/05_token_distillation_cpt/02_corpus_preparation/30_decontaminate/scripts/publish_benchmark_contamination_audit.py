@@ -27,6 +27,16 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def build_payload_files(manifest_path: Path, files: dict[str, dict[str, object]]) -> dict[str, dict[str, object]]:
+    """Return the complete upload set, including the non-recursive manifest."""
+    payload_files = dict(files)
+    payload_files[manifest_path.name] = {
+        "bytes": manifest_path.stat().st_size,
+        "sha256": sha256(manifest_path),
+    }
+    return payload_files
+
+
 def main() -> int:
     from huggingface_hub import CommitOperationAdd, HfApi, hf_hub_download
 
@@ -42,6 +52,11 @@ def main() -> int:
         path = args.payload_dir / filename
         if not path.is_file() or path.stat().st_size != int(expected["bytes"]) or sha256(path) != expected["sha256"]:
             raise ValueError(f"payload drift: {path}")
+    # The manifest cannot include its own digest recursively. Verify its schema
+    # above, then add its measured bytes and digest to the actual upload set so
+    # the public folder is self-describing and the publication receipt covers
+    # every uploaded object.
+    payload_files = build_payload_files(manifest_path, files)
     token = args.token_file.read_text().strip()
     if not token:
         raise ValueError("empty HF token file")
@@ -54,7 +69,7 @@ def main() -> int:
     # receipt. Otherwise require that main is still the audited dataset commit.
     remote_matches = True
     verified_remote: dict[str, dict[str, object]] = {}
-    for filename, expected in files.items():
+    for filename, expected in payload_files.items():
         remote_path = f"{target}/{filename}"
         try:
             cached = Path(
@@ -75,7 +90,7 @@ def main() -> int:
             break
         verified_remote[remote_path] = {"bytes": cached.stat().st_size, "sha256": measured}
 
-    if remote_matches and len(verified_remote) == len(files):
+    if remote_matches and len(verified_remote) == len(payload_files):
         after = before
         mode = "already_present"
     else:
@@ -85,7 +100,7 @@ def main() -> int:
             )
         operations = [
             CommitOperationAdd(path_in_repo=f"{target}/{filename}", path_or_fileobj=args.payload_dir / filename)
-            for filename in sorted(files)
+            for filename in sorted(payload_files)
         ]
         commit = api.create_commit(
             repo_id=repo_id,
@@ -97,7 +112,7 @@ def main() -> int:
         after = commit.oid
         mode = "uploaded"
         verified_remote = {}
-        for filename, expected in files.items():
+        for filename, expected in payload_files.items():
             remote_path = f"{target}/{filename}"
             cached = Path(
                 hf_hub_download(
@@ -130,7 +145,7 @@ def main() -> int:
     temporary = args.receipt.with_suffix(args.receipt.suffix + f".tmp.{os.getpid()}")
     temporary.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")
     os.replace(temporary, args.receipt)
-    print(json.dumps({"ok": True, "mode": mode, "main_after": after, "files": len(files)}, sort_keys=True))
+    print(json.dumps({"ok": True, "mode": mode, "main_after": after, "files": len(payload_files)}, sort_keys=True))
     return 0
 
 

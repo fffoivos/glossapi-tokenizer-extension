@@ -20,6 +20,7 @@ def load(name: str, filename: str):
 
 builder = load("benchmark_query_builder", "build_decontamination_queries.py")
 scanner = load("benchmark_contamination_scanner", "audit_benchmark_contamination_parquet.py")
+publisher = load("benchmark_contamination_publisher", "publish_benchmark_contamination_audit.py")
 
 
 class QueryBuilderTests(unittest.TestCase):
@@ -47,6 +48,18 @@ class QueryBuilderTests(unittest.TestCase):
             ["gold:7:Unknown", "gold:7:Entailment", "gold:7:Contradiction"],
         )
         self.assertNotIn("Ισχύει η σχέση", query["question"])
+
+
+class PublisherTests(unittest.TestCase):
+    def test_complete_upload_set_includes_manifest_itself(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            manifest = Path(directory) / "publish_manifest.json"
+            manifest.write_text('{"status":"passed"}\n', encoding="utf-8")
+            files = {"audit_receipt.json": {"bytes": 3, "sha256": "abc"}}
+            payload = publisher.build_payload_files(manifest, files)
+            self.assertEqual(set(payload), {"audit_receipt.json", "publish_manifest.json"})
+            self.assertEqual(payload["publish_manifest.json"]["bytes"], manifest.stat().st_size)
+            self.assertEqual(payload["publish_manifest.json"]["sha256"], publisher.sha256(manifest))
 
 
 class ScannerTests(unittest.TestCase):
