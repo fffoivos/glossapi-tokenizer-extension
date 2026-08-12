@@ -23,8 +23,9 @@ mkdir -p "$EVAL_OUTPUT_ROOT/logs"
 
 eval_root="$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation"
 native_runner="$EVAL_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/run_native_greek_mcq_eval.py"
-python3 "$eval_root/verify_eval_bundle.py" --root "$EVAL_CODE_ROOT" --receipt "$EVAL_CODE_BUNDLE_RECEIPT"
-model=$(python3 - "$EVAL_CONTRACT" <<'PY'
+uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" \
+  "$eval_root/verify_eval_bundle.py" --root "$EVAL_CODE_ROOT" --receipt "$EVAL_CODE_BUNDLE_RECEIPT"
+model=$(uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" - "$EVAL_CONTRACT" <<'PY'
 import json,sys
 row=json.load(open(sys.argv[1]))['checkpoint_scope'][0]
 print(f'{row["label"]}={row["model_path"]}')
@@ -44,7 +45,8 @@ done
 status=0
 for pid in "${pids[@]}"; do wait "$pid" || status=1; done
 [[ $status -eq 0 ]] || exit 1
-"$EVAL_VENV/bin/python" "$eval_root/compare_dtype_parity.py" \
+uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" \
+  "$eval_root/compare_dtype_parity.py" \
   --float32 "$EVAL_OUTPUT_ROOT/float32/predictions.jsonl" \
   --bfloat16 "$EVAL_OUTPUT_ROOT/bfloat16/predictions.jsonl" \
   --output "$EVAL_OUTPUT_ROOT/parity_receipt.json"

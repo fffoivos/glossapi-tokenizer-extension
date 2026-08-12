@@ -22,12 +22,13 @@ set -euo pipefail
 runner="$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/run_checkpoint_suite.py"
 native_runner="$EVAL_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/run_native_greek_mcq_eval.py"
 [[ -f "$runner" && -f "$native_runner" && -f "$EVAL_CONTRACT" && -f "$EVAL_MANIFEST" ]]
-python3 "$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/verify_eval_bundle.py" \
+uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" \
+  "$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/verify_eval_bundle.py" \
   --root "$EVAL_CODE_ROOT" --receipt "$EVAL_CODE_BUNDLE_RECEIPT"
 [[ ! -e "$EVAL_OUTPUT_ROOT" ]] || { echo "refusing to overwrite $EVAL_OUTPUT_ROOT" >&2; exit 2; }
 mkdir -p "$EVAL_OUTPUT_ROOT/logs"
 
-mapfile -t bindings < <(python3 - "$EVAL_CONTRACT" <<'PY'
+mapfile -t bindings < <(uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" - "$EVAL_CONTRACT" <<'PY'
 import json,sys
 for row in json.load(open(sys.argv[1]))["checkpoint_scope"]:
     print(f'{row["label"]}={row["model_path"]}')
@@ -59,7 +60,8 @@ for pid in "${pids[@]}"; do
 done
 [[ $status -eq 0 ]] || { echo "one or more checkpoint evaluators failed" >&2; exit 1; }
 
-python3 - "$EVAL_OUTPUT_ROOT" "$EVAL_CONTRACT" "$EVAL_MANIFEST" <<'PY'
+uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" - \
+  "$EVAL_OUTPUT_ROOT" "$EVAL_CONTRACT" "$EVAL_MANIFEST" <<'PY'
 import hashlib,json,sys
 from pathlib import Path
 root,contract,manifest=map(Path,sys.argv[1:])
