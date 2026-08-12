@@ -59,3 +59,7 @@ The first expanded screen is frozen under [`evaluation/`](evaluation/): it
 scores the iteration-zero, approximately 40B-token and terminal checkpoints on
 DemosQA, Medical MCQA, ASEP MCQA, GPCR and the four OYXOY task views. Text-only
 Protipa is contract-pinned but remains blocked on its manual Hugging Face gate.
+The completed full-versus-filtered results are recorded in
+[`NATIVE_GREEK_3CP_RESULTS_20260812.md`](NATIVE_GREEK_3CP_RESULTS_20260812.md),
+and the exact evidence rule and 10,076 scored-example exclusions are frozen in
+[`evaluation/CONTAMINATION_DROP_DECISION_20260812.md`](evaluation/CONTAMINATION_DROP_DECISION_20260812.md).

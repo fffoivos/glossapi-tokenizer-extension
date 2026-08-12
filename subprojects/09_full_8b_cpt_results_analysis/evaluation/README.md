@@ -31,3 +31,9 @@ Text-only Protipa remains in the frozen contract but is not in the materialized
 examples while the current Hugging Face token lacks approval for its manual
 gate. It must be appended with the same source revision and scorer after access
 is granted; the other five benchmarks do not wait on it.
+
+The completed matrix is summarized in
+[`../NATIVE_GREEK_3CP_RESULTS_20260812.md`](../NATIVE_GREEK_3CP_RESULTS_20260812.md).
+The post-hoc contamination filter, exact immutable ids and decision boundary
+are specified in
+[`CONTAMINATION_DROP_DECISION_20260812.md`](CONTAMINATION_DROP_DECISION_20260812.md).
