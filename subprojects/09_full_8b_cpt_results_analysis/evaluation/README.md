@@ -5,13 +5,13 @@ Medical MCQA, ASEP MCQA, GPCR and OYXOY. The first point is the iteration-zero
 model; the other points are update 9,536 (39.997B token slots) and the terminal
 update 18,284 (76.689B token slots).
 
-The execution shape is four Clariden debug nodes and fifteen independent FP32
-evaluator processes. Each checkpoint has five shards: the four MCQ datasets,
-OYXOY NLI plus metaphor, OYXOY WSD, and two disjoint halves of OYXOY WIC.
-Every process is pinned to one GH200. This uses fifteen of sixteen GPUs and
-keeps the largest OYXOY views below the 90-minute debug limit. A fail-closed
-aggregator verifies that the shard union contains every frozen example exactly
-once before it writes checkpoint-level metrics.
+The execution shape is three chained 22.5-minute Clariden debug jobs. Each job
+uses four nodes and fifteen independent FP32 evaluator processes, respecting
+the live 90 node-minute-per-job QoS cap. Per checkpoint, DemosQA, the other
+three MCQ suites and OYXOY NLI plus metaphor are separate shards; OYXOY WSD is
+split five ways and WIC seven ways. Every process is pinned to one GH200. A
+fail-closed aggregator verifies that all forty-five shards contain every
+frozen example exactly once before it writes checkpoint-level metrics.
 
 The authoritative scorer is the legacy full-logit implementation in FP32.
 BF16 was tested and rejected by a frozen parity gate because it changed answer
