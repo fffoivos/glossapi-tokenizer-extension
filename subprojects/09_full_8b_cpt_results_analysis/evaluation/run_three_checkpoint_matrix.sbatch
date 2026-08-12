@@ -37,8 +37,8 @@ PY
 [[ ${#bindings[@]} -eq 3 ]]
 
 dtype=${EVAL_DTYPE:-float32}
-candidate_batch=${EVAL_CANDIDATE_BATCH_SIZE:-64}
-example_batch=${EVAL_EXAMPLE_BATCH_SIZE:-64}
+candidate_batch=${EVAL_CANDIDATE_BATCH_SIZE:-16}
+example_batch=${EVAL_EXAMPLE_BATCH_SIZE:-16}
 sample_limit=${EVAL_MAX_EXAMPLES_PER_BENCHMARK:-0}
 
 pids=()

@@ -23,8 +23,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", required=True, help="LABEL=PATH")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--dtype", choices=["bfloat16", "float32"], required=True)
-    parser.add_argument("--candidate-batch-size", type=int, default=64)
-    parser.add_argument("--example-batch-size", type=int, default=64)
+    parser.add_argument("--candidate-batch-size", type=int, default=16)
+    parser.add_argument("--example-batch-size", type=int, default=16)
     parser.add_argument("--max-examples-per-benchmark", type=int, default=0)
     return parser.parse_args()
 

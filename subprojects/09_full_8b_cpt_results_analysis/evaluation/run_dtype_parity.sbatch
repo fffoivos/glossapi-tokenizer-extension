@@ -40,7 +40,7 @@ for dtype in float32 bfloat16; do
     uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" "$eval_root/run_checkpoint_suite.py" \
       --contract "$EVAL_CONTRACT" --manifest "$EVAL_MANIFEST" --native-runner "$native_runner" \
       --model "$model" --output-dir "$EVAL_OUTPUT_ROOT/$dtype" --dtype "$dtype" \
-      --candidate-batch-size 64 --example-batch-size 64 --max-examples-per-benchmark 128 &
+      --candidate-batch-size 16 --example-batch-size 16 --max-examples-per-benchmark 128 &
   pids+=("$!")
 done
 status=0
