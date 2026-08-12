@@ -27,6 +27,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--candidate-batch-size", type=int, default=16)
     parser.add_argument("--example-batch-size", type=int, default=16)
     parser.add_argument("--max-examples-per-benchmark", type=int, default=0)
+    parser.add_argument("--benchmarks", default="all", help="Comma-separated frozen benchmark ids, or all.")
     return parser.parse_args()
 
 
@@ -234,12 +235,17 @@ def main() -> int:
     native = load_module(args.native_runner.resolve())
 
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    selected = None if args.benchmarks == "all" else {item.strip() for item in args.benchmarks.split(",") if item.strip()}
     with examples_path.open(encoding="utf-8") as handle:
         for line in handle:
             row = json.loads(line)
+            if selected is not None and row["benchmark"] not in selected:
+                continue
             group = grouped[row["benchmark"]]
             if args.max_examples_per_benchmark <= 0 or len(group) < args.max_examples_per_benchmark:
                 group.append(row)
+    if selected is not None and selected != set(grouped):
+        raise ValueError(f"requested benchmark ids not found: {sorted(selected - set(grouped))}")
 
     args.output_dir.mkdir(parents=True)
     started = time.monotonic()
@@ -310,6 +316,7 @@ def main() -> int:
         "candidate_batch_size": args.candidate_batch_size,
         "example_batch_size": args.example_batch_size,
         "max_examples_per_benchmark": args.max_examples_per_benchmark,
+        "requested_benchmarks": args.benchmarks,
         "contract": {"path": str(args.contract.resolve()), "sha256": contract_sha256},
         "manifest": {"path": str(args.manifest.resolve()), "sha256": sha256_file(args.manifest)},
         "native_runner": {"path": str(args.native_runner.resolve()), "sha256": sha256_file(args.native_runner)},
