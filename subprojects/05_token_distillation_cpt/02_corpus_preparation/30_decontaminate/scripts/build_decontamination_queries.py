@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -50,6 +51,13 @@ def parse_args() -> argparse.Namespace:
 def sha256_json(value: Any) -> str:
     payload = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
+
+
+def atomic_write_text(path: Path, payload: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + f".tmp.{os.getpid()}")
+    temporary.write_text(payload, encoding="utf-8")
+    os.replace(temporary, path)
 
 
 def load_eval_helpers(eval_dir: Path):
@@ -178,10 +186,10 @@ def build_from_frozen(args: argparse.Namespace) -> dict[str, Any]:
         kind = query["query_kind"]
         block["query_kinds"][kind] = block["query_kinds"].get(kind, 0) + 1
 
-    args.output_jsonl.parent.mkdir(parents=True, exist_ok=True)
-    with args.output_jsonl.open("w", encoding="utf-8") as out:
-        for query in queries:
-            out.write(json.dumps(query, ensure_ascii=False, sort_keys=True) + "\n")
+    atomic_write_text(
+        args.output_jsonl,
+        "".join(json.dumps(query, ensure_ascii=False, sort_keys=True) + "\n" for query in queries),
+    )
     return {
         "schema": "greek-benchmark-decontam-query-summary-v2",
         "input_mode": "frozen_examples",
@@ -199,10 +207,9 @@ def main() -> None:
     args = parse_args()
     if args.frozen_examples_jsonl is not None:
         summary = build_from_frozen(args)
-        args.summary_json.parent.mkdir(parents=True, exist_ok=True)
-        args.summary_json.write_text(
+        atomic_write_text(
+            args.summary_json,
             json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-            encoding="utf-8",
         )
         print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
         return

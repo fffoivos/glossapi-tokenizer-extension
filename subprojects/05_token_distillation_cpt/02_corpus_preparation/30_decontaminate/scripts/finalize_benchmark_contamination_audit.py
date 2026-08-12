@@ -35,6 +35,12 @@ def write_json(path: Path, value: Any) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def read_jsonl(path: Path) -> list[dict[str, Any]]:
+    """Read physical LF-delimited records without splitting on U+2028/U+2029."""
+    with path.open(encoding="utf-8") as handle:
+        return [json.loads(line) for line in handle if line.strip()]
+
+
 def main() -> int:
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -53,6 +59,10 @@ def main() -> int:
     publication = json.loads(args.publication_receipt.read_text())
     if publication.get("manifest", {}).get("sha256") != manifest_sha256:
         raise ValueError("publication receipt is not bound to the corpus manifest")
+    # Parse queries before loading the much larger match evidence so malformed
+    # inputs fail early. File iteration is intentional: str.splitlines() also
+    # splits valid JSON strings containing Unicode line separators.
+    queries = read_jsonl(args.queries_jsonl)
 
     matches: list[dict[str, Any]] = []
     shard_receipts: list[dict[str, Any]] = []
@@ -89,7 +99,6 @@ def main() -> int:
         )
     )
 
-    queries = [json.loads(line) for line in args.queries_jsonl.read_text().splitlines() if line.strip()]
     by_unit: dict[tuple[str, str], list[dict[str, Any]]] = collections.defaultdict(list)
     for match in matches:
         by_unit[(match["benchmark"], match["evaluation_unit_id"])].append(match)

@@ -22,6 +22,7 @@ builder = load("benchmark_query_builder", "build_decontamination_queries.py")
 scanner = load("benchmark_contamination_scanner", "audit_benchmark_contamination_parquet.py")
 publisher = load("benchmark_contamination_publisher", "publish_benchmark_contamination_audit.py")
 sampler = load("benchmark_contamination_sampler", "sample_benchmark_contamination_evidence.py")
+finalizer = load("benchmark_contamination_finalizer", "finalize_benchmark_contamination_audit.py")
 
 
 class QueryBuilderTests(unittest.TestCase):
@@ -76,6 +77,18 @@ class ReviewSamplerTests(unittest.TestCase):
         self.assertEqual(sampler.stable_rank(row), sampler.stable_rank(dict(row)))
         changed = dict(row, dataset_row_index=10)
         self.assertNotEqual(sampler.stable_rank(row), sampler.stable_rank(changed))
+
+
+class FinalizerTests(unittest.TestCase):
+    def test_jsonl_reader_preserves_unicode_line_separator_inside_string(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "queries.jsonl"
+            rows = [{"text": "before\u2028after"}, {"text": "second"}]
+            path.write_text(
+                "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows),
+                encoding="utf-8",
+            )
+            self.assertEqual(finalizer.read_jsonl(path), rows)
 
 
 class ScannerTests(unittest.TestCase):
