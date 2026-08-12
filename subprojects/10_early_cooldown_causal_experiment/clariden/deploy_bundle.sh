@@ -11,6 +11,7 @@ receipt="$remote_root.receipt.json"
 ssh clariden /usr/bin/env REMOTE_ROOT="$remote_root" BASE="$base" RECEIPT="$receipt" bash -s <<'REMOTE'
 set -euo pipefail
 [[ -d "$BASE" && ! -e "$REMOTE_ROOT" && ! -e "$RECEIPT" ]]
+mkdir -p "$(dirname "$REMOTE_ROOT")"
 cp -a "$BASE" "$REMOTE_ROOT"
 chmod -R u+w "$REMOTE_ROOT"
 REMOTE
