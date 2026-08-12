@@ -160,6 +160,9 @@ def main() -> int:
     label, model_path = parse_model(args.model)
     contract = json.loads(args.contract.read_text())
     manifest = json.loads(args.manifest.read_text())
+    contract_sha256 = sha256_file(args.contract)
+    if manifest.get("contract", {}).get("sha256") != contract_sha256:
+        raise ValueError("frozen example manifest was built from a different contract")
     examples_path = Path(manifest["examples"]["path"])
     if sha256_file(examples_path) != manifest["examples"]["sha256"]:
         raise ValueError("frozen example hash drift")
@@ -241,7 +244,7 @@ def main() -> int:
         "candidate_batch_size": args.candidate_batch_size,
         "example_batch_size": args.example_batch_size,
         "max_examples_per_benchmark": args.max_examples_per_benchmark,
-        "contract": {"path": str(args.contract.resolve()), "sha256": sha256_file(args.contract)},
+        "contract": {"path": str(args.contract.resolve()), "sha256": contract_sha256},
         "manifest": {"path": str(args.manifest.resolve()), "sha256": sha256_file(args.manifest)},
         "native_runner": {"path": str(args.native_runner.resolve()), "sha256": sha256_file(args.native_runner)},
         "counts": {key: len(value) for key, value in grouped.items()},
