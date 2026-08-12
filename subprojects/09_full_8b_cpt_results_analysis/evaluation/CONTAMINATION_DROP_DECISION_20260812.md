@@ -28,6 +28,12 @@ The exact exclusion authority is:
 - query SHA-256:
   `ef9d601b8f91c6845818b9584c6634a13337c77b07e3f101f755a4884634c0eb`.
 
+The complete auxiliary payload is published at
+[`benchmark_contamination/native_greek_suite_v1`](https://huggingface.co/datasets/fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2/tree/b28806da9b9bc5a569acbf923a378c967b1c1752/benchmark_contamination/native_greek_suite_v1)
+in dataset revision `b28806da9b9bc5a569acbf923a378c967b1c1752`.
+The publication commit only adds that auxiliary folder; it does not replace
+the audited `data/*.parquet` objects or the root dataset card.
+
 ## Exclusions
 
 | Benchmark family | Evaluation units audited | Units with strict evidence | Scored examples excluded | Scored examples retained |
@@ -100,6 +106,10 @@ CSCS authorities:
   `28db01d125e9c8e12a646019a89c0ba39254695bb3e83010c034b2fc38f805c1`;
 - filtered evaluation receipt:
   `filtered_scores_v1/receipt.json`.
+- Hugging Face publication receipt:
+  `hf_publication_receipt.json`, status `passed`, with audited parent revision
+  `987b8955fcd395c6219e39df9e64715457f69065` and published child revision
+  `b28806da9b9bc5a569acbf923a378c967b1c1752`.
 
 The three scored checkpoints are initialization (`iter_0000000`), approximately
 39.997B tokens (`iter_0009536`), and the final checkpoint at approximately
