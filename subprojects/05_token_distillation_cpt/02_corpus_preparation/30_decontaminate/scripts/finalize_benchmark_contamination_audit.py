@@ -73,7 +73,9 @@ def main() -> int:
             or receipt.get("output", {}).get("sha256") != sha256_file(match_path)
         ):
             raise ValueError(f"invalid scan receipt for {item['path']}")
-        shard_receipts.append({"path": str(receipt_path), "sha256": sha256_file(receipt_path)})
+        shard_receipts.append(
+            {"path": f"shards/{receipt_path.name}", "sha256": sha256_file(receipt_path)}
+        )
         with match_path.open(encoding="utf-8") as handle:
             matches.extend(json.loads(line) for line in handle if line.strip())
     matches.sort(
