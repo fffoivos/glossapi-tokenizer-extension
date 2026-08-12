@@ -23,6 +23,10 @@ scanner = load("benchmark_contamination_scanner", "audit_benchmark_contamination
 publisher = load("benchmark_contamination_publisher", "publish_benchmark_contamination_audit.py")
 sampler = load("benchmark_contamination_sampler", "sample_benchmark_contamination_evidence.py")
 finalizer = load("benchmark_contamination_finalizer", "finalize_benchmark_contamination_audit.py")
+adjudication = load(
+    "benchmark_contamination_adjudication",
+    "build_benchmark_contamination_adjudication_packet.py",
+)
 
 
 class QueryBuilderTests(unittest.TestCase):
@@ -89,6 +93,20 @@ class FinalizerTests(unittest.TestCase):
                 encoding="utf-8",
             )
             self.assertEqual(finalizer.read_jsonl(path), rows)
+
+
+class AdjudicationPacketTests(unittest.TestCase):
+    def test_rank_changes_with_source_locator(self) -> None:
+        row = {
+            "benchmark": "gpcr",
+            "evaluation_unit_id": "2",
+            "source_dataset": "source",
+            "source_doc_id": "doc-a",
+            "dataset_shard": "data/000002.parquet",
+            "dataset_row_index": 4,
+        }
+        self.assertEqual(adjudication.rank(row), adjudication.rank(dict(row)))
+        self.assertNotEqual(adjudication.rank(row), adjudication.rank(dict(row, source_doc_id="doc-b")))
 
 
 class ScannerTests(unittest.TestCase):

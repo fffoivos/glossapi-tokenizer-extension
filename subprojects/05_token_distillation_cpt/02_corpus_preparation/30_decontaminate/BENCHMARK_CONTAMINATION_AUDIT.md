@@ -30,7 +30,9 @@ The reusable path therefore uses:
 4. `scripts/sample_benchmark_contamination_evidence.py` to produce a
    deterministic, query-joined manual-review sample for every benchmark and
    match category;
-5. `subprojects/09_full_8b_cpt_results_analysis/evaluation/rescore_contamination_filtered.py`
+5. `scripts/build_benchmark_contamination_adjudication_packet.py` to compact
+   every strict unit to one representative match plus source/count evidence;
+6. `subprojects/09_full_8b_cpt_results_analysis/evaluation/rescore_contamination_filtered.py`
    to report both full and strict-filtered scores for already-trained models.
 
 ## Match and discount policy
