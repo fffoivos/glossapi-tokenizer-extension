@@ -63,16 +63,18 @@ def verify_model(model: Path, expected: dict[str, Any]) -> dict[str, Any]:
     config_path = model / "config.json"
     tokenizer_path = model / "tokenizer.json"
     config = json.loads(config_path.read_text())
+    tokenizer_sha256 = sha256_file(tokenizer_path)
+    allowed_tokenizers = set(expected["tokenizer_json_sha256_allowed"])
     checks = {
         "vocab_size": int(config["vocab_size"]) == int(expected["vocab_size"]),
         "rope_theta": float(config["rope_theta"]) == float(expected["rope_theta"]),
         "max_position_embeddings": int(config["max_position_embeddings"]) == int(expected["max_position_embeddings"]),
         "tie_word_embeddings": bool(config["tie_word_embeddings"]) is bool(expected["tie_word_embeddings"]),
-        "tokenizer_json_sha256": sha256_file(tokenizer_path) == expected["tokenizer_json_sha256"],
+        "tokenizer_json_sha256": tokenizer_sha256 in allowed_tokenizers,
     }
     if not all(checks.values()):
         raise ValueError(f"model contract failed: {checks}")
-    return {"checks": checks, "config_sha256": sha256_file(config_path), "tokenizer_sha256": sha256_file(tokenizer_path)}
+    return {"checks": checks, "config_sha256": sha256_file(config_path), "tokenizer_sha256": tokenizer_sha256}
 
 
 def binary_stats(rows: list[dict[str, Any]]) -> dict[str, float | int | None]:

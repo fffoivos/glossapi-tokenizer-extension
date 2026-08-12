@@ -27,7 +27,11 @@
   ],
   "model_contract": {
     "vocab_size": 148992,
-    "tokenizer_json_sha256": "acf4d5c6a8aa0cc64c9c781c203fd6dbb4581b0124cca0a76a9e10322fd81092",
+    "tokenizer_json_sha256_allowed": [
+      "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+      "acf4d5c6a8aa0cc64c9c781c203fd6dbb4581b0124cca0a76a9e10322fd81092"
+    ],
+    "tokenizer_note": "The initialization anchor carries the frozen overlay byte form; trained HF exports carry a semantically verified reserialization. Both hashes are receipt-bound.",
     "rope_theta": 500000,
     "max_position_embeddings": 4096,
     "tie_word_embeddings": false
