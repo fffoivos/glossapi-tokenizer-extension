@@ -28,6 +28,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--example-batch-size", type=int, default=16)
     parser.add_argument("--max-examples-per-benchmark", type=int, default=0)
     parser.add_argument("--benchmarks", default="all", help="Comma-separated frozen benchmark ids, or all.")
+    parser.add_argument("--row-shard-index", type=int, default=0)
+    parser.add_argument("--row-shard-count", type=int, default=1)
     return parser.parse_args()
 
 
@@ -59,6 +61,28 @@ def parse_model(value: str) -> tuple[str, Path]:
     if not label or not path.is_dir():
         raise ValueError(f"invalid model binding: {value}")
     return label, path
+
+
+def select_frozen_rows(
+    rows,
+    selected: set[str] | None,
+    row_shard_index: int,
+    row_shard_count: int,
+    max_examples_per_benchmark: int,
+) -> dict[str, list[dict[str, Any]]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    source_positions: dict[str, int] = defaultdict(int)
+    for row in rows:
+        if selected is not None and row["benchmark"] not in selected:
+            continue
+        source_index = source_positions[row["benchmark"]]
+        source_positions[row["benchmark"]] += 1
+        if source_index % row_shard_count != row_shard_index:
+            continue
+        group = grouped[row["benchmark"]]
+        if max_examples_per_benchmark <= 0 or len(group) < max_examples_per_benchmark:
+            group.append(row)
+    return grouped
 
 
 def suffix_choice_scorer(native):
@@ -220,6 +244,8 @@ def summarize(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def main() -> int:
     args = parse_args()
+    if args.row_shard_count < 1 or not 0 <= args.row_shard_index < args.row_shard_count:
+        raise ValueError("row shard must satisfy 0 <= index < count")
     if args.output_dir.exists():
         raise FileExistsError(args.output_dir)
     label, model_path = parse_model(args.model)
@@ -234,16 +260,15 @@ def main() -> int:
     model_verification = verify_model(model_path, contract["model_contract"])
     native = load_module(args.native_runner.resolve())
 
-    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     selected = None if args.benchmarks == "all" else {item.strip() for item in args.benchmarks.split(",") if item.strip()}
     with examples_path.open(encoding="utf-8") as handle:
-        for line in handle:
-            row = json.loads(line)
-            if selected is not None and row["benchmark"] not in selected:
-                continue
-            group = grouped[row["benchmark"]]
-            if args.max_examples_per_benchmark <= 0 or len(group) < args.max_examples_per_benchmark:
-                group.append(row)
+        grouped = select_frozen_rows(
+            (json.loads(line) for line in handle),
+            selected,
+            args.row_shard_index,
+            args.row_shard_count,
+            args.max_examples_per_benchmark,
+        )
     if selected is not None and selected != set(grouped):
         raise ValueError(f"requested benchmark ids not found: {sorted(selected - set(grouped))}")
 
@@ -317,6 +342,7 @@ def main() -> int:
         "example_batch_size": args.example_batch_size,
         "max_examples_per_benchmark": args.max_examples_per_benchmark,
         "requested_benchmarks": args.benchmarks,
+        "row_shard": {"index": args.row_shard_index, "count": args.row_shard_count},
         "contract": {"path": str(args.contract.resolve()), "sha256": contract_sha256},
         "manifest": {"path": str(args.manifest.resolve()), "sha256": sha256_file(args.manifest)},
         "native_runner": {"path": str(args.native_runner.resolve()), "sha256": sha256_file(args.native_runner)},

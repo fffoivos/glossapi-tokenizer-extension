@@ -5,18 +5,22 @@ Medical MCQA, ASEP MCQA, GPCR and OYXOY. The first point is the iteration-zero
 model; the other points are update 9,536 (39.997B token slots) and the terminal
 update 18,284 (76.689B token slots).
 
-The execution shape is two Clariden debug nodes and six independent evaluator
-processes. Each checkpoint has a core shard and an OYXOY WIC shard, so all
-three checkpoints and both task groups run concurrently. Every process is
-pinned to one GH200; this uses six of the eight allocated GPUs and keeps the
-two uneven shards from serializing the critical path.
+The execution shape is four Clariden debug nodes and fifteen independent FP32
+evaluator processes. Each checkpoint has five shards: the four MCQ datasets,
+OYXOY NLI plus metaphor, OYXOY WSD, and two disjoint halves of OYXOY WIC.
+Every process is pinned to one GH200. This uses fifteen of sixteen GPUs and
+keeps the largest OYXOY views below the 90-minute debug limit. A fail-closed
+aggregator verifies that the shard union contains every frozen example exactly
+once before it writes checkpoint-level metrics.
 
 The authoritative scorer is the legacy full-logit implementation in FP32.
 BF16 was tested and rejected by a frozen parity gate because it changed answer
-rankings. The production candidate batch is four only if an FP32 batch-one
-versus batch-four gate preserves every sampled prediction and stays inside the
-predeclared score tolerances. The matrix reads its dtype and batch sizes from
-that immutable execution-profile receipt rather than from free-form overrides.
+rankings. An FP32 batch-one versus batch-four test preserved all sampled
+predictions but missed the predeclared raw-score tolerances, so production uses
+candidate batch one. Speed comes only from independent-example and
+independent-checkpoint parallelism; arithmetic within each scored example is
+unchanged. The matrix reads its dtype and batch sizes from an immutable
+execution-profile receipt rather than from free-form overrides.
 
 OYXOY is reported as four zero-shot base-model tasks: multilabel NLI through
 three independent binary decisions, definition-based WSD, words-in-context and

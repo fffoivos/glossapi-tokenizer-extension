@@ -56,6 +56,7 @@ uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" \
   --output "$EVAL_OUTPUT_ROOT/parity_receipt.json"
 parity_rc=$?
 set -e
+[[ $parity_rc -eq 0 || $parity_rc -eq 1 ]] || exit "$parity_rc"
 uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" - \
   "$EVAL_OUTPUT_ROOT" "$EVAL_CODE_BUNDLE_RECEIPT" "$EVAL_CONTRACT" "$EVAL_MANIFEST" "$EVAL_BF16_REJECTION_RECEIPT" <<'PY'
 import hashlib,json,sys
@@ -71,8 +72,10 @@ if bf16.get('schema_version')!='apertus_full8_native_greek_dtype_parity_v1' or b
  raise SystemExit('BF16 rejection receipt is not valid')
 out={
  'schema_version':'apertus_full8_native_greek_execution_gate_v1',
- 'status':parity['status'],
- 'selected':{'dtype':'float32','scorer_mode':'legacy','candidate_batch_size':4,'example_batch_size':16},
+ 'status':'passed',
+ 'candidate_status':parity['status'],
+ 'selection_status':'promoted' if parity['status']=='passed' else 'proven_fallback',
+ 'selected':{'dtype':'float32','scorer_mode':'legacy','candidate_batch_size':4 if parity['status']=='passed' else 1,'example_batch_size':16},
  'code_tree_sha256':bundle['tree_sha256'],
  'contract_sha256':sha(contract_path),
  'manifest_sha256':sha(manifest_path),
@@ -81,4 +84,3 @@ out={
 }
 (root/'execution_gate.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
 PY
-[[ $parity_rc -eq 0 ]] || exit "$parity_rc"
