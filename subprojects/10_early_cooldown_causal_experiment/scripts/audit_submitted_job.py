@@ -12,6 +12,15 @@ from pathlib import Path
 from contract_utils import atomic_json, require
 
 
+def exact_node_count(raw: str) -> int:
+    """Accept Slurm's pending-job singleton range, never a variable range."""
+
+    parts = raw.split("-", 1)
+    values = [int(value) for value in parts]
+    require(len(values) == 1 or values[0] == values[1], f"variable node request is not auditable: {raw}")
+    return values[0]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--job-id", required=True)
@@ -25,7 +34,7 @@ def main() -> int:
             key, value = part.split("=", 1)
             fields[key] = value
     require(fields.get("JobId") == args.job_id, "Slurm job identity drift")
-    nodes = int(fields.get("NumNodes", "0"))
+    nodes = exact_node_count(fields.get("NumNodes", "0"))
     partition = fields.get("Partition")
     if args.role.startswith("evaluation") or args.role == "native_endpoint":
         require(partition == "debug" and nodes == 4, "evaluation resource drift")

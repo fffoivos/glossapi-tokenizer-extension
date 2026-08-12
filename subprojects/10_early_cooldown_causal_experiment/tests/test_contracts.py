@@ -68,3 +68,17 @@ def test_python_and_shell_sources_parse() -> None:
         ast.parse(path.read_text(), filename=str(path))
     for path in list((ROOT / "clariden").glob("*.sh")) + list((ROOT / "clariden").glob("*.sbatch")):
         subprocess.run(["bash", "-n", str(path)], check=True)
+
+
+def test_slurm_singleton_node_range_is_accepted_but_variable_range_is_not() -> None:
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from audit_submitted_job import exact_node_count
+
+    assert exact_node_count("16") == 16
+    assert exact_node_count("16-16") == 16
+    try:
+        exact_node_count("1-16")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("variable node range should fail closed")
