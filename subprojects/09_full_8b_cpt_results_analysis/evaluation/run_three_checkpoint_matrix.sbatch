@@ -44,7 +44,8 @@ sample_limit=${EVAL_MAX_EXAMPLES_PER_BENCHMARK:-0}
 pids=()
 for binding in "${bindings[@]}"; do
   label=${binding%%=*}
-  srun --exclusive --nodes=1 --ntasks=1 --cpus-per-task=72 --gpus-per-task=1 \
+  srun --exclusive --exact --nodes=1 --ntasks=1 --cpus-per-task=72 --mem=220G \
+    --gpus-per-node=1 --gpus-per-task=1 \
     --cpu-bind=cores --output="$EVAL_OUTPUT_ROOT/logs/${label}.out" --error="$EVAL_OUTPUT_ROOT/logs/${label}.err" \
     uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" "$runner" \
       --contract "$EVAL_CONTRACT" --manifest "$EVAL_MANIFEST" --native-runner "$native_runner" \
