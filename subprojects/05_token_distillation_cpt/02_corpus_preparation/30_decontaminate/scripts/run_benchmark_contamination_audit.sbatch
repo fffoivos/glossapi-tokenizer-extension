@@ -11,6 +11,7 @@
 #SBATCH --requeue
 
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 : "${AUDIT_CODE_ROOT:?set immutable code root}"
 : "${AUDIT_CODE_RECEIPT:?set immutable code receipt}"
 : "${AUDIT_RUN_ROOT:?set audit run root}"
