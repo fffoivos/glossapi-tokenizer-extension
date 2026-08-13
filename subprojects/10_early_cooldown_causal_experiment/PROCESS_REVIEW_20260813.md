@@ -138,11 +138,20 @@ were submitted from the exact tested command. The audited training request is
 The independent replay portability chain remains off the training critical
 path. Upload `3075934` was later allocated to `nid001154` during maintenance
 and scheduler-cancelled after one second, still before producing an upload
-receipt. Replacement upload `3076327` passed the exact immutable-bundle
-`sbatch --test-only` check and was deliberately held until 19:34 CEST, after
-the maintenance window. Existing hydration `3075937` was retargeted to
-`afterok:3076327`; existing production-reader smoke `3075941` remains on
-`debug` after hydration. No duplicate downstream job and no `normal`
-allocation was created. The immutable transition receipt is:
+receipt. Replacement `3076327` began after maintenance but failed closed in
+10 seconds because `uenv` is not installed on xfer nodes; it moved no data.
+The first pinned standalone runtime was then built on GH200 `debug`, and an
+actual xfer smoke rejected it because its aarch64 NumPy wheel could not load on
+the x86_64 transfer node. This exposed an architecture error before upload.
 
-`/capstor/scratch/cscs/fffoivos/cpt_assets/replay/20260813T135200Z-v2max-f30-gcap-v2/inventory/replay_job_transition_20260813_v3.json`
+The corrected transfer tooling was tested and pushed directly as `a32bbac`.
+Immutable efficiency bundle v23 has tree SHA-256
+`f626c9b9b67d1a1706e86a7a2d46ffb7a601ef77e40677ec4331cf7ccaff03fc`.
+Xfer job `3076545` built and twice verified the x86_64 runtime in 2 minutes 31
+seconds; its tree SHA-256 is
+`7612964168d9a116c04dad34cc515ec7225ba40443d502576a8a86f63e7685e1`.
+Private upload `3076559` now runs on xfer from v23. Full-SHA hydration
+`3076562` depends on `afterok:3076559`, and production-reader smoke `3076564`
+runs on debug after `afterok:3076562`. The obsolete descendants `3075937` and
+`3075941` were canceled with zero runtime only after the corrected replacement
+path was ready. No `normal` allocation was created or changed by this repair.
