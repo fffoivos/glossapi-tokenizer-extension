@@ -26,6 +26,11 @@ def test_single_variable_and_resource_contract() -> None:
     assert contract["training"]["learning_rate"]["decay_samples"] == 3657 * 1024
     assert contract["training"]["ademamix"]["alpha_warmup_updates"] == 18284
     assert contract["training"]["ademamix"]["beta3_warmup_updates"] == 18284
+    assert contract["training"]["parallelism"]["leaf_switch"] == "group36"
+    assert (
+        contract["training"]["parallelism"]["placement_enforcement"]
+        == "hard_exclude_all_other_leaves"
+    )
     assert contract["evaluation"]["milestone_iterations"] == [10728, 11920, 13112, 13193]
     assert contract["allocation_policy"]["normal_allocations"] == 1
     sandwich = contract["sandwich_same_allocation_gate"]
@@ -45,7 +50,7 @@ def test_training_launcher_contains_expected_invariants() -> None:
         "launch_megatron branch 13509632 1 3744768",
         "MINI_SCHEDULE_ARM=D0_mixed", 'MINI_SCHEDULE_ALLOW_PREFIX="$prefix_mode"',
         '"10728,11920,13112,13193"', "--rotary-base 500000", "--rope-scaling-factor 8.0",
-        "--signal=B:USR1@600", "--nodes=16", "--switches=1@7-00:00:00",
+        "--signal=B:USR1@600", "--nodes=16", "--switches=1",
     ):
         assert required in script
     assert "--no-load-optim" not in script
@@ -94,21 +99,21 @@ def test_single_allocation_budget_closes() -> None:
     assert "after:$replay" not in submit
 
 
-def test_scheduler_can_choose_any_eligible_single_leaf() -> None:
+def test_test_only_selected_leaf_is_hard_excluded() -> None:
     submit = (ROOT / "clariden/submit_experiment.sh").read_text()
     prepare = (ROOT / "clariden/prepare_launch_debug.sbatch").read_text()
     supervisor = (ROOT / "clariden/supervise_after_training_debug.sbatch").read_text()
     training = (ROOT / "clariden/train_and_gate.sbatch").read_text()
     snapshot = (ROOT / "scripts/capture_scheduler_snapshot.py").read_text()
     for script in (submit, prepare, supervisor):
-        assert "--switches=1@7-00:00:00" in script
-        assert "--exclude=" not in script
-        assert "EARLY_TRAIN_LEAF_SWITCH" not in script
-        assert "resolve_leaf_switch_exclusion.sh" not in script
-    assert "EARLY_TRAIN_LEAF_SWITCH" not in training
+        assert "--switches=1" in script
+        assert '--exclude="$leaf_exclusion"' in script
+        assert "EARLY_TRAIN_LEAF_SWITCH" in script
+        assert "resolve_leaf_switch_exclusion.sh" in script
+    assert "EARLY_TRAIN_LEAF_SWITCH" in training
     assert '[[ ${#leaves[@]} == 1 ]]' in training
-    assert '"selection": "scheduler_selected"' in snapshot
-    assert "group29" not in snapshot
+    assert '"selection": "test_only_selected"' in snapshot
+    assert '"leaf_switch": "group36"' in snapshot
 
 
 def test_control_hook_is_environment_gated_and_no_save() -> None:
@@ -175,12 +180,10 @@ def test_python_and_shell_sources_parse() -> None:
 
 def test_slurm_singleton_node_range_is_accepted_but_variable_range_is_not() -> None:
     sys.path.insert(0, str(ROOT / "scripts"))
-    from audit_submitted_job import exact_node_count, switch_wait_seconds
+    from audit_submitted_job import exact_node_count
 
     assert exact_node_count("16") == 16
     assert exact_node_count("16-16") == 16
-    assert switch_wait_seconds("1@7-00") == 7 * 86400
-    assert switch_wait_seconds("1@7-00:00:00") == 7 * 86400
     try:
         exact_node_count("1-16")
     except ValueError:
@@ -189,10 +192,10 @@ def test_slurm_singleton_node_range_is_accepted_but_variable_range_is_not() -> N
         raise AssertionError("variable node range should fail closed")
 
 
-def test_training_job_audit_checks_single_leaf_request_without_node_pinning() -> None:
+def test_training_job_audit_requires_hard_leaf_exclusion() -> None:
     audit = (ROOT / "scripts/audit_submitted_job.py").read_text()
-    assert 'switch_wait_seconds(fields.get("Switches", "")) >= 7 * 86400' in audit
-    assert 'fields.get("ExcNodeList") in {None, "(null)"}' in audit
+    assert 'fields.get("Switches", "").startswith("1@")' in audit
+    assert 'fields.get("ExcNodeList") not in {None, "(null)"}' in audit
     assert '"switches": fields.get("Switches")' in audit
     assert '"excluded_nodes": fields.get("ExcNodeList")' in audit
 

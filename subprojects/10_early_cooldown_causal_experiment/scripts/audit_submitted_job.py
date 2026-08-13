@@ -21,21 +21,6 @@ def exact_node_count(raw: str) -> int:
     return values[0]
 
 
-def switch_wait_seconds(raw: str) -> int:
-    count, wait = raw.split("@", 1)
-    require(count == "1", f"expected one leaf switch, got {raw}")
-    days = 0
-    if "-" in wait:
-        day_text, wait = wait.split("-", 1)
-        days = int(day_text)
-    values = [int(value) for value in wait.split(":")]
-    require(1 <= len(values) <= 3, f"unrecognized switch wait: {raw}")
-    while len(values) < 3:
-        values.insert(0, 0)
-    hours, minutes, seconds = values
-    return days * 86400 + hours * 3600 + minutes * 60 + seconds
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--job-id", required=True)
@@ -57,11 +42,8 @@ def main() -> int:
         require(partition == "debug" and nodes == 1, "supervisor resource drift")
     elif args.role in {"training", "recovery_train"}:
         require(partition == "normal" and nodes == 16, "training resource drift")
-        require(
-            switch_wait_seconds(fields.get("Switches", "")) >= 7 * 86400,
-            "training single-leaf wait is not hard for the campaign window",
-        )
-        require(fields.get("ExcNodeList") in {None, "(null)"}, "training request unexpectedly pins or excludes nodes")
+        require(fields.get("Switches", "").startswith("1@"), "training single-leaf request drift")
+        require(fields.get("ExcNodeList") not in {None, "(null)"}, "training leaf exclusion is absent")
     payload = {
         "schema_version": "apertus_full8_early_cooldown_slurm_job_v1",
         "status": "audited",

@@ -18,6 +18,7 @@ set -euo pipefail
 : "${EARLY_OPERATIONAL_GATE:?set operational gate}"
 : "${EARLY_RUN_ROOT:?set run root}"
 : "${EARLY_TRAIN_JOB_ID:?set completed training job id}"
+: "${EARLY_TRAIN_LEAF_SWITCH:?set hard-selected training leaf}"
 : "${EARLY_PHASE:?set branch}"
 [[ "$EARLY_PHASE" == branch ]] || { echo "invalid supervisor phase" >&2; exit 2; }
 [[ "${SLURM_JOB_PARTITION:-}" == debug ]] || { echo "supervisor must run on debug" >&2; exit 2; }
@@ -45,7 +46,7 @@ if d.get('schema_version')!='apertus_full8_early_cooldown_training_v2' or d.get(
 print(d['status']); print(d.get('last_logged_iteration') or 0)
 PY
 )
-common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$EARLY_CODE_BUNDLE_RECEIPT,EARLY_CONTRACT=$EARLY_CONTRACT,EARLY_BRANCH_RECIPE=$EARLY_BRANCH_RECIPE,EARLY_LAUNCH_GATE=$EARLY_LAUNCH_GATE,EARLY_OPERATIONAL_GATE=$EARLY_OPERATIONAL_GATE,EARLY_RUN_ROOT=$EARLY_RUN_ROOT"
+common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$EARLY_CODE_BUNDLE_RECEIPT,EARLY_CONTRACT=$EARLY_CONTRACT,EARLY_BRANCH_RECIPE=$EARLY_BRANCH_RECIPE,EARLY_LAUNCH_GATE=$EARLY_LAUNCH_GATE,EARLY_OPERATIONAL_GATE=$EARLY_OPERATIONAL_GATE,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_TRAIN_LEAF_SWITCH=$EARLY_TRAIN_LEAF_SWITCH"
 mkdir -p "$EARLY_RUN_ROOT/logs" "$EARLY_RUN_ROOT/orchestration"
 if [[ "${state[0]}" == branch_completed && "${state[1]}" == 13193 ]]; then
   child=$(sbatch --uenv-passthrough=ignore --parsable --partition=debug --nodes=4 --time=01:29:00 \
@@ -54,7 +55,8 @@ if [[ "${state[0]}" == branch_completed && "${state[1]}" == 13193 ]]; then
     "$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden/run_checkpoint_evaluation_debug.sbatch")
   role=evaluation_10728
 elif [[ "${state[0]}" == branch_gracefully_stopped && "${state[1]}" -gt 9536 && "${state[1]}" -lt 13193 ]]; then
-  child=$(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1@7-00:00:00 \
+  leaf_exclusion=$(bash "$EARLY_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$EARLY_TRAIN_LEAF_SWITCH" 16)
+  child=$(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1 --exclude="$leaf_exclusion" \
     --job-name=early_wsd_recovery --output="$EARLY_RUN_ROOT/logs/%x-%j.out" --error="$EARLY_RUN_ROOT/logs/%x-%j.err" \
     --export="$common,EARLY_PHASE=branch,EARLY_RECOVERY_MODE=1" \
     "$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden/train_and_gate.sbatch")

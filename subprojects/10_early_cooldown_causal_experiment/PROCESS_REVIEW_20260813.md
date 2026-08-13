@@ -89,12 +89,20 @@ three probes to share one allocation, not one permanently named leaf. It also
 reduced the eligible 16-node capacity while `group29` was fully allocated or
 drained.
 
-The replacement path uses `--switches=1@7-00:00:00` while allowing the
-scheduler to choose any eligible leaf. At job start it independently maps
-the allocated nodes to level-0 topology and exits before any training unless
-exactly one leaf is observed. The actual leaf is written to the terminal
-training receipt. The same scheduler-selected, fail-closed policy applies to a
-bounded recovery allocation.
+The first replacement allowed the scheduler to choose any eligible leaf with
+`--switches=1`, while mapping the result and failing closed unless exactly one
+leaf was observed. Live job `3076070` proved that Clariden normalizes this to
+`Switches=1@00:05:00`: after five minutes the preference is relaxed. It started
+across four leaves and exited before parity or training in 41 seconds. An
+explicit seven-day wait was also normalized back to five minutes; the exact
+post-submit audit canceled jobs `3076846` and `3076847` at zero runtime.
+
+The final placement path uses the already validated leaf-exclusion helper.
+Read-only test-only probes of every compute leaf selected `group36` as the
+earliest eligible leaf, and it is also the leaf used by the proven DP32
+profile. Every node outside group36 is hard-excluded from initial and recovery
+allocations. Runtime topology mapping still fails closed and emits a classified
+receipt containing every observed leaf if Slurm ever violates the binding.
 
 ## Allocation status at review time
 

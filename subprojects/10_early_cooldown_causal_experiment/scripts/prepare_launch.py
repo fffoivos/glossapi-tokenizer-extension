@@ -42,6 +42,13 @@ def validate_static(contract: dict) -> None:
     require(contract["evaluation"]["milestone_iterations"] == EXPECTED_MILESTONES, "evaluation milestone drift")
     require(contract["data"]["arm"] == "D0_mixed", "data arm drift")
     require(contract["allocation_policy"]["normal_allocations"] == 1, "allocation count drift")
+    parallelism = training["parallelism"]
+    require(
+        parallelism["single_leaf_switch"] is True
+        and parallelism["leaf_switch"] == "group36"
+        and parallelism["placement_enforcement"] == "hard_exclude_all_other_leaves",
+        "hard single-leaf placement contract drift",
+    )
     sandwich = contract["sandwich_same_allocation_gate"]
     require(sandwich["source_iteration"] == 9536 and sandwich["comparison_iteration"] == 9537, "sandwich-control iteration drift")
     require(sandwich["same_nodes_and_allocation"] is True, "sandwich control allocation drift")
@@ -175,9 +182,10 @@ def main() -> int:
     require(
         scheduler.get("training_leaf_policy")
         == {
-            "selection": "scheduler_selected",
+            "selection": "test_only_selected",
             "maximum_level0_leaves": 1,
-            "maximum_wait": "7-00:00:00",
+            "leaf_switch": "group36",
+            "placement_enforcement": "hard_exclude_all_other_leaves",
             "requested_nodes": 16,
         },
         "scheduler-selected single-leaf policy drift",
@@ -204,7 +212,7 @@ def main() -> int:
             "alpha_beta3_parent_horizon_preserved": True,
             "same_allocation_one_update_sandwich_parity_required": True,
             "one_16_node_allocation_only": True,
-            "scheduler_selects_any_eligible_single_leaf": True,
+            "test_only_selected_proven_single_leaf_is_hard_enforced": True,
             "fresh_debug_scheduler_snapshot": True,
         },
         "contract": file_binding(args.contract),

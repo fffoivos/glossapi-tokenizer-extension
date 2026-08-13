@@ -10,6 +10,8 @@ recipe="$EARLY_PRELAUNCH_ROOT/branch_recipe.json"
 gate="$EARLY_PRELAUNCH_ROOT/launch_gate.json"
 operational="$EARLY_PRELAUNCH_ROOT/operational_gate.json"
 test_receipt="$EARLY_PRELAUNCH_ROOT/slurm_test_only.json"
+leaf_switch=$(/usr/bin/python3.11 -c 'import json,sys;print(json.load(open(sys.argv[1]))["training"]["parallelism"]["leaf_switch"])' "$contract")
+leaf_exclusion=$(bash "$EARLY_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$leaf_switch" 16)
 SUBPROJECT="$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment"
 for path in "$receipt" "$contract" "$recipe" "$gate" "$operational" "$test_receipt"; do [[ -f "$path" ]] || { echo "missing $path" >&2; exit 2; }; done
 [[ ! -e "$EARLY_RUN_ROOT" ]] || { echo "run root already exists" >&2; exit 2; }
@@ -23,8 +25,8 @@ if d.get('status')!='passed': raise SystemExit('operational gate failed')
 for key,path in [('launch_gate',sys.argv[2]),('slurm_test_only',sys.argv[3])]:
  if d[key]['sha256']!=hashlib.sha256(Path(path).read_bytes()).hexdigest(): raise SystemExit(f'{key} drift')
 PY
-common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$receipt,EARLY_CONTRACT=$contract,EARLY_BRANCH_RECIPE=$recipe,EARLY_LAUNCH_GATE=$gate,EARLY_OPERATIONAL_GATE=$operational,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_RECOVERY_MODE=0,EARLY_PHASE=branch"
-command=(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1@7-00:00:00 \
+common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$receipt,EARLY_CONTRACT=$contract,EARLY_BRANCH_RECIPE=$recipe,EARLY_LAUNCH_GATE=$gate,EARLY_OPERATIONAL_GATE=$operational,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_TRAIN_LEAF_SWITCH=$leaf_switch,EARLY_RECOVERY_MODE=0,EARLY_PHASE=branch"
+command=(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1 --exclude="$leaf_exclusion" \
   --job-name=full8_early_wsd --output="$EARLY_RUN_ROOT/logs/%x-%j.out" \
   --error="$EARLY_RUN_ROOT/logs/%x-%j.err" --export="$common" "$SUBPROJECT/clariden/train_and_gate.sbatch")
 printf -v quoted '%q ' "${command[@]}"

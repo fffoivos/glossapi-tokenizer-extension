@@ -3,7 +3,7 @@
 #SBATCH --account=a0140
 #SBATCH --partition=normal
 #SBATCH --nodes=16
-#SBATCH --switches=1@7-00:00:00
+#SBATCH --switches=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=4
 #SBATCH --gres=gpu:4
@@ -23,6 +23,7 @@ set -euo pipefail
 : "${EARLY_OPERATIONAL_GATE:?set passing operational gate}"
 : "${EARLY_RUN_ROOT:?set one new run root}"
 : "${EARLY_PHASE:?set branch}"
+: "${EARLY_TRAIN_LEAF_SWITCH:?set hard-selected training leaf}"
 [[ "$EARLY_PHASE" == branch ]] || { echo "invalid phase: $EARLY_PHASE" >&2; exit 2; }
 
 SUBPROJECT="$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment"
@@ -107,6 +108,10 @@ fail_before_training() {
 }
 [[ ${#leaves[@]} == 1 ]] || {
   echo "allocation is not contained in exactly one leaf: observed=${leaves[*]:-none}" >&2
+  fail_before_training topology_rejected 2
+}
+[[ "${leaves[0]}" == "$EARLY_TRAIN_LEAF_SWITCH" ]] || {
+  echo "allocation leaf drift: expected=$EARLY_TRAIN_LEAF_SWITCH observed=${leaves[0]}" >&2
   fail_before_training topology_rejected 2
 }
 

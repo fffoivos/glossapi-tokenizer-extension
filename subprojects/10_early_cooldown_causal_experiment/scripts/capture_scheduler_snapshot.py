@@ -32,9 +32,10 @@ def main() -> int:
         "partitions": command("sinfo", "-o", "%P|%a|%l|%D|%t|%N"),
         "qos": command("sacctmgr", "-n", "-P", "show", "qos", "normal,debug-qos", "format=Name,MaxWall,MaxJobsPU,MaxSubmitJobsPU,MaxTRESPerUser"),
         "training_leaf_policy": {
-            "selection": "scheduler_selected",
+            "selection": "test_only_selected",
             "maximum_level0_leaves": 1,
-            "maximum_wait": "7-00:00:00",
+            "leaf_switch": "group36",
+            "placement_enforcement": "hard_exclude_all_other_leaves",
             "requested_nodes": 16,
         },
     }

@@ -24,6 +24,8 @@ recipe="$EARLY_PRELAUNCH_ROOT/branch_recipe.json"
 gate="$EARLY_PRELAUNCH_ROOT/launch_gate.json"
 test_receipt="$EARLY_PRELAUNCH_ROOT/slurm_test_only.json"
 operational="$EARLY_PRELAUNCH_ROOT/operational_gate.json"
+leaf_switch=$(/usr/bin/python3.11 -c 'import json,sys;print(json.load(open(sys.argv[1]))["training"]["parallelism"]["leaf_switch"])' "$contract")
+leaf_exclusion=$(bash "$EARLY_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$leaf_switch" 16)
 
 /usr/bin/python3.11 "$EARLY_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
   --root "$EARLY_CODE_ROOT" --receipt "$EARLY_CODE_BUNDLE_RECEIPT" --kind scientific
@@ -31,8 +33,8 @@ operational="$EARLY_PRELAUNCH_ROOT/operational_gate.json"
 /usr/bin/python3.11 "$SUBPROJECT/scripts/prepare_launch.py" --contract "$contract" \
   --code-bundle-receipt "$EARLY_CODE_BUNDLE_RECEIPT" --scheduler-snapshot "$scheduler" \
   --recipe-output "$recipe" --launch-gate-output "$gate"
-common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$EARLY_CODE_BUNDLE_RECEIPT,EARLY_CONTRACT=$contract,EARLY_BRANCH_RECIPE=$recipe,EARLY_LAUNCH_GATE=$gate,EARLY_OPERATIONAL_GATE=$operational,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_RECOVERY_MODE=0,EARLY_PHASE=branch"
-command=(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1@7-00:00:00 \
+common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$EARLY_CODE_BUNDLE_RECEIPT,EARLY_CONTRACT=$contract,EARLY_BRANCH_RECIPE=$recipe,EARLY_LAUNCH_GATE=$gate,EARLY_OPERATIONAL_GATE=$operational,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_TRAIN_LEAF_SWITCH=$leaf_switch,EARLY_RECOVERY_MODE=0,EARLY_PHASE=branch"
+command=(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1 --exclude="$leaf_exclusion" \
   --job-name=full8_early_wsd --output="$EARLY_RUN_ROOT/logs/%x-%j.out" \
   --error="$EARLY_RUN_ROOT/logs/%x-%j.err" --export="$common" "$SUBPROJECT/clariden/train_and_gate.sbatch")
 test_result=$(sbatch --test-only "${command[@]:1}" 2>&1)

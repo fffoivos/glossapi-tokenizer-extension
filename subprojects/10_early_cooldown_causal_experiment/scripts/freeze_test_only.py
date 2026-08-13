@@ -22,7 +22,7 @@ def main() -> int:
     role_fragments = {
         "training": ("--time=12:00:00", "EARLY_PHASE=branch"),
     }
-    for fragment in ("--partition=normal", "--nodes=16", "--switches=1", "EARLY_RECOVERY_MODE=0", *role_fragments[args.role]):
+    for fragment in ("--partition=normal", "--nodes=16", "--switches=1", "--exclude=", "EARLY_TRAIN_LEAF_SWITCH=group36", "EARLY_RECOVERY_MODE=0", *role_fragments[args.role]):
         require(fragment in args.command, f"test-only command missing {fragment}")
     payload = {
         "schema_version": "apertus_early_cooldown_slurm_test_only_v1",
