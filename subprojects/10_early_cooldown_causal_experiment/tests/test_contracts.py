@@ -97,6 +97,15 @@ def test_operational_jobs_obey_partition_policy() -> None:
     assert "freeze_bundle_debug.sbatch" in deploy
 
 
+def test_readonly_watcher_never_mutates_slurm_or_executes_data_work() -> None:
+    watcher = (ROOT / "clariden/watch_early_cooldown_readonly.sh").read_text()
+    assert "squeue" in watcher
+    assert "sbatch" not in watcher
+    assert "scancel" not in watcher
+    for forbidden in ("dedup", "anonymize", "decontaminate", "tokenize", "pack_catalog", "rsync"):
+        assert forbidden not in watcher
+
+
 def test_supervisor_handles_training_completion_and_bounded_recovery() -> None:
     supervisor = (ROOT / "clariden/supervise_after_training_debug.sbatch").read_text()
     assert "branch_completed" in supervisor
