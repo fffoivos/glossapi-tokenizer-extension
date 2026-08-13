@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,8 +16,6 @@ MODULE_PATH = ROOT / "training" / "scheduled_sequence_reader.py"
 SPEC = importlib.util.spec_from_file_location("scheduled_sequence_reader", MODULE_PATH)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
-import sys
-
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
