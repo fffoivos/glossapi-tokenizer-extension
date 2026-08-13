@@ -123,7 +123,10 @@ else
   replay_gate="$EARLY_RUN_ROOT/replay/parent_replay_receipt.json"
   max_hold=$(/usr/bin/python3.11 -c 'import json,sys;print(json.load(open(sys.argv[1]))["allocation_policy"]["branch_maximum_hold_seconds"])' "$EARLY_CONTRACT")
   minimum_with_reserve=$(/usr/bin/python3.11 -c 'import json,sys;d=json.load(open(sys.argv[1]))["allocation_policy"];print(d["branch_minimum_runtime_seconds"]+d["branch_reserve_seconds"])' "$EARLY_CONTRACT")
-  hold_started=$(date +%s)
+  # Allocation setup is part of the holder budget. START_EPOCH is captured
+  # before bundle/runtime verification, so none of that time is hidden from
+  # the maximum hold or the final live-remaining-time gate.
+  hold_started=$START_EPOCH
   while [[ ! -f "$replay_receipt" || ! -f "$replay_gate" ]]; do
     now=$(date +%s)
     (( now - hold_started < max_hold )) || { echo "replay permit did not arrive within bounded hold" >&2; fail_before_training branch_holder_expired 75; }

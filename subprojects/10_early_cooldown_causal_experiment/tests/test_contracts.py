@@ -56,6 +56,9 @@ def test_replay_and_branch_holder_budgets_close() -> None:
     assert '--dependency="after:$replay+200"' in submit
     assert "--role branch_holder" in submit
     assert '"schema_version": "apertus_full8_early_cooldown_launch_graph_v2"' in (ROOT / "scripts/freeze_launch_graph.py").read_text()
+    launcher = (ROOT / "clariden/train_and_gate.sbatch").read_text()
+    assert "hold_started=$START_EPOCH" in launcher
+    assert "hold_started=$(date +%s)" not in launcher
 
 
 def test_control_hook_is_environment_gated_and_no_save() -> None:
