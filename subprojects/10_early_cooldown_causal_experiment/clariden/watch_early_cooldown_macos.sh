@@ -41,6 +41,11 @@ notify_transition() {
     message="Parity control failed; training requires review."
   elif [[ "$current" == *'terminal=branch_completed;'* && "$previous" != *'terminal=branch_completed;'* ]]; then
     message="Training completed; checkpoint evaluations are queued."
+  elif [[ "$current" =~ terminal=([^\;]+)\; ]]; then
+    terminal_status=${BASH_REMATCH[1]}
+    if [[ "$terminal_status" != "absent" && "$previous" != *"terminal=${terminal_status};"* ]]; then
+      message="Training stopped with ${terminal_status}; immediate review required."
+    fi
   elif [[ "$current" == *'native_endpoint=completed;'* && "$previous" != *'native_endpoint=completed;'* ]]; then
     message="Native Greek endpoint evaluation completed."
   elif [[ "$current" =~ evaluations=([1-9][0-9]*)\; ]]; then
@@ -48,8 +53,6 @@ notify_transition() {
     if [[ "$previous" != *"evaluations=${evaluation_count};"* ]]; then
       message="Checkpoint evaluation ${evaluation_count} completed."
     fi
-  elif [[ "$current" == *'terminal=FAILED;'* && "$previous" != *'terminal=FAILED;'* ]]; then
-    message="Training job failed; immediate review required."
   fi
 
   [[ -n "$message" ]] || return 0
