@@ -20,8 +20,8 @@
   <key>ProcessType</key>
   <string>Background</string>
   <key>StandardOutPath</key>
-  <string>/Users/foivoskarounos-zamparloukos/Library/Logs/Codex/early-cooldown-v4.launchd.out</string>
+  <string>/Users/foivoskarounos-zamparloukos/Library/Logs/Codex/early-cooldown-v6.launchd.out</string>
   <key>StandardErrorPath</key>
-  <string>/Users/foivoskarounos-zamparloukos/Library/Logs/Codex/early-cooldown-v4.launchd.err</string>
+  <string>/Users/foivoskarounos-zamparloukos/Library/Logs/Codex/early-cooldown-v6.launchd.err</string>
 </dict>
 </plist>
