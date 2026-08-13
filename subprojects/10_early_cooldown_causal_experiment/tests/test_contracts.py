@@ -114,9 +114,10 @@ def test_macos_watcher_is_readonly_and_plist_is_bounded() -> None:
     assert "/usr/bin/ssh" in watcher
     assert "squeue" in watcher and "sacct" in watcher
     assert "sbatch" not in watcher and "scancel" not in watcher
-    assert "StartCalendarInterval" in plist
-    assert "<key>Minute</key><integer>0</integer>" in plist
-    assert "<key>Minute</key><integer>55</integer>" in plist
+    assert "while [[ $(date +%s) -lt $deadline ]]" in watcher
+    assert "sleep 300" in watcher
+    assert "<string>108000</string>" in plist
+    assert "StartCalendarInterval" not in plist and "StartInterval" not in plist
     assert "RunAtLoad" in plist
 
 

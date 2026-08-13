@@ -3,17 +3,19 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: $0 RUN_ROOT TRAINING_JOB REPLAY_UPLOAD_JOB STATE_FILE LOG_FILE" >&2
+  echo "usage: $0 RUN_ROOT TRAINING_JOB REPLAY_UPLOAD_JOB STATE_FILE LOG_FILE [MAX_SECONDS]" >&2
   exit 2
 }
 
-[[ $# == 5 ]] || usage
+[[ $# == 5 || $# == 6 ]] || usage
 run_root=$1
 training_job=$2
 replay_upload_job=$3
 state_file=$4
 log_file=$5
+maximum_seconds=${6:-0}
 [[ "$training_job" =~ ^[0-9]+$ && "$replay_upload_job" =~ ^[0-9]+$ ]] || usage
+[[ "$maximum_seconds" =~ ^[0-9]+$ ]] || usage
 
 state_dir=$(dirname "$state_file")
 [[ -d "$state_dir" && -d "$(dirname "$log_file")" ]] || {
@@ -26,6 +28,7 @@ if ! mkdir "$lock_dir" 2>/dev/null; then
 fi
 trap 'rmdir "$lock_dir" 2>/dev/null || true' EXIT
 
+observe() {
 snapshot=$(
   /usr/bin/ssh -o BatchMode=yes -o ConnectTimeout=20 clariden \
     /usr/bin/env RUN_ROOT="$run_root" TRAINING_JOB="$training_job" REPLAY_UPLOAD_JOB="$replay_upload_job" \
@@ -68,3 +71,16 @@ if [[ ! -f "$state_file" ]] || ! cmp -s <(printf '%s' "$snapshot") "$state_file"
   mv "$temporary" "$state_file"
   printf '%s %s\n' "$(date -u +%FT%TZ)" "$snapshot" >>"$log_file"
 fi
+}
+
+observe
+[[ "$maximum_seconds" -gt 0 ]] || exit 0
+deadline=$(( $(date +%s) + maximum_seconds ))
+while [[ $(date +%s) -lt $deadline ]]; do
+  sleep 300
+  observe
+  if grep -q 'terminal=branch_completed;.*evaluations=4;native_endpoint=completed;' "$state_file"; then
+    exit 0
+  fi
+done
+printf '%s watcher_timeout maximum_seconds=%s\n' "$(date -u +%FT%TZ)" "$maximum_seconds" >>"$log_file"
