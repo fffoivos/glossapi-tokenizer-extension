@@ -28,6 +28,34 @@ if ! mkdir "$lock_dir" 2>/dev/null; then
 fi
 trap 'rmdir "$lock_dir" 2>/dev/null || true' EXIT
 
+notify_transition() {
+  local previous=$1 current=$2 message=
+
+  # Do not alert for benign scheduler-reason changes. Alert only when an event
+  # needs an operator/agent follow-up or establishes a scientific milestone.
+  if [[ "$current" == *'training=RUNNING|'* && "$previous" != *'training=RUNNING|'* ]]; then
+    message="Training job ${training_job} has started."
+  elif [[ "$current" == *'parity=passed;'* && "$previous" != *'parity=passed;'* ]]; then
+    message="In-allocation parity control passed."
+  elif [[ "$current" == *'parity=failed;'* && "$previous" != *'parity=failed;'* ]]; then
+    message="Parity control failed; training requires review."
+  elif [[ "$current" == *'terminal=branch_completed;'* && "$previous" != *'terminal=branch_completed;'* ]]; then
+    message="Training completed; checkpoint evaluations are queued."
+  elif [[ "$current" == *'native_endpoint=completed;'* && "$previous" != *'native_endpoint=completed;'* ]]; then
+    message="Native Greek endpoint evaluation completed."
+  elif [[ "$current" =~ evaluations=([1-9][0-9]*)\; ]]; then
+    evaluation_count=${BASH_REMATCH[1]}
+    if [[ "$previous" != *"evaluations=${evaluation_count};"* ]]; then
+      message="Checkpoint evaluation ${evaluation_count} completed."
+    fi
+  elif [[ "$current" == *'terminal=FAILED;'* && "$previous" != *'terminal=FAILED;'* ]]; then
+    message="Training job failed; immediate review required."
+  fi
+
+  [[ -n "$message" ]] || return 0
+  /usr/bin/osascript -e "display notification \"${message}\" with title \"Apertus early-cooldown\"" >/dev/null 2>&1 || true
+}
+
 observe() {
 snapshot=$(
   /usr/bin/ssh -o BatchMode=yes -o ConnectTimeout=20 clariden \
@@ -66,10 +94,12 @@ REMOTE
 )
 snapshot=$(printf '%s\n' "$snapshot" | tr '\n' ';')
 if [[ ! -f "$state_file" ]] || ! cmp -s <(printf '%s' "$snapshot") "$state_file"; then
+  previous=$(cat "$state_file" 2>/dev/null || true)
   temporary="${state_file}.$$.partial"
   printf '%s' "$snapshot" >"$temporary"
   mv "$temporary" "$state_file"
   printf '%s %s\n' "$(date -u +%FT%TZ)" "$snapshot" >>"$log_file"
+  notify_transition "$previous" "$snapshot"
 fi
 }
 
