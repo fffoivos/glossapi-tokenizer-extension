@@ -179,3 +179,20 @@ and quota-capped final sequences of both replay pools opened, every payload had
 terminal targets beyond the exact quotas were loss-inactive. The portable cache
 receipt SHA-256 is
 `7d9baf0d79aa00a45ec38b36767ba41643c77c30202d9c868c8c5e7808c33fd4`.
+
+## Hard-placement relaunch
+
+The hard-placement correction was committed and pushed directly as `66203d88`.
+The full causal suite remained at 17 passing checks; the inherited scheduling
+suite passed 147 tests and the full-8B orchestration suite passed 43. Debug job
+`3076870` froze immutable v10 with 843 files and tree SHA-256
+`ffdf1b81cc06ca380dc77b0b8b32a3412a2bb3fa29abb2c791a71de6a10cf691`.
+Debug prelaunch `3076878` then regenerated the unchanged scientific recipe and
+passed the exact group36 test-only command. Fresh run v6 is queued as training
+job `3076888` with after-any supervisor `3076889`:
+
+`/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/20260813T205520Z-causal-wsd10-direct-v6`
+
+The audited request has 16 normal nodes, no required-node list, and a hard
+exclusion containing every level-0 leaf except group36. Thus the cluster's
+five-minute switch relaxation cannot produce another multi-leaf allocation.
