@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Freeze only the causal experiment wrapper and no-save reference-probe hook
-# over the already hardware-proven v39 scientific bundle. No data/model moves.
+# Stage only the causal wrapper and checkpoint hook from the Mac, then submit a
+# debug job to copy, validate, hash and freeze the scientific bundle.
 set -euo pipefail
 [[ "$#" == 1 ]] || { echo "usage: $0 REMOTE_ROOT" >&2; exit 2; }
 remote_root=$1
@@ -8,35 +8,21 @@ base=/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260812T0845
 case "$remote_root" in /iopsstor/scratch/cscs/fffoivos/orchestration/early-cooldown-8b/*) ;; *) echo "unexpected bundle root" >&2; exit 2;; esac
 repo_root=$(cd "$(dirname "$0")/../../.." && pwd -P)
 receipt="$remote_root.receipt.json"
-ssh clariden /usr/bin/env REMOTE_ROOT="$remote_root" BASE="$base" RECEIPT="$receipt" bash -s <<'REMOTE'
+staging_root="${remote_root}.staging"
+ssh clariden /usr/bin/env REMOTE_ROOT="$remote_root" STAGING_ROOT="$staging_root" RECEIPT="$receipt" bash -s <<'REMOTE'
 set -euo pipefail
-[[ -d "$BASE" && ! -e "$REMOTE_ROOT" && ! -e "$RECEIPT" ]]
-mkdir -p "$(dirname "$REMOTE_ROOT")"
-cp -a "$BASE" "$REMOTE_ROOT"
-chmod -R u+w "$REMOTE_ROOT"
+[[ ! -e "$REMOTE_ROOT" && ! -e "$RECEIPT" && ! -e "$STAGING_ROOT" ]]
+mkdir -p "$STAGING_ROOT/subproject"
+mkdir -p /capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/_bundle_logs
 REMOTE
-rsync -a --delete --exclude='__pycache__/' --exclude='*.pyc' \
+rsync -a --delete --exclude='__pycache__/' --exclude='*.pyc' --exclude='*.pyo' \
   "$repo_root/subprojects/10_early_cooldown_causal_experiment/" \
-  "clariden:$remote_root/subprojects/10_early_cooldown_causal_experiment/"
+  "clariden:$staging_root/subproject/"
 rsync -a "$repo_root/subprojects/06_dataset_scheduling_experiments/training/exact_checkpoint_hook.py" \
-  "clariden:$remote_root/subprojects/06_dataset_scheduling_experiments/training/exact_checkpoint_hook.py"
-ssh clariden /usr/bin/env REMOTE_ROOT="$remote_root" RECEIPT="$receipt" bash -s <<'REMOTE'
-set -euo pipefail
-find "$REMOTE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden" -type f \( -name '*.sh' -o -name '*.sbatch' \) -print0 |
-  while IFS= read -r -d '' file; do bash -n "$file"; done
-/usr/bin/python3.11 - "$REMOTE_ROOT/subprojects/10_early_cooldown_causal_experiment" <<'PY'
-import ast,sys
-from pathlib import Path
-paths=sorted(Path(sys.argv[1]).rglob('*.py'))
-for path in paths: ast.parse(path.read_text(),filename=str(path))
-print({'ok':True,'python_files':len(paths)})
-PY
-/usr/bin/python3.11 "$REMOTE_ROOT/subprojects/10_early_cooldown_causal_experiment/scripts/prepare_launch.py" \
-  --contract "$REMOTE_ROOT/subprojects/10_early_cooldown_causal_experiment/configs/experiment_contract.json" --static-only
-/usr/bin/python3.11 "$REMOTE_ROOT/subprojects/06_dataset_scheduling_experiments/production/freeze_code_bundle.py" \
-  --root "$REMOTE_ROOT" --kind scientific --output "$RECEIPT"
-/usr/bin/python3.11 "$REMOTE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
-  --root "$REMOTE_ROOT" --receipt "$RECEIPT" --kind scientific
-chmod -R a-w "$REMOTE_ROOT"
-REMOTE
-printf '%s\n%s\n' "$remote_root" "$receipt"
+  "clariden:$staging_root/exact_checkpoint_hook.py"
+job=$(ssh clariden sbatch --parsable --partition=debug --nodes=1 --time=00:20:00 \
+  --output="/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/_bundle_logs/%x-%j.out" \
+  --error="/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/_bundle_logs/%x-%j.err" \
+  --export="ALL,EARLY_BASE_BUNDLE=$base,EARLY_STAGING_ROOT=$staging_root,EARLY_CODE_ROOT=$remote_root,EARLY_CODE_BUNDLE_RECEIPT=$receipt" \
+  "$staging_root/subproject/clariden/freeze_bundle_debug.sbatch")
+printf '%s\n%s\n%s\n' "$job" "$remote_root" "$receipt"

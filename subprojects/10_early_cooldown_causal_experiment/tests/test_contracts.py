@@ -72,8 +72,12 @@ def test_control_hook_is_environment_gated_and_no_save() -> None:
 
 def test_operational_jobs_obey_partition_policy() -> None:
     assert "#SBATCH --partition=normal" in (ROOT / "clariden/train_and_gate.sbatch").read_text()
-    for name in ("prepare_launch_debug.sbatch", "run_checkpoint_evaluation_debug.sbatch", "run_native_endpoint_debug.sbatch", "supervise_after_training_debug.sbatch"):
+    for name in ("freeze_bundle_debug.sbatch", "prepare_launch_debug.sbatch", "run_checkpoint_evaluation_debug.sbatch", "run_native_endpoint_debug.sbatch", "supervise_after_training_debug.sbatch"):
         assert "#SBATCH --partition=debug" in (ROOT / "clariden" / name).read_text()
+    deploy = (ROOT / "clariden/deploy_bundle.sh").read_text()
+    assert "cp -a \"$BASE\" \"$REMOTE_ROOT\"" not in deploy
+    assert "freeze_code_bundle.py" not in deploy
+    assert "freeze_bundle_debug.sbatch" in deploy
 
 
 def test_supervisor_handles_training_completion_and_bounded_recovery() -> None:
