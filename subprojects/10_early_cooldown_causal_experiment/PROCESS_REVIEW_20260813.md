@@ -81,6 +81,21 @@ standard replay pools through `ScheduledPackedGPTDataset` and verifies every
 scheduled tail target is loss-inactive. The large transfer and full hash remain
 off `normal` allocations.
 
+## Allocation-selection correction
+
+The first launch path pinned the request to `group29` by excluding every other
+leaf. That constraint was operationally unnecessary: causal parity requires the
+three probes to share one allocation, not one permanently named leaf. It also
+reduced the eligible 16-node capacity while `group29` was fully allocated or
+drained.
+
+The replacement path keeps Slurm's `--switches=1` topology request but allows
+the scheduler to choose any eligible leaf. At job start it independently maps
+the allocated nodes to level-0 topology and exits before any training unless
+exactly one leaf is observed. The actual leaf is written to the terminal
+training receipt. The same scheduler-selected, fail-closed policy applies to a
+bounded recovery allocation.
+
 ## Allocation status at review time
 
 At 2026-08-13 18:18 CEST there was no live training allocation. The replacement

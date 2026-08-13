@@ -14,7 +14,6 @@ set -euo pipefail
 : "${EARLY_CODE_BUNDLE_RECEIPT:?set immutable code receipt}"
 : "${EARLY_PRELAUNCH_ROOT:?set new prelaunch root}"
 : "${EARLY_RUN_ROOT:?set future production run root}"
-: "${EARLY_TRAIN_LEAF_SWITCH:?set selected leaf switch}"
 [[ "${SLURM_JOB_PARTITION:-}" == debug ]] || { echo "preparation must run on debug" >&2; exit 2; }
 [[ ! -e "$EARLY_PRELAUNCH_ROOT" && ! -e "$EARLY_RUN_ROOT" ]] || { echo "prelaunch or run root already exists" >&2; exit 2; }
 mkdir -p "$EARLY_PRELAUNCH_ROOT"
@@ -32,10 +31,9 @@ operational="$EARLY_PRELAUNCH_ROOT/operational_gate.json"
 /usr/bin/python3.11 "$SUBPROJECT/scripts/prepare_launch.py" --contract "$contract" \
   --code-bundle-receipt "$EARLY_CODE_BUNDLE_RECEIPT" --scheduler-snapshot "$scheduler" \
   --recipe-output "$recipe" --launch-gate-output "$gate"
-exclude=$("$EARLY_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$EARLY_TRAIN_LEAF_SWITCH" 16)
-common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$EARLY_CODE_BUNDLE_RECEIPT,EARLY_CONTRACT=$contract,EARLY_BRANCH_RECIPE=$recipe,EARLY_LAUNCH_GATE=$gate,EARLY_OPERATIONAL_GATE=$operational,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_TRAIN_LEAF_SWITCH=$EARLY_TRAIN_LEAF_SWITCH,EARLY_RECOVERY_MODE=0,EARLY_PHASE=branch"
+common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$EARLY_CODE_BUNDLE_RECEIPT,EARLY_CONTRACT=$contract,EARLY_BRANCH_RECIPE=$recipe,EARLY_LAUNCH_GATE=$gate,EARLY_OPERATIONAL_GATE=$operational,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_RECOVERY_MODE=0,EARLY_PHASE=branch"
 command=(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1 \
-  --exclude="$exclude" --job-name=full8_early_wsd --output="$EARLY_RUN_ROOT/logs/%x-%j.out" \
+  --job-name=full8_early_wsd --output="$EARLY_RUN_ROOT/logs/%x-%j.out" \
   --error="$EARLY_RUN_ROOT/logs/%x-%j.err" --export="$common" "$SUBPROJECT/clariden/train_and_gate.sbatch")
 test_result=$(sbatch --test-only "${command[@]:1}" 2>&1)
 printf -v quoted '%q ' "${command[@]}"

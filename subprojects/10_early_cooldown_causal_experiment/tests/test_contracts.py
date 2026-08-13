@@ -63,6 +63,23 @@ def test_single_allocation_budget_closes() -> None:
     assert "after:$replay" not in submit
 
 
+def test_scheduler_can_choose_any_eligible_single_leaf() -> None:
+    submit = (ROOT / "clariden/submit_experiment.sh").read_text()
+    prepare = (ROOT / "clariden/prepare_launch_debug.sbatch").read_text()
+    supervisor = (ROOT / "clariden/supervise_after_training_debug.sbatch").read_text()
+    training = (ROOT / "clariden/train_and_gate.sbatch").read_text()
+    snapshot = (ROOT / "scripts/capture_scheduler_snapshot.py").read_text()
+    for script in (submit, prepare, supervisor):
+        assert "--switches=1" in script
+        assert "--exclude=" not in script
+        assert "EARLY_TRAIN_LEAF_SWITCH" not in script
+        assert "resolve_leaf_switch_exclusion.sh" not in script
+    assert "EARLY_TRAIN_LEAF_SWITCH" not in training
+    assert '[[ ${#leaves[@]} == 1 ]]' in training
+    assert '"selection": "scheduler_selected"' in snapshot
+    assert "group29" not in snapshot
+
+
 def test_control_hook_is_environment_gated_and_no_save() -> None:
     hook = (SUBPROJECTS / "06_dataset_scheduling_experiments/training/exact_checkpoint_hook.py").read_text()
     assert "MINI_SCHEDULE_NO_SAVE_EXIT_ITERATION" in hook
@@ -113,6 +130,14 @@ def test_slurm_singleton_node_range_is_accepted_but_variable_range_is_not() -> N
         pass
     else:
         raise AssertionError("variable node range should fail closed")
+
+
+def test_training_job_audit_checks_single_leaf_request_without_node_pinning() -> None:
+    audit = (ROOT / "scripts/audit_submitted_job.py").read_text()
+    assert 'fields.get("Switches", "").startswith("1@")' in audit
+    assert 'fields.get("ExcNodeList") in {None, "(null)"}' in audit
+    assert '"switches": fields.get("Switches")' in audit
+    assert '"excluded_nodes": fields.get("ExcNodeList")' in audit
 
 
 def _metric_line(iteration: int, row: dict[str, float]) -> str:

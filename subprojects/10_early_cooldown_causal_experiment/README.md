@@ -51,8 +51,11 @@ exact optimizer/RNG/data state becomes the branch.
 This removes the unnecessary 1,536-update replay allocation. Short preparation,
 orchestration, conversion and evaluation work runs on Clariden `debug`; only one
 16-node `normal` allocation is requested for the branch. It requests one leaf
-switch, DP32/TP2 and `B:USR1@600`. A graceful-stop receipt can launch one bounded
-recovery allocation if the 12-hour segment ends before update 13,193.
+switch, DP32/TP2 and `B:USR1@600`. Slurm may select any eligible leaf; the job
+fails before training unless all 16 allocated nodes belong to exactly one
+level-0 leaf, and records that observed leaf in its receipt. A graceful-stop
+receipt can launch one bounded recovery allocation if the 12-hour segment ends
+before update 13,193.
 
 ## Measurements
 

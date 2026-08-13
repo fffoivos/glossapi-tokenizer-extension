@@ -42,6 +42,8 @@ def main() -> int:
         require(partition == "debug" and nodes == 1, "supervisor resource drift")
     elif args.role in {"training", "recovery_train"}:
         require(partition == "normal" and nodes == 16, "training resource drift")
+        require(fields.get("Switches", "").startswith("1@"), "training single-leaf switch request drift")
+        require(fields.get("ExcNodeList") in {None, "(null)"}, "training request unexpectedly pins or excludes nodes")
     payload = {
         "schema_version": "apertus_full8_early_cooldown_slurm_job_v1",
         "status": "audited",
@@ -52,6 +54,8 @@ def main() -> int:
         "nodes": nodes,
         "time_limit": fields.get("TimeLimit"),
         "dependency": fields.get("Dependency"),
+        "switches": fields.get("Switches"),
+        "excluded_nodes": fields.get("ExcNodeList"),
         "command": fields.get("Command"),
         "work_dir": fields.get("WorkDir"),
         "raw_scontrol": raw,

@@ -22,7 +22,6 @@ set -euo pipefail
 : "${EARLY_LAUNCH_GATE:?set passing launch gate}"
 : "${EARLY_OPERATIONAL_GATE:?set passing operational gate}"
 : "${EARLY_RUN_ROOT:?set one new run root}"
-: "${EARLY_TRAIN_LEAF_SWITCH:?set the audited single leaf switch}"
 : "${EARLY_PHASE:?set branch}"
 [[ "$EARLY_PHASE" == branch ]] || { echo "invalid phase: $EARLY_PHASE" >&2; exit 2; }
 
@@ -87,7 +86,9 @@ PY
 [[ -f "$SCHEDULE" && -f "$VALIDATION" && -f "$TOKEN_BYTES" && -s "$TOKENIZER/tokenizer.json" ]]
 [[ -f "$SOURCE_CHECKPOINT/.metadata" && -f "$SOURCE_CHECKPOINT/common.pt" && -f "$SOURCE_RECEIPT" ]]
 
-# Fail closed unless Slurm gives the one audited leaf selected at submission.
+# Let Slurm select the eligible topology leaf, then fail closed unless all 16
+# nodes are on exactly one level-0 leaf. The leaf identity is evidence, not an
+# input to the scientific experiment.
 mapfile -t allocated_nodes < <(scontrol show hostnames "$SLURM_JOB_NODELIST")
 declare -A allocated=()
 for node in "${allocated_nodes[@]}"; do allocated["$node"]=1; done
@@ -97,8 +98,8 @@ while IFS='|' read -r leaf nodes; do
   while IFS= read -r node; do [[ -n "${allocated[$node]:-}" ]] && hit=1 && break; done < <(scontrol show hostnames "$nodes")
   [[ "$hit" == 1 ]] && leaves+=("$leaf")
 done < <(scontrol show topology | awk '$2=="Level=0" {a=$1;sub(/^SwitchName=/,"",a);b=$4;sub(/^Nodes=/,"",b);print a"|"b}')
-[[ ${#leaves[@]} == 1 && "${leaves[0]}" == "$EARLY_TRAIN_LEAF_SWITCH" ]] || {
-  echo "allocation leaf drift: observed=${leaves[*]:-none} expected=$EARLY_TRAIN_LEAF_SWITCH" >&2; exit 2;
+[[ ${#leaves[@]} == 1 ]] || {
+  echo "allocation is not contained in exactly one leaf: observed=${leaves[*]:-none}" >&2; exit 2;
 }
 fail_before_training() {
   local status=$1 rc=$2

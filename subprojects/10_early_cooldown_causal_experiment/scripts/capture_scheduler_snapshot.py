@@ -31,7 +31,11 @@ def main() -> int:
         "queue": command("squeue", "-u", "fffoivos", "-o", "%.18i %.9P %.28j %.2t %.10M %.10l %.6D %R"),
         "partitions": command("sinfo", "-o", "%P|%a|%l|%D|%t|%N"),
         "qos": command("sacctmgr", "-n", "-P", "show", "qos", "normal,debug-qos", "format=Name,MaxWall,MaxJobsPU,MaxSubmitJobsPU,MaxTRESPerUser"),
-        "selected_training_leaf": "group29",
+        "training_leaf_policy": {
+            "selection": "scheduler_selected",
+            "maximum_level0_leaves": 1,
+            "requested_nodes": 16,
+        },
     }
     atomic_json(args.output, payload)
     print(json.dumps({"ok": True, "partition": "debug", "job": payload["job_id"]}, sort_keys=True))

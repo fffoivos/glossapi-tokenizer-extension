@@ -172,6 +172,11 @@ def main() -> int:
     scheduler = read_json(args.scheduler_snapshot)
     require(scheduler.get("schema_version") == "apertus_early_cooldown_scheduler_snapshot_v1", "scheduler snapshot schema drift")
     require(scheduler.get("status") == "captured" and scheduler.get("partition") == "debug", "scheduler snapshot was not captured on debug")
+    require(
+        scheduler.get("training_leaf_policy")
+        == {"selection": "scheduler_selected", "maximum_level0_leaves": 1, "requested_nodes": 16},
+        "scheduler-selected single-leaf policy drift",
+    )
     bundle = read_json(args.code_bundle_receipt)
     require(bundle.get("schema_version") == "apertus_mini_immutable_code_bundle_v1" and bundle.get("status") == "frozen" and bundle.get("kind") == "scientific", "code bundle receipt drift")
     recipe = derive_recipe(parent, contract)
@@ -194,6 +199,7 @@ def main() -> int:
             "alpha_beta3_parent_horizon_preserved": True,
             "same_allocation_one_update_sandwich_parity_required": True,
             "one_16_node_allocation_only": True,
+            "scheduler_selects_any_eligible_single_leaf": True,
             "fresh_debug_scheduler_snapshot": True,
         },
         "contract": file_binding(args.contract),
