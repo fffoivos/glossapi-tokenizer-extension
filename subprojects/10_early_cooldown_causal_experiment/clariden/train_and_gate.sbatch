@@ -114,7 +114,7 @@ if [[ "$RECOVERY" == 0 ]]; then
   [[ ! -e "$CONTROL_ROOT" && ! -e "$RECEIPT" ]] || { echo "fresh branch artifacts already exist" >&2; exit 2; }
   mkdir -p "$CONTROL_ROOT"
 else
-  /usr/bin/python3.11 - "$CONTROL_ROOT/paired_restart_control_receipt.json" <<'PY'
+  /usr/bin/python3.11 - "$CONTROL_ROOT/sandwich_restart_control_receipt.json" <<'PY'
 import json,sys
 d=json.load(open(sys.argv[1])); assert d.get('status')=='passed' and all(d.get('checks',{}).values())
 PY
@@ -195,21 +195,29 @@ launch_megatron() {
 }
 
 if [[ "$RECOVERY" == 0 ]]; then
-  PHASE=reference_probe
-  launch_megatron reference_peak_probe 18722816 1 3744768 "" 9537 1000000 0 "$CONTROL_ROOT/reference_peak.log"
+  PHASE=reference_before_probe
+  launch_megatron reference_peak_before_probe 18722816 1 3744768 "" 9537 1000000 0 "$CONTROL_ROOT/reference_peak_before.log"
   printf '9536\n' >"$CHECKPOINT_ROOT/latest_checkpointed_iteration.txt"
   PHASE=intervention_probe
   launch_megatron intervention_cooldown_probe 13509632 1 3744768 "" "" 9537 9537 "$CONTROL_ROOT/intervention_cooldown.log"
+  [[ -f "$CHECKPOINT_ROOT/iter_0009537/.metadata" && -f "$CHECKPOINT_ROOT/iter_0009537/common.pt" ]]
+  intervention_metadata_before=$(/usr/bin/python3.11 -c 'import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],"rb").read()).hexdigest())' "$CHECKPOINT_ROOT/iter_0009537/.metadata")
+  printf '9536\n' >"$CHECKPOINT_ROOT/latest_checkpointed_iteration.txt"
+  PHASE=reference_after_probe
+  launch_megatron reference_peak_after_probe 18722816 1 3744768 "" 9537 1000000 0 "$CONTROL_ROOT/reference_peak_after.log"
+  [[ "$intervention_metadata_before" == "$(/usr/bin/python3.11 -c 'import hashlib,sys;print(hashlib.sha256(open(sys.argv[1],"rb").read()).hexdigest())' "$CHECKPOINT_ROOT/iter_0009537/.metadata")" ]]
+  printf '9537\n' >"$CHECKPOINT_ROOT/latest_checkpointed_iteration.txt"
   set +e
   /usr/bin/python3.11 "$SUBPROJECT/scripts/finalize_branch_restart_control.py" \
-    --contract "$EARLY_CONTRACT" --reference-log "$CONTROL_ROOT/reference_peak.log" \
+    --contract "$EARLY_CONTRACT" --reference-before-log "$CONTROL_ROOT/reference_peak_before.log" \
     --intervention-log "$CONTROL_ROOT/intervention_cooldown.log" --intervention-checkpoint-root "$CHECKPOINT_ROOT" \
+    --reference-after-log "$CONTROL_ROOT/reference_peak_after.log" \
     --source-checkpoint-receipt "$SOURCE_RECEIPT" --code-bundle-receipt "$EARLY_CODE_BUNDLE_RECEIPT" \
-    --output "$CONTROL_ROOT/paired_restart_control_receipt.json"
+    --output "$CONTROL_ROOT/sandwich_restart_control_receipt.json"
   control_rc=$?
   set -e
   if [[ "$control_rc" -ne 0 ]]; then
-    /usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status paired_restart_control_failed --phase branch --job-id "$SLURM_JOB_ID" --log "$CONTROL_ROOT/intervention_cooldown.log" --control-receipt "$CONTROL_ROOT/paired_restart_control_receipt.json" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$(date +%s)"
+    /usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status sandwich_restart_control_failed --phase branch --job-id "$SLURM_JOB_ID" --log "$CONTROL_ROOT/intervention_cooldown.log" --control-receipt "$CONTROL_ROOT/sandwich_restart_control_receipt.json" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$(date +%s)"
     exit "$control_rc"
   fi
 fi
@@ -217,7 +225,7 @@ PHASE=branch
 launch_megatron branch 13509632 1 3744768 "10728,11920,13112,13193" "" 1000000 0 "$BRANCH_LOG"
 last_iteration=$(grep -Eo 'iteration +[0-9]+/' "$BRANCH_LOG" | tail -1 | tr -cd '0-9')
 if [[ "$last_iteration" == 13193 ]]; then final_status=branch_completed; else final_status=branch_gracefully_stopped; fi
-final_control="$CONTROL_ROOT/paired_restart_control_receipt.json"
+final_control="$CONTROL_ROOT/sandwich_restart_control_receipt.json"
 PHASE=finished
 END_EPOCH=$(date +%s)
 /usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status "$final_status" --phase "$EARLY_PHASE" --job-id "$SLURM_JOB_ID" --log "$BRANCH_LOG" --control-receipt "$final_control" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$END_EPOCH"

@@ -21,9 +21,9 @@ EXPECTED_PANELS = [
 
 
 def validate_static(contract: dict) -> None:
-    require(contract.get("schema_version") == "apertus_full8_early_cooldown_contract_v3", "contract schema drift")
+    require(contract.get("schema_version") == "apertus_full8_early_cooldown_contract_v4", "contract schema drift")
     require(contract.get("status") == "owner_authorized", "contract is not owner-authorized")
-    require(contract.get("experiment_id") == "C_iter9536_direct_paired_early_wsd10_v3", "experiment id drift")
+    require(contract.get("experiment_id") == "C_iter9536_direct_sandwich_early_wsd10_v4", "experiment id drift")
     training = contract["training"]
     require(training["start_iteration"] == 9536 and training["intervention_iteration"] == 9536 and training["end_iteration"] == 13193, "iteration geometry drift")
     require(training["total_executed_scientific_updates"] == 3657, "scientific update count drift")
@@ -42,12 +42,17 @@ def validate_static(contract: dict) -> None:
     require(contract["evaluation"]["milestone_iterations"] == EXPECTED_MILESTONES, "evaluation milestone drift")
     require(contract["data"]["arm"] == "D0_mixed", "data arm drift")
     require(contract["allocation_policy"]["normal_allocations"] == 1, "allocation count drift")
-    paired = contract["paired_same_allocation_gate"]
-    require(paired["source_iteration"] == 9536 and paired["comparison_iteration"] == 9537, "paired-control iteration drift")
-    require(paired["same_nodes_and_allocation"] is True, "paired control allocation drift")
-    require(paired["reference_probe_saves_checkpoint"] is False, "reference probe must not save")
-    require(paired["intervention_probe_saves_checkpoint"] is True and paired["intervention_probe_checkpoint_becomes_branch_state"] is True, "intervention checkpoint contract drift")
-    require("grad norm" in paired["exact_fields"] and paired["historical_absolute_gradient_is_not_an_acceptance_criterion"] is True, "gradient parity contract drift")
+    sandwich = contract["sandwich_same_allocation_gate"]
+    require(sandwich["source_iteration"] == 9536 and sandwich["comparison_iteration"] == 9537, "sandwich-control iteration drift")
+    require(sandwich["same_nodes_and_allocation"] is True, "sandwich control allocation drift")
+    require(sandwich["control_order"] == ["parent_peak_before", "intervention", "parent_peak_after"], "sandwich order drift")
+    require(sandwich["control_probes_save_checkpoint"] is False, "control probes must not save")
+    require(sandwich["intervention_probe_saves_checkpoint"] is True and sandwich["intervention_probe_checkpoint_becomes_branch_state"] is True, "intervention checkpoint contract drift")
+    require(sandwich["reproducibility_field"] == "grad norm" and "grad norm" not in sandwich["exact_fields"], "gradient reproducibility field drift")
+    require(sandwich["gradient_display_precision_decimals"] == 3 and sandwich["maximum_parent_control_display_spread"] == 0.001, "gradient display-quantum contract drift")
+    require(sandwich["intervention_gradient_must_be_inside_parent_control_envelope"] is True and sandwich["historical_absolute_gradient_is_not_an_acceptance_criterion"] is True, "gradient envelope contract drift")
+    for field in ("consumed samples", "consumed tokens", "global batch size", "loss scale"):
+        require(field in sandwich["exact_fields"], f"missing exact parity field: {field}")
     allocation = contract["allocation_policy"]
     require(allocation["branch_conservative_runtime_seconds"] + allocation["branch_reserve_seconds"] == 12 * 3600, "allocation budget does not close")
 
@@ -119,7 +124,7 @@ def derive_recipe(parent: dict, contract: dict) -> dict:
     result["causal_intervention"] = {
         "parent_checkpoint_iteration": 9536,
         "parent_state_loaded_directly_from_full_hash_receipt": True,
-        "paired_same_allocation_peak_and_cooldown_probe": True,
+        "sandwich_same_allocation_peak_cooldown_peak_probe": True,
         "parent_schedule_arm": "D0_mixed",
         "same_parent_schedule_prefix": True,
         "changed_field": "optimization.learning_rate",
@@ -185,9 +190,9 @@ def main() -> int:
             "schedule_prefix_covers_branch_endpoint": 13193 * 1024 <= {row["arm_id"]: row for row in schedule["arms"]}["D0_mixed"]["training_slots"],
             "all_13_validation_panels_frozen": len(validation["panels"]) == 13,
             "iteration_9536_baselines_reused": True,
-            "same_allocation_peak_and_cooldown_update_9537_probe_required": True,
+            "same_allocation_peak_cooldown_peak_update_9537_sandwich_required": True,
             "alpha_beta3_parent_horizon_preserved": True,
-            "same_allocation_one_update_paired_parity_required": True,
+            "same_allocation_one_update_sandwich_parity_required": True,
             "one_16_node_allocation_only": True,
             "fresh_debug_scheduler_snapshot": True,
         },

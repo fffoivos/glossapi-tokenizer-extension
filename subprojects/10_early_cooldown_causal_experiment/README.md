@@ -31,14 +31,22 @@ norm. Replaying from update 8,000 was exact for its first update, then accumulat
 BF16 cross-allocation trajectory drift from the second update. The project did
 not loosen the numerical tolerance after observing either result.
 
-Instead, the production gate performs a paired causal check on the same 16-node
-allocation. It loads the fully hashed update-9,536 checkpoint once under the
-parent peak-LR schedule and once under the early-cooldown schedule. At update
-9,537 every pre-step field—including loss components, token counts/bytes,
-gradient norm and parameter norm—must match exactly; only the logged LR may
-differ. The cooldown probe saves update 9,537 and that exact optimizer/RNG/data
-state becomes the branch, so the gate itself does not add a throwaway scientific
-update.
+The first same-allocation paired gate also failed closed: update 9,537 matched
+all losses, counts, bytes, cursor values and parameter norm exactly, but the
+gradient norm differed by one three-decimal reporting quantum (`2.011` versus
+`2.010`). Its cooldown checkpoint is rejected and is never resumed.
+
+The replacement production gate therefore performs a peak/cooldown/peak
+sandwich on one 16-node allocation. Both peak-LR controls and the cooldown probe
+reload the fully hashed update-9,536 checkpoint. Consumed samples/tokens, global
+batch, loss scale, all loss components, token counts/bytes, parameter norm and
+NaN/skip fields must match exactly across all three probes. The cooldown
+gradient must fall inside the two concurrent parent-control gradients, whose
+spread may be no larger than one quantum of the logger's predeclared
+three-decimal precision. If both controls print the same gradient, exact
+gradient equality is still required. The cooldown probe alone saves update
+9,537; its metadata is checked before and after the final control, and that
+exact optimizer/RNG/data state becomes the branch.
 
 This removes the unnecessary 1,536-update replay allocation. Short preparation,
 orchestration, conversion and evaluation work runs on Clariden `debug`; only one

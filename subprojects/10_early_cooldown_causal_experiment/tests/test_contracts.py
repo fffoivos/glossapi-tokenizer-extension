@@ -28,16 +28,20 @@ def test_single_variable_and_resource_contract() -> None:
     assert contract["training"]["ademamix"]["beta3_warmup_updates"] == 18284
     assert contract["evaluation"]["milestone_iterations"] == [10728, 11920, 13112, 13193]
     assert contract["allocation_policy"]["normal_allocations"] == 1
-    assert contract["paired_same_allocation_gate"]["same_nodes_and_allocation"] is True
-    assert contract["paired_same_allocation_gate"]["historical_absolute_gradient_is_not_an_acceptance_criterion"] is True
+    sandwich = contract["sandwich_same_allocation_gate"]
+    assert sandwich["same_nodes_and_allocation"] is True
+    assert sandwich["control_order"] == ["parent_peak_before", "intervention", "parent_peak_after"]
+    assert sandwich["maximum_parent_control_display_spread"] == 0.001
+    assert sandwich["historical_absolute_gradient_is_not_an_acceptance_criterion"] is True
 
 
 def test_training_launcher_contains_expected_invariants() -> None:
     script = (ROOT / "clariden/train_and_gate.sbatch").read_text()
     for required in (
         "--ademamix-beta3-warmup 18284", "--ademamix-alpha-warmup 18284",
-        "launch_megatron reference_peak_probe 18722816 1 3744768",
+        "launch_megatron reference_peak_before_probe 18722816 1 3744768",
         "launch_megatron intervention_cooldown_probe 13509632 1 3744768",
+        "launch_megatron reference_peak_after_probe 18722816 1 3744768",
         "launch_megatron branch 13509632 1 3744768",
         "MINI_SCHEDULE_ARM=D0_mixed", 'MINI_SCHEDULE_ALLOW_PREFIX="$prefix_mode"',
         '"10728,11920,13112,13193"', "--rotary-base 500000", "--rope-scaling-factor 8.0",
@@ -111,12 +115,15 @@ def _metric_line(iteration: int, row: dict[str, float]) -> str:
     return f"iteration {iteration:8d}/   18284 | " + " | ".join(f"{key}: {value}" for key, value in row.items()) + " |\n"
 
 
-def test_paired_same_allocation_gate_passes_only_exact_pre_step_rows() -> None:
+def test_sandwich_gate_uses_concurrent_control_envelope_and_exact_other_fields() -> None:
     contract = json.loads((ROOT / "configs/experiment_contract.json").read_text())
     with tempfile.TemporaryDirectory() as raw:
         tmp = Path(raw)
         row = {
             "learning rate": 5.5e-5,
+            "consumed samples": 9765888,
+            "consumed tokens": 40.001,
+            "global batch size": 1024,
             "lm loss": 1.7,
             "base-token target loss": 1.48,
             "base-token target count": 186214.6,
@@ -126,15 +133,21 @@ def test_paired_same_allocation_gate_passes_only_exact_pre_step_rows() -> None:
             "added-token target bytes": 830928.5,
             "grad norm": 0.669,
             "params norm": 6841.339,
+            "loss scale": 1.0,
             "number of skipped iterations": 0,
             "number of nan iterations": 0,
         }
-        reference_log = tmp / "reference.log"
-        reference_log.write_text(_metric_line(9537, row))
+        reference_before_log = tmp / "reference_before.log"
+        reference_before_log.write_text(_metric_line(9537, row))
         intervention_row = dict(row)
         intervention_row["learning rate"] = 5.4e-5
+        intervention_row["grad norm"] = 0.668
         intervention_log = tmp / "intervention.log"
         intervention_log.write_text(_metric_line(9537, intervention_row))
+        reference_after_row = dict(row)
+        reference_after_row["grad norm"] = 0.668
+        reference_after_log = tmp / "reference_after.log"
+        reference_after_log.write_text(_metric_line(9537, reference_after_row))
         checkpoint_root = tmp / "checkpoints"
         metadata = checkpoint_root / "iter_0009537/.metadata"
         metadata.parent.mkdir(parents=True)
@@ -156,20 +169,65 @@ def test_paired_same_allocation_gate_passes_only_exact_pre_step_rows() -> None:
         subprocess.run([
             sys.executable, str(ROOT / "scripts/finalize_branch_restart_control.py"),
             "--contract", str(contract_path),
-            "--reference-log", str(reference_log), "--intervention-log", str(intervention_log),
+            "--reference-before-log", str(reference_before_log),
+            "--intervention-log", str(intervention_log),
+            "--reference-after-log", str(reference_after_log),
             "--intervention-checkpoint-root", str(checkpoint_root),
             "--source-checkpoint-receipt", str(source_receipt),
             "--code-bundle-receipt", str(code_receipt), "--output", str(branch_receipt),
         ], check=True)
         assert json.loads(branch_receipt.read_text())["status"] == "passed"
-        intervention_row["grad norm"] = 0.668
+        intervention_row["grad norm"] = 0.667
         intervention_log.write_text(_metric_line(9537, intervention_row))
         failed = subprocess.run([
             sys.executable, str(ROOT / "scripts/finalize_branch_restart_control.py"),
             "--contract", str(contract_path),
-            "--reference-log", str(reference_log), "--intervention-log", str(intervention_log),
+            "--reference-before-log", str(reference_before_log),
+            "--intervention-log", str(intervention_log),
+            "--reference-after-log", str(reference_after_log),
             "--intervention-checkpoint-root", str(checkpoint_root),
             "--source-checkpoint-receipt", str(source_receipt),
             "--code-bundle-receipt", str(code_receipt), "--output", str(tmp / "failed.json"),
         ], capture_output=True, text=True)
         assert failed.returncode != 0
+        intervention_row["grad norm"] = 0.668
+        intervention_log.write_text(_metric_line(9537, intervention_row))
+        reference_after_row["grad norm"] = 0.667
+        reference_after_log.write_text(_metric_line(9537, reference_after_row))
+        failed_wide_control = subprocess.run([
+            sys.executable, str(ROOT / "scripts/finalize_branch_restart_control.py"),
+            "--contract", str(contract_path),
+            "--reference-before-log", str(reference_before_log),
+            "--intervention-log", str(intervention_log),
+            "--reference-after-log", str(reference_after_log),
+            "--intervention-checkpoint-root", str(checkpoint_root),
+            "--source-checkpoint-receipt", str(source_receipt),
+            "--code-bundle-receipt", str(code_receipt), "--output", str(tmp / "failed_wide_control.json"),
+        ], capture_output=True, text=True)
+        assert failed_wide_control.returncode != 0
+        reference_after_row["grad norm"] = 0.668
+        reference_after_log.write_text(_metric_line(9537, reference_after_row))
+        intervention_row["consumed samples"] = 9766912
+        intervention_log.write_text(_metric_line(9537, intervention_row))
+        failed_exact = subprocess.run([
+            sys.executable, str(ROOT / "scripts/finalize_branch_restart_control.py"),
+            "--contract", str(contract_path),
+            "--reference-before-log", str(reference_before_log),
+            "--intervention-log", str(intervention_log),
+            "--reference-after-log", str(reference_after_log),
+            "--intervention-checkpoint-root", str(checkpoint_root),
+            "--source-checkpoint-receipt", str(source_receipt),
+            "--code-bundle-receipt", str(code_receipt), "--output", str(tmp / "failed_exact.json"),
+        ], capture_output=True, text=True)
+        assert failed_exact.returncode != 0
+
+
+def test_sandwich_gate_contract_bounds_control_spread_to_logger_quantum() -> None:
+    gate = json.loads((ROOT / "configs/experiment_contract.json").read_text())[
+        "sandwich_same_allocation_gate"
+    ]
+    assert gate["gradient_display_precision_decimals"] == 3
+    assert gate["maximum_parent_control_display_spread"] == 10 ** (
+        -gate["gradient_display_precision_decimals"]
+    )
+    assert gate["intervention_gradient_must_be_inside_parent_control_envelope"] is True

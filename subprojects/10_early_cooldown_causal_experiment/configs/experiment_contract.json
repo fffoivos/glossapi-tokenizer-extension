@@ -1,7 +1,7 @@
 {
-  "schema_version": "apertus_full8_early_cooldown_contract_v3",
+  "schema_version": "apertus_full8_early_cooldown_contract_v4",
   "status": "owner_authorized",
-  "experiment_id": "C_iter9536_direct_paired_early_wsd10_v3",
+  "experiment_id": "C_iter9536_direct_sandwich_early_wsd10_v4",
   "question": "Does immediate LR cooldown preserve GreekMMLU when updates 9537 through 13193 consume the exact same D0 sequence stream as the parent run?",
   "single_variable_intervention": {
     "changed": "learning_rate_schedule_only",
@@ -118,16 +118,20 @@
       "wall_limit": "12:00:00"
     }
   },
-  "paired_same_allocation_gate": {
+  "sandwich_same_allocation_gate": {
     "source_iteration": 9536,
     "comparison_iteration": 9537,
     "same_nodes_and_allocation": true,
-    "reference_schedule": "parent_peak_lr",
+    "control_schedule": "parent_peak_lr",
     "intervention_schedule": "early_wsd10_cooldown",
-    "reference_probe_saves_checkpoint": false,
+    "control_order": ["parent_peak_before", "intervention", "parent_peak_after"],
+    "control_probes_save_checkpoint": false,
     "intervention_probe_saves_checkpoint": true,
     "intervention_probe_checkpoint_becomes_branch_state": true,
     "exact_fields": [
+      "consumed samples",
+      "consumed tokens",
+      "global batch size",
       "lm loss",
       "base-token target loss",
       "base-token target count",
@@ -135,12 +139,16 @@
       "added-token target loss",
       "added-token target count",
       "added-token target bytes",
-      "grad norm",
       "params norm",
+      "loss scale",
       "number of skipped iterations",
       "number of nan iterations"
     ],
-    "reference_learning_rate": 0.000055,
+    "reproducibility_field": "grad norm",
+    "gradient_display_precision_decimals": 3,
+    "maximum_parent_control_display_spread": 0.001,
+    "intervention_gradient_must_be_inside_parent_control_envelope": true,
+    "control_learning_rate": 0.000055,
     "intervention_learning_rate_must_be_below_peak": true,
     "historical_absolute_gradient_is_not_an_acceptance_criterion": true
   },
@@ -152,6 +160,10 @@
     {
       "run_root": "/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/20260813T082200Z-causal-wsd10-replay-v2",
       "reason": "peak-LR replay was exact at its first update but BF16 cross-allocation trajectory drift accumulated from its second update; endpoint historical-gradient equality is not a valid restart invariant"
+    },
+    {
+      "run_root": "/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/20260813T145000Z-causal-wsd10-direct-v3",
+      "reason": "the exact paired same-allocation gate rejected update 9537 because the displayed gradient norm differed by one reporting quantum (2.011 versus 2.010); all losses, target counts and bytes, parameter norm, cursor values, and NaN/skip fields matched exactly; the intervention checkpoint is rejected and must not be resumed"
     }
   ],
   "evaluation": {

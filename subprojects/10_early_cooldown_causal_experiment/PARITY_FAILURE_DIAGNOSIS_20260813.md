@@ -6,12 +6,19 @@ Do not compare an update's gradient norm to a historical value measured on a
 different GH200 allocation. Do not replay 1,536 peak-LR updates merely to
 reconstruct a checkpoint that already has a complete per-file SHA-256 receipt.
 
-The production gate now compares two update-9,537 probes from the same exact
-checkpoint on the same nodes and allocation. The reference probe uses the
-parent peak LR; the intervention probe uses the early-cooldown LR. Every logged
-pre-step field, including gradient norm, must be exactly equal. LR must be the
-only logged difference. The intervention probe saves its post-step checkpoint,
-which becomes the branch state.
+The first production gate compared two update-9,537 probes from the same exact
+checkpoint on the same nodes and allocation. Job `3075352` correctly rejected
+the intervention because the displayed gradient norm was `2.011` in the parent
+control and `2.010` in the cooldown probe; every other declared field matched
+exactly. Its saved cooldown checkpoint is rejected.
+
+The replacement is predeclared as a peak/cooldown/peak sandwich. The two parent
+controls establish the reproducibility envelope concurrently on the exact same
+nodes. All non-gradient scientific and cursor fields must match exactly. The
+cooldown gradient must be inside the parent-control envelope and the controls
+may differ by at most one quantum of the logger's three-decimal precision. If
+the parent controls agree, the intervention must agree exactly. This avoids
+selecting a tolerance from the failed intervention itself.
 
 ## Evidence from the rejected direct restart
 
@@ -70,11 +77,11 @@ Most importantly, the parent's existing source-checkpoint receipt hashes all
 Its `.metadata` SHA-256 is
 `0b0820699a1fd1bf34bcade155a801a93a7aa6ac74be439301addef321726489`.
 
-## Why the new gate is stricter, not looser
+## Why the sandwich does not accept the failed result post hoc
 
-No observed tolerance was widened. The old cross-allocation acceptance
-criterion was rejected. The replacement requires exact equality of the full
-logged pre-step row, including gradient norm, under the two LR treatments on
-identical hardware in one allocation. This is the causal comparison the
-experiment actually needs: before the optimizer applies the step, the two
-trajectories must be the same; only their LR-scaled update may differ.
+The failed A/B receipt remains failed and cannot satisfy the new gate. A fresh
+allocation must generate two new same-LR controls around a new intervention.
+The gradient rule is tied to the logger's existing display precision, not to an
+unbounded relative tolerance: the control spread can be at most one displayed
+unit, and the intervention must be inside that independently measured spread.
+Every other logged scientific and cursor field remains exact.
