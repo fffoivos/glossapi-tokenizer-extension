@@ -150,8 +150,24 @@ Immutable efficiency bundle v23 has tree SHA-256
 Xfer job `3076545` built and twice verified the x86_64 runtime in 2 minutes 31
 seconds; its tree SHA-256 is
 `7612964168d9a116c04dad34cc515ec7225ba40443d502576a8a86f63e7685e1`.
-Private upload `3076559` now runs on xfer from v23. Full-SHA hydration
-`3076562` depends on `afterok:3076559`, and production-reader smoke `3076564`
-runs on debug after `afterok:3076562`. The obsolete descendants `3075937` and
+Private upload `3076559` was submitted on xfer from v23. Full-SHA hydration
+`3076562` used `afterok:3076559`, and production-reader smoke `3076564` used
+`afterok:3076562`. The obsolete descendants `3075937` and
 `3075941` were canceled with zero runtime only after the corrected replacement
 path was ready. No `normal` allocation was created or changed by this repair.
+
+The v23 transfer chain subsequently completed: upload `3076559` took 5 minutes
+3 seconds and froze private HF revision
+`9a520bd83d4d70061bb4e477e69ee37800fd2b85`; hydration `3076562` took 8
+minutes 53 seconds and full-SHA verified 1,039 payload files totaling
+124,965,755,323 bytes. Its first reader smoke `3076564` then failed closed
+before opening data because an over-escaped `bash -lc` passed the Python path
+literally. Commit `ea6613c` replaced that shell layer with direct
+`uenv ... env PYTHONPATH=... python3 ...` execution and added a regression
+assertion. Replacement debug smoke `3076649` completed in 5 minutes 40 seconds;
+the production-reader portion took 46.68 seconds and passed all checks: first
+and quota-capped final sequences of both replay pools opened, every payload had
+4,097 tokens and every sample 4,096 targets, and 3,142 foreign plus 885 Greek
+terminal targets beyond the exact quotas were loss-inactive. The portable cache
+receipt SHA-256 is
+`7d9baf0d79aa00a45ec38b36767ba41643c77c30202d9c868c8c5e7808c33fd4`.
