@@ -40,7 +40,7 @@ def main() -> int:
         require(partition == "debug" and nodes == 4, "evaluation resource drift")
     elif "supervisor" in args.role:
         require(partition == "debug" and nodes == 1, "supervisor resource drift")
-    elif args.role in {"training", "replay", "branch_holder", "recovery_train"}:
+    elif args.role in {"training", "recovery_train"}:
         require(partition == "normal" and nodes == 16, "training resource drift")
     payload = {
         "schema_version": "apertus_full8_early_cooldown_slurm_job_v1",

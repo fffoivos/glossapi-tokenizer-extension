@@ -6,9 +6,14 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import tempfile
 from pathlib import Path
 from typing import Any
+
+
+ITERATION = re.compile(r"iteration\s+(\d+)\s*/")
+METRIC = re.compile(r"(?:^|\|)\s*([^|:]+?)\s*:\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)")
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -29,6 +34,16 @@ def sha256_file(path: Path) -> str:
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(message)
+
+
+def parse_iteration(path: Path, iteration: int) -> dict[str, float]:
+    matches = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        found = ITERATION.search(line)
+        if found and int(found.group(1)) == iteration:
+            matches.append({" ".join(key.lower().split()): float(value) for key, value in METRIC.findall(line)})
+    require(len(matches) == 1, f"expected exactly one logged iteration {iteration}, got {len(matches)}")
+    return matches[0]
 
 
 def verify_bound_file(binding: dict[str, Any], *, require_bytes: bool = False) -> Path:

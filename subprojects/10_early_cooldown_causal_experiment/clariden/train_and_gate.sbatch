@@ -23,8 +23,8 @@ set -euo pipefail
 : "${EARLY_OPERATIONAL_GATE:?set passing operational gate}"
 : "${EARLY_RUN_ROOT:?set one new run root}"
 : "${EARLY_TRAIN_LEAF_SWITCH:?set the audited single leaf switch}"
-: "${EARLY_PHASE:?set replay or branch}"
-[[ "$EARLY_PHASE" == replay || "$EARLY_PHASE" == branch ]] || { echo "invalid phase: $EARLY_PHASE" >&2; exit 2; }
+: "${EARLY_PHASE:?set branch}"
+[[ "$EARLY_PHASE" == branch ]] || { echo "invalid phase: $EARLY_PHASE" >&2; exit 2; }
 
 SUBPROJECT="$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment"
 TRAINING_CODE="$EARLY_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/training"
@@ -46,13 +46,9 @@ PARENT_RUN=${paths[0]}
 SCHEDULE=${paths[2]}
 VALIDATION=${paths[3]}
 TOKEN_BYTES="$(dirname "$VALIDATION")/token_utf8_byte_lengths.npy"
-if [[ "$EARLY_PHASE" == replay ]]; then
-  SOURCE_ITERATION=8000
-  SOURCE_CHECKPOINT="$PARENT_RUN/checkpoints/iter_0008000"
-else
-  SOURCE_ITERATION=9536
-  SOURCE_CHECKPOINT="$EARLY_RUN_ROOT/checkpoints/iter_0009536"
-fi
+SOURCE_ITERATION=9536
+SOURCE_CHECKPOINT="$PARENT_RUN/checkpoints/iter_0009536"
+SOURCE_RECEIPT=$(/usr/bin/python3.11 -c 'import json,sys;print(json.load(open(sys.argv[1]))["parent"]["checkpoint_receipt"]["path"])' "$EARLY_CONTRACT")
 CHECKPOINT_ROOT="$EARLY_RUN_ROOT/checkpoints"
 DATA_CACHE="$EARLY_RUN_ROOT/dataset_cache"
 TRIGGERS="$EARLY_RUN_ROOT/triggers"
@@ -89,7 +85,7 @@ d=json.load(open(sys.argv[1])); raw=Path(sys.argv[2]).read_bytes()
 if d.get('schema_version')!='apertus_full8_early_cooldown_operational_gate_v1' or d.get('status')!='passed' or d.get('launch_gate',{}).get('sha256')!=hashlib.sha256(raw).hexdigest(): raise SystemExit('operational gate drift')
 PY
 [[ -f "$SCHEDULE" && -f "$VALIDATION" && -f "$TOKEN_BYTES" && -s "$TOKENIZER/tokenizer.json" ]]
-if [[ "$EARLY_PHASE" == replay ]]; then [[ -f "$SOURCE_CHECKPOINT/.metadata" ]]; fi
+[[ -f "$SOURCE_CHECKPOINT/.metadata" && -f "$SOURCE_CHECKPOINT/common.pt" && -f "$SOURCE_RECEIPT" ]]
 
 # Fail closed unless Slurm gives the one audited leaf selected at submission.
 mapfile -t allocated_nodes < <(scontrol show hostnames "$SLURM_JOB_NODELIST")
@@ -110,59 +106,18 @@ fail_before_training() {
   exit "$rc"
 }
 
-if [[ "$EARLY_PHASE" == replay ]]; then
-  [[ ! -e "$CHECKPOINT_ROOT/iter_0008000" ]] || { echo "replay source view already exists" >&2; exit 2; }
-  ln -s "$SOURCE_CHECKPOINT" "$CHECKPOINT_ROOT/iter_0008000"
-  [[ "$(realpath "$CHECKPOINT_ROOT/iter_0008000")" == "$(realpath "$SOURCE_CHECKPOINT")" ]]
-  printf '8000\n' >"$CHECKPOINT_ROOT/latest_checkpointed_iteration.txt"
-  [[ ! -e "$CONTROL_ROOT" && ! -e "$RECEIPT" ]] || { echo "fresh replay artifacts already exist" >&2; exit 2; }
+if [[ "$RECOVERY" == 0 ]]; then
+  [[ ! -e "$CHECKPOINT_ROOT/iter_0009536" ]] || { echo "source checkpoint view already exists" >&2; exit 2; }
+  ln -s "$SOURCE_CHECKPOINT" "$CHECKPOINT_ROOT/iter_0009536"
+  [[ "$(realpath "$CHECKPOINT_ROOT/iter_0009536")" == "$(realpath "$SOURCE_CHECKPOINT")" ]]
+  printf '9536\n' >"$CHECKPOINT_ROOT/latest_checkpointed_iteration.txt"
+  [[ ! -e "$CONTROL_ROOT" && ! -e "$RECEIPT" ]] || { echo "fresh branch artifacts already exist" >&2; exit 2; }
   mkdir -p "$CONTROL_ROOT"
 else
-  : "${EARLY_REPLAY_JOB_ID:?branch requires replay job id}"
-  replay_receipt="$EARLY_RUN_ROOT/training_receipts/replay_job_${EARLY_REPLAY_JOB_ID}.json"
-  replay_gate="$EARLY_RUN_ROOT/replay/parent_replay_receipt.json"
-  max_hold=$(/usr/bin/python3.11 -c 'import json,sys;print(json.load(open(sys.argv[1]))["allocation_policy"]["branch_maximum_hold_seconds"])' "$EARLY_CONTRACT")
-  minimum_with_reserve=$(/usr/bin/python3.11 -c 'import json,sys;d=json.load(open(sys.argv[1]))["allocation_policy"];print(d["branch_minimum_runtime_seconds"]+d["branch_reserve_seconds"])' "$EARLY_CONTRACT")
-  # Allocation setup is part of the holder budget. START_EPOCH is captured
-  # before bundle/runtime verification, so none of that time is hidden from
-  # the maximum hold or the final live-remaining-time gate.
-  hold_started=$START_EPOCH
-  while [[ ! -f "$replay_receipt" || ! -f "$replay_gate" ]]; do
-    now=$(date +%s)
-    (( now - hold_started < max_hold )) || { echo "replay permit did not arrive within bounded hold" >&2; fail_before_training branch_holder_expired 75; }
-    source_state=$(sacct -n -X -j "$EARLY_REPLAY_JOB_ID" -o State --starttime 2026-08-01 2>/dev/null | awk 'NF{print $1;exit}' | cut -d+ -f1)
-    case "$source_state" in FAILED|CANCELLED|OUT_OF_MEMORY|NODE_FAIL|TIMEOUT|DEADLINE) echo "replay source terminal failure: $source_state" >&2; fail_before_training replay_source_failed 2;; esac
-    sleep 20
-  done
-  /usr/bin/python3.11 - "$replay_receipt" "$replay_gate" <<'PY'
-import json,sys
-r=json.load(open(sys.argv[1])); g=json.load(open(sys.argv[2]))
-assert r.get('schema_version')=='apertus_full8_early_cooldown_training_v2' and r.get('status')=='replay_completed'
-assert g.get('schema_version')=='apertus_full8_early_cooldown_parent_replay_v1' and g.get('status')=='passed' and all(g.get('checks',{}).values())
-PY
-  [[ -f "$SOURCE_CHECKPOINT/.metadata" ]] || { echo "verified replay checkpoint is missing" >&2; exit 2; }
-  raw_remaining=$(squeue -h -j "$SLURM_JOB_ID" -o '%L')
-  remaining=$(/usr/bin/python3.11 - "$raw_remaining" <<'PY'
-import sys
-s=sys.argv[1].strip(); days=0; hms=s
-if '-' in s:
-    raw_days,hms=s.split('-',1); days=int(raw_days)
-parts=[int(value) for value in hms.split(':')]
-parts=([0] * (3-len(parts))) + parts
-print(days*86400 + parts[0]*3600 + parts[1]*60 + parts[2])
-PY
-)
-  (( remaining >= minimum_with_reserve )) || { echo "holder has only ${remaining}s; need ${minimum_with_reserve}s" >&2; fail_before_training branch_holder_expired 75; }
-  if [[ "$RECOVERY" == 0 ]]; then
-    printf '9536\n' >"$CHECKPOINT_ROOT/latest_checkpointed_iteration.txt"
-    [[ ! -e "$CONTROL_ROOT" && ! -e "$RECEIPT" ]] || { echo "fresh branch artifacts already exist" >&2; exit 2; }
-    mkdir -p "$CONTROL_ROOT"
-  else
-    /usr/bin/python3.11 - "$CONTROL_ROOT/branch_restart_control_receipt.json" <<'PY'
+  /usr/bin/python3.11 - "$CONTROL_ROOT/paired_restart_control_receipt.json" <<'PY'
 import json,sys
 d=json.load(open(sys.argv[1])); assert d.get('status')=='passed' and all(d.get('checks',{}).values())
 PY
-  fi
 fi
 
 for trigger in save exit; do [[ -e "$TRIGGERS/$trigger" ]] && mv "$TRIGGERS/$trigger" "$TRAIN_ROOT/inherited_${trigger}_$(date +%s)"; done
@@ -170,7 +125,7 @@ PHASE=setup
 request_graceful_stop() {
   set +e
   touch "$TRAIN_ROOT/slurm_signal_received"
-  if [[ "$PHASE" == branch || "$PHASE" == replay ]]; then touch "$TRIGGERS/save" "$TRIGGERS/exit"; fi
+  if [[ "$PHASE" == branch || "$PHASE" == intervention_probe ]]; then touch "$TRIGGERS/save" "$TRIGGERS/exit"; fi
   set -e
 }
 trap request_graceful_stop USR1 TERM INT
@@ -216,16 +171,17 @@ common_cmd=(python3 "$TRAINING_CODE/pretrain_scheduled_gpt.py"
   --dataloader-type single --seed 20260609 --log-throughput --log-params-norm --log-interval 1
   --eval-interval 238 --eval-iters 1 --extra-valid-data-path "${VALID_ARGS[@]}"
   --manual-gc --manual-gc-interval 500 --exit-signal-handler --distributed-timeout-minutes 60
-  --trigger-path "$TRIGGERS" --save "$CHECKPOINT_ROOT" --save-interval 1000000 --ckpt-format torch_dist
+  --trigger-path "$TRIGGERS" --save "$CHECKPOINT_ROOT" --ckpt-format torch_dist
   --load "$CHECKPOINT_ROOT" --auto-detect-ckpt-format --ckpt-fully-parallel-load
   --dist-ckpt-strictness assume_ok_unexpected --override-opt_param-scheduler)
 
 launch_megatron() {
-  local label=$1 train_samples=$2 prefix_mode=$3 decay_samples=$4 save_iterations=$5 no_save_exit=$6 log=$7
+  local label=$1 train_samples=$2 prefix_mode=$3 decay_samples=$4 save_iterations=$5 no_save_exit=$6 save_interval=$7 exit_interval=$8 log=$9
   export MINI_SCHEDULE_MANIFEST="$SCHEDULE" MINI_SCHEDULE_ARM=D0_mixed MINI_SCHEDULE_ALLOW_PREFIX="$prefix_mode"
   export MINI_TOKEN_BYTE_LENGTHS="$TOKEN_BYTES" MINI_SCHEDULE_SAVE_ITERATIONS="$save_iterations"
   export MINI_SCHEDULE_EVAL_ITERATIONS="$save_iterations" MINI_SCHEDULE_NO_SAVE_EXIT_ITERATION="$no_save_exit"
-  local cmd=("${common_cmd[@]}" --train-samples "$train_samples" --lr-wsd-decay-samples "$decay_samples")
+  local cmd=("${common_cmd[@]}" --train-samples "$train_samples" --lr-wsd-decay-samples "$decay_samples" --save-interval "$save_interval")
+  [[ "$exit_interval" == 0 ]] || cmd+=(--exit-interval "$exit_interval")
   { printf '%q ' "${cmd[@]}"; printf '\n'; } >"$(dirname "$log")/${label}_command.sh"
   cd "$MEGATRON"
   (
@@ -239,56 +195,29 @@ launch_megatron() {
 }
 
 if [[ "$RECOVERY" == 0 ]]; then
-  PHASE=control
-  if [[ "$EARLY_PHASE" == replay ]]; then
-    launch_megatron replay_control 18722816 0 3744768 "" 8001 "$CONTROL_ROOT/training.log"
-    set +e
-    /usr/bin/python3.11 "$SUBPROJECT/scripts/finalize_one_update_control.py" \
-      --contract "$EARLY_CONTRACT" --control-log "$CONTROL_ROOT/training.log" \
-      --code-bundle-receipt "$EARLY_CODE_BUNDLE_RECEIPT" --output "$CONTROL_ROOT/one_update_control_receipt.json"
-    control_rc=$?
-    set -e
-    if [[ "$control_rc" -ne 0 ]]; then
-      /usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status source_restart_control_failed --phase replay --job-id "$SLURM_JOB_ID" --log "$CONTROL_ROOT/training.log" --control-receipt "$CONTROL_ROOT/one_update_control_receipt.json" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$(date +%s)"
-      exit "$control_rc"
-    fi
-    printf '8000\n' >"$CHECKPOINT_ROOT/latest_checkpointed_iteration.txt"
-  else
-    launch_megatron branch_control 13509632 1 3744768 "" 9537 "$CONTROL_ROOT/training.log"
-    set +e
-    /usr/bin/python3.11 "$SUBPROJECT/scripts/finalize_branch_restart_control.py" --contract "$EARLY_CONTRACT" --control-log "$CONTROL_ROOT/training.log" --parent-replay-receipt "$replay_gate" --code-bundle-receipt "$EARLY_CODE_BUNDLE_RECEIPT" --output "$CONTROL_ROOT/branch_restart_control_receipt.json"
-    control_rc=$?
-    set -e
-    if [[ "$control_rc" -ne 0 ]]; then
-      /usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status branch_restart_control_failed --phase branch --job-id "$SLURM_JOB_ID" --log "$CONTROL_ROOT/training.log" --control-receipt "$CONTROL_ROOT/branch_restart_control_receipt.json" --parent-replay-receipt "$replay_gate" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$(date +%s)"
-      exit "$control_rc"
-    fi
-    printf '9536\n' >"$CHECKPOINT_ROOT/latest_checkpointed_iteration.txt"
-  fi
-fi
-
-if [[ "$EARLY_PHASE" == replay ]]; then
-  PHASE=replay
-  launch_megatron replay 18722816 0 3744768 "9536" 9537 "$BRANCH_LOG"
+  PHASE=reference_probe
+  launch_megatron reference_peak_probe 18722816 1 3744768 "" 9537 1000000 0 "$CONTROL_ROOT/reference_peak.log"
+  printf '9536\n' >"$CHECKPOINT_ROOT/latest_checkpointed_iteration.txt"
+  PHASE=intervention_probe
+  launch_megatron intervention_cooldown_probe 13509632 1 3744768 "" "" 9537 9537 "$CONTROL_ROOT/intervention_cooldown.log"
   set +e
-  /usr/bin/python3.11 "$SUBPROJECT/scripts/finalize_parent_replay.py" --contract "$EARLY_CONTRACT" --replay-log "$BRANCH_LOG" --checkpoint-root "$CHECKPOINT_ROOT" --code-bundle-receipt "$EARLY_CODE_BUNDLE_RECEIPT" --output "$TRAIN_ROOT/parent_replay_receipt.json"
-  replay_rc=$?
+  /usr/bin/python3.11 "$SUBPROJECT/scripts/finalize_branch_restart_control.py" \
+    --contract "$EARLY_CONTRACT" --reference-log "$CONTROL_ROOT/reference_peak.log" \
+    --intervention-log "$CONTROL_ROOT/intervention_cooldown.log" --intervention-checkpoint-root "$CHECKPOINT_ROOT" \
+    --source-checkpoint-receipt "$SOURCE_RECEIPT" --code-bundle-receipt "$EARLY_CODE_BUNDLE_RECEIPT" \
+    --output "$CONTROL_ROOT/paired_restart_control_receipt.json"
+  control_rc=$?
   set -e
-  if [[ "$replay_rc" -ne 0 ]]; then
-    /usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status parent_replay_failed --phase replay --job-id "$SLURM_JOB_ID" --log "$BRANCH_LOG" --control-receipt "$CONTROL_ROOT/one_update_control_receipt.json" --parent-replay-receipt "$TRAIN_ROOT/parent_replay_receipt.json" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$(date +%s)"
-    exit "$replay_rc"
+  if [[ "$control_rc" -ne 0 ]]; then
+    /usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status paired_restart_control_failed --phase branch --job-id "$SLURM_JOB_ID" --log "$CONTROL_ROOT/intervention_cooldown.log" --control-receipt "$CONTROL_ROOT/paired_restart_control_receipt.json" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$(date +%s)"
+    exit "$control_rc"
   fi
-  final_status=replay_completed
-  final_control="$CONTROL_ROOT/one_update_control_receipt.json"
-  final_replay="$TRAIN_ROOT/parent_replay_receipt.json"
-else
-  PHASE=branch
-  launch_megatron branch 13509632 1 3744768 "10728,11920,13112,13193" "" "$BRANCH_LOG"
-  last_iteration=$(grep -Eo 'iteration +[0-9]+/' "$BRANCH_LOG" | tail -1 | tr -cd '0-9')
-  if [[ "$last_iteration" == 13193 ]]; then final_status=branch_completed; else final_status=branch_gracefully_stopped; fi
-  final_control="$CONTROL_ROOT/branch_restart_control_receipt.json"
-  final_replay="$replay_gate"
 fi
+PHASE=branch
+launch_megatron branch 13509632 1 3744768 "10728,11920,13112,13193" "" 1000000 0 "$BRANCH_LOG"
+last_iteration=$(grep -Eo 'iteration +[0-9]+/' "$BRANCH_LOG" | tail -1 | tr -cd '0-9')
+if [[ "$last_iteration" == 13193 ]]; then final_status=branch_completed; else final_status=branch_gracefully_stopped; fi
+final_control="$CONTROL_ROOT/paired_restart_control_receipt.json"
 PHASE=finished
 END_EPOCH=$(date +%s)
-/usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status "$final_status" --phase "$EARLY_PHASE" --job-id "$SLURM_JOB_ID" --log "$BRANCH_LOG" --control-receipt "$final_control" --parent-replay-receipt "$final_replay" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$END_EPOCH"
+/usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status "$final_status" --phase "$EARLY_PHASE" --job-id "$SLURM_JOB_ID" --log "$BRANCH_LOG" --control-receipt "$final_control" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$END_EPOCH"

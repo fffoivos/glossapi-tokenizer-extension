@@ -19,8 +19,8 @@ set -euo pipefail
 : "${EARLY_RUN_ROOT:?set run root}"
 : "${EARLY_TRAIN_JOB_ID:?set completed training job id}"
 : "${EARLY_TRAIN_LEAF_SWITCH:?set pinned leaf switch}"
-: "${EARLY_PHASE:?set replay or branch}"
-[[ "$EARLY_PHASE" == replay || "$EARLY_PHASE" == branch ]] || { echo "invalid supervisor phase" >&2; exit 2; }
+: "${EARLY_PHASE:?set branch}"
+[[ "$EARLY_PHASE" == branch ]] || { echo "invalid supervisor phase" >&2; exit 2; }
 [[ "${SLURM_JOB_PARTITION:-}" == debug ]] || { echo "supervisor must run on debug" >&2; exit 2; }
 
 /usr/bin/python3.11 "$EARLY_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
@@ -48,67 +48,22 @@ PY
 )
 common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$EARLY_CODE_BUNDLE_RECEIPT,EARLY_CONTRACT=$EARLY_CONTRACT,EARLY_BRANCH_RECIPE=$EARLY_BRANCH_RECIPE,EARLY_LAUNCH_GATE=$EARLY_LAUNCH_GATE,EARLY_OPERATIONAL_GATE=$EARLY_OPERATIONAL_GATE,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_TRAIN_LEAF_SWITCH=$EARLY_TRAIN_LEAF_SWITCH"
 mkdir -p "$EARLY_RUN_ROOT/logs" "$EARLY_RUN_ROOT/orchestration"
-if [[ "$EARLY_PHASE" == replay && "${state[0]}" == replay_completed && "${state[1]}" == 9537 ]]; then
-  : "${EARLY_BRANCH_JOB_ID:?replay supervisor requires audited branch holder id}"
-  live=$(squeue -h -j "$EARLY_BRANCH_JOB_ID" -o '%T' | head -1)
-  handoff_status=passed
-  if [[ "$live" != PENDING && "$live" != RUNNING ]]; then
-    holder_receipt="$EARLY_RUN_ROOT/training_receipts/branch_job_${EARLY_BRANCH_JOB_ID}.json"
-    holder_status=$(/usr/bin/python3.11 - "$holder_receipt" <<'PY'
-import json,sys
-from pathlib import Path
-path=Path(sys.argv[1])
-print(json.load(path.open()).get('status','')) if path.is_file() else print('')
-PY
-)
-    [[ "$holder_status" == branch_holder_expired ]] || {
-      echo "replay passed but branch holder is neither live nor cleanly expired: ${live:-terminal_or_unknown}/${holder_status:-no_receipt}" >&2; exit 2;
-    }
-    handoff_status=delegated_to_branch_supervisor_fallback
-  fi
-  /usr/bin/python3.11 - "$EARLY_RUN_ROOT/orchestration/replay_handoff_${EARLY_TRAIN_JOB_ID}_${EARLY_BRANCH_JOB_ID}.json" "$EARLY_TRAIN_JOB_ID" "$EARLY_BRANCH_JOB_ID" "$handoff_status" <<'PY'
-import datetime,json,os,sys,tempfile
-out,source,target,status=sys.argv[1:]; value={'schema_version':'apertus_full8_early_cooldown_replay_handoff_v1','status':status,'created_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'replay_job':source,'branch_holder_job':target}
-fd,tmp=tempfile.mkstemp(prefix='.handoff.',suffix='.partial',dir=os.path.dirname(out))
-with os.fdopen(fd,'w') as f: json.dump(value,f,indent=2,sort_keys=True);f.write('\n');f.flush();os.fsync(f.fileno())
-os.replace(tmp,out)
-PY
-  printf '%s\n' "$EARLY_BRANCH_JOB_ID"
-  exit 0
-elif [[ "$EARLY_PHASE" == branch && "${state[0]}" == branch_completed && "${state[1]}" == 13193 ]]; then
+if [[ "${state[0]}" == branch_completed && "${state[1]}" == 13193 ]]; then
   child=$(sbatch --uenv-passthrough=ignore --parsable --partition=debug --nodes=4 --time=01:29:00 \
     --job-name=early_wsd_eval_10728 --output="$EARLY_RUN_ROOT/logs/%x-%j.out" --error="$EARLY_RUN_ROOT/logs/%x-%j.err" \
     --export="$common,EARLY_ITERATION=10728,EARLY_EVAL_INDEX=0,EARLY_TRAIN_JOB_ID=$EARLY_TRAIN_JOB_ID" \
     "$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden/run_checkpoint_evaluation_debug.sbatch")
   role=evaluation_10728
-elif [[ "$EARLY_PHASE" == branch && "${state[0]}" == branch_gracefully_stopped && "${state[1]}" -gt 9536 && "${state[1]}" -lt 13193 ]]; then
+elif [[ "${state[0]}" == branch_gracefully_stopped && "${state[1]}" -gt 9536 && "${state[1]}" -lt 13193 ]]; then
   exclude=$("$EARLY_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$EARLY_TRAIN_LEAF_SWITCH" 16)
   child=$(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1 \
     --exclude="$exclude" --job-name=early_wsd_recovery --output="$EARLY_RUN_ROOT/logs/%x-%j.out" --error="$EARLY_RUN_ROOT/logs/%x-%j.err" \
-    --export="$common,EARLY_PHASE=branch,EARLY_REPLAY_JOB_ID=${EARLY_REPLAY_JOB_ID:?set replay job id},EARLY_RECOVERY_MODE=1" \
+    --export="$common,EARLY_PHASE=branch,EARLY_RECOVERY_MODE=1" \
     "$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden/train_and_gate.sbatch")
   next_supervisor=$(sbatch --uenv-passthrough=ignore --parsable --partition=debug --nodes=1 --time=00:10:00 \
     --dependency="afterany:$child" --job-name=early_wsd_supervise_recovery \
     --output="$EARLY_RUN_ROOT/logs/%x-%j.out" --error="$EARLY_RUN_ROOT/logs/%x-%j.err" \
-    --export="$common,EARLY_PHASE=branch,EARLY_REPLAY_JOB_ID=$EARLY_REPLAY_JOB_ID,EARLY_TRAIN_JOB_ID=$child" \
-    "$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden/supervise_after_training_debug.sbatch")
-  role=recovery_train
-elif [[ "$EARLY_PHASE" == branch && "${state[0]}" == branch_holder_expired ]]; then
-  : "${EARLY_REPLAY_JOB_ID:?holder fallback requires replay job id}"
-  /usr/bin/python3.11 - "$EARLY_RUN_ROOT/training_receipts/replay_job_${EARLY_REPLAY_JOB_ID}.json" "$EARLY_RUN_ROOT/replay/parent_replay_receipt.json" <<'PY'
-import json,sys
-r=json.load(open(sys.argv[1])); g=json.load(open(sys.argv[2]))
-assert r.get('status')=='replay_completed' and g.get('status')=='passed' and all(g.get('checks',{}).values())
-PY
-  exclude=$("$EARLY_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/resolve_leaf_switch_exclusion.sh" "$EARLY_TRAIN_LEAF_SWITCH" 16)
-  child=$(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1 \
-    --exclude="$exclude" --job-name=early_wsd_fresh_after_hold --output="$EARLY_RUN_ROOT/logs/%x-%j.out" --error="$EARLY_RUN_ROOT/logs/%x-%j.err" \
-    --export="$common,EARLY_PHASE=branch,EARLY_REPLAY_JOB_ID=$EARLY_REPLAY_JOB_ID,EARLY_RECOVERY_MODE=0" \
-    "$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden/train_and_gate.sbatch")
-  next_supervisor=$(sbatch --uenv-passthrough=ignore --parsable --partition=debug --nodes=1 --time=00:10:00 \
-    --dependency="afterany:$child" --job-name=early_wsd_supervise_fresh \
-    --output="$EARLY_RUN_ROOT/logs/%x-%j.out" --error="$EARLY_RUN_ROOT/logs/%x-%j.err" \
-    --export="$common,EARLY_PHASE=branch,EARLY_REPLAY_JOB_ID=$EARLY_REPLAY_JOB_ID,EARLY_TRAIN_JOB_ID=$child" \
+    --export="$common,EARLY_PHASE=branch,EARLY_TRAIN_JOB_ID=$child" \
     "$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden/supervise_after_training_debug.sbatch")
   role=recovery_train
 else

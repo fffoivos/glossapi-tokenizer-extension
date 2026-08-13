@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import subprocess
 import sys
@@ -19,25 +20,25 @@ def test_static_contract_is_self_consistent() -> None:
 def test_single_variable_and_resource_contract() -> None:
     contract = json.loads((ROOT / "configs/experiment_contract.json").read_text())
     assert contract["single_variable_intervention"]["changed"] == "learning_rate_schedule_only"
-    assert (contract["training"]["start_iteration"], contract["training"]["intervention_iteration"], contract["training"]["end_iteration"]) == (8000, 9536, 13193)
-    assert contract["training"]["replay_updates"] == 1536
+    assert (contract["training"]["start_iteration"], contract["training"]["intervention_iteration"], contract["training"]["end_iteration"]) == (9536, 9536, 13193)
     assert contract["training"]["branch_updates"] == 3657
     assert contract["training"]["train_samples"] == 13193 * 1024
     assert contract["training"]["learning_rate"]["decay_samples"] == 3657 * 1024
     assert contract["training"]["ademamix"]["alpha_warmup_updates"] == 18284
     assert contract["training"]["ademamix"]["beta3_warmup_updates"] == 18284
     assert contract["evaluation"]["milestone_iterations"] == [10728, 11920, 13112, 13193]
-    assert contract["allocation_policy"]["normal_allocations"] == 2
-    assert contract["one_update_control"]["same_allocation_as_replay"] is True
-    assert contract["one_update_control"]["save_checkpoint"] is False
+    assert contract["allocation_policy"]["normal_allocations"] == 1
+    assert contract["paired_same_allocation_gate"]["same_nodes_and_allocation"] is True
+    assert contract["paired_same_allocation_gate"]["historical_absolute_gradient_is_not_an_acceptance_criterion"] is True
 
 
 def test_training_launcher_contains_expected_invariants() -> None:
     script = (ROOT / "clariden/train_and_gate.sbatch").read_text()
     for required in (
         "--ademamix-beta3-warmup 18284", "--ademamix-alpha-warmup 18284",
-        "launch_megatron replay_control 18722816 0 3744768", "launch_megatron replay 18722816 0 3744768",
-        "launch_megatron branch_control 13509632 1 3744768", "launch_megatron branch 13509632 1 3744768",
+        "launch_megatron reference_peak_probe 18722816 1 3744768",
+        "launch_megatron intervention_cooldown_probe 13509632 1 3744768",
+        "launch_megatron branch 13509632 1 3744768",
         "MINI_SCHEDULE_ARM=D0_mixed", 'MINI_SCHEDULE_ALLOW_PREFIX="$prefix_mode"',
         '"10728,11920,13112,13193"', "--rotary-base 500000", "--rope-scaling-factor 8.0",
         "--signal=B:USR1@600", "--nodes=16", "--switches=1",
@@ -47,18 +48,15 @@ def test_training_launcher_contains_expected_invariants() -> None:
     assert "--no-load-rng" not in script
 
 
-def test_replay_and_branch_holder_budgets_close() -> None:
+def test_single_allocation_budget_closes() -> None:
     contract = json.loads((ROOT / "configs/experiment_contract.json").read_text())
     policy = contract["allocation_policy"]
-    assert policy["branch_minimum_runtime_seconds"] + policy["branch_maximum_hold_seconds"] + policy["branch_reserve_seconds"] == 12 * 3600
-    assert policy["replay_conservative_runtime_seconds"] - policy["branch_source_trigger_seconds"] == policy["branch_maximum_hold_seconds"]
+    assert policy["branch_conservative_runtime_seconds"] + policy["branch_reserve_seconds"] == 12 * 3600
     submit = (ROOT / "clariden/submit_experiment.sh").read_text()
-    assert '--dependency="after:$replay+200"' in submit
-    assert "--role branch_holder" in submit
-    assert '"schema_version": "apertus_full8_early_cooldown_launch_graph_v2"' in (ROOT / "scripts/freeze_launch_graph.py").read_text()
-    launcher = (ROOT / "clariden/train_and_gate.sbatch").read_text()
-    assert "hold_started=$START_EPOCH" in launcher
-    assert "hold_started=$(date +%s)" not in launcher
+    assert "--role training" in submit
+    assert "--time=12:00:00" in submit
+    assert '"schema_version": "apertus_full8_early_cooldown_launch_graph_v3"' in (ROOT / "scripts/freeze_launch_graph.py").read_text()
+    assert "after:$replay" not in submit
 
 
 def test_control_hook_is_environment_gated_and_no_save() -> None:
@@ -74,10 +72,12 @@ def test_operational_jobs_obey_partition_policy() -> None:
         assert "#SBATCH --partition=debug" in (ROOT / "clariden" / name).read_text()
 
 
-def test_supervisor_handles_clean_holder_expiry_without_racing_fallback() -> None:
+def test_supervisor_handles_training_completion_and_bounded_recovery() -> None:
     supervisor = (ROOT / "clariden/supervise_after_training_debug.sbatch").read_text()
-    assert "delegated_to_branch_supervisor_fallback" in supervisor
-    assert "branch_holder_expired" in supervisor
+    assert "branch_completed" in supervisor
+    assert "branch_gracefully_stopped" in supervisor
+    assert "EARLY_RECOVERY_MODE=1" in supervisor
+    assert "branch_holder_expired" not in supervisor
 
 
 def test_no_data_processing_or_copy_is_in_launch_path() -> None:
@@ -111,34 +111,65 @@ def _metric_line(iteration: int, row: dict[str, float]) -> str:
     return f"iteration {iteration:8d}/   18284 | " + " | ".join(f"{key}: {value}" for key, value in row.items()) + " |\n"
 
 
-def test_parent_replay_and_branch_restart_finalizers_pass_synthetic_exact_rows() -> None:
+def test_paired_same_allocation_gate_passes_only_exact_pre_step_rows() -> None:
     contract = json.loads((ROOT / "configs/experiment_contract.json").read_text())
     with tempfile.TemporaryDirectory() as raw:
         tmp = Path(raw)
-        replay_log = tmp / "replay.log"
-        replay_log.write_text("".join(_metric_line(int(key), row) for key, row in contract["parent_replay_gate"]["expected"].items()))
+        row = {
+            "learning rate": 5.5e-5,
+            "lm loss": 1.7,
+            "base-token target loss": 1.48,
+            "base-token target count": 186214.6,
+            "base-token target bytes": 826796.2,
+            "added-token target loss": 2.27,
+            "added-token target count": 71786.56,
+            "added-token target bytes": 830928.5,
+            "grad norm": 0.669,
+            "params norm": 6841.339,
+            "number of skipped iterations": 0,
+            "number of nan iterations": 0,
+        }
+        reference_log = tmp / "reference.log"
+        reference_log.write_text(_metric_line(9537, row))
+        intervention_row = dict(row)
+        intervention_row["learning rate"] = 5.4e-5
+        intervention_log = tmp / "intervention.log"
+        intervention_log.write_text(_metric_line(9537, intervention_row))
         checkpoint_root = tmp / "checkpoints"
-        metadata = checkpoint_root / "iter_0009536/.metadata"
+        metadata = checkpoint_root / "iter_0009537/.metadata"
         metadata.parent.mkdir(parents=True)
         metadata.write_text("complete")
+        (metadata.parent / "common.pt").write_text("complete")
         code_receipt = tmp / "bundle.json"
         code_receipt.write_text("{}")
-        replay_receipt = tmp / "replay_receipt.json"
-        subprocess.run([
-            sys.executable, str(ROOT / "scripts/finalize_parent_replay.py"),
-            "--contract", str(ROOT / "configs/experiment_contract.json"),
-            "--replay-log", str(replay_log), "--checkpoint-root", str(checkpoint_root),
-            "--code-bundle-receipt", str(code_receipt), "--output", str(replay_receipt),
-        ], check=True)
-        branch_row = dict(contract["parent_replay_gate"]["expected"]["9537"])
-        branch_row["learning rate"] = 5.4e-5
-        branch_log = tmp / "branch.log"
-        branch_log.write_text(_metric_line(9537, branch_row))
+        source_receipt = tmp / "source.json"
+        source_files = [{"relative_path": f"__{index}.distcp"} for index in range(129)]
+        source_files.extend([{"relative_path": ".metadata"}, {"relative_path": "common.pt"}])
+        source_receipt.write_text(json.dumps({"schema_version": "megatron_exact_checkpoint_view_v1", "iteration": 9536, "source_files": source_files}))
+        contract["parent"]["checkpoint_receipt"] = {
+            "path": str(source_receipt),
+            "sha256": hashlib.sha256(source_receipt.read_bytes()).hexdigest(),
+        }
+        contract_path = tmp / "contract.json"
+        contract_path.write_text(json.dumps(contract))
         branch_receipt = tmp / "branch_receipt.json"
         subprocess.run([
             sys.executable, str(ROOT / "scripts/finalize_branch_restart_control.py"),
-            "--contract", str(ROOT / "configs/experiment_contract.json"),
-            "--control-log", str(branch_log), "--parent-replay-receipt", str(replay_receipt),
+            "--contract", str(contract_path),
+            "--reference-log", str(reference_log), "--intervention-log", str(intervention_log),
+            "--intervention-checkpoint-root", str(checkpoint_root),
+            "--source-checkpoint-receipt", str(source_receipt),
             "--code-bundle-receipt", str(code_receipt), "--output", str(branch_receipt),
         ], check=True)
         assert json.loads(branch_receipt.read_text())["status"] == "passed"
+        intervention_row["grad norm"] = 0.668
+        intervention_log.write_text(_metric_line(9537, intervention_row))
+        failed = subprocess.run([
+            sys.executable, str(ROOT / "scripts/finalize_branch_restart_control.py"),
+            "--contract", str(contract_path),
+            "--reference-log", str(reference_log), "--intervention-log", str(intervention_log),
+            "--intervention-checkpoint-root", str(checkpoint_root),
+            "--source-checkpoint-receipt", str(source_receipt),
+            "--code-bundle-receipt", str(code_receipt), "--output", str(tmp / "failed.json"),
+        ], capture_output=True, text=True)
+        assert failed.returncode != 0

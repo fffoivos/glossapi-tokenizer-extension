@@ -19,14 +19,14 @@ def main() -> int:
     args = parser.parse_args()
     gate, test = read_json(args.launch_gate), read_json(args.test_only)
     require(gate.get("schema_version") == "apertus_full8_early_cooldown_launch_gate_v1" and gate.get("status") == "passed" and all(gate.get("checks", {}).values()), "scientific launch gate failed")
-    require(test.get("schema_version") == "apertus_early_cooldown_slurm_test_only_v1" and test.get("status") == "passed" and test.get("role") == "replay", "replay Slurm test-only failed")
+    require(test.get("schema_version") == "apertus_early_cooldown_slurm_test_only_v1" and test.get("status") == "passed" and test.get("role") == "training", "training Slurm test-only failed")
     payload = {
         "schema_version": "apertus_full8_early_cooldown_operational_gate_v1",
         "status": "passed",
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "launch_gate": file_binding(args.launch_gate),
         "slurm_test_only": file_binding(args.test_only),
-        "checks": {"scientific_gate_passed": True, "exact_normal_16_node_replay_command_accepted": True},
+        "checks": {"scientific_gate_passed": True, "exact_normal_16_node_training_command_accepted": True},
     }
     atomic_json(args.output, payload)
     print(json.dumps({"ok": True, "operational_gate": str(args.output)}, sort_keys=True))

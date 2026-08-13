@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write an atomic, classified training/replay terminal receipt."""
+"""Write an atomic, classified early-cooldown training terminal receipt."""
 
 from __future__ import annotations
 
@@ -16,11 +16,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--status", required=True)
-    parser.add_argument("--phase", choices=("replay", "branch"), required=True)
+    parser.add_argument("--phase", choices=("branch",), required=True)
     parser.add_argument("--job-id", required=True)
     parser.add_argument("--log", type=Path)
     parser.add_argument("--control-receipt", type=Path)
-    parser.add_argument("--parent-replay-receipt", type=Path)
     parser.add_argument("--leaf-switch", required=True)
     parser.add_argument("--started-epoch", type=int, required=True)
     parser.add_argument("--finished-epoch", type=int, required=True)
@@ -43,11 +42,6 @@ def main() -> int:
         "control_receipt": (
             file_binding(args.control_receipt)
             if args.control_receipt and args.control_receipt.is_file()
-            else None
-        ),
-        "parent_replay_receipt": (
-            file_binding(args.parent_replay_receipt)
-            if args.parent_replay_receipt and args.parent_replay_receipt.is_file()
             else None
         ),
     }

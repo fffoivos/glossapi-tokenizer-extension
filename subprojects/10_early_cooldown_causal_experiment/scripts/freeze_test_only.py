@@ -16,12 +16,11 @@ def main() -> int:
     parser.add_argument("--command", required=True)
     parser.add_argument("--result", required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--role", choices=("replay", "branch_holder"), required=True)
+    parser.add_argument("--role", choices=("training",), required=True)
     args = parser.parse_args()
     require("job" in args.result.lower() and "start" in args.result.lower(), "Slurm test-only did not return a predicted job start")
     role_fragments = {
-        "replay": ("--time=05:00:00", "EARLY_PHASE=replay"),
-        "branch_holder": ("--time=12:00:00", "EARLY_PHASE=branch", "--dependency=after:"),
+        "training": ("--time=12:00:00", "EARLY_PHASE=branch"),
     }
     for fragment in ("--partition=normal", "--nodes=16", "--switches=1", "EARLY_RECOVERY_MODE=0", *role_fragments[args.role]):
         require(fragment in args.command, f"test-only command missing {fragment}")

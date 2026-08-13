@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Freeze only the new experiment wrapper and the no-save control hook over the
-# already hardware-proven v39 scientific bundle. No data/model artifact moves.
+# Freeze only the causal experiment wrapper and no-save reference-probe hook
+# over the already hardware-proven v39 scientific bundle. No data/model moves.
 set -euo pipefail
 [[ "$#" == 1 ]] || { echo "usage: $0 REMOTE_ROOT" >&2; exit 2; }
 remote_root=$1

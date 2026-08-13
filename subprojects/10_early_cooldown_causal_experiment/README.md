@@ -1,8 +1,7 @@
 # Causal early-cooldown branch from the 40B Apertus-8B checkpoint
 
-This subproject implements one controlled intervention: reconstruct the exact
-parent state at update 9,536 from the parent's proven segment-start checkpoint
-at update 8,000, then consume the exact parent D0 samples at updates 9,537
+This subproject implements one controlled intervention: load the parent's exact
+update-9,536 checkpoint and consume the exact parent D0 samples at updates 9,537
 through 13,193 while beginning the parent's 3,657-update `1-sqrt` WSD-10
 cooldown immediately.
 
@@ -21,22 +20,31 @@ examples in place. It does not copy, repack, reshuffle, rededuplicate, anonymize
 decontaminate or retokenize data. The complete update-9,536 GreekMMLU and
 per-document baselines are reused by hash.
 
-The first attempted direct reload of update 9,536 was correctly rejected: its
-target counts and bytes were exact, but the gradient norm was 2.016 rather than
-the parent's 0.669. The repaired path never relaxes that gate. Allocation one
-reloads the exact update-8,000 segment boundary, gates update 8,001, replays the
-parent peak-LR trajectory through 9,537, saves synchronously at 9,536 and checks
-the parent rows at 8,001, 9,536 and 9,537. Allocation two first reloads that new
-9,536 checkpoint and gates its pre-update loss and gradient against the replay;
-only then does the cooldown branch begin.
+The parent checkpoint receipt hashes all 131 checkpoint files, not only
+`.metadata`. Its distributed-checkpoint inventory contains 230 logical state
+entries, including 52 optimizer, two RNG and two rerun-state entries.
 
-Short preparation, orchestration, conversion and evaluation work runs on
-Clariden `debug`. The two 16-node `normal` allocations are reserved for verified
-replay and the branch. The branch holder is requested 200 minutes after the
-replay allocation starts. Its maximum early hold is 4,200 seconds, leaving a
-frozen 37,800-second training budget plus a 1,200-second reserve. Both request
-one leaf switch, DP32/TP2 and `B:USR1@600`; a graceful-stop receipt can launch
-one bounded recovery allocation if needed.
+Two rejected attempts established that a historical gradient norm is not a
+cross-allocation restart invariant. A direct update-9,536 reload matched the
+target counts, bytes, losses and parameter norm but not the historical gradient
+norm. Replaying from update 8,000 was exact for its first update, then accumulated
+BF16 cross-allocation trajectory drift from the second update. The project did
+not loosen the numerical tolerance after observing either result.
+
+Instead, the production gate performs a paired causal check on the same 16-node
+allocation. It loads the fully hashed update-9,536 checkpoint once under the
+parent peak-LR schedule and once under the early-cooldown schedule. At update
+9,537 every pre-step field—including loss components, token counts/bytes,
+gradient norm and parameter norm—must match exactly; only the logged LR may
+differ. The cooldown probe saves update 9,537 and that exact optimizer/RNG/data
+state becomes the branch, so the gate itself does not add a throwaway scientific
+update.
+
+This removes the unnecessary 1,536-update replay allocation. Short preparation,
+orchestration, conversion and evaluation work runs on Clariden `debug`; only one
+16-node `normal` allocation is requested for the branch. It requests one leaf
+switch, DP32/TP2 and `B:USR1@600`. A graceful-stop receipt can launch one bounded
+recovery allocation if the 12-hour segment ends before update 13,193.
 
 ## Measurements
 
