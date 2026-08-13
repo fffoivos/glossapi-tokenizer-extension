@@ -89,8 +89,8 @@ three probes to share one allocation, not one permanently named leaf. It also
 reduced the eligible 16-node capacity while `group29` was fully allocated or
 drained.
 
-The replacement path keeps Slurm's `--switches=1` topology request but allows
-the scheduler to choose any eligible leaf. At job start it independently maps
+The replacement path uses `--switches=1@7-00:00:00` while allowing the
+scheduler to choose any eligible leaf. At job start it independently maps
 the allocated nodes to level-0 topology and exits before any training unless
 exactly one leaf is observed. The actual leaf is written to the terminal
 training receipt. The same scheduler-selected, fail-closed policy applies to a

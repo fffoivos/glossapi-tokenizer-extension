@@ -45,11 +45,42 @@ def test_training_launcher_contains_expected_invariants() -> None:
         "launch_megatron branch 13509632 1 3744768",
         "MINI_SCHEDULE_ARM=D0_mixed", 'MINI_SCHEDULE_ALLOW_PREFIX="$prefix_mode"',
         '"10728,11920,13112,13193"', "--rotary-base 500000", "--rope-scaling-factor 8.0",
-        "--signal=B:USR1@600", "--nodes=16", "--switches=1",
+        "--signal=B:USR1@600", "--nodes=16", "--switches=1@7-00:00:00",
     ):
         assert required in script
     assert "--no-load-optim" not in script
     assert "--no-load-rng" not in script
+    assert "fail_before_training topology_rejected 2" in script
+
+
+def test_topology_rejection_receipt_preserves_all_observed_leaves() -> None:
+    with tempfile.TemporaryDirectory() as raw:
+        output = Path(raw) / "receipt.json"
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts/write_training_receipt.py"),
+                "--output",
+                str(output),
+                "--status",
+                "topology_rejected",
+                "--phase",
+                "branch",
+                "--job-id",
+                "1",
+                "--leaf-switch",
+                "group28:group29:group31:group33",
+                "--started-epoch",
+                "10",
+                "--finished-epoch",
+                "11",
+            ],
+            check=True,
+        )
+        allocation = json.loads(output.read_text())["allocation"]
+        assert allocation["leaf_switch"] is None
+        assert allocation["leaf_switches"] == ["group28", "group29", "group31", "group33"]
+        assert allocation["single_leaf"] is False
 
 
 def test_single_allocation_budget_closes() -> None:
@@ -70,7 +101,7 @@ def test_scheduler_can_choose_any_eligible_single_leaf() -> None:
     training = (ROOT / "clariden/train_and_gate.sbatch").read_text()
     snapshot = (ROOT / "scripts/capture_scheduler_snapshot.py").read_text()
     for script in (submit, prepare, supervisor):
-        assert "--switches=1" in script
+        assert "--switches=1@7-00:00:00" in script
         assert "--exclude=" not in script
         assert "EARLY_TRAIN_LEAF_SWITCH" not in script
         assert "resolve_leaf_switch_exclusion.sh" not in script
@@ -144,10 +175,12 @@ def test_python_and_shell_sources_parse() -> None:
 
 def test_slurm_singleton_node_range_is_accepted_but_variable_range_is_not() -> None:
     sys.path.insert(0, str(ROOT / "scripts"))
-    from audit_submitted_job import exact_node_count
+    from audit_submitted_job import exact_node_count, switch_wait_seconds
 
     assert exact_node_count("16") == 16
     assert exact_node_count("16-16") == 16
+    assert switch_wait_seconds("1@7-00") == 7 * 86400
+    assert switch_wait_seconds("1@7-00:00:00") == 7 * 86400
     try:
         exact_node_count("1-16")
     except ValueError:
@@ -158,7 +191,7 @@ def test_slurm_singleton_node_range_is_accepted_but_variable_range_is_not() -> N
 
 def test_training_job_audit_checks_single_leaf_request_without_node_pinning() -> None:
     audit = (ROOT / "scripts/audit_submitted_job.py").read_text()
-    assert 'fields.get("Switches", "").startswith("1@")' in audit
+    assert 'switch_wait_seconds(fields.get("Switches", "")) >= 7 * 86400' in audit
     assert 'fields.get("ExcNodeList") in {None, "(null)"}' in audit
     assert '"switches": fields.get("Switches")' in audit
     assert '"excluded_nodes": fields.get("ExcNodeList")' in audit

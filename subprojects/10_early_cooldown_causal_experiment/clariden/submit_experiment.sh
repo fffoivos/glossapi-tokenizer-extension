@@ -24,7 +24,7 @@ for key,path in [('launch_gate',sys.argv[2]),('slurm_test_only',sys.argv[3])]:
  if d[key]['sha256']!=hashlib.sha256(Path(path).read_bytes()).hexdigest(): raise SystemExit(f'{key} drift')
 PY
 common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$receipt,EARLY_CONTRACT=$contract,EARLY_BRANCH_RECIPE=$recipe,EARLY_LAUNCH_GATE=$gate,EARLY_OPERATIONAL_GATE=$operational,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_RECOVERY_MODE=0,EARLY_PHASE=branch"
-command=(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1 \
+command=(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1@7-00:00:00 \
   --job-name=full8_early_wsd --output="$EARLY_RUN_ROOT/logs/%x-%j.out" \
   --error="$EARLY_RUN_ROOT/logs/%x-%j.err" --export="$common" "$SUBPROJECT/clariden/train_and_gate.sbatch")
 printf -v quoted '%q ' "${command[@]}"

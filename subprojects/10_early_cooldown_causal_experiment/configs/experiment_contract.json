@@ -115,6 +115,7 @@
       "micro_batch_sequences": 2,
       "gradient_accumulation_steps": 16,
       "single_leaf_switch": true,
+      "single_leaf_max_wait": "7-00:00:00",
       "wall_limit": "12:00:00"
     }
   },

@@ -34,6 +34,7 @@ def main() -> int:
         "training_leaf_policy": {
             "selection": "scheduler_selected",
             "maximum_level0_leaves": 1,
+            "maximum_wait": "7-00:00:00",
             "requested_nodes": 16,
         },
     }

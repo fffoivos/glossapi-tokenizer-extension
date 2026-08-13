@@ -174,7 +174,12 @@ def main() -> int:
     require(scheduler.get("status") == "captured" and scheduler.get("partition") == "debug", "scheduler snapshot was not captured on debug")
     require(
         scheduler.get("training_leaf_policy")
-        == {"selection": "scheduler_selected", "maximum_level0_leaves": 1, "requested_nodes": 16},
+        == {
+            "selection": "scheduler_selected",
+            "maximum_level0_leaves": 1,
+            "maximum_wait": "7-00:00:00",
+            "requested_nodes": 16,
+        },
         "scheduler-selected single-leaf policy drift",
     )
     bundle = read_json(args.code_bundle_receipt)

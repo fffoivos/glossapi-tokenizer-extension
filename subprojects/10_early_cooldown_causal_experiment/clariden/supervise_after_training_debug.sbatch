@@ -54,7 +54,7 @@ if [[ "${state[0]}" == branch_completed && "${state[1]}" == 13193 ]]; then
     "$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden/run_checkpoint_evaluation_debug.sbatch")
   role=evaluation_10728
 elif [[ "${state[0]}" == branch_gracefully_stopped && "${state[1]}" -gt 9536 && "${state[1]}" -lt 13193 ]]; then
-  child=$(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1 \
+  child=$(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1@7-00:00:00 \
     --job-name=early_wsd_recovery --output="$EARLY_RUN_ROOT/logs/%x-%j.out" --error="$EARLY_RUN_ROOT/logs/%x-%j.err" \
     --export="$common,EARLY_PHASE=branch,EARLY_RECOVERY_MODE=1" \
     "$EARLY_CODE_ROOT/subprojects/10_early_cooldown_causal_experiment/clariden/train_and_gate.sbatch")

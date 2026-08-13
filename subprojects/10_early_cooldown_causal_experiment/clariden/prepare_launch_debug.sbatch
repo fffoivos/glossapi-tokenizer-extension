@@ -32,7 +32,7 @@ operational="$EARLY_PRELAUNCH_ROOT/operational_gate.json"
   --code-bundle-receipt "$EARLY_CODE_BUNDLE_RECEIPT" --scheduler-snapshot "$scheduler" \
   --recipe-output "$recipe" --launch-gate-output "$gate"
 common="ALL,EARLY_CODE_ROOT=$EARLY_CODE_ROOT,EARLY_CODE_BUNDLE_RECEIPT=$EARLY_CODE_BUNDLE_RECEIPT,EARLY_CONTRACT=$contract,EARLY_BRANCH_RECIPE=$recipe,EARLY_LAUNCH_GATE=$gate,EARLY_OPERATIONAL_GATE=$operational,EARLY_RUN_ROOT=$EARLY_RUN_ROOT,EARLY_RECOVERY_MODE=0,EARLY_PHASE=branch"
-command=(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1 \
+command=(sbatch --uenv-passthrough=ignore --parsable --partition=normal --nodes=16 --time=12:00:00 --switches=1@7-00:00:00 \
   --job-name=full8_early_wsd --output="$EARLY_RUN_ROOT/logs/%x-%j.out" \
   --error="$EARLY_RUN_ROOT/logs/%x-%j.err" --export="$common" "$SUBPROJECT/clariden/train_and_gate.sbatch")
 test_result=$(sbatch --test-only "${command[@]:1}" 2>&1)

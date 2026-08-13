@@ -30,6 +30,7 @@ def main() -> int:
             match = re.search(r"iteration\s+(\d+)\s*/", line)
             if match:
                 latest = int(match.group(1))
+    leaf_switches = [value for value in args.leaf_switch.split(":") if value and value != "none"]
     payload = {
         "schema_version": "apertus_full8_early_cooldown_training_v2",
         "status": args.status,
@@ -38,7 +39,12 @@ def main() -> int:
         "job_id": args.job_id,
         "last_logged_iteration": latest,
         "elapsed_seconds": args.finished_epoch - args.started_epoch,
-        "allocation": {"nodes": 16, "leaf_switch": args.leaf_switch, "single_leaf": True},
+        "allocation": {
+            "nodes": 16,
+            "leaf_switch": leaf_switches[0] if len(leaf_switches) == 1 else None,
+            "leaf_switches": leaf_switches,
+            "single_leaf": len(leaf_switches) == 1,
+        },
         "control_receipt": (
             file_binding(args.control_receipt)
             if args.control_receipt and args.control_receipt.is_file()

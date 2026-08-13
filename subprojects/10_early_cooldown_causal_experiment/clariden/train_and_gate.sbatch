@@ -3,7 +3,7 @@
 #SBATCH --account=a0140
 #SBATCH --partition=normal
 #SBATCH --nodes=16
-#SBATCH --switches=1
+#SBATCH --switches=1@7-00:00:00
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=4
 #SBATCH --gres=gpu:4
@@ -98,13 +98,16 @@ while IFS='|' read -r leaf nodes; do
   while IFS= read -r node; do [[ -n "${allocated[$node]:-}" ]] && hit=1 && break; done < <(scontrol show hostnames "$nodes")
   [[ "$hit" == 1 ]] && leaves+=("$leaf")
 done < <(scontrol show topology | awk '$2=="Level=0" {a=$1;sub(/^SwitchName=/,"",a);b=$4;sub(/^Nodes=/,"",b);print a"|"b}')
-[[ ${#leaves[@]} == 1 ]] || {
-  echo "allocation is not contained in exactly one leaf: observed=${leaves[*]:-none}" >&2; exit 2;
-}
 fail_before_training() {
   local status=$1 rc=$2
-  /usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status "$status" --phase "$EARLY_PHASE" --job-id "$SLURM_JOB_ID" --leaf-switch "${leaves[0]}" --started-epoch "$START_EPOCH" --finished-epoch "$(date +%s)"
+  local joined
+  joined=$(IFS=:; echo "${leaves[*]:-none}")
+  /usr/bin/python3.11 "$SUBPROJECT/scripts/write_training_receipt.py" --output "$RECEIPT" --status "$status" --phase "$EARLY_PHASE" --job-id "$SLURM_JOB_ID" --leaf-switch "$joined" --started-epoch "$START_EPOCH" --finished-epoch "$(date +%s)"
   exit "$rc"
+}
+[[ ${#leaves[@]} == 1 ]] || {
+  echo "allocation is not contained in exactly one leaf: observed=${leaves[*]:-none}" >&2
+  fail_before_training topology_rejected 2
 }
 
 if [[ "$RECOVERY" == 0 ]]; then
