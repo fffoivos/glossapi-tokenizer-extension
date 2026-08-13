@@ -37,3 +37,16 @@ The completed matrix is summarized in
 The post-hoc contamination filter, exact immutable ids and decision boundary
 are specified in
 [`CONTAMINATION_DROP_DECISION_20260812.md`](CONTAMINATION_DROP_DECISION_20260812.md).
+
+## Token-aligned D0 0.5B replication
+
+`run_d0_0p5b_three_checkpoint_matrix.sbatch` reuses the same frozen examples,
+FP32 legacy scorer, prompt serialization, metrics and contamination exclusions
+for the stationary-mix D0 0.5B trajectory. Its predeclared checkpoints are
+initialization, update 18,944 (39.728B tokens, the closest saved D0 checkpoint
+to the 8B 39.997B point) and final update 38,496 (80.732B tokens). The model
+contract is rebound explicitly because the 0.5B model has tied embeddings and
+different architecture geometry; benchmark and scoring fields remain
+byte-equivalent JSON values to the 8B source contract. The job uses four debug
+nodes for at most 22.5 minutes and does not share nodes or dependencies with a
+training allocation.
