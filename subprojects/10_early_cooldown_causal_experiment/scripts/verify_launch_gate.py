@@ -33,7 +33,8 @@ def main() -> int:
                 verify(binding)
         else:
             verify(value)
-    print(json.dumps({"ok": True, "runtime_bindings": 7 + len(evidence.get("per_document_baselines", []))}, sort_keys=True))
+    scalar_evidence = sum(key != "per_document_baselines" for key in evidence)
+    print(json.dumps({"ok": True, "runtime_bindings": 7 + scalar_evidence + len(evidence.get("per_document_baselines", []))}, sort_keys=True))
     return 0
 
 

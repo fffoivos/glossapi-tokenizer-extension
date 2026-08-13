@@ -1,8 +1,9 @@
 # Causal early-cooldown branch from the 40B Apertus-8B checkpoint
 
-This subproject implements one controlled intervention: resume the exact parent
-D0 checkpoint at update 9,536 and consume the exact parent D0 samples at updates
-9,537 through 13,193, but begin the parent's 3,657-update `1-sqrt` WSD-10
+This subproject implements one controlled intervention: reconstruct the exact
+parent state at update 9,536 from the parent's proven segment-start checkpoint
+at update 8,000, then consume the exact parent D0 samples at updates 9,537
+through 13,193 while beginning the parent's 3,657-update `1-sqrt` WSD-10
 cooldown immediately.
 
 Everything except the LR trajectory remains fixed, including full optimizer
@@ -20,17 +21,22 @@ examples in place. It does not copy, repack, reshuffle, rededuplicate, anonymize
 decontaminate or retokenize data. The complete update-9,536 GreekMMLU and
 per-document baselines are reused by hash.
 
-The parity check runs inside the production allocation. It reloads update 9,536
-under the original parent LR schedule, executes update 9,537 without saving a
-throwaway checkpoint, and compares logged losses, token counts, parameter norm,
-skipped/NaN counts and gradient norm with the original parent update. The branch
-begins only after this passes. This costs one update, not another 16-node job.
+The first attempted direct reload of update 9,536 was correctly rejected: its
+target counts and bytes were exact, but the gradient norm was 2.016 rather than
+the parent's 0.669. The repaired path never relaxes that gate. Allocation one
+reloads the exact update-8,000 segment boundary, gates update 8,001, replays the
+parent peak-LR trajectory through 9,537, saves synchronously at 9,536 and checks
+the parent rows at 8,001, 9,536 and 9,537. Allocation two first reloads that new
+9,536 checkpoint and gates its pre-update loss and gradient against the replay;
+only then does the cooldown branch begin.
 
 Short preparation, orchestration, conversion and evaluation work runs on
-Clariden `debug`. The 16-node `normal` allocation is reserved for the control
-update and branch. It requests one leaf switch, DP32/TP2, 12 hours and
-`B:USR1@600`; a graceful-stop receipt can launch one bounded recovery allocation
-if needed.
+Clariden `debug`. The two 16-node `normal` allocations are reserved for verified
+replay and the branch. The branch holder is requested 200 minutes after the
+replay allocation starts. Its maximum early hold is 4,200 seconds, leaving a
+frozen 37,800-second training budget plus a 1,200-second reserve. Both request
+one leaf switch, DP32/TP2 and `B:USR1@600`; a graceful-stop receipt can launch
+one bounded recovery allocation if needed.
 
 ## Measurements
 

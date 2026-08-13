@@ -21,11 +21,12 @@ EXPECTED_PANELS = [
 
 
 def validate_static(contract: dict) -> None:
-    require(contract.get("schema_version") == "apertus_full8_early_cooldown_contract_v1", "contract schema drift")
+    require(contract.get("schema_version") == "apertus_full8_early_cooldown_contract_v2", "contract schema drift")
     require(contract.get("status") == "owner_authorized", "contract is not owner-authorized")
-    require(contract.get("experiment_id") == "C_iter9536_parent_d0_early_wsd10_v1", "experiment id drift")
+    require(contract.get("experiment_id") == "C_iter9536_parent_d0_replayed_early_wsd10_v2", "experiment id drift")
     training = contract["training"]
-    require(training["start_iteration"] == 9536 and training["end_iteration"] == 13193, "iteration geometry drift")
+    require(training["start_iteration"] == 8000 and training["intervention_iteration"] == 9536 and training["end_iteration"] == 13193, "iteration geometry drift")
+    require(training["replay_updates"] == 1536 and training["total_executed_updates"] == 5193, "replay geometry drift")
     require(training["branch_updates"] == 3657, "branch update count drift")
     require(training["train_samples"] == 13193 * 1024, "training sample count drift")
     require(training["branch_token_slots"] == 3657 * 1024 * 4096, "branch token-slot count drift")
@@ -40,9 +41,13 @@ def validate_static(contract: dict) -> None:
     require(ademamix["beta3_warmup_updates"] == 18284, "beta3 horizon was shortened")
     require(contract["evaluation"]["milestone_iterations"] == EXPECTED_MILESTONES, "evaluation milestone drift")
     require(contract["data"]["arm"] == "D0_mixed", "data arm drift")
-    require(contract["allocation_policy"]["normal_allocations"] == 1, "allocation count drift")
-    require(contract["one_update_control"]["same_allocation_as_branch"] is True, "control allocation drift")
+    require(contract["allocation_policy"]["normal_allocations"] == 2, "allocation count drift")
+    require(contract["one_update_control"]["iteration"] == 8001, "source-restart control drift")
+    require(contract["one_update_control"]["same_allocation_as_replay"] is True, "control allocation drift")
     require(contract["one_update_control"]["save_checkpoint"] is False, "control must not save a checkpoint")
+    allocation = contract["allocation_policy"]
+    require(allocation["branch_minimum_runtime_seconds"] + allocation["branch_maximum_hold_seconds"] + allocation["branch_reserve_seconds"] == 12 * 3600, "holder budget does not close")
+    require(allocation["replay_conservative_runtime_seconds"] - allocation["branch_source_trigger_seconds"] == allocation["branch_maximum_hold_seconds"], "source trigger/hold budget drift")
 
 
 def verify_parent(contract: dict) -> tuple[dict, dict, dict]:
@@ -52,12 +57,18 @@ def verify_parent(contract: dict) -> tuple[dict, dict, dict]:
     verify_bound_file(contract["data"]["sequence_ids"], require_bytes=True)
     verify_bound_file(contract["data"]["active_tokens"], require_bytes=True)
     verify_bound_file(contract["parent"]["checkpoint_receipt"])
+    replay_receipt_path = verify_bound_file(contract["parent"]["replay_source_checkpoint"]["receipt"])
     verify_bound_file(contract["parent"]["training_log"])
     verify_bound_file(contract["parent"]["greekmmlu_baseline"])
     verify_bound_file(contract["parent"]["initial_validation_receipt"])
 
     checkpoint = Path(contract["parent"]["run_root"]) / "checkpoints/iter_0009536/.metadata"
+    replay_checkpoint = Path(contract["parent"]["run_root"]) / "checkpoints/iter_0008000/.metadata"
     require(checkpoint.is_file() and checkpoint.stat().st_size > 0, "parent checkpoint is incomplete")
+    require(replay_checkpoint.is_file() and replay_checkpoint.stat().st_size > 0, "parent replay-source checkpoint is incomplete")
+    replay_receipt = read_json(replay_receipt_path)
+    require(replay_receipt.get("schema_version") == "apertus_full_8b_checkpoint_receipt_v1" and replay_receipt.get("status") == "frozen" and replay_receipt.get("iteration") == 8000, "replay-source checkpoint receipt drift")
+    require(Path(replay_receipt["checkpoint_directory"]).resolve() == replay_checkpoint.parent.resolve(), "replay-source checkpoint path drift")
     per_document = Path(contract["parent"]["per_document_baseline_root"])
     receipts = sorted(per_document.glob("*.receipt.json"))
     require(len(receipts) == 13, "iteration-9536 per-document baseline does not have 13 panels")
@@ -97,11 +108,13 @@ def verify_parent(contract: dict) -> tuple[dict, dict, dict]:
 
 def derive_recipe(parent: dict, contract: dict) -> dict:
     result = copy.deepcopy(parent)
-    result["schema_version"] = "apertus_full8_early_cooldown_recipe_v1"
+    result["schema_version"] = "apertus_full8_early_cooldown_recipe_v2"
     result["recipe_id"] = contract["experiment_id"]
     result["status"] = "frozen"
     result["causal_intervention"] = {
+        "replay_source_checkpoint_iteration": 8000,
         "parent_checkpoint_iteration": 9536,
+        "parent_state_reconstructed_by_exact_peak_lr_replay": True,
         "parent_schedule_arm": "D0_mixed",
         "same_parent_schedule_prefix": True,
         "changed_field": "optimization.learning_rate",
@@ -111,7 +124,7 @@ def derive_recipe(parent: dict, contract: dict) -> dict:
     result["batch_and_parallelism"]["training_samples"] = 13193 * 1024
     result["segments"] = {
         "partition": "normal", "account": "a0140", "wall_limit": "12:00:00",
-        "boundaries": [9536, 13193], "count": 1, "signal_before_limit_seconds": 600,
+        "boundaries": [8000, 9536, 13193], "count": 2, "signal_before_limit_seconds": 600,
         "resume_requires_optimizer_rng_sample_cursor_parity": True,
     }
     result["optimization"]["learning_rate"] = {
@@ -161,14 +174,16 @@ def main() -> int:
         "checks": {
             "owner_authorized_contract": True,
             "parent_checkpoint_complete": True,
+            "replay_source_checkpoint_complete_and_receipted": True,
             "parent_recipe_byte_bound": True,
             "exact_D0_schedule_byte_bound": True,
             "schedule_prefix_covers_branch_endpoint": 13193 * 1024 <= {row["arm_id"]: row for row in schedule["arms"]}["D0_mixed"]["training_slots"],
             "all_13_validation_panels_frozen": len(validation["panels"]) == 13,
             "iteration_9536_baselines_reused": True,
+            "parent_updates_8001_through_9537_must_replay_before_branch": True,
             "alpha_beta3_parent_horizon_preserved": True,
             "same_allocation_one_update_control_required": True,
-            "single_16_node_allocation": True,
+            "two_16_node_allocations_with_bounded_overlap": True,
             "fresh_debug_scheduler_snapshot": True,
         },
         "contract": file_binding(args.contract),
@@ -180,6 +195,8 @@ def main() -> int:
         "validation_manifest": file_binding(Path(contract["data"]["validation_manifest"]["path"])),
         "runtime_evidence": {
             "parent_checkpoint_metadata": file_binding(Path(contract["parent"]["run_root"]) / "checkpoints/iter_0009536/.metadata"),
+            "replay_source_checkpoint_metadata": file_binding(Path(contract["parent"]["run_root"]) / "checkpoints/iter_0008000/.metadata"),
+            "replay_source_checkpoint_receipt": file_binding(Path(contract["parent"]["replay_source_checkpoint"]["receipt"]["path"])),
             "parent_checkpoint_receipt": file_binding(Path(contract["parent"]["checkpoint_receipt"]["path"])),
             "parent_training_log": file_binding(Path(contract["parent"]["training_log"]["path"])),
             "greekmmlu_baseline": file_binding(Path(contract["parent"]["greekmmlu_baseline"]["path"])),
