@@ -102,3 +102,40 @@ At 2026-08-13 18:18 CEST there was no live training allocation. The replacement
 replay jobs were pending behind xfer maintenance. A replacement 16-node branch
 must use a new run root, new immutable v4 bundle, fresh debug prelaunch and a
 fresh audited Slurm job; it must not resume the rejected v3 root.
+
+## Replacement launch and final verification
+
+The scheduler-selection correction was committed and pushed directly as
+`7050d596` (no pull request). Verification completed before deployment:
+
+- causal contract tests: 14 passed;
+- inherited scheduling and full-8B suites: 205 passed plus 61 subtests;
+- all causal shell entry points passed `bash -n`;
+- all causal Python sources compiled;
+- the static owner-authorized v4 contract passed;
+- the replay-reader branch passed 208 tests plus 61 subtests and its changed
+  reader/test files passed Ruff;
+- the portable replay/HF tooling passed all 25 unit tests and Ruff.
+
+Debug job `3076023` copied, validated, fully hashed and froze the replacement
+scientific bundle in 54 seconds:
+
+`/iopsstor/scratch/cscs/fffoivos/orchestration/early-cooldown-8b/20260813T164000Z-7050d596-v8`
+
+Its 840-file tree SHA-256 is
+`f5eb8be3ded21e13e6c4758210a83354156bcaa0427930715daf83659c54dcc9`.
+Debug prelaunch job `3076055` then regenerated the recipe, scientific launch
+gate, exact Slurm test-only receipt and operational gate from that immutable
+bundle.
+
+Production training job `3076070` and its after-any debug supervisor `3076071`
+were submitted from the exact tested command. The audited training request is
+16 `normal` nodes for 12 hours with `Switches=1@00:05:00` and
+`ExcNodeList=(null)`. It was pending on priority at 18:39 CEST. The run root is:
+
+`/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/20260813T164000Z-causal-wsd10-direct-v4`
+
+The independent replay portability chain remains off the training critical
+path: private upload `3075934` waits on xfer maintenance, immutable hydration
+`3075937` depends on that upload, and production-reader smoke `3075941` runs on
+`debug` after hydration.
