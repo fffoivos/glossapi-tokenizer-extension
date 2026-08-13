@@ -50,3 +50,10 @@ different architecture geometry; benchmark and scoring fields remain
 byte-equivalent JSON values to the 8B source contract. The job uses four debug
 nodes for at most 22.5 minutes and does not share nodes or dependencies with a
 training allocation.
+
+When another campaign occupies the account's two submitted debug-job slots,
+`coordinate_d0_0p5b_matrix.sh` waits on the Mac and submits only after one
+slot is released. It additionally requires the active campaign's long-running
+training guard to be pending or to retain at least one hour. If the D0 job
+does not start within five minutes, the coordinator cancels only that D0 job
+so it cannot block the active campaign's next evaluation submission.
