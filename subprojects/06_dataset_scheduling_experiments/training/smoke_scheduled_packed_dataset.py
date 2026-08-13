@@ -70,7 +70,8 @@ def fixture(root: Path) -> Path:
         ids = root / f"{arm}.ids"
         counts = root / f"{arm}.active"
         np.asarray([sequence_id, np.uint64(2**64 - 1)], dtype=np.uint64).tofile(ids)
-        np.asarray([4000, 0], dtype=np.uint16).tofile(counts)
+        # Cap the final packed target by one without rewriting the payload.
+        np.asarray([3999, 0], dtype=np.uint16).tofile(counts)
         arms.append(
             {
                 "arm_id": arm,
@@ -122,7 +123,7 @@ def main() -> int:
             sample = dataset[0]
             filler = dataset[1]
             assert sample["tokens"].shape == sample["labels"].shape == (4096,)
-            assert int(sample["loss_mask"][4000:].sum()) == 0
+            assert int(sample["loss_mask"][3999:].sum()) == 0
             assert int(filler["loss_mask"].sum()) == 0
             assert sample["position_ids"][101].item() == 0
             outputs.append(sample)
@@ -134,4 +135,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
