@@ -136,6 +136,13 @@ were submitted from the exact tested command. The audited training request is
 `/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/20260813T164000Z-causal-wsd10-direct-v4`
 
 The independent replay portability chain remains off the training critical
-path: private upload `3075934` waits on xfer maintenance, immutable hydration
-`3075937` depends on that upload, and production-reader smoke `3075941` runs on
-`debug` after hydration.
+path. Upload `3075934` was later allocated to `nid001154` during maintenance
+and scheduler-cancelled after one second, still before producing an upload
+receipt. Replacement upload `3076327` passed the exact immutable-bundle
+`sbatch --test-only` check and was deliberately held until 19:34 CEST, after
+the maintenance window. Existing hydration `3075937` was retargeted to
+`afterok:3076327`; existing production-reader smoke `3075941` remains on
+`debug` after hydration. No duplicate downstream job and no `normal`
+allocation was created. The immutable transition receipt is:
+
+`/capstor/scratch/cscs/fffoivos/cpt_assets/replay/20260813T135200Z-v2max-f30-gcap-v2/inventory/replay_job_transition_20260813_v3.json`
