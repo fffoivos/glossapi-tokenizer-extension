@@ -108,6 +108,16 @@ def test_readonly_watcher_never_mutates_slurm_or_executes_data_work() -> None:
     assert "|| true; } | wc -l" in watcher
 
 
+def test_macos_watcher_is_readonly_and_plist_is_bounded() -> None:
+    watcher = (ROOT / "clariden/watch_early_cooldown_macos.sh").read_text()
+    plist = (ROOT / "clariden/com.fffoivos.apertus-early-cooldown-watch.plist").read_text()
+    assert "/usr/bin/ssh" in watcher
+    assert "squeue" in watcher and "sacct" in watcher
+    assert "sbatch" not in watcher and "scancel" not in watcher
+    assert "StartInterval" in plist and "<integer>300</integer>" in plist
+    assert "RunAtLoad" in plist
+
+
 def test_supervisor_handles_training_completion_and_bounded_recovery() -> None:
     supervisor = (ROOT / "clariden/supervise_after_training_debug.sbatch").read_text()
     assert "branch_completed" in supervisor
