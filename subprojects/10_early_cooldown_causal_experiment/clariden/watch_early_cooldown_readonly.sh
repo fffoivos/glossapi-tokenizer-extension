@@ -40,7 +40,7 @@ while [[ $(date +%s) -lt $deadline ]]; do
   upload=$(squeue -h -j "$replay_upload_job" -o '%T|%M|%R' 2>/dev/null || true)
   parity=$(json_status "$run_root/branch_control/sandwich_restart_control_receipt.json")
   terminal=$(json_status "$run_root/training_receipts/branch_job_${training_job}.json")
-  eval_count=$(find "$run_root/checkpoint_evaluations" -name evaluation_receipt.json -type f 2>/dev/null | wc -l | tr -d ' ')
+  eval_count=$( { find "$run_root/checkpoint_evaluations" -name evaluation_receipt.json -type f 2>/dev/null || true; } | wc -l | tr -d ' ')
   endpoint=$(json_status "$run_root/native_greek_endpoint/native_endpoint_receipt.json")
   snapshot="train=${train:-terminal};upload=${upload:-terminal};parity=$parity;terminal=$terminal;checkpoint_evaluations=$eval_count;native_endpoint=$endpoint"
   if [[ "$snapshot" != "$previous" ]]; then

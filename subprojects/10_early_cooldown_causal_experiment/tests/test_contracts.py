@@ -104,6 +104,8 @@ def test_readonly_watcher_never_mutates_slurm_or_executes_data_work() -> None:
     assert "scancel" not in watcher
     for forbidden in ("dedup", "anonymize", "decontaminate", "tokenize", "pack_catalog", "rsync"):
         assert forbidden not in watcher
+    assert "find \"$run_root/checkpoint_evaluations\"" in watcher
+    assert "|| true; } | wc -l" in watcher
 
 
 def test_supervisor_handles_training_completion_and_bounded_recovery() -> None:
