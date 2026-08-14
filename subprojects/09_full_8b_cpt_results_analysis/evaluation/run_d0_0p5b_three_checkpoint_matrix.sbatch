@@ -29,7 +29,10 @@ EXECUTION_GATE="$EVAL_ROOT/execution_gate_final_v1/execution_gate.json"
 EVAL_VENV=/iopsstor/scratch/cscs/fffoivos/python_envs/native_greek_eval_py312_aug2026
 runner="$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/run_checkpoint_suite.py"
 aggregator="$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/aggregate_checkpoint_shards.py"
-rescorer="$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluation/rescore_contamination_filtered.py"
+# Contamination rescoring was added after the scorer bundle was frozen. Keep
+# model scoring on EVAL_CODE_ROOT and bind this post-processing-only script to
+# the immutable D0 wrapper bundle.
+rescorer="$D0_WRAPPER_ROOT/evaluation/rescore_contamination_filtered.py"
 native_runner="$EVAL_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/run_native_greek_mcq_eval.py"
 bindings="$D0_WRAPPER_ROOT/d0_0p5b_checkpoint_bindings.json"
 binder="$D0_WRAPPER_ROOT/bind_d0_0p5b_native_suite.py"
