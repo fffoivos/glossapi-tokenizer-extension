@@ -34,8 +34,8 @@ aggregator="$EVAL_CODE_ROOT/subprojects/09_full_8b_cpt_results_analysis/evaluati
 # the immutable D0 wrapper bundle.
 rescorer="$D0_WRAPPER_ROOT/evaluation/rescore_contamination_filtered.py"
 native_runner="$EVAL_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/run_native_greek_mcq_eval.py"
-bindings="$D0_WRAPPER_ROOT/d0_0p5b_checkpoint_bindings.json"
-binder="$D0_WRAPPER_ROOT/bind_d0_0p5b_native_suite.py"
+bindings="$D0_WRAPPER_ROOT/evaluation/d0_0p5b_checkpoint_bindings.json"
+binder="$D0_WRAPPER_ROOT/evaluation/bind_d0_0p5b_native_suite.py"
 exclusions=/capstor/scratch/cscs/fffoivos/benchmark_contamination_audits/runs/20260812T171530Z-native-greek-v1/publish_payload/recommended_excluded_example_ids.jsonl
 
 [[ ! -e "$D0_EVAL_OUTPUT_ROOT" ]] || { echo "refusing to overwrite $D0_EVAL_OUTPUT_ROOT" >&2; exit 2; }
