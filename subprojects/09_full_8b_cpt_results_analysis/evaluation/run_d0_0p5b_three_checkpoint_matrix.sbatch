@@ -13,6 +13,10 @@
 #SBATCH --no-requeue
 
 set -euo pipefail
+# The canonical 8B scorer bundle is receipt-frozen.  Prevent Python imports
+# from adding __pycache__ files to that tree and invalidating later resume
+# preflights.
+export PYTHONDONTWRITEBYTECODE=1
 : "${D0_WRAPPER_ROOT:?set frozen D0 wrapper root}"
 : "${D0_EVAL_OUTPUT_ROOT:?set new output root}"
 resume=${D0_RESUME:-0}
