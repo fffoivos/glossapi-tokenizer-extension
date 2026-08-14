@@ -19,6 +19,18 @@
           0.42131320007426204
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "d0_choice_nll": {
         "best_checkpoint": "final",
         "phase_deltas": [
@@ -29,6 +41,18 @@
           1.5545291603268085,
           1.300241187673855,
           1.286908219891778
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.43283133606556146,
+          -0.004745980038477787
+        ],
+        "values": [
+          0.6257468365612343,
+          0.19291550049567288,
+          0.1881695204571951
         ]
       },
       "full8_accuracy": {
@@ -43,6 +67,18 @@
           0.5485
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "full8_choice_nll": {
         "best_checkpoint": "mid",
         "phase_deltas": [
@@ -53,6 +89,18 @@
           1.4586,
           1.074,
           1.1221
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.49439999999999995,
+          0.022499999999999992
+        ],
+        "values": [
+          0.6645,
+          0.1701,
+          0.1926
         ]
       },
       "label": "GreekMMLU",
@@ -77,6 +125,18 @@
           0.3389830508474576
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "d0_choice_nll": {
         "best_checkpoint": "final",
         "phase_deltas": [
@@ -87,6 +147,18 @@
           1.4918282893858346,
           1.3544531540581612,
           1.3524673610235187
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.4668984137880374,
+          0.015173100598885575
+        ],
+        "values": [
+          0.5521960666132174,
+          0.08529765282518001,
+          0.10047075342406558
         ]
       },
       "full8_accuracy": {
@@ -101,6 +173,18 @@
           0.5508474576271186
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "full8_choice_nll": {
         "best_checkpoint": "mid",
         "phase_deltas": [
@@ -111,6 +195,18 @@
           1.4806877262964455,
           1.254773827896435,
           1.2604458317344776
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.4540581521669676,
+          2.528856668379542e-05
+        ],
+        "values": [
+          0.5102430437082943,
+          0.05618489154132674,
+          0.056210180108010536
         ]
       },
       "label": "ASEP MCQA",
@@ -135,6 +231,18 @@
           0.44741235392320533
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "d0_choice_nll": {
         "best_checkpoint": "mid",
         "phase_deltas": [
@@ -145,6 +253,18 @@
           1.4067228742205964,
           1.281929563654381,
           1.2835638147893031
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.3647441644600282,
+          3.0009426584293175e-05
+        ],
+        "values": [
+          0.38725664371652213,
+          0.02251247925649389,
+          0.022542488683078184
         ]
       },
       "full8_accuracy": {
@@ -159,6 +279,18 @@
           0.4657762938230384
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "full8_choice_nll": {
         "best_checkpoint": "final",
         "phase_deltas": [
@@ -169,6 +301,18 @@
           1.368819509274996,
           1.2855035885906894,
           1.2854107853072294
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.4311238805423548,
+          -7.14359778649018e-05
+        ],
+        "values": [
+          0.45097865829061334,
+          0.019854777748258574,
+          0.019783341770393672
         ]
       },
       "label": "DemosQA",
@@ -193,6 +337,18 @@
           0.5876288659793815
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.041144997324772725,
+          0.004761904761904745
+        ],
+        "values": [
+          0.5388978063135366,
+          0.5800428036383093,
+          0.584804708400214
+        ]
+      },
       "d0_choice_nll": {
         "best_checkpoint": "final",
         "phase_deltas": [
@@ -203,6 +359,18 @@
           0.7513668715510483,
           0.6968093682426575,
           0.6931430946408812
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.3639300218339751,
+          -0.003895292008913198
+        ],
+        "values": [
+          0.5043839188063084,
+          0.1404538969723333,
+          0.1365586049634201
         ]
       },
       "full8_accuracy": {
@@ -217,6 +385,18 @@
           0.6288659793814433
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.07961476725521677,
+          0.01942215088282495
+        ],
+        "values": [
+          0.5384162653825575,
+          0.6180310326377743,
+          0.6374531835205992
+        ]
+      },
       "full8_choice_nll": {
         "best_checkpoint": "final",
         "phase_deltas": [
@@ -227,6 +407,18 @@
           0.7540758325275844,
           0.6697642662284268,
           0.6677432530321096
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.42037422943155756,
+          0.014125022562609446
+        ],
+        "values": [
+          0.5551842877031848,
+          0.13481005827162731,
+          0.14893508083423676
         ]
       },
       "label": "GPCR",
@@ -251,6 +443,18 @@
           0.23627684964200477
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "d0_choice_nll": {
         "best_checkpoint": "mid",
         "phase_deltas": [
@@ -261,6 +465,18 @@
           1.7656774782463902,
           1.6014741470700038,
           1.6044721255897239
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.4518196667439685,
+          0.011290696527071487
+        ],
+        "values": [
+          0.6307649631297039,
+          0.17894529638573536,
+          0.19023599291280685
         ]
       },
       "full8_accuracy": {
@@ -275,6 +491,18 @@
           0.38424821002386633
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "full8_choice_nll": {
         "best_checkpoint": "mid",
         "phase_deltas": [
@@ -285,6 +513,18 @@
           1.71924209843433,
           1.503044857472743,
           1.5056936917464605
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.5822414857460424,
+          0.0049650197300138005
+        ],
+        "values": [
+          0.6930756881874887,
+          0.11083420244144623,
+          0.11579922217146003
         ]
       },
       "label": "Medical MCQA",
@@ -309,6 +549,18 @@
           0.38050930460333005
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.001317704988225199,
+          -0.02944444444444444
+        ],
+        "values": [
+          0.4986822950117748,
+          0.5,
+          0.47055555555555556
+        ]
+      },
       "d0_choice_nll": {
         "best_checkpoint": "final",
         "phase_deltas": [
@@ -319,6 +571,18 @@
           0.8697579426159499,
           0.8388088757463444,
           0.723053051072544
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -1.3015447142350798,
+          -0.04783540684168153
+        ],
+        "values": [
+          1.9868793472642357,
+          0.685334633029156,
+          0.6374992261874745
         ]
       },
       "full8_accuracy": {
@@ -333,6 +597,18 @@
           0.3388834476003918
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.012363519588953098,
+          -0.011851851851851891
+        ],
+        "values": [
+          0.524215371440805,
+          0.5118518518518519,
+          0.5
+        ]
+      },
       "full8_choice_nll": {
         "best_checkpoint": "initial",
         "phase_deltas": [
@@ -343,6 +619,18 @@
           0.6444468298056306,
           0.8420218935199479,
           1.2007991545112373
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.3673443202227382,
+          0.3585801258846113
+        ],
+        "values": [
+          1.4812591850900427,
+          1.1139148648673045,
+          1.4724949907519158
         ]
       },
       "label": "OYXOY metaphor",
@@ -367,6 +655,18 @@
           0.3602212051868802
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.030252958732768453,
+          0.000529380624669118
+        ],
+        "values": [
+          0.5297235781080993,
+          0.4994706193753309,
+          0.5
+        ]
+      },
       "d0_choice_nll": {
         "best_checkpoint": "initial",
         "phase_deltas": [
@@ -377,6 +677,18 @@
           0.7606707268796635,
           0.8327828527192999,
           0.8642503373303536
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -1.4235140538612563,
+          -0.130518968676946
+        ],
+        "values": [
+          2.2019781808646295,
+          0.7784641270033732,
+          0.6479451583264272
         ]
       },
       "full8_accuracy": {
@@ -391,6 +703,18 @@
           0.38729977116704806
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.056713784961014424,
+          -0.056844276101581104
+        ],
+        "values": [
+          0.49538531572307787,
+          0.5520991006840923,
+          0.4952548245825112
+        ]
+      },
       "full8_choice_nll": {
         "best_checkpoint": "mid",
         "phase_deltas": [
@@ -401,6 +725,18 @@
           0.728797865448988,
           0.6662917721878147,
           0.7639591407966521
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.5617979224284516,
+          0.16711500842605498
+        ],
+        "values": [
+          1.5305005302542691,
+          0.9687026078258175,
+          1.1358176162518725
         ]
       },
       "label": "OYXOY NLI binary",
@@ -425,6 +761,18 @@
           0.32292454396222586
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.0463696227914967,
+          -0.004194375011954632
+        ],
+        "values": [
+          0.5379536601387891,
+          0.4915840373472924,
+          0.48738966233533776
+        ]
+      },
       "d0_choice_nll": {
         "best_checkpoint": "final",
         "phase_deltas": [
@@ -435,6 +783,18 @@
           0.775781912808708,
           0.7703833337692583,
           0.7418326081608514
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -1.2165210187988873,
+          -0.08746698918006679
+        ],
+        "values": [
+          2.0354964243806255,
+          0.8189754055817382,
+          0.7315084164016714
         ]
       },
       "full8_accuracy": {
@@ -449,6 +809,18 @@
           0.3363520666949481
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.02608266819912458,
+          -0.02040594122714845
+        ],
+        "values": [
+          0.4983294473348459,
+          0.5244121155339705,
+          0.504006174306822
+        ]
+      },
       "full8_choice_nll": {
         "best_checkpoint": "initial",
         "phase_deltas": [
@@ -459,6 +831,18 @@
           0.5673288240014721,
           0.7443873619425799,
           0.7658953548614
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.24452397691021366,
+          0.263991027978286
+        ],
+        "values": [
+          1.291161174424364,
+          1.0466371975141504,
+          1.3106282254924364
         ]
       },
       "label": "OYXOY WiC",
@@ -483,6 +867,18 @@
           0.37723772377237724
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "d0_choice_nll": {
         "best_checkpoint": "final",
         "phase_deltas": [
@@ -493,6 +889,18 @@
           1.4546619145164903,
           1.3082181176092593,
           1.3029405678598862
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.39078099527764587,
+          -0.008987911829675982
+        ],
+        "values": [
+          0.5279484199195351,
+          0.13716742464188922,
+          0.12817951281221324
         ]
       },
       "full8_accuracy": {
@@ -507,6 +915,18 @@
           0.38063806380638066
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "full8_choice_nll": {
         "best_checkpoint": "mid",
         "phase_deltas": [
@@ -517,6 +937,18 @@
           1.4480152082682554,
           1.297374115937513,
           1.3318937949542304
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.4473116608032251,
+          0.01573015895562907
+        ],
+        "values": [
+          0.5668102831980684,
+          0.11949862239484327,
+          0.13522878135047234
         ]
       },
       "label": "OYXOY WSD",
@@ -541,7 +973,31 @@
           0.0005720823798627002
         ]
       },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "d0_choice_nll": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "d0_correct_answer_bpb": {
         "best_checkpoint": null,
         "phase_deltas": [
           null,
@@ -565,7 +1021,31 @@
           0.017162471395881007
         ]
       },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
       "full8_choice_nll": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "full8_correct_answer_bpb": {
         "best_checkpoint": null,
         "phase_deltas": [
           null,

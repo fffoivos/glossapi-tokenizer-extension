@@ -134,8 +134,20 @@ def main() -> int:
     for benchmark, label in BENCHMARKS:
         d0_accuracy = trajectory([d0[cp][benchmark]["accuracy"] for cp, _, _ in D0_CHECKPOINTS], False)
         full8_accuracy = trajectory([full8[cp][benchmark]["accuracy"] for cp, _, _ in FULL8_CHECKPOINTS], False)
+        d0_balanced_accuracy = trajectory(
+            [d0[cp][benchmark]["balanced_accuracy"] for cp, _, _ in D0_CHECKPOINTS], False
+        )
+        full8_balanced_accuracy = trajectory(
+            [full8[cp][benchmark]["balanced_accuracy"] for cp, _, _ in FULL8_CHECKPOINTS], False
+        )
         d0_nll = trajectory([d0[cp][benchmark]["choice_nll"] for cp, _, _ in D0_CHECKPOINTS], True)
         full8_nll = trajectory([full8[cp][benchmark]["choice_nll"] for cp, _, _ in FULL8_CHECKPOINTS], True)
+        d0_bpb = trajectory(
+            [d0[cp][benchmark]["correct_answer_bpb"] for cp, _, _ in D0_CHECKPOINTS], True
+        )
+        full8_bpb = trajectory(
+            [full8[cp][benchmark]["correct_answer_bpb"] for cp, _, _ in FULL8_CHECKPOINTS], True
+        )
         phase_match = []
         for phase in range(2):
             left = direction(d0_nll["phase_deltas"][phase], True)
@@ -159,8 +171,12 @@ def main() -> int:
                 "n": int(d0[D0_CHECKPOINTS[0][0]][benchmark]["n"]),
                 "d0_accuracy": d0_accuracy,
                 "full8_accuracy": full8_accuracy,
+                "d0_balanced_accuracy": d0_balanced_accuracy,
+                "full8_balanced_accuracy": full8_balanced_accuracy,
                 "d0_choice_nll": d0_nll,
                 "full8_choice_nll": full8_nll,
+                "d0_correct_answer_bpb": d0_bpb,
+                "full8_correct_answer_bpb": full8_bpb,
                 "choice_nll_phase_direction_match": phase_match,
                 "choice_nll_best_checkpoint_match": best_match,
             }

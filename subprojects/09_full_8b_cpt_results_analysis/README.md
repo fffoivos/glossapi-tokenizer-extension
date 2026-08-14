@@ -10,8 +10,8 @@ Apertus-8B CPT trajectory. It is organized around three questions only:
 3. **Proxy validity:** did the five 0.5B data-order arms predict the behavior
    of the 8B stationary-mix run?
 
-[`RESULTS.md`](RESULTS.md) answers those questions. The three self-contained
-HTML reports under [`presentations/`](presentations/) are the canonical visual
+[`RESULTS.md`](RESULTS.md) answers those questions. The self-contained HTML
+reports under [`presentations/`](presentations/) are the canonical visual
 evidence. [`DATA_AND_LIMITATIONS.md`](DATA_AND_LIMITATIONS.md) records the
 dataset and comparability boundaries that constrain interpretation.
 
@@ -40,6 +40,7 @@ in subproject 07.
 | 8B versus five 0.5B arms | [`FULL8_VS_0P5B.html`](presentations/FULL8_VS_0P5B.html) | [`FULL8_VS_0P5B.data.json`](presentations/FULL8_VS_0P5B.data.json) |
 | Checkpoint behavior and source exposure | [`CHECKPOINT_BEHAVIOR.html`](presentations/CHECKPOINT_BEHAVIOR.html) | [`CHECKPOINT_BEHAVIOR.data.json`](presentations/CHECKPOINT_BEHAVIOR.data.json) |
 | Native-Greek three-checkpoint benchmark screen | [`NATIVE_GREEK_3CP_BENCHMARKS.html`](presentations/NATIVE_GREEK_3CP_BENCHMARKS.html) | [`NATIVE_GREEK_3CP_BENCHMARKS.data.json`](presentations/NATIVE_GREEK_3CP_BENCHMARKS.data.json) |
+| Token-aligned 0.5B versus 8B checkpoint performance | [`D0_0P5B_VS_FULL8_CHECKPOINTS.html`](presentations/D0_0P5B_VS_FULL8_CHECKPOINTS.html) | [`D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.data.json`](D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.data.json) |
 
 The token-aligned D0 0.5B replication of the native-Greek screen is reported
 in [`D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md`](D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md),
