@@ -41,6 +41,10 @@ in subproject 07.
 | Checkpoint behavior and source exposure | [`CHECKPOINT_BEHAVIOR.html`](presentations/CHECKPOINT_BEHAVIOR.html) | [`CHECKPOINT_BEHAVIOR.data.json`](presentations/CHECKPOINT_BEHAVIOR.data.json) |
 | Native-Greek three-checkpoint benchmark screen | [`NATIVE_GREEK_3CP_BENCHMARKS.html`](presentations/NATIVE_GREEK_3CP_BENCHMARKS.html) | [`NATIVE_GREEK_3CP_BENCHMARKS.data.json`](presentations/NATIVE_GREEK_3CP_BENCHMARKS.data.json) |
 
+The token-aligned D0 0.5B replication of the native-Greek screen is reported
+in [`D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md`](D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md),
+with its machine-readable comparison in the adjacent `.data.json` file.
+
 The payloads retain their original CSCS receipt paths and hashes. Verify the
 copied package with:
 

@@ -64,6 +64,15 @@ but the completed evidence does not show that schedule rankings or checkpoint
 shapes transfer from 0.5B to 8B. A controlled same-data replication across
 0.5B, 1.5B and 8B is still required.
 
+A subsequent frozen-scorer replication evaluated the D0 0.5B initialization,
+39.728B checkpoint and final 80.732B checkpoint on the same native-Greek panel.
+Strict-filtered choice-NLL direction agreed with 8B on 6/9 tasks from
+initialization to about 40B, but only 3/9 from about 40B to the endpoint; the
+exact best-checkpoint identity agreed on 2/9. This strengthens the distinction:
+early capability emergence partially transfers, while late checkpoint timing
+does not. See
+[`D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md`](D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md).
+
 ## Decisions supported by this run
 
 - Preserve the update-9,536 checkpoint as the observed GreekMMLU leader.

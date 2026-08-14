@@ -1,0 +1,24 @@
+{
+  "checkpoint_receipts": [
+    {
+      "model": "d0_iter_0000000",
+      "path": "/iopsstor/scratch/cscs/fffoivos/evals/d0_0p5b_native_greek_3cp_20260814/d0_iter_0000000/combined/receipt.json",
+      "sha256": "3689e4acf24018af03f9c178650e278bd393502e7cf41f658f5c2f217c974723"
+    },
+    {
+      "model": "d0_iter_0018944",
+      "path": "/iopsstor/scratch/cscs/fffoivos/evals/d0_0p5b_native_greek_3cp_20260814/d0_iter_0018944/combined/receipt.json",
+      "sha256": "72402190af5388ae91a0ef00986d2c98a3ff28e727930f1a83efbfa31b3a2fe3"
+    },
+    {
+      "model": "d0_iter_0038496",
+      "path": "/iopsstor/scratch/cscs/fffoivos/evals/d0_0p5b_native_greek_3cp_20260814/d0_iter_0038496/combined/receipt.json",
+      "sha256": "674d4f8f804002d5ce11a8a23a17d34813d1a6746f9b3d4e22acb7a810a602a5"
+    }
+  ],
+  "contract_sha256": "2cebcf483179a0362793e6a039ccb765acd1ff0ed2c118d6a5fa51f057c365f4",
+  "manifest_sha256": "db7623644866b634b851312875cc138717ce820bf8295a45b3e4fa7bbb63d1f5",
+  "schema_version": "apertus_full8_native_greek_3cp_matrix_v4",
+  "slurm_job_id": "3079936",
+  "status": "completed"
+}

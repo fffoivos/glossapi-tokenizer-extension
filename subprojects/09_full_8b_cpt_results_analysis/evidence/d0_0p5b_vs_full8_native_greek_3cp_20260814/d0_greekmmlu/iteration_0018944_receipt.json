@@ -1,0 +1,64 @@
+{
+  "artifacts": {
+    "aggregate": {
+      "bytes": 1336,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0018944/attempt_3/tasks/D0_mixed/greekmmlu/D0_mixed_iter18944_native_mcq_aggregate.json",
+      "sha256": "80dd67a4d8c3098a537a127817f6b32a8b41e550491b3c9a8163973601028730"
+    },
+    "headline": {
+      "bytes": 362,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0018944/attempt_3/tasks/D0_mixed/greekmmlu/D0_mixed_iter18944_native_mcq_headline.json",
+      "sha256": "8432180c7409a1841b4ddf1aa1959af0a64154c94557c76b526ab78326068083"
+    },
+    "predictions": {
+      "bytes": 10258421,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0018944/attempt_3/tasks/D0_mixed/greekmmlu/D0_mixed_iter18944_native_mcq_predictions.jsonl",
+      "sha256": "c18cba767eb4899b53395ca6c5ef31476a7297150f731a55d34dec5f880c61fb"
+    },
+    "run_metadata": {
+      "bytes": 924,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0018944/attempt_3/tasks/D0_mixed/greekmmlu/run_metadata.json",
+      "sha256": "f7bd5e120522b0fadc3f1f960e6922a5d458c808e09202b9ae3a6d169b20ba00"
+    },
+    "summary": {
+      "bytes": 4420,
+      "path": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0018944/attempt_3/tasks/D0_mixed/greekmmlu/D0_mixed_iter18944_native_mcq_summary.csv",
+      "sha256": "58f22f2957cc43690a4ad42395b39cdb683248c66111c291bad529b9d7c2ffe7"
+    }
+  },
+  "benchmark_origin": "natively_authored_greek",
+  "checkpoint": {
+    "export_receipt_path": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0018944/attempt_3/tasks/D0_mixed/export/checkpoint_eval_export_receipt.json",
+    "export_receipt_sha256": "fe11446cb813ceb0190f4d407676071e6603b6a01bbc1ab77b82d6bbf5bfe0c3",
+    "hf_tree_manifest_sha256": "a19408ae977208c2dee0155e074a4e3fd5f2ed5baa2ea1b0e04f9d29b9eb4dd2",
+    "iteration": 18944,
+    "source_tree_manifest_sha256": "2dedc0f80c04727eb5d9668c3f096e867feeda3eda2b9fc0b75deeb869d24efe"
+  },
+  "clean_subset_manifest": {
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/dataset-scheduling-0p5b/20260803T064000Z-static-prelaunch-v2/greekmmlu_clean_subset_manifest.json",
+    "sha256": "61ed4ac9d203d471c3b90463e893ed868f43a145b1bb1a7b0d5c753723dda310"
+  },
+  "evaluation_namespace": "fp32_v1",
+  "evaluator": {
+    "candidate_batch_size": 16,
+    "dtype": "float32",
+    "example_batch_size": 16,
+    "max_input_tokens": 3072,
+    "random_state": 42
+  },
+  "metrics": {
+    "accuracy": 0.4187109187109187,
+    "choice_nll": 1.295978913392475,
+    "correct_answer_bpb": 0.19248550513438936,
+    "decontaminated": {
+      "accuracy": 0.41821894919240055,
+      "choice_nll": 1.300241187673855,
+      "correct_answer_bpb": 0.19291550049567288,
+      "n": 16159
+    },
+    "n": 16632
+  },
+  "same_frozen_evaluator_contract_required_for_all_arms_and_checkpoints": true,
+  "schema_version": "exact_checkpoint_native_greekmmlu_receipt_v1",
+  "status": "completed"
+}
