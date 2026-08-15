@@ -1,0 +1,31 @@
+{
+  "schema_version": "apertus_greekmmlu_query_regeneration_v1",
+  "status": "frozen",
+  "reason": "historical_native_greek_mcq_decontam_queries_jsonl_was_purged",
+  "source_code_revision": "86c1b8fe362233bba6e4e2ca92eb4535287fb240",
+  "source_files": {
+    "build_decontamination_queries.py": "5aab1c753ebcc278ca6fc5c6ef15966ceca9e20585f38fcde403438423118178",
+    "run_native_greek_mcq_eval.py": "5c4450cb27c599f8f47689ab4de67bec48e214c4ba4dec9fcd9b2d1de451b968",
+    "native_greek_benchmark_registry.json": "989ba6aaff3397166246e68269d9976f9e3e1832b67ed8d0f98341c46705ea89"
+  },
+  "dataset": {
+    "repo_id": "dascim/GreekMMLU",
+    "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+    "config": "All",
+    "split": "test",
+    "expected_questions": 16632
+  },
+  "builder_arguments": {
+    "benchmarks": "greekmmlu",
+    "generated_utc": "2026-08-14T00:00:00Z"
+  },
+  "historical_scanner_policy": {
+    "k": 8,
+    "max_gap_tokens": 50,
+    "max_gap_tokens_short": 5,
+    "direction": "after",
+    "primary_rule": "correct_only",
+    "max_q_kgram_digit_fraction": 0.5
+  },
+  "named_difference": "regenerated query JSONL from the pinned public dataset and clean source revision"
+}

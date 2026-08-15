@@ -1,0 +1,56 @@
+{
+  "schema_version": "apertus_legacy_public_greekmmlu_v1",
+  "status": "frozen",
+  "purpose": "like-for-like historical 8B update-3218 compatibility endpoint only",
+  "code": {
+    "revision": "cfdd0e7b00761a736be660867bf3d09733e24a92",
+    "files": {
+      "run_native_greek_mcq_eval.py": "b9f75809b6e617cfd419dc5420e480dee72bb3f1df7fa8f82e04793b4dfd19c4",
+      "run_native_greek_mcq_eval.sbatch": "b383165ad92a5c2040c3d744e30c07f7d00b3bf6518e3a1543c658589fd33066",
+      "native_greek_benchmark_registry.json": "fcf732c142efdd204fe8a64ac4fb1159f47e7b2bac0e947207c2a971329bf508"
+    }
+  },
+  "dataset": {
+    "repo_id": "dascim/GreekMMLU",
+    "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+    "config": "All",
+    "split": "test",
+    "questions": 16632,
+    "historical_code_did_not_forward_revision": true,
+    "historical_june_revision_is_unrecoverable": true,
+    "execution_input": "pre_materialized_snapshot_at_pinned_revision",
+    "snapshot_must_reconcile_to_surviving_20260731_full_query_set": true,
+    "unresolved_dataset_drift_is_a_named_reconstruction_difference": true
+  },
+  "invocation": {
+    "benchmarks": "greekmmlu",
+    "sample_size": 0,
+    "random_state": 42,
+    "dtype": "bfloat16",
+    "max_input_tokens": 3072,
+    "candidate_batch_size": 16,
+    "example_batch_size": 16,
+    "trust_remote_code": true
+  },
+  "compatibility_wrapper": {
+    "scoring_arithmetic_must_remain_at_cfdd0e7b": true,
+    "only_dataset_loading_may_be_replaced_by_the_frozen_snapshot": true,
+    "parity_against_unmodified_loader_on_the_pinned_revision_required": true
+  },
+  "historical_reference": {
+    "final_correct": 9969,
+    "best_correct": 9973,
+    "denominator": 16632,
+    "final_accuracy": 0.5993867243867244,
+    "best_accuracy": 0.5996272246272246
+  },
+  "decision": {
+    "absolute_margin": 0.015,
+    "interval": "wilson_90_percent",
+    "pass": "entire_interval_inside_equivalence_band",
+    "fail": "entire_interval_outside_equivalence_band",
+    "otherwise": "inconclusive",
+    "not_testable_if_tokenizer_is_not_historical_148480": true
+  },
+  "clean_panel_is_scientific_primary": true
+}

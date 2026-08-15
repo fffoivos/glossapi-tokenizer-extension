@@ -1,0 +1,23 @@
+{
+  "schema_version": "apertus_targeted_8b_owner_authorization_v1",
+  "status": "accepted",
+  "recorded_date": "2026-08-11",
+  "scope": [
+    "A",
+    "B"
+  ],
+  "decisions": {
+    "explicit_production_launch_authorization_is_received": {
+      "accepted": true,
+      "condition": "launch only after every experiment-specific receipt-backed gate passes"
+    },
+    "D0_selection_confirmed_after_per_document_rerun_or_explicit_point_estimate_acceptance": {
+      "accepted": true,
+      "basis": "Experiment A is an explicitly requested stationary random mixture; Experiment B preserves the exact parent D0 prefix and freezes its continuation schedule"
+    },
+    "libduth_permission_evidence_conflict_is_reconciled_or_explicitly_accepted": {
+      "accepted": true,
+      "basis": "libduth is not selected by either targeted experiment"
+    }
+  }
+}

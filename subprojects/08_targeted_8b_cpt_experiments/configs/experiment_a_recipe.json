@@ -1,0 +1,101 @@
+{
+  "schema_version": "apertus_targeted_8b_experiment_a_plan_v1",
+  "experiment_id": "A_academic_hplt_poly_stationary_79_20_1",
+  "status": "planning_pending_release_internal_polytonic_source_audit",
+  "priority": 1,
+  "source_release": {
+    "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+    "revision": "987b8955fcd395c6219e39df9e64715457f69065",
+    "cscs_root": "/capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/run",
+    "token_counts_manifest": "/capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/run/release/manifests/token_counts.json",
+    "anonymization_manifest": "/capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/run/release/manifests/anonymization_manifest.json",
+    "expected_rows": 51839746,
+    "expected_training_tokens": 63780757593,
+    "additional_global_deduplication_allowed": false
+  },
+  "modern_data": {
+    "academic_sources": {
+      "openarchives.gr": {"rows": 126597, "training_tokens_pre_decontamination": 6132237924},
+      "greek_phd": {"rows": 31692, "training_tokens_pre_decontamination": 3881474423}
+    },
+    "academic_training_tokens_pre_decontamination": 10013712347,
+    "hplt_source": "HPLT/ell_Grek_ge8_no_mt_clean60",
+    "hplt_available_training_tokens": 44044140045,
+    "hplt_selection": "deterministic_sha256_quarter_candidate_pool_then_seeded_prefix_to_exact_post_exclusion_academic_active_tokens",
+    "polytonic": {
+      "selection_authority": "pinned_hf_release_only",
+      "external_dataset_allowed": false,
+      "row_level_reconstruction_allowed": false,
+      "additional_deduplication_allowed": false,
+      "source_datasets": [
+        "1000_prwta_xronia_ellhnikhs",
+        "Ekklisiastika_Keimena",
+        "Wikisource_Greek_texts",
+        "klasikh_arx_ell_grammateia"
+      ],
+      "source_selection": "all rows from the release-published direct polytonic source datasets; no row-level polytonic filter",
+      "historical_split_manifest_role": "provenance_only_not_an_input_requirement",
+      "historical_source_not_in_release": "scholarios_graeca_patristic",
+      "release_manifest_rows_before_required_exclusions": 7088,
+      "release_manifest_training_tokens_before_required_exclusions": 111327131,
+      "release_internal_source_audit_required": true,
+      "exact_token_receipt_required": true,
+      "passes": 1
+    },
+    "academic_passes": 1,
+    "hplt_to_academic_active_token_ratio": "1:1"
+  },
+  "decontamination": {
+    "benchmark_repo_id": "dascim/GreekMMLU",
+    "benchmark_revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+    "policy": "greekmmlu_decontamination_v1",
+    "apply_after_anonymization": true,
+    "decision_ledger_required": true,
+    "independent_zero-match_postscan_required": true,
+    "deduplication_stage_after_anonymization": "forbidden"
+  },
+  "validation_exclusion": {
+    "manifest": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260807T063000Z-d0-v3/validation/validation_manifest.json",
+    "panels": 13,
+    "comparison": "exact_utf8_text_sha256",
+    "per_document_ledger_required": true,
+    "zero_overlap_postscan_required": true,
+    "deduplication": false
+  },
+  "mix": {
+    "modern": "0.79",
+    "foreign_replay": "0.20",
+    "old_greek_replay": "0.01",
+    "stationary_window_balanced": true,
+    "seed": 20260811
+  },
+  "planning_geometry": {
+    "modern_active_tokens": 20138751825,
+    "foreign_active_tokens": 5098418184,
+    "old_greek_active_tokens": 254920909,
+    "total_active_tokens": 25492090918,
+    "global_batch_token_slots": 4194304,
+    "updates": 6078,
+    "loss_inactive_tail_slots": 888794,
+    "segments": [0, 3039, 6078]
+  },
+  "optimization": {
+    "inherit_scientific_recipe_from": "subprojects/07_full_8b_cpt/configs/recipe_8b_full_mixed.json",
+    "peak_lr": 0.000055,
+    "final_lr": 0.0000055,
+    "lr_schedule": "WSD_1-sqrt",
+    "warmup_updates": 400,
+    "cooldown_start_policy": "floor(0.8 * exact_updates)",
+    "ademamix_alpha_beta3_ramp": "scale_to_exact_run_horizon",
+    "checkpoint_averaging": false
+  },
+  "evaluation": {
+    "source_conditioned_interval_updates": 25,
+    "greekmmlu_cadence_active_tokens": 2000000000,
+    "include_update_zero": true,
+    "include_post_warmup": true,
+    "include_cooldown_start": true,
+    "include_segment_boundaries": true,
+    "include_final": true
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "schema_version": "apertus_hard_h_to_g_asset_spec_v1",
+  "assets": {
+    "historical_run_metadata": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/curr_td_b20p999_b3p999_13b_20260616T093527Z/run_metadata.json",
+      "kind": "file",
+      "required": true,
+      "hash": true
+    },
+    "historical_stage": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/curriculum_v2",
+      "kind": "directory",
+      "required": true,
+      "expected_file_count": 0
+    },
+    "historical_selected_parquet": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/cpt/selected_after_apertus_and_internal_dedup.parquet",
+      "kind": "file",
+      "required": false,
+      "expected_missing": true
+    },
+    "anonymized_v2_release": {
+      "path": "/capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/run",
+      "kind": "directory",
+      "required": true
+    },
+    "anonymization_manifest": {
+      "path": "/capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/run/release/manifests/anonymization_manifest.json",
+      "kind": "file",
+      "required": true,
+      "hash": true
+    },
+    "release_token_counts": {
+      "path": "/capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/run/release/manifests/token_counts.json",
+      "kind": "file",
+      "required": true,
+      "hash": true
+    },
+    "release_publication_receipt": {
+      "path": "/capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/run/publication/receipt.json",
+      "kind": "file",
+      "required": true,
+      "hash": true
+    },
+    "release_public_access_receipt": {
+      "path": "/capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/run/publication/public_access_receipt.json",
+      "kind": "file",
+      "required": true,
+      "hash": true
+    },
+    "historical_old_greek_replay_parquet": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/cpt_corpus/greek_replay/greek_replay.parquet",
+      "kind": "file",
+      "required": true,
+      "hash": true,
+      "expected_sha256": "93608d67119c104f5036fde4b8193cf63a3b3edc12be382d9ef051b9e0af01ff"
+    },
+    "replay_acquisition_receipt": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/cpt25b_midtraining/20260731T124000Z-cpt25b-v1/receipts/replay_acquisition_receipt.json",
+      "kind": "file",
+      "required": true,
+      "hash": true,
+      "expected_sha256": "9ea630cba9d70e60ad73626ee7d0671b9eb14d6a214be91efee5f4226437f6ba"
+    },
+    "historical_greekmmlu_queries": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/decontamination/05_decontam_5b_20260602T011447Z/queries/native_greek_mcq_decontam_queries.jsonl",
+      "kind": "file",
+      "required": false,
+      "expected_missing": true
+    },
+    "native_overlap_match_table": {
+      "path": "/capstor/scratch/cscs/fffoivos/benchmark_contamination_audits/runs/20260812T171530Z-native-greek-v1/publish_payload/qa_document_line_matches.parquet",
+      "kind": "file",
+      "required": true,
+      "hash": true,
+      "expected_sha256": "1b23a9dc14a6175c18e0530210cc47795e24e3841bb1b3229c666877ac4b4b19"
+    },
+    "native_overlap_exclusions": {
+      "path": "/capstor/scratch/cscs/fffoivos/benchmark_contamination_audits/runs/20260812T171530Z-native-greek-v1/publish_payload/recommended_excluded_example_ids.jsonl",
+      "kind": "file",
+      "required": true,
+      "hash": true,
+      "expected_sha256": "7a8559461b15a308f599faf0ff25cd16c07be0a597078864f779af7f2f1fdd32"
+    },
+    "native_overlap_manifest": {
+      "path": "/capstor/scratch/cscs/fffoivos/benchmark_contamination_audits/runs/20260812T171530Z-native-greek-v1/publish_payload/publish_manifest.json",
+      "kind": "file",
+      "required": true,
+      "hash": true
+    },
+    "native_suite_frozen_examples": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/evals/full8_native_greek_3cp_20260812/frozen_examples_v2/examples.jsonl",
+      "kind": "file",
+      "required": true,
+      "hash": true,
+      "expected_sha256": "51e1dc1565e44d891173a50b787bbe0a90916cf6e8d36c53b9c61106f65604df"
+    },
+    "native_suite_frozen_queries_provenance": {
+      "path": "/capstor/scratch/cscs/fffoivos/benchmark_contamination_audits/runs/20260812T171530Z-native-greek-v1/queries.jsonl",
+      "kind": "file",
+      "required": true,
+      "hash": true,
+      "expected_sha256": "ef9d601b8f91c6845818b9584c6634a13337c77b07e3f101f755a4884634c0eb"
+    },
+    "native_suite_published_audit_receipt": {
+      "path": "/capstor/scratch/cscs/fffoivos/benchmark_contamination_audits/runs/20260812T171530Z-native-greek-v1/publish_payload/audit_receipt.json",
+      "kind": "file",
+      "required": true,
+      "hash": true
+    },
+    "published_v2_stage_b_masker": {
+      "path": "/capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/code/subprojects/05_token_distillation_cpt/02_corpus_preparation/40_anonymize/scripts/pii_masker.py",
+      "kind": "file",
+      "required": true,
+      "hash": true,
+      "expected_sha256": "8f489a175aeb47f2c0996431a9d1c6f93ec03d4f52d9ea33621b76facfc0e83c"
+    },
+    "corrected_validation_manifest": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260807T063000Z-d0-v3/validation/validation_manifest.json",
+      "kind": "file",
+      "required": true,
+      "hash": true,
+      "expected_sha256": "a4b1d696adf83b2c691a99565075ba0a70db4074f7fe91fe6fdbab094303c1d9"
+    },
+    "historical_cluster_tokenizer_json": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_only_148480/tokenizer.json",
+      "kind": "file",
+      "required": false,
+      "expected_missing": true
+    },
+    "native_suite_execution_gate": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/evals/full8_native_greek_3cp_20260812/execution_gate_final_v1/execution_gate.json",
+      "kind": "file",
+      "required": true,
+      "hash": true
+    },
+    "greekmmlu_clean_manifest": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/dataset-scheduling-0p5b/20260803T064000Z-static-prelaunch-v2/greekmmlu_clean_subset_manifest.json",
+      "kind": "file",
+      "required": true,
+      "hash": true
+    }
+  }
+}

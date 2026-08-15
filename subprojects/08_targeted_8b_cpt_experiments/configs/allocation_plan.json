@@ -1,0 +1,78 @@
+{
+  "schema_version": "apertus_targeted_8b_allocation_plan_v1",
+  "status": "approved",
+  "account": "a0140",
+  "preparation": {
+    "partition": "debug",
+    "nodes": 1,
+    "maximum_wall_seconds": 5400,
+    "allowed_roles": [
+      "metadata",
+      "receipt",
+      "dataset_selection",
+      "decontamination",
+      "packing_control",
+      "single_node_smoke",
+      "conversion_control",
+      "evaluation_control",
+      "orchestration"
+    ],
+    "normal_partition_for_these_roles": "forbidden"
+  },
+  "distributed_prelaunch_restart_smoke": {
+    "partition": "normal",
+    "profile_id": "dp32_16node",
+    "nodes": 16,
+    "leaf_switches": 1,
+    "wall_seconds": 3600,
+    "allocations_per_experiment": 1,
+    "uninterrupted_updates": 2,
+    "resume_source": "exact_uninterrupted_control_checkpoint",
+    "resumed_updates": 1,
+    "submit_only_after_debug_data_and_training_assets_are_frozen": true,
+    "production_horizon_submission_still_forbidden_until_receipt_passes": true
+  },
+  "production_profile": {
+    "profile_id": "dp32_16node",
+    "partition": "normal",
+    "nodes": 16,
+    "gpus_per_node": 4,
+    "world_size": 64,
+    "tensor_parallel": 2,
+    "pipeline_parallel": 1,
+    "context_parallel": 1,
+    "data_parallel": 32,
+    "ntasks_per_node": 4,
+    "gpus_per_task": 1,
+    "cpus_per_task": 72,
+    "exclusive": true,
+    "memory_gb_per_node": 450,
+    "leaf_switches": 1,
+    "wall_seconds": 43200,
+    "signal": "B:USR1@600",
+    "dp64_allowed": false
+  },
+  "experiment_a": {
+    "planning_boundaries": [0, 3046, 6092],
+    "conservative_segment_runtime_seconds": 36000,
+    "allocation_reserve_seconds": 1200,
+    "maximum_hold_seconds": 6000,
+    "source_trigger_seconds": 30000,
+    "source_trigger_minutes": 500,
+    "delayed_dependency_template": "after:<source-job>+500",
+    "maximum_pending_successors": 1
+  },
+  "experiment_b": {
+    "status": "retired_by_owner_20260812",
+    "launch_authorized": false,
+    "planning_boundaries": [9536, 12290],
+    "conservative_runtime_seconds": 33300,
+    "allocation_reserve_seconds": 1200,
+    "successor_required": false
+  },
+  "eta_basis": {
+    "observed_wall_seconds_per_update_low": 10.49,
+    "observed_wall_seconds_per_update_high": 11.05,
+    "use_step_time_for_eta": false
+  }
+}

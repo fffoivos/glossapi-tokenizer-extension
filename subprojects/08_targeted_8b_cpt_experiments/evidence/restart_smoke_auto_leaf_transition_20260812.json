@@ -1,0 +1,50 @@
+{
+  "schema_version": "targeted_8b_pending_allocation_transition_v1",
+  "status": "completed",
+  "created_at": "2026-08-12T01:41:22+03:00",
+  "experiment": "B",
+  "purpose": "dp32_restart_parity_smoke_auto_leaf_transition",
+  "scientific_bundle": {
+    "root": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260812T014000Z-targeted8b-v34",
+    "tree_sha256": "cf3f1119028b62520fa4173d2e8bc12217cb6c8bf7a5c6f4bb4ea544ea1da583",
+    "full_cscs_validation_passed": true,
+    "nested_submit_parent_job": "3060243",
+    "nested_submit_child_job": "3060247"
+  },
+  "old_request": {
+    "job_id": "3060221",
+    "bundle_revision": "v33",
+    "leaf_switch": "group36",
+    "state_before_transition": "PENDING",
+    "state_after_transition": "CANCELLED by 1883",
+    "estimated_start_cscs_before_cancel": "2026-08-12T08:18:00+02:00",
+    "estimated_start_athens_before_cancel": "2026-08-12T09:18:00+03:00"
+  },
+  "replacement_request": {
+    "job_id": "3060256",
+    "bundle_revision": "v34",
+    "leaf_selection": "slurm_auto_single_leaf",
+    "state_when_audited": "PENDING",
+    "reason_when_audited": "Priority",
+    "nodes": 16,
+    "cpus": 4608,
+    "time_limit": "01:00:00",
+    "switches": "1@00:05:00",
+    "excluded_nodes": null,
+    "estimated_start_cscs_when_audited": "2026-08-12T07:01:35+02:00",
+    "estimated_start_athens_when_audited": "2026-08-12T08:01:35+03:00",
+    "output_root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/targeted8b/experiment_b/20260812T010000Z-prep-v4/prelaunch/restart_smoke_v34_auto"
+  },
+  "checks": {
+    "replacement_submitted_while_old_request_remained_pending": true,
+    "replacement_exact_bundle_binding_passed": true,
+    "replacement_bundle_full_validation_passed": true,
+    "replacement_bundle_nested_submission_proof_passed": true,
+    "replacement_partition_is_normal": true,
+    "replacement_requests_exactly_one_leaf": true,
+    "replacement_resource_geometry_is_16_nodes_64_gpus_dp32": true,
+    "old_request_cancelled_only_after_replacement_audit": true,
+    "running_allocation_interrupted": false
+  },
+  "operational_note": "Slurm start estimates are volatile forecasts, not guarantees; auto leaf broadens feasible placement while preserving one-switch topology."
+}
