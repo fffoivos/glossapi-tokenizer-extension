@@ -25,6 +25,7 @@ from freeze_hard_h_to_g_contract import (  # noqa: E402
     ARTIFACTS_BY_STAGE,
     CHECKPOINT_UPDATES,
     DATA_PIPELINE,
+    PASSING,
     PRE_EXTENSION_ARTIFACTS,
     PRE_FINALIZATION_ARTIFACTS,
     PRE_MAIN_ARTIFACTS,
@@ -211,6 +212,9 @@ class HardHToGContractTests(unittest.TestCase):
         }
         self.assertTrue(role_semantics_match("owner_production_authorization", owner, expected_scale="8b"))
         self.assertFalse(role_semantics_match("owner_production_authorization", owner, expected_scale="1p5b"))
+
+    def test_selected_is_a_terminal_passing_status_for_lr_receipts(self) -> None:
+        self.assertIn("selected", PASSING)
 
     def test_replay_inventory_uses_a_bounded_finemath_file_row_identity(self) -> None:
         source = identity_spec("replay_t1_english_edu", ["text", "id"], ["id"], "a" * 64)

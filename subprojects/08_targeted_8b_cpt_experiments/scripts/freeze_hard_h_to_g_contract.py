@@ -20,7 +20,18 @@ from contract_utils import executing_code_bundle, file_binding, read_json, requi
 from producer_bundle_compatibility import load_authority, require_accepted_producer
 
 
-PASSING = {"accepted", "completed", "frozen", "launch_ready", "passed", "promoted"}
+PASSING = {
+    "accepted",
+    "completed",
+    "frozen",
+    "launch_ready",
+    "passed",
+    "promoted",
+    # LR selection receipts describe a completed decision with ``selected``.
+    # Schema and role semantics are still checked below, so accepting this
+    # terminal status does not weaken the scientific identity.
+    "selected",
+}
 GLOBAL_BATCH_TOKEN_SLOTS = 4_194_304
 DATA_PIPELINE = [
     "freeze_corrected_full8_validation_panels_and_exact_text_exclusions",
