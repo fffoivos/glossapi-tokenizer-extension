@@ -8,18 +8,30 @@ from contextlib import contextmanager
 import datetime as dt
 import json
 from pathlib import Path
+import shutil
 import tempfile
 from typing import Iterator
 
 import numpy as np
 
-from contract_utils import executing_code_bundle, file_binding, read_json, require, write_json_atomic
+from contract_utils import (
+    executing_code_bundle,
+    file_binding,
+    read_json,
+    require,
+    sha256_file,
+    write_json_atomic,
+)
 from finalize_training_megatron import validate_runtime as validate_megatron_runtime
 from freeze_phase_blend_cache import (
     PHASE3_COMPONENT_REQUESTED_SAMPLES,
     PHASE_DATASET_SAMPLES,
     validate_data_path_spec,
 )
+
+RUNTIME_VALIDATION_SAMPLES = 132_096
+RUNTIME_TEST_SAMPLES = 1_024
+RUNTIME_DATASET_BUILDER_THREADS = 4
 
 
 @contextmanager
@@ -71,8 +83,58 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cache-root", type=Path, required=True)
     parser.add_argument("--megatron-root", type=Path, required=True)
     parser.add_argument("--megatron-receipt", type=Path, required=True)
+    parser.add_argument("--validation-cache-seed-root", type=Path)
+    parser.add_argument("--validation-data-root", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
+
+
+def seed_validation_cache(
+    *, source_root: Path, validation_root: Path, cache_root: Path
+) -> dict[str, object]:
+    """Copy only exact online-validation cache entries from a proven cache.
+
+    Megatron stores the main blend and every extra-validation dataset in the
+    same ``path_to_cache``.  The training-only builder above creates the main
+    blend; this step imports the already-built validation indices without
+    importing unrelated or stale main-training keys.
+    """
+
+    source_root = source_root.resolve()
+    validation_root = validation_root.resolve()
+    require(source_root.is_dir(), "validation cache seed root missing")
+    require(validation_root.is_dir(), "validation data root missing")
+    require(source_root != cache_root, "validation cache seed aliases target cache")
+    copied: list[str] = []
+    descriptions = 0
+    for description in sorted(source_root.glob("*-description.txt")):
+        value = json.loads(description.read_text(encoding="utf-8"))
+        datasets = value.get("datasets", [value])
+        paths = [Path(str(row.get("dataset_path", ""))).resolve() for row in datasets]
+        if not paths or not all(path.is_relative_to(validation_root) for path in paths):
+            continue
+        descriptions += 1
+        prefix = description.name[: -len("-description.txt")]
+        members = sorted(source_root.glob(f"{prefix}-*"))
+        require(members and description in members, f"validation cache entry is incomplete: {prefix}")
+        for source in members:
+            target = cache_root / source.name
+            if target.exists():
+                require(
+                    target.stat().st_size == source.stat().st_size
+                    and sha256_file(target) == sha256_file(source),
+                    f"validation cache seed collides with different bytes: {source.name}",
+                )
+            else:
+                shutil.copy2(source, target)
+            copied.append(source.name)
+    require(descriptions > 0 and copied, "validation cache seed selected no entries")
+    return {
+        "source_root": str(source_root),
+        "validation_data_root": str(validation_root),
+        "description_files": descriptions,
+        "files": sorted(set(copied)),
+    }
 
 
 def no_epoch_wrap(cache_root: Path) -> dict[str, object]:
@@ -111,14 +173,20 @@ def main() -> int:
     _, prefixes = validate_data_path_spec(spec, args.phase)
     components = spec["components"]
     weights = [float(row["weight"]) for row in components]
-    tokenizer = _HuggingFaceTokenizer(str(args.tokenizer.resolve()), local_files_only=True)
+    # Match the production ``--tokenizer-type HuggingFaceTokenizer`` path
+    # exactly. Passing ``local_files_only=True`` changes the tokenizer kwargs
+    # serialized into Megatron's dataset description and therefore changes the
+    # cache key, even though the loaded tokenizer bytes are identical.
+    tokenizer = _HuggingFaceTokenizer(str(args.tokenizer.resolve()))
     config = GPTDatasetConfig(
         random_seed=20260609,
         sequence_length=4096,
         blend=([str(path) for path in prefixes], weights),
         blend_per_split=None,
         split="100,0,0",
-        num_dataset_builder_threads=32,
+        # Cache descriptions include this construction contract. Match the
+        # production Megatron invocation rather than a preparation-only value.
+        num_dataset_builder_threads=RUNTIME_DATASET_BUILDER_THREADS,
         path_to_cache=str(cache_root),
         mmap_bin_files=True,
         tokenizer=tokenizer,
@@ -131,10 +199,11 @@ def main() -> int:
         goldfish_h=50,
     )
     requested = PHASE_DATASET_SAMPLES[args.phase]
+    target_sizes = [requested, RUNTIME_VALIDATION_SAMPLES, RUNTIME_TEST_SAMPLES]
     with single_rank_process_group() as process_group:
         train, valid, test = BlendedMegatronDatasetBuilder(
             GPTDataset,
-            [requested, 0, 0],
+            target_sizes,
             lambda: True,
             config,
         ).build()
@@ -155,6 +224,18 @@ def main() -> int:
             component_built_samples == component_requested_samples,
             f"Phase-3 component sample allocation drift: {component_built_samples}",
         )
+    require(
+        (args.validation_cache_seed_root is None)
+        == (args.validation_data_root is None),
+        "validation cache seed root and data root must be supplied together",
+    )
+    validation_cache_seed = None
+    if args.validation_cache_seed_root is not None:
+        validation_cache_seed = seed_validation_cache(
+            source_root=args.validation_cache_seed_root,
+            validation_root=args.validation_data_root,
+            cache_root=cache_root,
+        )
     cache_files = sorted(path for path in cache_root.rglob("*") if path.is_file())
     require(bool(cache_files), "GPTDataset builder created no cache files")
     phase3_no_wrap = no_epoch_wrap(cache_root) if args.phase == 3 else None
@@ -164,6 +245,8 @@ def main() -> int:
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "phase": args.phase,
         "requested_samples": requested,
+        "runtime_target_sizes": target_sizes,
+        "runtime_dataset_builder_threads": RUNTIME_DATASET_BUILDER_THREADS,
         "built_samples": len(train),
         "data_path_spec": file_binding(args.data_path_spec),
         "tokenizer_path": str(args.tokenizer.resolve()),
@@ -173,6 +256,7 @@ def main() -> int:
         "cache_root": str(cache_root),
         "cache_file_count": len(cache_files),
         "cache_build_process_group": process_group,
+        "validation_cache_seed": validation_cache_seed,
         "component_requested_samples": component_requested_samples,
         "component_built_samples": component_built_samples,
         "phase3_no_epoch_wrap": phase3_no_wrap,

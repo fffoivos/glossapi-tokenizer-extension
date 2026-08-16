@@ -22,6 +22,9 @@ from contract_utils import (
 
 PHASE_START = {1: 0, 2: 2261, 3: 3218}
 PHASE_DATASET_SAMPLES = {1: 3_295_898, 2: 3_295_898, 3: 487_424}
+RUNTIME_VALIDATION_SAMPLES = 132_096
+RUNTIME_TEST_SAMPLES = 1_024
+RUNTIME_DATASET_BUILDER_THREADS = 4
 PHASE3_COMPONENT_REQUESTED_SAMPLES = {
     "active_modern": 386_991,
     "foreign_replay": 97_973,
@@ -248,6 +251,12 @@ def validate_receipt(
             "megatron_gpt_dataset_no_shuffle": 0,
             "phase_local_cursor_samples": 0,
             "dataset_requested_samples": PHASE_DATASET_SAMPLES[phase],
+            "runtime_target_sizes": [
+                PHASE_DATASET_SAMPLES[phase],
+                RUNTIME_VALIDATION_SAMPLES,
+                RUNTIME_TEST_SAMPLES,
+            ],
+            "runtime_dataset_builder_threads": RUNTIME_DATASET_BUILDER_THREADS,
             "dataset_horizon_policy": "historical_full_horizon" if phase < 3 else "phase_local_extension_horizon",
         },
         "GPTDataset construction drift",
@@ -331,6 +340,12 @@ def main() -> int:
     require(blend.get("status") == "passed", "cache-build receipt is not passing")
     require(int(blend.get("phase", -1)) == args.phase, "blend-manifest phase drift")
     require(blend.get("requested_samples") == PHASE_DATASET_SAMPLES[args.phase], "cache-build sample horizon drift")
+    require(
+        blend.get("runtime_target_sizes")
+        == [PHASE_DATASET_SAMPLES[args.phase], RUNTIME_VALIDATION_SAMPLES, RUNTIME_TEST_SAMPLES]
+        and blend.get("runtime_dataset_builder_threads") == RUNTIME_DATASET_BUILDER_THREADS,
+        "cache-build production target-size/thread geometry drift",
+    )
     require(blend.get("data_path_spec") == file_binding(data_path_spec), "cache-build data-path binding drift")
     require(Path(str(blend.get("cache_root", ""))).resolve() == cache_root, "cache-build root drift")
     megatron_receipt = blend.get("megatron_receipt")
@@ -387,6 +402,12 @@ def main() -> int:
             "megatron_gpt_dataset_no_shuffle": 0,
             "phase_local_cursor_samples": 0,
             "dataset_requested_samples": PHASE_DATASET_SAMPLES[args.phase],
+            "runtime_target_sizes": [
+                PHASE_DATASET_SAMPLES[args.phase],
+                RUNTIME_VALIDATION_SAMPLES,
+                RUNTIME_TEST_SAMPLES,
+            ],
+            "runtime_dataset_builder_threads": RUNTIME_DATASET_BUILDER_THREADS,
             "dataset_horizon_policy": "historical_full_horizon" if args.phase < 3 else "phase_local_extension_horizon",
         },
         "phase3_component_requested_samples": PHASE3_COMPONENT_REQUESTED_SAMPLES if args.phase == 3 else None,
