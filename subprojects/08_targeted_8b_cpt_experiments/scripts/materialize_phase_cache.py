@@ -205,6 +205,7 @@ def main() -> int:
             payload,
             phase=args.phase,
             overlay_root=destination,
+            accepted_code_bundles=accepted_code_bundles,
             require_pristine=True,
         )
     write_json_atomic(args.output, payload)

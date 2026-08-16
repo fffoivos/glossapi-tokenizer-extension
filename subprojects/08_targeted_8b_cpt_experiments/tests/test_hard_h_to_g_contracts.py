@@ -163,6 +163,16 @@ class HardHToGContractTests(unittest.TestCase):
         self.assertIn("accepted_code_bundles=accepted_cache_code_bundles", authority)
         self.assertIn('require_accepted_producer(value, accepted_producers, f"Phase-{phase} blend cache")', authority)
 
+    def test_phase_cache_overlay_final_validation_retains_accepted_producers(self) -> None:
+        materializer = (ROOT / "scripts/materialize_phase_cache.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "accepted_code_bundles=accepted_code_bundles,\n"
+            "            require_pristine=True,",
+            materializer,
+        )
+
     def test_artifact_roles_reject_wrong_schema_and_identity(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
