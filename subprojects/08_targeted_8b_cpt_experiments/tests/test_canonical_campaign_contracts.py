@@ -251,6 +251,12 @@ def test_1p5b_campaign_binds_first_allocation_qualification(tmp_path: Path) -> N
     assert "{qualification_root}" in qualification
     assert "{manifest}" in qualification
     assert any(value.endswith("run_in_allocation_profile_qualification.py") for value in qualification)
+    adapter = (
+        ROOT
+        / "scripts/run_in_allocation_profile_qualification.py"
+    ).read_text(encoding="utf-8")
+    assert '"--identity-only"' in adapter
+    assert "qualification identity preflight: passed" in adapter
     assert campaign["science"]["runtime_requirements_sha256"] == canonical_digest(
         runtime["qualification_scope"]
     )

@@ -45,6 +45,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--validation-receipt", type=Path, required=True)
     parser.add_argument("--extra-valid-sets", required=True)
     parser.add_argument("--new-greek-valid-sets", required=True)
+    parser.add_argument(
+        "--identity-only",
+        action="store_true",
+        help="validate the expanded qualification contract without requiring an allocation",
+    )
     return parser.parse_args()
 
 
@@ -123,6 +128,9 @@ def main() -> int:
         == (1, 1, 8, 256, "5.5e-5", "5.5e-6"),
         "fixed 1.5B qualification geometry drift",
     )
+    if args.identity_only:
+        print("qualification identity preflight: passed")
+        return 0
     benchmark_root = qualification_root / "benchmark"
     require(
         Path(str(contract.get("output_root", ""))).resolve() == benchmark_root,
