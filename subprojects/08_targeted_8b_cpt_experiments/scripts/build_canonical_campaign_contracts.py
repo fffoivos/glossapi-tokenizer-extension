@@ -326,6 +326,20 @@ def evaluator_row(
     return row
 
 
+def experiment_python_prefix(paths: dict[str, Path], python: str) -> list[str]:
+    """Bind child imports explicitly under the canonical worker's safe-path policy."""
+
+    subproject = paths["code_root"] / "subprojects/08_targeted_8b_cpt_experiments"
+    runner_src = paths["canonical_runner_root"] / "src"
+    roots = (
+        subproject / "scripts",
+        subproject / "evaluation",
+        runner_src,
+        runner_src / "_vendor/campaign_pydeps",
+    )
+    return ["/usr/bin/env", f"PYTHONPATH={':'.join(map(str, roots))}", python]
+
+
 def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
     common = [
         "--scale",
@@ -349,7 +363,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
         "--contract-digest",
         "{contract_digest}",
     ]
-    python = "/usr/bin/python3.11"
+    python = experiment_python_prefix(paths, "/usr/bin/python3.11")
     evaluation_root = (
         paths["code_root"] / "subprojects/08_targeted_8b_cpt_experiments/evaluation"
     )
@@ -357,7 +371,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
         evaluator_row(
             "checkpoint_export",
             [
-                python,
+                *python,
                 str(evaluation_root / "run_checkpoint_export_evaluator.py"),
                 *common,
                 "--initial-checkpoint-root",
@@ -378,7 +392,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
         evaluator_row(
             "offline_panels",
             [
-                python,
+                *python,
                 str(evaluation_root / "run_offline_panels_evaluator.py"),
                 *common,
                 "--validation-manifest",
@@ -393,7 +407,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
         evaluator_row(
             "greekmmlu",
             [
-                python,
+                *python,
                 str(evaluation_root / "run_greekmmlu_evaluator.py"),
                 *common,
                 "--clean-examples",
@@ -410,7 +424,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
         evaluator_row(
             "native_greek_suite",
             [
-                python,
+                *python,
                 str(evaluation_root / "run_native_suite_evaluator.py"),
                 *common,
                 "--eval-code-root",
@@ -438,7 +452,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
             evaluator_row(
                 "legacy_public_greekmmlu",
                 [
-                    python,
+                    *python,
                     str(evaluation_root / "run_legacy_public_greekmmlu_evaluator.py"),
                     *common,
                     "--legacy-contract",
@@ -455,7 +469,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
         evaluator_row(
             "greekmmlu_calibration",
             [
-                python,
+                *python,
                 str(evaluation_root / "run_greekmmlu_calibration_evaluator.py"),
                 *common,
                 "--sentinel-manifest",
@@ -482,7 +496,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
             evaluator_row(
                 f"greekmmlu_full_fallback_i{target:07d}",
                 [
-                    python,
+                    *python,
                     str(evaluation_root / "run_greekmmlu_fallback_evaluator.py"),
                     *common,
                     "--target-iteration",
@@ -509,7 +523,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
         evaluator_row(
             "greekmmlu_plateau_confirmation",
             [
-                python,
+                *python,
                 str(evaluation_root / "run_greekmmlu_plateau_evaluator.py"),
                 *common,
                 "--clean-examples",
@@ -698,7 +712,7 @@ def build_campaign(
     if scale == "8b":
         immutable_paths["legacy_public_contract"] = paths["legacy_contract"]
     common_train_argv = [
-        "/usr/bin/python3.11",
+        *experiment_python_prefix(paths, "/usr/bin/python3.11"),
         str(
             paths["code_root"]
             / "subprojects/08_targeted_8b_cpt_experiments/scripts/run_canonical_train_segment.py"
@@ -798,7 +812,7 @@ def build_campaign(
     if scale == "1p5b":
         campaign["qualification"] = {
             "argv": [
-                "/usr/bin/python3.11",
+                *experiment_python_prefix(paths, "python3"),
                 str(
                     paths["code_root"]
                     / "subprojects/08_targeted_8b_cpt_experiments/scripts/run_in_allocation_profile_qualification.py"

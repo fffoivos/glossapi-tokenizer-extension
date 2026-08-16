@@ -51,6 +51,7 @@ def evaluation_paths(tmp_path: Path) -> dict[str, Path]:
     return {
         "stage_root": tmp_path / "stage",
         "code_root": tmp_path / "science",
+        "canonical_runner_root": tmp_path / "runner",
         "code_receipt": tmp_path / "science.json",
         "initial_checkpoint_root": tmp_path / "init",
         "megatron_root": tmp_path / "megatron",
@@ -241,12 +242,21 @@ def test_1p5b_campaign_binds_first_allocation_qualification(tmp_path: Path) -> N
         phase_assets=assets, timing=timing, schedule=schedule,
     )
     qualification = campaign["qualification"]["argv"]
+    assert qualification[0] == "/usr/bin/env"
+    assert qualification[1].startswith("PYTHONPATH=")
+    assert str(code / "subprojects/08_targeted_8b_cpt_experiments/scripts") in qualification[1]
+    assert str(runner / "src/_vendor/campaign_pydeps") in qualification[1]
+    assert qualification[2] == "python3"
     assert "{qualification_context}" in qualification
     assert "{qualification_root}" in qualification
     assert any(value.endswith("run_in_allocation_profile_qualification.py") for value in qualification)
     assert campaign["science"]["runtime_requirements_sha256"] == canonical_digest(
         runtime["qualification_scope"]
     )
+    train = campaign["science"]["train_argv"]
+    assert train[:1] == ["/usr/bin/env"]
+    assert train[1].startswith("PYTHONPATH=")
+    assert train[2] == "/usr/bin/python3.11"
 
 
 def test_evaluation_order_enforces_export_before_dependent_scorers(
@@ -267,6 +277,10 @@ def test_evaluation_order_enforces_export_before_dependent_scorers(
         for target in (952, 1190, 1428, 1666, 1904, 2142, 2261, 2380, 3456)
     ]
     assert evaluator_ids[15] == "greekmmlu_plateau_confirmation"
+    for evaluator in plan["evaluators"]:
+        assert evaluator["argv"][0] == "/usr/bin/env"
+        assert evaluator["argv"][1].startswith("PYTHONPATH=")
+        assert evaluator["argv"][2] == "/usr/bin/python3.11"
     assert plan["evaluators"][0]["milestone_iterations"] == list(MILESTONES)
     assert plan["evaluators"][2]["milestone_iterations"] == list(MILESTONES)
     assert plan["evaluators"][3]["milestone_iterations"] == list(NATIVE_MILESTONES)
