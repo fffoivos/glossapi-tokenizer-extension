@@ -1226,6 +1226,10 @@ class HardHToGContractTests(unittest.TestCase):
             '"frozen_training_tools/bakeoff_training/bakeoff_train.sbatch"',
             freezer,
         )
+        self.assertIn(
+            '"subprojects/08_targeted_8b_cpt_experiments/clariden/prepare_1p5b_init_release_debug.sbatch"',
+            freezer,
+        )
         self.assertIn("all_bundle_receipts_fully_reverified", freezer)
         self.assertIn("--producer-compatibility", data)
         self.assertIn("require_accepted_producer", data)
@@ -1584,9 +1588,9 @@ class HardHToGContractTests(unittest.TestCase):
             '  env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$runtime_compat_dir"',
             wrapper,
         )
-        self.assertNotIn(
+        self.assertIn(
             'env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$runtime_compat_dir" \\\n'
-            "  python3",
+            '  python3 "$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments/scripts/check_dcp_metadata_compat.py"',
             wrapper,
         )
 

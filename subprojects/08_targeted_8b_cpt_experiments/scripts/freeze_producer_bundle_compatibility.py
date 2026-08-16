@@ -60,6 +60,11 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/clariden/export_realized_document_ledger_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/freeze_producer_bundle_compatibility_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/prepare_init_geometry_debug.sbatch",
+        # Debug-only release orchestration for the already-frozen 1.5B TD
+        # initialization. It merely chains corrected HF geometry and the exact
+        # HF -> Megatron -> HF round-trip verifier; it does not produce or
+        # rewrite any training-data payload.
+        "subprojects/08_targeted_8b_cpt_experiments/clariden/prepare_1p5b_init_release_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/prepare_training_megatron_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/prove_uenv10_srun_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/prove_nested_same_uenv_srun_debug.sbatch",
