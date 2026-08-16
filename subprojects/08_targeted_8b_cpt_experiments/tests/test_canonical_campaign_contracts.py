@@ -249,6 +249,7 @@ def test_1p5b_campaign_binds_first_allocation_qualification(tmp_path: Path) -> N
     assert qualification[2] == "python3"
     assert "{qualification_context}" in qualification
     assert "{qualification_root}" in qualification
+    assert "{manifest}" in qualification
     assert any(value.endswith("run_in_allocation_profile_qualification.py") for value in qualification)
     assert campaign["science"]["runtime_requirements_sha256"] == canonical_digest(
         runtime["qualification_scope"]
@@ -257,6 +258,12 @@ def test_1p5b_campaign_binds_first_allocation_qualification(tmp_path: Path) -> N
     assert train[:1] == ["/usr/bin/env"]
     assert train[1].startswith("PYTHONPATH=")
     assert train[2] == "/usr/bin/python3.11"
+    for index, segment in enumerate(campaign["segments"]):
+        overrides = segment["argv_overrides"]
+        marker = overrides.index("--static-preflight-receipt")
+        assert overrides[marker + 1] == str(
+            stage / "receipts/canonical_static_preflight" / f"1p5b_s{index}.json"
+        )
 
 
 def test_evaluation_order_enforces_export_before_dependent_scorers(

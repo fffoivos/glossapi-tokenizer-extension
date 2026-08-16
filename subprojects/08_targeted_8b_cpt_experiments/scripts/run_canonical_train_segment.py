@@ -56,6 +56,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--new-greek-valid-sets", required=True)
     parser.add_argument("--training-run-permit", type=Path, required=True)
     parser.add_argument("--authorization-gate", type=Path, required=True)
+    parser.add_argument("--static-preflight-receipt", type=Path, required=True)
     parser.add_argument("--qualification-contract", type=Path, required=True)
     parser.add_argument("--initialization-permit", type=Path)
     parser.add_argument("--peak-lr", required=True)
@@ -476,6 +477,7 @@ def main() -> int:
             "H2G_MEGATRON_RECEIPT": str(args.megatron_receipt.resolve()),
             "H2G_TRAINING_RUN_PERMIT": str(args.training_run_permit.resolve()),
             "H2G_AUTHORIZATION_GATE": str(args.authorization_gate.resolve()),
+            "H2G_STATIC_PREFLIGHT": str(args.static_preflight_receipt.resolve()),
             "H2G_CANONICAL_RESUME": "1" if canonical_resume else "0",
         }
     )

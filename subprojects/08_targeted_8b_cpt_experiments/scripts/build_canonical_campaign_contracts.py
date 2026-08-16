@@ -609,6 +609,12 @@ def build_segments(
             str(asset["cache_sha256"]),
             "--authorization-gate",
             str(gate),
+            "--static-preflight-receipt",
+            str(
+                stage_root
+                / "receipts/canonical_static_preflight"
+                / f"{scale}_s{segment_id}.json"
+            ),
         ]
         if segment_id == 0:
             overrides.extend(("--initialization-permit", str(initialization_permit)))
@@ -818,7 +824,7 @@ def build_campaign(
                     / "subprojects/08_targeted_8b_cpt_experiments/scripts/run_in_allocation_profile_qualification.py"
                 ),
                 "--manifest",
-                str(paths["canonical_data_root"] / "compiled_1p5b_candidate.json"),
+                "{manifest}",
                 "--canonical-runner-root",
                 str(paths["canonical_runner_root"]),
                 "--qualification-contract",
