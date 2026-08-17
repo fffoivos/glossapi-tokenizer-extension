@@ -1638,6 +1638,11 @@ class HardHToGContractTests(unittest.TestCase):
         self.assertIn("base runtime receipt must be its immutable in-root receipt", builder)
         self.assertIn("chmod -R a-w", builder)
         self.assertIn("fffoivos/apertus-cscs-efficiency#88", builder)
+        self.assertIn(
+            r'json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"',
+            builder,
+        )
+        self.assertNotIn(r'+ "\\n"', builder)
         self.assertIn('SCHEMA = "apertus_hard_h_to_g_greekmmlu_eval_runtime_extension_v1"', verifier)
         self.assertIn("accelerate_from_extension", verifier)
         self.assertIn("datasets_from_base", verifier)

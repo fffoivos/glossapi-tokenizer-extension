@@ -115,7 +115,7 @@ payload = {
     "code_bundle": {"root": str(code_root), "tree_sha256": code_receipt["tree_sha256"]},
 }
 (root / "runtime_receipt.json").write_text(
-    json.dumps(payload, indent=2, sort_keys=True) + "\\n", encoding="utf-8"
+    json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
 )
 PY
 ' bash "$partial" "$H2G_BASE_RUNTIME_ROOT" "$requirements" "$H2G_CODE_ROOT" "$H2G_CODE_RECEIPT" "$H2G_GREEKMMLU_EVAL_RUNTIME_ROOT"
