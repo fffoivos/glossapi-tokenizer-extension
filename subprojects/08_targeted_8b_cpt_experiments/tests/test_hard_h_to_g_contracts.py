@@ -1620,6 +1620,28 @@ class HardHToGContractTests(unittest.TestCase):
         self.assertIn('"transformers": "4.57.0"', verifier)
         self.assertIn('"torch_version"', verifier)
 
+    def test_greekmmlu_extension_runtime_is_immutable_and_binds_its_base(self) -> None:
+        builder = (
+            ROOT / "clariden/build_greekmmlu_eval_runtime_extension_debug.sbatch"
+        ).read_text(encoding="utf-8")
+        verifier = (
+            ROOT / "scripts/verify_greekmmlu_eval_runtime_extension.py"
+        ).read_text(encoding="utf-8")
+        requirements = (
+            ROOT / "configs/greekmmlu_eval_runtime_extension_requirements_v1.txt"
+        ).read_text(encoding="utf-8")
+        self.assertEqual(requirements, "accelerate==1.14.0\n")
+        self.assertIn("#SBATCH --partition=debug", builder)
+        self.assertIn("--no-deps --requirement", builder)
+        self.assertIn("verify_data_runtime.py", builder)
+        self.assertIn('[[ ! -e "$H2G_GREEKMMLU_EVAL_RUNTIME_ROOT" ]]', builder)
+        self.assertIn("base runtime receipt must be its immutable in-root receipt", builder)
+        self.assertIn("chmod -R a-w", builder)
+        self.assertIn("fffoivos/apertus-cscs-efficiency#88", builder)
+        self.assertIn('SCHEMA = "apertus_hard_h_to_g_greekmmlu_eval_runtime_extension_v1"', verifier)
+        self.assertIn("accelerate_from_extension", verifier)
+        self.assertIn("datasets_from_base", verifier)
+
     def test_training_dcp_compatibility_check_runs_in_pinned_uenv(self) -> None:
         wrapper = (ROOT / "clariden/train_hard_h_to_g_segment.sbatch").read_text(
             encoding="utf-8"
