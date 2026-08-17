@@ -168,6 +168,8 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/evaluation/canonical_evidence.py",
         "subprojects/08_targeted_8b_cpt_experiments/evaluation/checkpoint_export_contract.py",
         "subprojects/08_targeted_8b_cpt_experiments/evaluation/checkpoint_export_receipt.py",
+        "subprojects/08_targeted_8b_cpt_experiments/evaluation/materialize_checkpoint_converter_overlay.py",
+        "subprojects/08_targeted_8b_cpt_experiments/evaluation/runtime_patches/saver_swissai_hf_float32_probability_parity.patch",
         "subprojects/08_targeted_8b_cpt_experiments/evaluation/finalize_legacy_public_greekmmlu.py",
         "subprojects/08_targeted_8b_cpt_experiments/evaluation/finalize_matched_study_evidence.py",
         "subprojects/08_targeted_8b_cpt_experiments/evaluation/run_checkpoint_export_evaluator.py",

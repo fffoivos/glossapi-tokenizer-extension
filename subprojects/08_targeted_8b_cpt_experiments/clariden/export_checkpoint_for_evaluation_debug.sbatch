@@ -37,6 +37,8 @@ TRUE_VOCAB_SIZE=${H2G_TRUE_VOCAB_SIZE:-148480}
 TOKENIZER_SHA256=${H2G_TOKENIZER_SHA256:-358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394}
 PYTHON_COMPAT_DIR=${H2G_PYTHON_COMPAT_DIR:-$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments/runtime_compat}
 subproject="$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments"
+converter_overlay="$H2G_EXPORT_ROOT/converter_overlay"
+converter_patch="$subproject/evaluation/runtime_patches/saver_swissai_hf_float32_probability_parity.patch"
 
 /usr/bin/python3.11 \
   "$H2G_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
@@ -52,6 +54,12 @@ uenv run "$UENV_IMAGE" --view=default -- "$H2G_EVAL_PYTHON" \
   --source-checkpoint-root "$H2G_SOURCE_CHECKPOINT_ROOT" \
   --iteration "$H2G_SOURCE_ITERATION" \
   --output-root "$H2G_EXPORT_ROOT"
+
+uenv run "$UENV_IMAGE" --view=default -- "$H2G_EVAL_PYTHON" \
+  "$subproject/evaluation/materialize_checkpoint_converter_overlay.py" \
+  --megatron-root "$H2G_MEGATRON_DIR" \
+  --patch "$converter_patch" \
+  --output-root "$converter_overlay"
 
 start_dist=$(date +%s)
 uenv run "$UENV_IMAGE" --view=default -- bash -lc "
@@ -79,8 +87,8 @@ fi
 start_hf=$(date +%s)
 uenv run "$UENV_IMAGE" --view=default -- bash -lc "
   set -o pipefail
-  export PYTHONPATH='$PYTHON_COMPAT_DIR:$H2G_MEGATRON_DIR:$H2G_MEGATRON_DIR/tools/checkpoint'
-  '$H2G_EVAL_PYTHON' '$H2G_MEGATRON_DIR/tools/checkpoint/convert.py' \
+  export PYTHONPATH='$PYTHON_COMPAT_DIR:$converter_overlay:$H2G_MEGATRON_DIR:$H2G_MEGATRON_DIR/tools/checkpoint'
+  '$H2G_EVAL_PYTHON' '$converter_overlay/convert.py' \
     --model-type GPT \
     --loader core \
     --saver swissai_hf \
@@ -132,4 +140,5 @@ uenv run "$UENV_IMAGE" --view=default -- "$H2G_EVAL_PYTHON" \
   --model-contract "$H2G_MODEL_CONTRACT" \
   --true-vocab-size "$TRUE_VOCAB_SIZE" \
   --tokenizer-json "$H2G_TOKENIZER_DIR/tokenizer.json" \
-  --tokenizer-sha256 "$TOKENIZER_SHA256"
+  --tokenizer-sha256 "$TOKENIZER_SHA256" \
+  --converter-overlay-receipt "$converter_overlay/converter_overlay_receipt.json"

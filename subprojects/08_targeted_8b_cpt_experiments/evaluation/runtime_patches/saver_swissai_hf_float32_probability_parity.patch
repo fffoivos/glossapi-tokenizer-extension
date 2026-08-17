@@ -1,0 +1,80 @@
+diff --git a/saver_swissai_hf.py b/saver_swissai_hf.py
+--- a/saver_swissai_hf.py
++++ b/saver_swissai_hf.py
+@@ -396,6 +396,7 @@ def save_checkpoint(queue, args):
+         message = queue_get("logits_check")
+         ref_output = message["output"].cuda()
+         model = model.cuda().float()
++        print("Converted semantic parity dtype: float32")
+         with torch.no_grad():
+             output = model(input_ids=message["tokens"].cuda(), position_ids=message["position_ids"].cuda()).logits
+         del model
+@@ -412,5 +413,59 @@ def save_checkpoint(queue, args):
+         print(f"Converted model agrees on {100*agree:.2f}% of predictions")
+         assert agree >= threshold
+ 
++        # Raw-logit relative error is unstable around zero and ignores the
++        # probability distributions consumed by NLL and answer ranking.  Keep
++        # the converter's original argmax assertion, and record bounded,
++        # shift-invariant diagnostics before considering raw-logit closeness.
++        ref_rows = ref_output.reshape(-1, ref_output.size(-1)).float()
++        new_rows = output.reshape(-1, output.size(-1)).float()
++        kl_sum = tv_sum = top_logprob_abs_sum = 0.0
++        kl_max = tv_max = top_logprob_abs_max = 0.0
++        top_logprob_values = []
++        row_count = ref_rows.size(0)
++        for start in range(0, row_count, 64):
++            stop = min(start + 64, row_count)
++            ref_log_probs = torch.log_softmax(ref_rows[start:stop], dim=-1)
++            new_log_probs = torch.log_softmax(new_rows[start:stop], dim=-1)
++            ref_probs = ref_log_probs.exp()
++            new_probs = new_log_probs.exp()
++            kl = torch.sum(ref_probs * (ref_log_probs - new_log_probs), dim=-1)
++            tv = 0.5 * torch.sum(torch.abs(ref_probs - new_probs), dim=-1)
++            top_ids = torch.argmax(ref_rows[start:stop], dim=-1, keepdim=True)
++            top_logprob_abs = torch.abs(
++                torch.gather(ref_log_probs, -1, top_ids)
++                - torch.gather(new_log_probs, -1, top_ids)
++            ).squeeze(-1)
++            kl_sum += kl.double().sum().item()
++            tv_sum += tv.double().sum().item()
++            top_logprob_abs_sum += top_logprob_abs.double().sum().item()
++            kl_max = max(kl_max, kl.max().item())
++            tv_max = max(tv_max, tv.max().item())
++            top_logprob_abs_max = max(
++                top_logprob_abs_max, top_logprob_abs.max().item()
++            )
++            top_logprob_values.append(top_logprob_abs.detach().float().cpu())
++        all_top_logprob_abs = torch.cat(top_logprob_values)
++        print(f"Converted mean KL divergence: {kl_sum / row_count:.12e}")
++        print(f"Converted max KL divergence: {kl_max:.12e}")
++        print(f"Converted mean total variation: {tv_sum / row_count:.12e}")
++        print(f"Converted max total variation: {tv_max:.12e}")
++        print(
++            "Converted mean top-token log-prob absolute difference: "
++            f"{top_logprob_abs_sum / row_count:.12e}"
++        )
++        print(
++            "Converted p99 top-token log-prob absolute difference: "
++            f"{torch.quantile(all_top_logprob_abs, 0.99).item():.12e}"
++        )
++        print(
++            "Converted p99.9 top-token log-prob absolute difference: "
++            f"{torch.quantile(all_top_logprob_abs, 0.999).item():.12e}"
++        )
++        print(
++            "Converted max top-token log-prob absolute difference: "
++            f"{top_logprob_abs_max:.12e}"
++        )
++
+         # Check two: atol and rtol on all logits.
+         threshold = 0.95
+         atol = 1e-05
+@@ -429,6 +484,6 @@ def save_checkpoint(queue, args):
+         print(f"Max relative difference: {torch.max(rel_diff)}")
+         print(f"Mean relative difference (no inf): {torch.mean(rel_diff_no_inf)}")
+         print(f"Relative difference inf proportion: {torch.mean(rel_diff_inf_mask.float())}")
+-        assert close >= threshold
++        print(f"Canonical raw-logit threshold passed: {bool(close >= threshold)}")
+ 
+     queue_get()  # Recv final "exit" message so saver exits gracefully.

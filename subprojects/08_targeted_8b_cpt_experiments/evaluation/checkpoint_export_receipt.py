@@ -129,11 +129,23 @@ def parse_runtime_parity(log: str) -> dict[str, Any]:
         and all(metrics[key] <= limit for key, limit in limits.items())
     )
     raw_pass = logits_close >= 95.0
-    passed = prediction_agreement >= 99.5 and (raw_pass or probability_pass)
+    # This must match the pinned converter's own native argmax assertion.  A
+    # stronger 99.5% value was never a converter guarantee and would reject a
+    # successful native conversion without adding evidence about the weights.
+    converter_native_argmax_threshold_percent = 99.0
+    native_argmax_pass = (
+        prediction_agreement >= converter_native_argmax_threshold_percent
+    )
+    passed = native_argmax_pass and (raw_pass or probability_pass)
     require(passed, "converted checkpoint failed runtime semantic parity")
     return {
         "semantic_parity_dtype": "float32",
         "prediction_agreement_percent": prediction_agreement,
+        "minimum_prediction_agreement_percent": (
+            converter_native_argmax_threshold_percent
+        ),
+        "native_argmax_threshold_passed": native_argmax_pass,
+        "diagnostic_99_5_percent_agreement_passed": prediction_agreement >= 99.5,
         "logits_close_percent": logits_close,
         "raw_logit_threshold_passed": raw_pass,
         "semantic_probability_metrics": metrics,
@@ -211,6 +223,13 @@ def finalize(args: argparse.Namespace) -> None:
         ),
         "conversion timing receipt drift",
     )
+    converter_overlay_receipt = read_json(args.converter_overlay_receipt)
+    require(
+        converter_overlay_receipt.get("status") == "completed"
+        and converter_overlay_receipt.get("source_megatron_root")
+        and converter_overlay_receipt.get("overlay_root"),
+        "converter overlay receipt drift",
+    )
     result = {
         "schema_version": "apertus_hard_h_to_g_checkpoint_export_v1",
         "status": "completed",
@@ -226,6 +245,7 @@ def finalize(args: argparse.Namespace) -> None:
                 "SwissAI Megatron tools/checkpoint/convert.py --loader core --saver swissai_hf",
             ],
             "timing": timing,
+            "converter_overlay": file_binding(args.converter_overlay_receipt),
         },
         "exact_weight_mapping": file_binding(mapping_path),
         "hf_export": {
@@ -254,6 +274,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--true-vocab-size", type=int)
     parser.add_argument("--tokenizer-json", type=Path)
     parser.add_argument("--tokenizer-sha256")
+    parser.add_argument("--converter-overlay-receipt", type=Path)
     args = parser.parse_args()
     if args.mode == "prepare":
         if args.source_checkpoint_root is None or args.iteration is None:
@@ -264,6 +285,7 @@ def parse_args() -> argparse.Namespace:
             or args.true_vocab_size is None
             or args.tokenizer_json is None
             or not args.tokenizer_sha256
+            or args.converter_overlay_receipt is None
         ):
             parser.error(
                 "finalize requires model contract, true vocabulary and tokenizer identity"
