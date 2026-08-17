@@ -26,7 +26,8 @@ export PYTHONDONTWRITEBYTECODE=1
 [[ "$REMAINING12_EXPECTED_NNODES" == 2 ]] || { echo "remaining12 requires two nodes" >&2; exit 2; }
 resume=${REMAINING12_RESUME:-0}
 [[ "$resume" == 0 || "$resume" == 1 ]] || { echo "invalid resume flag" >&2; exit 2; }
-[[ "${SLURM_JOB_PARTITION:-}" == debug && "${SLURM_NNODES:-}" == "$REMAINING12_EXPECTED_NNODES" ]] || {
+allocation_nodes=${SLURM_NNODES:-${SLURM_STEP_NUM_NODES:-}}
+[[ "${SLURM_JOB_PARTITION:-}" == debug && "$allocation_nodes" == "$REMAINING12_EXPECTED_NNODES" ]] || {
   echo "remaining12 evaluation requires two debug nodes" >&2; exit 2;
 }
 

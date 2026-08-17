@@ -51,12 +51,22 @@ segments of fourteen independent one-GPU shards. No `normal` allocation is
 used. The adapter must pass an `sbatch --test-only` probe before its first
 debug submission.
 
-`evaluation/coordinate_remaining12_debug.sh` is deliberately a **one-job**
-Mac-side coordinator: it runs that required test-only probe, submits one
-preflight or one segment, then audits the live Slurm node count, time limit
-and `debug` partition. It never prequeues the suffix. Segment `n+1` is
-eligible only when segment `n` has written its receipt, so a failed shard
-cannot silently turn into an invalid later result.
+After the one-time `sbatch --test-only` probe has passed, capture each
+two-node debug segment visibly with `salloc`, audit the granted allocation,
+then run the frozen segment via `srun` inside it. This avoids another queued
+batch wrapper and leaves the allocation available for an immediate retry if a
+step fails. Do not use an `sbatch` dependency graph for the suffix.
+
+```bash
+salloc -A a0140 -p debug -N2 -n8 --ntasks-per-node=4 --gpus-per-node=4 \
+  --gpus-per-task=1 --cpus-per-task=54 --mem=640G -t 00:44:00
+# record the allocation id and verify its nodes with scontrol, then attach:
+srun --overlap --nodes=2 --ntasks=1 --cpus-per-task=1 \
+  env REMAINING12_WRAPPER_ROOT=... REMAINING12_ASSETS_ROOT=... \
+  REMAINING12_OUTPUT_ROOT=... REMAINING12_SEGMENT_INDEX=N \
+  REMAINING12_EXPECTED_NNODES=2 bash \
+  .../evaluation/run_remaining12_native_segment.sbatch
+```
 
 Hugging Face publishing is deferred until the complete 18-row native matrix
 and imported GreekMMLU table pass their consistency checks. The canonical
