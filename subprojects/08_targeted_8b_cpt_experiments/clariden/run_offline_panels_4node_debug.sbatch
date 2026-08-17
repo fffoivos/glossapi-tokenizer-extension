@@ -23,7 +23,8 @@ set -euo pipefail
 : "${H2G_DOCVAL_OUTPUT_FINAL:?set final unique panel output root}"
 
 [[ "${SLURM_JOB_PARTITION:-}" == debug ]] || { echo "offline panels must run on debug" >&2; exit 2; }
-[[ "${SLURM_NNODES:-0}" == 4 && "${SLURM_JOB_NUM_NODES:-0}" == 4 ]] || {
+observed_nodes="${SLURM_STEP_NUM_NODES:-${SLURM_JOB_NUM_NODES:-${SLURM_NNODES:-0}}}"
+[[ "$observed_nodes" == 4 ]] || {
   echo "offline panel profile requires exactly four debug nodes" >&2; exit 2;
 }
 [[ ! -e "$H2G_DOCVAL_OUTPUT" ]] || { echo "immutable panel output exists" >&2; exit 2; }

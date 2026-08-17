@@ -228,6 +228,18 @@ def test_checkpoint_export_resolves_a_verified_symlink_load_view(
     )
 
 
+def test_offline_panel_wrapper_accepts_the_adopted_step_node_count() -> None:
+    wrapper = (
+        Path(__file__).resolve().parents[1]
+        / "clariden/run_offline_panels_4node_debug.sbatch"
+    ).read_text(encoding="utf-8")
+    assert (
+        'observed_nodes="${SLURM_STEP_NUM_NODES:-${SLURM_JOB_NUM_NODES:-${SLURM_NNODES:-0}}}"'
+        in wrapper
+    )
+    assert '[[ "$observed_nodes" == 4 ]]' in wrapper
+
+
 def test_adoption_uses_frozen_index_token_field() -> None:
     assert (
         tokenized_token_count({"index": {"documents": 7, "tokens_including_eod": 19}})
