@@ -401,7 +401,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
                 str(paths["tokenizer_dir"]),
             ],
             MILESTONES,
-            "debug_four_node_panels",
+            "debug_one_node_panels",
             "apertus_hard_h_to_g_offline_panels_evaluation_v1",
         ),
         evaluator_row(
@@ -556,8 +556,8 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
             "debug_four_node": evaluation_profile(
                 nodes=4, tasks_per_node=4, cpus_per_task=54, memory="640G"
             ),
-            "debug_four_node_panels": evaluation_profile(
-                nodes=4, tasks_per_node=1, cpus_per_task=288, memory="450G"
+            "debug_one_node_panels": evaluation_profile(
+                nodes=1, tasks_per_node=1, cpus_per_task=288, memory="450G"
             ),
         },
         "evaluators": rows,

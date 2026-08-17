@@ -136,7 +136,7 @@ def main() -> int:
     final_output = args.output / "panels"
     wrapper = (
         args.code_root
-        / "subprojects/08_targeted_8b_cpt_experiments/clariden/run_offline_panels_4node_debug.sbatch"
+        / "subprojects/08_targeted_8b_cpt_experiments/clariden/run_offline_panels_1node_debug.sbatch"
     )
     require(wrapper.is_file(), "frozen panel wrapper missing")
     env = os.environ.copy()

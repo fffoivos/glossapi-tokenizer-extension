@@ -232,23 +232,24 @@ def test_checkpoint_export_resolves_a_verified_symlink_load_view(
 def test_offline_panel_wrapper_accepts_the_adopted_step_node_count() -> None:
     wrapper = (
         Path(__file__).resolve().parents[1]
-        / "clariden/run_offline_panels_4node_debug.sbatch"
+        / "clariden/run_offline_panels_1node_debug.sbatch"
     ).read_text(encoding="utf-8")
     assert (
         'observed_nodes="${SLURM_STEP_NUM_NODES:-${SLURM_JOB_NUM_NODES:-${SLURM_NNODES:-0}}}"'
         in wrapper
     )
-    assert '[[ "$observed_nodes" == 4 ]]' in wrapper
+    assert '[[ "$observed_nodes" == 1 ]]' in wrapper
+    assert "for group in 0 1 2 3; do" in wrapper
 
 
-def test_panel_evaluation_profile_reserves_each_node_for_one_panel_group() -> None:
+def test_panel_evaluation_profile_fits_clariden_debug_qos() -> None:
     assert evaluation_profile(
-        nodes=4, tasks_per_node=1, cpus_per_task=288, memory="450G"
+        nodes=1, tasks_per_node=1, cpus_per_task=288, memory="450G"
     ) == {
         "resource_class": "debug",
         "account": "a0140",
         "partition": "debug",
-        "nodes": 4,
+        "nodes": 1,
         "tasks_per_node": 1,
         "gpus_per_node": 4,
         "cpus_per_task": 288,
