@@ -49,7 +49,7 @@ class SafeTensorTree:
                 "HF safetensors weights missing",
             )
             with safe_open(single_path, framework="pt", device="cpu") as handle:
-                self.weight_map = {key: single_path.name for key in handle}
+                self.weight_map = {key: single_path.name for key in handle.keys()}
 
     def keys(self) -> set[str]:
         return set(self.weight_map)
