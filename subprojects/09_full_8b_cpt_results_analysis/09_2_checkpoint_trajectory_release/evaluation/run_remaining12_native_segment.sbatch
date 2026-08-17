@@ -11,6 +11,8 @@
 #SBATCH --mem=640G
 #SBATCH --time=00:44:00
 #SBATCH --no-requeue
+#SBATCH --output=/iopsstor/scratch/cscs/fffoivos/evals/full8_remaining12_checkpoint_release_20260817/logs/%x-%j.out
+#SBATCH --error=/iopsstor/scratch/cscs/fffoivos/evals/full8_remaining12_checkpoint_release_20260817/logs/%x-%j.err
 #SBATCH --comment=AUTHORIZED_FULL8_REMAINING12_EVALUATION
 
 set -euo pipefail
