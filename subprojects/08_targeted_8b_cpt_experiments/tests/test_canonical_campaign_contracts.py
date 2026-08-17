@@ -296,6 +296,18 @@ def test_evaluation_order_enforces_export_before_dependent_scorers(
         assert evaluator["argv"][2] == "/usr/bin/python3.11"
     assert plan["evaluators"][0]["milestone_iterations"] == list(MILESTONES)
     assert plan["evaluators"][2]["milestone_iterations"] == list(MILESTONES)
+    assert plan["evaluators"][2]["resource_profile_id"] == "debug_one_node_greekmmlu"
+    assert plan["resource_profiles"]["debug_one_node_greekmmlu"] == {
+        "resource_class": "debug",
+        "account": "a0140",
+        "partition": "debug",
+        "nodes": 1,
+        "tasks_per_node": 4,
+        "gpus_per_node": 4,
+        "cpus_per_task": 54,
+        "memory": "640G",
+        "time_limit_seconds": 5400,
+    }
     assert plan["evaluators"][3]["milestone_iterations"] == list(NATIVE_MILESTONES)
     assert plan["evaluators"][4]["milestone_iterations"] == [3218]
     assert plan["evaluators"][5]["milestone_iterations"] == [3218]

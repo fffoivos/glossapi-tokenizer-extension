@@ -154,7 +154,7 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/clariden/freeze_profile_promotion_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/freeze_production_timing_and_allocation_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/freeze_training_run_permit_debug.sbatch",
-        "subprojects/08_targeted_8b_cpt_experiments/clariden/run_frozen_greekmmlu_4node_debug.sbatch",
+        "subprojects/08_targeted_8b_cpt_experiments/clariden/run_frozen_greekmmlu_1node_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/run_greekmmlu_shard.sh",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/run_legacy_public_greekmmlu_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/run_native_suite_checkpoint_4node_debug.sbatch",

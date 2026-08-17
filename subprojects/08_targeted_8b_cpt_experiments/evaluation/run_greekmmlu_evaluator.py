@@ -70,7 +70,7 @@ def execute_frozen_greekmmlu(
     )
     wrapper = (
         code_root
-        / "subprojects/08_targeted_8b_cpt_experiments/clariden/run_frozen_greekmmlu_4node_debug.sbatch"
+        / "subprojects/08_targeted_8b_cpt_experiments/clariden/run_frozen_greekmmlu_1node_debug.sbatch"
     )
     require(wrapper.is_file(), "frozen GreekMMLU wrapper missing")
     env = os.environ.copy()

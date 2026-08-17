@@ -643,16 +643,19 @@ def test_greekmmlu_metrics_preserve_continuous_and_accuracy_signals() -> None:
     assert observed["correct_answer_bpb"] > 0
 
 
-def test_greekmmlu_debug_wrapper_fixes_float32_batch1_and_four_nodes() -> None:
+def test_greekmmlu_debug_wrapper_fixes_float32_batch1_and_one_node() -> None:
     root = Path(__file__).resolve().parents[1]
-    wrapper = (root / "clariden/run_frozen_greekmmlu_4node_debug.sbatch").read_text(
+    wrapper = (root / "clariden/run_frozen_greekmmlu_1node_debug.sbatch").read_text(
         encoding="utf-8"
     )
     shard = (root / "clariden/run_greekmmlu_shard.sh").read_text(encoding="utf-8")
     assert "#SBATCH --partition=debug" in wrapper
-    assert "#SBATCH --nodes=4" in wrapper
-    assert "--ntasks=16" in wrapper
+    assert "#SBATCH --nodes=1" in wrapper
+    assert "for offset in 0 4 8 12; do" in wrapper
+    assert "--nodes=1 --ntasks=4 --ntasks-per-node=4" in wrapper
+    assert "H2G_GREEKMMLU_SHARD_OFFSET" in wrapper
     assert "--candidate-batch-size 1" in shard
+    assert "shard_index=$((H2G_GREEKMMLU_SHARD_OFFSET + SLURM_PROCID))" in shard
     assert '[[ "${SLURM_JOB_PARTITION:-}" == debug' in wrapper
 
 
