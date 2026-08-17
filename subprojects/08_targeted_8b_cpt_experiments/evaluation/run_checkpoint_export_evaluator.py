@@ -30,7 +30,17 @@ def resolve_checkpoint_root(run_root: Path, *, scale: str, iteration: int) -> Pa
         f"expected exactly one checkpoint reference for {scale}@{iteration}; found {len(matches)}",
     )
     reference = load_checkpoint_reference(matches[0], scale=scale, update=iteration)
-    return Path(str(reference["load_root"])).resolve()
+    checkpoint_name = f"iter_{iteration:07d}"
+    checkpoint_root = Path(str(reference["checkpoint_root"])).resolve()
+    require(
+        checkpoint_root.name == checkpoint_name and checkpoint_root.is_dir(),
+        "verified checkpoint reference has an invalid exact checkpoint root",
+    )
+    # Registration deliberately exposes a symlinked load view for resume. An
+    # export instead needs the real parent directory because its immutable
+    # source view rejects nested symlinks. The reference and its permit have
+    # already been verified by ``load_checkpoint_reference`` above.
+    return checkpoint_root.parent
 
 
 def main() -> int:

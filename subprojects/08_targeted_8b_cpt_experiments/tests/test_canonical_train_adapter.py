@@ -186,6 +186,48 @@ def test_checkpoint_export_can_resolve_a_reference_outside_its_output_run(
     assert resolve_checkpoint_root(source_run, scale="1p5b", iteration=1190) == load_root
 
 
+def test_checkpoint_export_resolves_a_verified_symlink_load_view(
+    tmp_path: Path,
+) -> None:
+    source_run = tmp_path / "training_run"
+    payload_root = source_run / "payload" / "checkpoints"
+    payload_iteration = payload_root / "iter_0001190"
+    payload_iteration.mkdir(parents=True)
+    load_root = (
+        source_run
+        / "checkpoint_references"
+        / "1p5b"
+        / "iter_0001190"
+        / "load_view"
+    )
+    load_root.mkdir(parents=True)
+    (load_root / "iter_0001190").symlink_to(
+        payload_iteration, target_is_directory=True
+    )
+    permit = source_run / "checkpoint_permit.json"
+    cache = source_run / "cache.json"
+    write_json(permit, {"status": "passed"})
+    write_json(cache, {"status": "passed"})
+    reference = load_root.parent / "checkpoint_reference.json"
+    write_json(
+        reference,
+        {
+            "schema_version": "apertus_hard_h_to_g_checkpoint_reference_v1",
+            "status": "passed",
+            "scale": "1p5b",
+            "update": 1190,
+            "load_root": str(load_root),
+            "checkpoint_root": str(load_root / "iter_0001190"),
+            "checkpoint_permit": binding(permit),
+            "source_phase_cache_receipt": binding(cache),
+        },
+    )
+    assert (
+        resolve_checkpoint_root(source_run, scale="1p5b", iteration=1190)
+        == payload_root
+    )
+
+
 def test_adoption_uses_frozen_index_token_field() -> None:
     assert (
         tokenized_token_count({"index": {"documents": 7, "tokens_including_eod": 19}})
