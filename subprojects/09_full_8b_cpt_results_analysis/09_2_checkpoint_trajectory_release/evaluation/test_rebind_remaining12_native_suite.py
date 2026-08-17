@@ -139,8 +139,9 @@ class RebindRemainingTwelveTest(unittest.TestCase):
             self.assertIn("#SBATCH --error=/iopsstor/scratch/cscs/fffoivos/evals/full8_remaining12_checkpoint_release_20260817/logs/", text)
 
     def test_segment_can_attach_to_a_held_salloc_step(self) -> None:
-        text = (ROOT / "run_remaining12_native_segment.sbatch").read_text(encoding="utf-8")
-        self.assertIn("SLURM_STEP_NUM_NODES", text)
+        for name in ("freeze_and_preflight_remaining12.sbatch", "run_remaining12_native_segment.sbatch"):
+            text = (ROOT / name).read_text(encoding="utf-8")
+            self.assertIn("SLURM_STEP_NUM_NODES", text)
 
 
 if __name__ == "__main__":

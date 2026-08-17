@@ -17,7 +17,8 @@ export PYTHONDONTWRITEBYTECODE=1
 : "${REMAINING12_WRAPPER_ROOT:?set materialized remaining12 wrapper root}"
 : "${REMAINING12_ASSETS_ROOT:?set new remaining12 asset root}"
 : "${REMAINING12_GIT_COMMIT:?set source commit label}"
-[[ "${SLURM_JOB_PARTITION:-}" == debug && "${SLURM_NNODES:-}" == 1 ]] || {
+allocation_nodes=${SLURM_NNODES:-${SLURM_STEP_NUM_NODES:-}}
+[[ "${SLURM_JOB_PARTITION:-}" == debug && "$allocation_nodes" == 1 ]] || {
   echo "remaining12 preflight requires one debug node" >&2
   exit 2
 }
