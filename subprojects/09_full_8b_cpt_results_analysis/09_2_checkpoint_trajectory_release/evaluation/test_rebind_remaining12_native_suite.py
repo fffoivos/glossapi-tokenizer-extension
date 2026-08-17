@@ -132,6 +132,12 @@ class RebindRemainingTwelveTest(unittest.TestCase):
             self.assertEqual(contract["scoring"], {"dtype_policy": "float32"})
             self.assertEqual(manifest["examples"]["sha256"], sha256(examples))
 
+    def test_slurm_logs_cannot_mutate_the_frozen_wrapper(self) -> None:
+        for name in ("freeze_and_preflight_remaining12.sbatch", "run_remaining12_native_segment.sbatch"):
+            text = (ROOT / name).read_text(encoding="utf-8")
+            self.assertIn("#SBATCH --output=/iopsstor/scratch/cscs/fffoivos/evals/full8_remaining12_checkpoint_release_20260817/logs/", text)
+            self.assertIn("#SBATCH --error=/iopsstor/scratch/cscs/fffoivos/evals/full8_remaining12_checkpoint_release_20260817/logs/", text)
+
 
 if __name__ == "__main__":
     unittest.main()
