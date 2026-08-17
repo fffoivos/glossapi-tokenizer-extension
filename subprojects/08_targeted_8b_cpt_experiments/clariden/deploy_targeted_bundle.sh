@@ -20,6 +20,7 @@ esac
 
 repo_root=$(cd "$(dirname "$0")/../../.." && pwd -P)
 relative=subprojects/08_targeted_8b_cpt_experiments
+dataset_source_root=${H2G_DATASET_SOURCE_ROOT:-$repo_root}
 native_eval_worktree=${H2G_NATIVE_EVAL_WORKTREE:-/Users/foivoskarounos-zamparloukos/Projects/.codex-worktrees/train-apertus-full8-results}
 native_eval_relative=subprojects/09_full_8b_cpt_results_analysis/evaluation
 native_eval_revision=2a7eb9d8de342129f379575ec031f631cde304bc
@@ -43,7 +44,10 @@ query_builder_sources=(
   subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/native_greek_benchmark_registry.json
 )
 historical_tokenizer_source=$repo_root/subprojects/03_apertus_extension_and_embedding_adaptation/03_3_cscs_experiments_kickoff/ship/apertus_greek_modern_only_148480
-pii_masker_source=$repo_root/subprojects/05_token_distillation_cpt/02_corpus_preparation/40_anonymize/scripts/pii_masker.py
+# The published Stage-B masker is frozen by digest.  The targeted evaluation
+# worktree can use the exact historical source explicitly when its checked-out
+# copy reflects a later local revision.
+pii_masker_source=${H2G_PII_MASKER_SOURCE:-$repo_root/subprojects/05_token_distillation_cpt/02_corpus_preparation/40_anonymize/scripts/pii_masker.py}
 pii_masker_sha256=8f489a175aeb47f2c0996431a9d1c6f93ec03d4f52d9ea33621b76facfc0e83c
 init_bakeoff_root=$repo_root/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff
 td_tools_source=$init_bakeoff_root/token_distillation
@@ -57,7 +61,10 @@ trainer_source=$init_bakeoff_root/bakeoff_training/bakeoff_train.sbatch
 runtime_guard_source=$megatron_patches_source/runtime/pretrain_gpt_te_guard.py
 common_cpt_source=$repo_root/subprojects/05_token_distillation_cpt/03_training_experiments/configs/common_cpt.env
 historical_lr_decision_source=$repo_root/subprojects/05_token_distillation_cpt/PRODUCTION_LR_DECISION_20260613.md
-extra_valid_patch_source=$repo_root/subprojects/06_dataset_scheduling_experiments/training/runtime_patches/megatron_extra_valid_c92402e.patch
+# A clean evaluation worktree may intentionally omit this unchanged untracked
+# producer file.  Its fixed digest is still checked below, so an explicit
+# source path can be supplied without weakening the frozen training runtime.
+extra_valid_patch_source=${H2G_EXTRA_VALID_PATCH_SOURCE:-$repo_root/subprojects/06_dataset_scheduling_experiments/training/runtime_patches/megatron_extra_valid_c92402e.patch}
 extra_valid_patch_sha256=2e6810fa8b6c25597ccb3bcb9dc1ff5bf843ead2337e3edde0344605a23ec4c6
 [[ -d "$historical_tokenizer_source" ]] || {
   echo "historical tokenizer source is missing: $historical_tokenizer_source" >&2
@@ -224,14 +231,17 @@ rsync -a "$runtime_guard_source" \
 rsync -a "$extra_valid_patch_source" \
   "clariden:$remote_root/frozen_training_tools/megatron_extra_valid_c92402e.patch"
 for source in "${dataset_sources[@]}"; do
+  [[ -f "$dataset_source_root/$source" ]] || {
+    echo "dataset source is missing: $dataset_source_root/$source" >&2; exit 2;
+  }
   ssh -o BatchMode=yes clariden mkdir -p "$(dirname "$remote_root/$source")"
-  rsync -a "$repo_root/$source" "clariden:$remote_root/$source"
+  rsync -a "$dataset_source_root/$source" "clariden:$remote_root/$source"
 done
 ssh -o BatchMode=yes clariden mkdir -p "$remote_root/frozen_historical_dataset_tools"
-rsync -a "$repo_root/subprojects/05_token_distillation_cpt/03_training_experiments/dataset_build/hplt_clean.py" \
+rsync -a "$dataset_source_root/subprojects/05_token_distillation_cpt/03_training_experiments/dataset_build/hplt_clean.py" \
   "clariden:$remote_root/frozen_historical_dataset_tools/hplt_clean.py"
 rsync -a "$pii_masker_source" "clariden:$remote_root/frozen_historical_dataset_tools/pii_masker.py"
-rsync -a "$repo_root/$packing_builder_test" "clariden:$remote_root/$packing_builder_test"
+rsync -a "$dataset_source_root/$packing_builder_test" "clariden:$remote_root/$packing_builder_test"
 
 ssh -o BatchMode=yes clariden /usr/bin/env \
   REMOTE_ROOT="$remote_root" RECEIPT="$receipt" \
