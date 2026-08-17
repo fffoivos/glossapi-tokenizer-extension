@@ -45,26 +45,30 @@ the document/line evidence; question-only candidates are not removed.
 
 ## Execution boundary
 
-The preflight is a one-node `debug` job. The scorer then uses the previously
-qualified two-node, 44-minute debug profile in eighteen receipt-bound
-segments of fourteen independent one-GPU shards. No `normal` allocation is
-used. The adapter must pass an `sbatch --test-only` probe before its first
-debug submission.
+The preflight is a one-node `debug` job. The scorer uses a one-node,
+four-GPU, 80-minute debug profile in eighteen receipt-bound segments of
+fourteen independent one-GPU shards. It preserves the same shard assignment,
+FP32 scorer, prompts, examples and contamination subset as the earlier
+two-node profile; Slurm simply schedules four workers concurrently rather
+than eight. The completed two-node segment measured 9,946 total shard-seconds,
+which implies about 41 minutes of scorer work on four GPUs before bounded
+startup allowance. No `normal` allocation is used. The adapter must pass an
+`sbatch --test-only` probe before its first debug submission.
 
 After the one-time `sbatch --test-only` probe has passed, capture each
-two-node debug segment visibly with `salloc`, audit the granted allocation,
+one-node debug segment visibly with `salloc`, audit the granted allocation,
 then run the frozen segment via `srun` inside it. This avoids another queued
 batch wrapper and leaves the allocation available for an immediate retry if a
 step fails. Do not use an `sbatch` dependency graph for the suffix.
 
 ```bash
-salloc --no-shell -A a0140 -p debug -N2 -n8 --ntasks-per-node=4 --gpus-per-node=4 \
-  --gpus-per-task=1 --cpus-per-task=54 --mem=640G -t 00:44:00
+salloc --no-shell -A a0140 -p debug -N1 -n4 --ntasks-per-node=4 --gpus-per-node=4 \
+  --gpus-per-task=1 --cpus-per-task=54 --mem=640G -t 01:20:00
 # record the allocation id and verify its nodes with scontrol, then attach:
-srun --overlap --nodes=2 --ntasks=1 --cpus-per-task=1 \
+srun --overlap --nodes=1 --ntasks=1 --cpus-per-task=1 \
   env REMAINING12_WRAPPER_ROOT=... REMAINING12_ASSETS_ROOT=... \
   REMAINING12_OUTPUT_ROOT=... REMAINING12_SEGMENT_INDEX=N \
-  REMAINING12_EXPECTED_NNODES=2 bash \
+  REMAINING12_EXPECTED_NNODES=1 bash \
   .../evaluation/run_remaining12_native_segment.sbatch
 ```
 

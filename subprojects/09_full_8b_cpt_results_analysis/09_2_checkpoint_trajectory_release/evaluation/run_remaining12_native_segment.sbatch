@@ -2,14 +2,14 @@
 #SBATCH --job-name=full8-r12-native
 #SBATCH --account=a0140
 #SBATCH --partition=debug
-#SBATCH --nodes=2
-#SBATCH --ntasks=8
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
 #SBATCH --ntasks-per-node=4
 #SBATCH --gpus-per-node=4
 #SBATCH --gpus-per-task=1
 #SBATCH --cpus-per-task=54
 #SBATCH --mem=640G
-#SBATCH --time=00:44:00
+#SBATCH --time=01:20:00
 #SBATCH --no-requeue
 #SBATCH --output=/iopsstor/scratch/cscs/fffoivos/evals/full8_remaining12_checkpoint_release_20260817/logs/%x-%j.out
 #SBATCH --error=/iopsstor/scratch/cscs/fffoivos/evals/full8_remaining12_checkpoint_release_20260817/logs/%x-%j.err
@@ -21,14 +21,16 @@ export PYTHONDONTWRITEBYTECODE=1
 : "${REMAINING12_ASSETS_ROOT:?set frozen remaining12 asset root}"
 : "${REMAINING12_OUTPUT_ROOT:?set new remaining12 output root}"
 : "${REMAINING12_SEGMENT_INDEX:?set segment index 0..17}"
-: "${REMAINING12_EXPECTED_NNODES:=2}"
+: "${REMAINING12_EXPECTED_NNODES:=1}"
 [[ "$REMAINING12_SEGMENT_INDEX" =~ ^([0-9]|1[0-7])$ ]] || { echo "invalid segment index" >&2; exit 2; }
-[[ "$REMAINING12_EXPECTED_NNODES" == 2 ]] || { echo "remaining12 requires two nodes" >&2; exit 2; }
+[[ "$REMAINING12_EXPECTED_NNODES" == 1 || "$REMAINING12_EXPECTED_NNODES" == 2 ]] || {
+  echo "remaining12 expected node count must be one or two" >&2; exit 2;
+}
 resume=${REMAINING12_RESUME:-0}
 [[ "$resume" == 0 || "$resume" == 1 ]] || { echo "invalid resume flag" >&2; exit 2; }
 allocation_nodes=${SLURM_NNODES:-${SLURM_STEP_NUM_NODES:-}}
 [[ "${SLURM_JOB_PARTITION:-}" == debug && "$allocation_nodes" == "$REMAINING12_EXPECTED_NNODES" ]] || {
-  echo "remaining12 evaluation requires two debug nodes" >&2; exit 2;
+  echo "remaining12 evaluation requires the requested debug-node geometry" >&2; exit 2;
 }
 
 SOURCE_ROOT=/iopsstor/scratch/cscs/fffoivos/evals/full8_native_greek_3cp_20260812
