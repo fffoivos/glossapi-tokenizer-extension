@@ -58,7 +58,7 @@ batch wrapper and leaves the allocation available for an immediate retry if a
 step fails. Do not use an `sbatch` dependency graph for the suffix.
 
 ```bash
-salloc -A a0140 -p debug -N2 -n8 --ntasks-per-node=4 --gpus-per-node=4 \
+salloc --no-shell -A a0140 -p debug -N2 -n8 --ntasks-per-node=4 --gpus-per-node=4 \
   --gpus-per-task=1 --cpus-per-task=54 --mem=640G -t 00:44:00
 # record the allocation id and verify its nodes with scontrol, then attach:
 srun --overlap --nodes=2 --ntasks=1 --cpus-per-task=1 \
