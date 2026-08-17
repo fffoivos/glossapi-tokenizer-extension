@@ -240,6 +240,8 @@ def test_offline_panel_wrapper_accepts_the_adopted_step_node_count() -> None:
     )
     assert '[[ "$observed_nodes" == 1 ]]' in wrapper
     assert "for group in 0 1 2 3; do" in wrapper
+    assert 'mkdir -p "$H2G_DOCVAL_OUTPUT"' in wrapper
+    assert "mv \"$staging\" \"$H2G_DOCVAL_OUTPUT_FINAL\"" not in wrapper
 
 
 def test_panel_evaluation_profile_fits_clariden_debug_qos() -> None:

@@ -34,17 +34,17 @@ observed_nodes="${SLURM_STEP_NUM_NODES:-${SLURM_JOB_NUM_NODES:-${SLURM_NNODES:-0
 [[ "$H2G_DOCVAL_OUTPUT" == "$H2G_DOCVAL_OUTPUT_FINAL" ]] || {
   echo "panel output/final identity drift" >&2; exit 2;
 }
-staging="$H2G_DOCVAL_OUTPUT.partial.${SLURM_JOB_ID:?missing Slurm job id}"
-[[ ! -e "$staging" ]] || { echo "panel staging root exists" >&2; exit 2; }
-mkdir -p "$staging"
+# Per-panel scorer receipts bind the absolute output path.  The workers must
+# therefore write directly to the immutable final root: renaming a staging
+# directory afterwards would make otherwise valid receipt bindings drift.
+mkdir -p "$H2G_DOCVAL_OUTPUT"
 cleanup() {
   status=$?
-  if [[ "$status" -ne 0 ]]; then rm -rf -- "$staging"; fi
+  if [[ "$status" -ne 0 ]]; then rm -rf -- "$H2G_DOCVAL_OUTPUT"; fi
   exit "$status"
 }
 trap cleanup EXIT
 
-export H2G_DOCVAL_OUTPUT="$staging"
 failure=0
 for group in 0 1 2 3; do
   H2G_PANEL_GROUP=$group srun --exact --exclusive --nodes=1 --ntasks=1 \
@@ -53,5 +53,4 @@ for group in 0 1 2 3; do
     || failure=1
 done
 [[ "$failure" == 0 ]] || { echo "one or more panel groups failed" >&2; exit 1; }
-mv "$staging" "$H2G_DOCVAL_OUTPUT_FINAL"
 trap - EXIT
