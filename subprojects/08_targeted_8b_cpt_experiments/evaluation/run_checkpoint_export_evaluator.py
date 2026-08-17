@@ -38,6 +38,14 @@ def main() -> int:
     parser.add_argument("--scale", choices=("8b", "1p5b"), required=True)
     parser.add_argument("--iteration", type=int, required=True)
     parser.add_argument("--run-root", type=Path, required=True)
+    parser.add_argument(
+        "--checkpoint-source-run-root",
+        type=Path,
+        help=(
+            "training run containing the registered checkpoint reference; "
+            "defaults to --run-root"
+        ),
+    )
     parser.add_argument("--initial-checkpoint-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--code-root", type=Path, required=True)
@@ -55,11 +63,16 @@ def main() -> int:
     require(args.output.is_dir(), "canonical evaluation attempt root missing")
     result_path = args.output / "result.json"
     require(not result_path.exists(), "canonical evaluation result already exists")
+    checkpoint_source_run_root = (
+        args.checkpoint_source_run_root.resolve()
+        if args.checkpoint_source_run_root is not None
+        else args.run_root.resolve()
+    )
     source_root = (
         args.initial_checkpoint_root.resolve()
         if args.iteration == 0
         else resolve_checkpoint_root(
-            args.run_root, scale=args.scale, iteration=args.iteration
+            checkpoint_source_run_root, scale=args.scale, iteration=args.iteration
         )
     )
     checkpoint_name = "release" if args.iteration == 0 else f"iter_{args.iteration:07d}"
@@ -109,6 +122,7 @@ def main() -> int:
             "attempt": args.attempt,
             "contract_digest": args.contract_digest,
             "scale": args.scale,
+            "checkpoint_source_run_root": str(checkpoint_source_run_root),
             "checkpoint_export": file_binding(receipt_path),
             "hf_export_root": str((export_root / "hf").resolve()),
         },

@@ -152,6 +152,40 @@ def test_checkpoint_reference_binds_resume_inputs(tmp_path: Path) -> None:
         load_checkpoint_reference(reference, scale="1p5b", update=238)
 
 
+def test_checkpoint_export_can_resolve_a_reference_outside_its_output_run(
+    tmp_path: Path,
+) -> None:
+    source_run = tmp_path / "training_run"
+    load_root = source_run / "checkpoint_references" / "load"
+    (load_root / "iter_0001190").mkdir(parents=True)
+    permit = source_run / "checkpoint_permit.json"
+    cache = source_run / "cache.json"
+    write_json(permit, {"status": "passed"})
+    write_json(cache, {"status": "passed"})
+    reference = (
+        source_run
+        / "checkpoint_references"
+        / "1p5b"
+        / "iter_0001190"
+        / "checkpoint_reference.json"
+    )
+    reference.parent.mkdir(parents=True)
+    write_json(
+        reference,
+        {
+            "schema_version": "apertus_hard_h_to_g_checkpoint_reference_v1",
+            "status": "passed",
+            "scale": "1p5b",
+            "update": 1190,
+            "load_root": str(load_root),
+            "checkpoint_root": str(load_root / "iter_0001190"),
+            "checkpoint_permit": binding(permit),
+            "source_phase_cache_receipt": binding(cache),
+        },
+    )
+    assert resolve_checkpoint_root(source_run, scale="1p5b", iteration=1190) == load_root
+
+
 def test_adoption_uses_frozen_index_token_field() -> None:
     assert (
         tokenized_token_count({"index": {"documents": 7, "tokens_including_eod": 19}})

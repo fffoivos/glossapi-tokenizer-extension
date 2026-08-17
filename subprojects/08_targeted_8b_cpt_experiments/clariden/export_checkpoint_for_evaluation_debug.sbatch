@@ -25,7 +25,8 @@ set -euo pipefail
 : "${H2G_EVAL_PYTHON:?set frozen evaluation Python}"
 
 [[ "${SLURM_JOB_PARTITION:-}" == debug ]] || { echo "checkpoint export must run on debug" >&2; exit 2; }
-[[ "${SLURM_NNODES:-0}" == 1 && "${SLURM_JOB_NUM_NODES:-0}" == 1 ]] || {
+observed_nodes="${SLURM_STEP_NUM_NODES:-${SLURM_JOB_NUM_NODES:-${SLURM_NNODES:-0}}}"
+[[ "$observed_nodes" == 1 ]] || {
   echo "checkpoint export requires exactly one debug node" >&2
   exit 2
 }
