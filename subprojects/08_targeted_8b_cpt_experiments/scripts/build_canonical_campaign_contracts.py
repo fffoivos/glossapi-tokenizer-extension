@@ -290,14 +290,14 @@ def build_qualification_gates(
 
 
 def evaluation_profile(
-    *, nodes: int, cpus_per_task: int, memory: str
+    *, nodes: int, tasks_per_node: int, cpus_per_task: int, memory: str
 ) -> dict[str, Any]:
     return {
         "resource_class": "debug",
         "account": "a0140",
         "partition": "debug",
         "nodes": nodes,
-        "tasks_per_node": 4 if nodes > 1 else 1,
+        "tasks_per_node": tasks_per_node,
         "gpus_per_node": 4,
         "cpus_per_task": cpus_per_task,
         "memory": memory,
@@ -401,7 +401,7 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
                 str(paths["tokenizer_dir"]),
             ],
             MILESTONES,
-            "debug_four_node",
+            "debug_four_node_panels",
             "apertus_hard_h_to_g_offline_panels_evaluation_v1",
         ),
         evaluator_row(
@@ -548,13 +548,16 @@ def build_evaluation_plan(scale: str, paths: dict[str, Path]) -> dict[str, Any]:
         "plan_id": f"hard_h2g_{scale}_benchmark_clean",
         "resource_profiles": {
             "debug_export_one_node": evaluation_profile(
-                nodes=1, cpus_per_task=72, memory="220G"
+                nodes=1, tasks_per_node=1, cpus_per_task=72, memory="220G"
             ),
             "debug_one_node": evaluation_profile(
-                nodes=1, cpus_per_task=72, memory="220G"
+                nodes=1, tasks_per_node=1, cpus_per_task=72, memory="220G"
             ),
             "debug_four_node": evaluation_profile(
-                nodes=4, cpus_per_task=54, memory="640G"
+                nodes=4, tasks_per_node=4, cpus_per_task=54, memory="640G"
+            ),
+            "debug_four_node_panels": evaluation_profile(
+                nodes=4, tasks_per_node=1, cpus_per_task=288, memory="450G"
             ),
         },
         "evaluators": rows,

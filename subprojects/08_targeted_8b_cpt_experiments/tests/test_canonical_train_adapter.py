@@ -24,6 +24,7 @@ from adopt_canonical_pre_main_data import (
 from aggregate_frozen_greekmmlu import choice_nll as greekmmlu_choice_nll
 from aggregate_frozen_greekmmlu import metrics as greekmmlu_metrics
 from audit_training_checkpoint import validate_claim_window
+from build_canonical_campaign_contracts import evaluation_profile
 from checkpoint_export_contract import expected_source_keys, validate_geometry
 from checkpoint_export_receipt import parse_runtime_parity
 from evaluate_td_objective import selected_probe_ids
@@ -238,6 +239,22 @@ def test_offline_panel_wrapper_accepts_the_adopted_step_node_count() -> None:
         in wrapper
     )
     assert '[[ "$observed_nodes" == 4 ]]' in wrapper
+
+
+def test_panel_evaluation_profile_reserves_each_node_for_one_panel_group() -> None:
+    assert evaluation_profile(
+        nodes=4, tasks_per_node=1, cpus_per_task=288, memory="450G"
+    ) == {
+        "resource_class": "debug",
+        "account": "a0140",
+        "partition": "debug",
+        "nodes": 4,
+        "tasks_per_node": 1,
+        "gpus_per_node": 4,
+        "cpus_per_task": 288,
+        "memory": "450G",
+        "time_limit_seconds": 5400,
+    }
 
 
 def test_adoption_uses_frozen_index_token_field() -> None:
