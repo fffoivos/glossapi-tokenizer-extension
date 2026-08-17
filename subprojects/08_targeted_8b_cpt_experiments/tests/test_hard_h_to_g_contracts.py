@@ -41,7 +41,12 @@ from freeze_hard_h_to_g_contract import (  # noqa: E402
     validate_artifact_manifest,
     validate_experiment,
 )
-from build_greekmmlu_sentinels import hamilton, select_nested, stable_digest  # noqa: E402
+from build_greekmmlu_sentinels import (  # noqa: E402
+    file_binding_at,
+    hamilton,
+    select_nested,
+    stable_digest,
+)
 from validate_greekmmlu_sentinels import choice_nll  # noqa: E402
 from inventory_hard_h_to_g_assets import decimal_product_equal, inspect_asset  # noqa: E402
 from freeze_legacy_public_evaluator import validate_contract as validate_legacy_contract  # noqa: E402
@@ -1264,6 +1269,8 @@ class HardHToGContractTests(unittest.TestCase):
         authority = (ROOT / "scripts/freeze_cross_scale_sentinel_authority.py").read_text(encoding="utf-8")
         self.assertIn(".greekmmlu_sentinels.${SLURM_JOB_ID}.partial", freeze)
         self.assertIn('mv "$temporary" "$root"', freeze)
+        self.assertIn('--binding-examples "$root/clean_examples.json"', freeze)
+        self.assertIn('--binding-output-dir "$root"', freeze)
         self.assertIn('"early": [0, 238, 476, 714]', authority)
         self.assertIn('"late": [2618, 2856, 3094, 3218]', authority)
         self.assertIn('"8b": validate_calibration', authority)
@@ -1272,6 +1279,18 @@ class HardHToGContractTests(unittest.TestCase):
             ROLE_SCHEMAS["same_stack_sentinel_calibration_state"],
             "apertus_greekmmlu_sentinel_calibration_authority_v1",
         )
+
+    def test_sentinel_staging_can_bind_final_output_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            staged = root / "staging" / "panel.jsonl"
+            final = root / "final" / "panel.jsonl"
+            staged.parent.mkdir()
+            staged.write_text('{"example_id":"x"}\n', encoding="utf-8")
+            binding = file_binding_at(staged, final)
+            self.assertEqual(binding["path"], str(final.resolve()))
+            self.assertEqual(binding["bytes"], staged.stat().st_size)
+            self.assertEqual(binding["sha256"], sha256_file(staged))
 
     def test_replay_filters_precede_stage_b_and_post_audits_bind_stage_b_bytes(self) -> None:
         stage_b = (ROOT / "clariden/anonymize_training_stream_debug.sbatch").read_text(encoding="utf-8")

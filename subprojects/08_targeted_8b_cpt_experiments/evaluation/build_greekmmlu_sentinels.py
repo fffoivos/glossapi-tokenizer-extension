@@ -27,6 +27,16 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--examples", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--binding-examples",
+        type=Path,
+        help="final immutable examples path to record when outputs are built in staging",
+    )
+    parser.add_argument(
+        "--binding-output-dir",
+        type=Path,
+        help="final immutable output directory to record when outputs are built in staging",
+    )
     parser.add_argument("--sizes", default="4096,8192")
     return parser.parse_args()
 
@@ -147,6 +157,13 @@ def write_jsonl_atomic(path: Path, rows: Iterable[dict[str, Any]]) -> None:
         raise
 
 
+def file_binding_at(source: Path, declared_path: Path) -> dict[str, Any]:
+    """Bind immutable bytes at their final path while they are still staged."""
+
+    observed = file_binding(source)
+    return {**observed, "path": str(declared_path.resolve())}
+
+
 def main() -> int:
     args = parse_args()
     sizes = [int(value) for value in args.sizes.split(",") if value]
@@ -164,19 +181,27 @@ def main() -> int:
     rows = source.get("examples")
     require(isinstance(rows, list), "examples missing")
     outputs, use_level = select_nested(rows, sizes)
+    binding_examples = args.binding_examples or args.examples
+    binding_output_dir = args.binding_output_dir or args.output_dir
+    require(
+        binding_examples.name == args.examples.name,
+        "declared examples filename differs from staged examples filename",
+    )
     args.output_dir.mkdir(parents=True, exist_ok=True)
     paths: dict[str, Any] = {}
     for size in sizes:
         path = args.output_dir / f"greekmmlu_sentinel_{size}.jsonl"
         write_jsonl_atomic(path, outputs[size])
-        paths[str(size)] = file_binding(path)
+        paths[str(size)] = file_binding_at(
+            path, binding_output_dir / path.name
+        )
     manifest_path = args.output_dir / "sentinel_manifest.json"
     payload = {
         "schema_version": "apertus_greekmmlu_sentinel_manifest_v1",
         "status": "frozen",
         "created_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "executing_code_bundle": current_bundle,
-        "source_examples": file_binding(args.examples),
+        "source_examples": file_binding_at(args.examples, binding_examples),
         "salt": SALT,
         "separator": "single_nul_byte",
         "algorithm": "stable_subject_floor_then_incremental_remaining_capacity_hamilton_with_sha256_ties",

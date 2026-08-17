@@ -49,7 +49,9 @@ uenv run pytorch/v2.9.1:v2 --view=default -- env PYTHONDONTWRITEBYTECODE=1 \
     --clean-manifest "$H2G_GREEKMMLU_CLEAN_MANIFEST" --output "$examples"
 uenv run pytorch/v2.9.1:v2 --view=default -- env PYTHONDONTWRITEBYTECODE=1 \
   "$data_python" "$subproject/evaluation/build_greekmmlu_sentinels.py" \
-    --examples "$examples" --output-dir "$temporary" --sizes 4096,8192
+    --examples "$examples" --output-dir "$temporary" \
+    --binding-examples "$root/clean_examples.json" --binding-output-dir "$root" \
+    --sizes 4096,8192
 [[ -s "$manifest" ]] || { echo "sentinel manifest missing" >&2; exit 2; }
 mv "$temporary" "$root"
 trap - EXIT
