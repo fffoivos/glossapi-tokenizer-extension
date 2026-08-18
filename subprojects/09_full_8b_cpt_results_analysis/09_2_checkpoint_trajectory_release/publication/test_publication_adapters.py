@@ -179,5 +179,27 @@ class DatasetManifestTests(unittest.TestCase):
                 module.verify_private_payload_receipt(manifest)
 
 
+class DatasetBindingTests(unittest.TestCase):
+    def test_pinned_card_replaces_unpinned_staging_section(self) -> None:
+        module = load("bind_dataset_provenance_to_private_branches")
+        original = "# Staging\n\n## Training-data provenance\n\n- unpinned\n"
+        public = {"repo_id": module.PUBLIC_REPO, "revision": "a" * 40, "private": False}
+        private = {"repo_id": module.PRIVATE_REPO, "revision": "b" * 40, "private": True}
+        card = module.pinned_card(original, public=public, private=private)
+        self.assertIn(f"tree/{'a' * 40}", card)
+        self.assertIn(f"tree/{'b' * 40}", card)
+        self.assertNotIn("unpinned", card)
+
+    def test_dataset_receipt_requires_matching_immutable_visibility(self) -> None:
+        module = load("bind_dataset_provenance_to_private_branches")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "upload.json"
+            revision = "c" * 40
+            write_json(path, {"schema_version": "apertus_full8_frozen_dataset_hf_upload_v1", "status": "completed", "repo_id": module.PUBLIC_REPO, "private": False, "revision": revision, "training_must_pin_revision": revision})
+            self.assertEqual(module.upload_receipt(path, repo_id=module.PUBLIC_REPO, private=False)["revision"], revision)
+            with self.assertRaises(ValueError):
+                module.upload_receipt(path, repo_id=module.PRIVATE_REPO, private=True)
+
+
 if __name__ == "__main__":
     unittest.main()
