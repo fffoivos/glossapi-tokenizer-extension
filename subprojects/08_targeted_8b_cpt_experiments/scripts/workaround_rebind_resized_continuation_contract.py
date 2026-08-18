@@ -203,6 +203,10 @@ def main() -> int:
     write_json_atomic(campaign_path, campaign)
     write_json_atomic(runtime_path, runtime)
     write_json_atomic(evaluation_path, evaluation)
+    # The canonical bundle carries its schema dependency as a vendored tree;
+    # compile on the login/control path must use the same import closure as
+    # the eventual held-allocation wrapper.
+    sys.path.insert(0, str(runner_root / "src/_vendor/campaign_pydeps"))
     sys.path.insert(0, str(runner_root / "src"))
     from apertus_cscs_campaign.contracts import compile_contracts  # pylint: disable=import-outside-toplevel
     write_json_atomic(compiled_path, compile_contracts(campaign_path, runtime_path, evaluation_path))
