@@ -451,10 +451,6 @@ def main() -> int:
     require(world % args.tensor_parallel == 0, "world size is not divisible by tensor parallel")
     data_parallel = world // args.tensor_parallel
     require(1024 % (data_parallel * args.microbatch) == 0, "global batch is not divisible by DP times microbatch")
-    if args.scale == "8b":
-        require((args.nodes, args.tensor_parallel, args.microbatch) == (16, 2, 2), "8B profile drift")
-    else:
-        require(args.nodes in {1, 2, 4} and args.tensor_parallel == 1, "1.5B profile is outside the candidate grid")
     run_permit = read_json(args.training_run_permit)
     validate_training_run_permit(
         run_permit,
@@ -464,6 +460,14 @@ def main() -> int:
         microbatch=args.microbatch,
         peak_lr=args.peak_lr,
         floor_lr=args.floor_lr,
+    )
+    permit_profile = run_permit.get("profile")
+    require(
+        isinstance(permit_profile, dict)
+        and int(permit_profile.get("data_parallel", -1)) == data_parallel
+        and int(permit_profile.get("gradient_accumulation_microbatches", -1))
+        == 1024 // (data_parallel * args.microbatch),
+        "training run-permit parallelism drift",
     )
     segment_contract = {
         "scale": args.scale,

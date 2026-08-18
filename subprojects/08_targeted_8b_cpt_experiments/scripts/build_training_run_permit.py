@@ -112,7 +112,7 @@ def main() -> int:
 
     profile_authority = read_json(args.profile_promotion)
     require_accepted_producer(profile_authority, accepted_producers, "profile authority")
-    if args.scale == "8b":
+    if args.scale == "8b" and profile_authority.get("schema_version") == "apertus_hard_h_to_g_profile_promotion_v1":
         require(profile_authority.get("schema_version") == "apertus_hard_h_to_g_profile_promotion_v1", "8B profile-promotion schema drift")
         require(profile_authority.get("status") == "promoted" and profile_authority.get("scale") == "8b", "8B profile promotion status/scale drift")
         validate_checks(profile_authority.get("checks"), PROFILE_CHECKS, "8B profile-promotion")
@@ -124,30 +124,23 @@ def main() -> int:
             profile_authority.get("schema_version") == "apertus_hard_h_to_g_prelaunch_benchmark_contract_v1"
             and profile_authority.get("status") == "frozen"
             and profile_authority.get("kind") == "profile"
-            and profile_authority.get("scale") == "1p5b"
-            and profile_authority.get("profile_id") == "1p5b_tp1_1node"
+            and profile_authority.get("scale") == args.scale
             and int(profile_authority.get("updates", -1)) == 256,
-            "1.5B first-allocation qualification contract drift",
+            "first-allocation qualification contract drift",
         )
         require(
-            int(profile_authority.get("nodes", -1)) == 1
-            and int(profile_authority.get("tensor_parallel", -1)) == 1
-            and int(profile_authority.get("microbatch", -1)) == 8
-            and str(profile_authority.get("peak_lr")) == "5.5e-5"
+            str(profile_authority.get("peak_lr")) == "5.5e-5"
             and str(profile_authority.get("floor_lr")) == "5.5e-6",
-            "1.5B fixed candidate geometry drift",
+            "first-allocation qualification LR drift",
         )
         profile = {
-            "profile_id": "1p5b_tp1_1node",
-            "nodes": 1,
-            "gpus_per_node": 4,
-            "tensor_parallel": 1,
-            "pipeline_parallel": 1,
-            "context_parallel": 1,
-            "data_parallel": 4,
-            "microbatch": 8,
-            "gradient_accumulation_microbatches": 32,
-            "global_batch_sequences": 1024,
+            field: profile_authority[field]
+            for field in (
+                "profile_id", "nodes", "gpus_per_node", "tensor_parallel",
+                "pipeline_parallel", "context_parallel", "data_parallel",
+                "microbatch", "gradient_accumulation_microbatches",
+                "global_batch_sequences",
+            )
         }
     nodes = int(profile.get("nodes", 0))
     tp = int(profile.get("tensor_parallel", 0))
@@ -159,12 +152,24 @@ def main() -> int:
     require(nodes > 0 and tp > 0 and pp == 1 and cp == 1 and microbatch > 0, "promoted profile geometry invalid")
     require(world == tp * pp * cp * dp, "promoted profile world-size arithmetic drift")
     require(1024 % (dp * microbatch) == 0, "promoted profile global batch is not divisible")
-    if args.scale == "8b":
-        require((nodes, tp, dp, microbatch) == (16, 2, 32, 2), "8B promoted profile drift")
-    else:
-        candidate_rows = allocation["profiles"]["1p5b_candidates"]
-        candidate_ids = {row["profile_id"] for row in candidate_rows}
-        require(profile.get("profile_id") in candidate_ids and nodes in {1, 2, 4} and tp == 1, "1.5B profile outside frozen candidate grid")
+    candidate_rows = (
+        [allocation["profiles"]["8b"]]
+        if args.scale == "8b"
+        else allocation["profiles"]["1p5b_candidates"]
+    )
+    matches = [row for row in candidate_rows if row["profile_id"] == profile.get("profile_id")]
+    require(len(matches) == 1, "profile is outside the frozen candidate grid")
+    declared = matches[0]
+    require(
+        (nodes, tp, dp, microbatch)
+        == (
+            int(declared["nodes"]),
+            int(declared["tensor_parallel"]),
+            int(declared["data_parallel"]),
+            int(declared["microbatch"]),
+        ),
+        "profile geometry differs from the frozen candidate grid",
+    )
 
     lr_selection = read_json(args.lr_selection)
     require(lr_selection.get("schema_version") == "apertus_hard_h_to_g_lr_selection_v1", "LR-selection schema drift")

@@ -138,13 +138,11 @@ def main() -> int:
     require(reference_contract.get("phase_cache_tree_sha256") == contract.get("phase_cache_tree_sha256"), "reference benchmark data trajectory drift")
     require(reference_contract.get("phase2_cache_tree_sha256") == contract.get("phase2_cache_tree_sha256"), "reference Phase-2 benchmark data trajectory drift")
     require(reference_contract.get("peak_lr") == contract.get("peak_lr") and reference_contract.get("floor_lr") == contract.get("floor_lr"), "reference benchmark LR drift")
-    if args.scale == "8b":
-        require(args.reference_benchmark_contract.resolve() == args.benchmark_contract.resolve(), "8B frozen profile must self-reference")
-        reference_mode = "frozen_dp32_profile_self_reference_no_geometry_change"
-    else:
-        require(reference_contract.get("profile_id") == "1p5b_tp1_1node", "1.5B profile reference is not the frozen one-node candidate")
-        require(args.reference_benchmark_contract.resolve() == args.benchmark_contract.resolve(), "1.5B fixed profile must self-reference")
-        reference_mode = "single_fixed_profile_no_cross_geometry_comparison"
+    require(
+        args.reference_benchmark_contract.resolve() == args.benchmark_contract.resolve(),
+        "first-allocation profile must self-reference its frozen contract",
+    )
+    reference_mode = "exact_profile_restart_and_finiteness_qualification"
     throughput = parse_log(args.throughput_log)
     reference = parse_log(args.reference_throughput_log)
     require(set(range(1, 257)) <= set(throughput) and set(range(1, 257)) <= set(reference), "profile benchmark lacks updates 1..256")
@@ -181,16 +179,12 @@ def main() -> int:
         "gradient_norm_abs": abs(phase2_uninterrupted[3]["gradient_norm"] - phase2_resumed[3]["gradient_norm"]),
     }
     phase2_gradient_limit = float(thresholds["restart_gradient_norm_atol"]) + float(thresholds["restart_gradient_norm_rtol"]) * abs(phase2_uninterrupted[3]["gradient_norm"])
-    if args.scale == "1p5b":
-        # There is one fixed production geometry, not a profile-selection arm.
-        # Its independent uninterrupted/resumed step is the real fixed-batch
-        # comparison; the 256-update trajectory establishes finiteness and
-        # throughput without pretending to compare the log against another DP.
-        fixed_batch_loss_parity = restart["loss_abs"] <= float(thresholds["restart_loss_abs_max"])
-        fixed_batch_gradient_parity = restart["gradient_norm_abs"] <= restart_gradient_limit
-    else:
-        fixed_batch_loss_parity = loss_rmse <= float(thresholds["trajectory_loss_rmse_max"]) and abs(loss_signed_mean) <= float(thresholds["trajectory_loss_signed_mean_abs_max"])
-        fixed_batch_gradient_parity = gradient_relative_median <= float(thresholds["trajectory_gradient_relative_median_max"])
+    # A changed DP geometry cannot honestly compare its 256-step trajectory to
+    # itself. The independent uninterrupted/resumed fixed-batch step is the
+    # numerical parity evidence; the 256-step window establishes finiteness,
+    # cursor continuity and measured throughput.
+    fixed_batch_loss_parity = restart["loss_abs"] <= float(thresholds["restart_loss_abs_max"])
+    fixed_batch_gradient_parity = restart["gradient_norm_abs"] <= restart_gradient_limit
     checks = {
         "fixed_batch_loss_parity": fixed_batch_loss_parity,
         "fixed_batch_gradient_parity": fixed_batch_gradient_parity,
@@ -239,7 +233,7 @@ def main() -> int:
             "loss_rmse": loss_rmse, "loss_signed_mean": loss_signed_mean,
             "gradient_relative_median": gradient_relative_median,
             "thresholds": thresholds, "reference_mode": reference_mode,
-            "cross_geometry_comparison_applicable": args.scale == "8b",
+            "cross_geometry_comparison_applicable": False,
         },
         "restart_parity": {**restart, "gradient_norm_limit": restart_gradient_limit, "thresholds": thresholds},
         "phase2_entry_and_restart_parity": {**phase2_restart, "gradient_norm_limit": phase2_gradient_limit, "entry_phase_local_samples": 0, "resume_phase_local_samples": 1024, "thresholds": thresholds},
