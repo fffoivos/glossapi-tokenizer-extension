@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Build a current-controller continuation contract without changing S2 science.
+"""Build a current-controller continuation contract without changing science.
 
 Workaround for apertus-cscs-efficiency issue #115.  This adapter reads the
-historical, completed S1 campaign and its signed postprocess-recovery permit,
-then writes a new continuation campaign rooted at S2.  It preserves the
-training argv, data/model/tokenizer/init revisions, every S2+ segment override,
-and the exact S1 checkpoint reference.  The only scientific-contract addition
-is the current runner's required bound entrypoint provenance.
+historical campaign and its validated recovery evidence, then writes a new
+continuation campaign rooted at a named next segment.  It preserves the training
+argv, data/model/tokenizer/init revisions, every retained segment override, and
+the exact predecessor checkpoint reference.  The only scientific-contract
+addition is the current runner's required bound entrypoint provenance.
 
 It writes only a fresh experiment-owned output directory.  It never changes
 the historical run root, any data artifact, or a canonical tooling bundle.
@@ -151,6 +151,8 @@ def main() -> int:
     parser.add_argument("--source-runtime", type=Path, required=True)
     parser.add_argument("--source-evaluation", type=Path, required=True)
     parser.add_argument("--recovery-permit", type=Path, required=True)
+    parser.add_argument("--checkpoint-reference", type=Path)
+    parser.add_argument("--first-segment", default="s2")
     parser.add_argument("--output-root", type=Path, required=True)
     args = parser.parse_args()
 
@@ -160,22 +162,35 @@ def main() -> int:
     runtime = read_json(args.source_runtime)
     evaluation = read_json(args.source_evaluation)
     permit = read_json(args.recovery_permit)
-    if permit.get("status") != "passed" or permit.get("target_segment_id") != "s2":
-        raise ValueError("recovery permit is not an accepted S2 permit")
+    if permit.get("status") != "passed":
+        raise ValueError("recovery evidence is not accepted")
+    target = permit.get("target_segment_id")
+    if target is not None and target != args.first_segment:
+        raise ValueError(f"recovery permit targets {target!r}, not {args.first_segment!r}")
     checkpoint = permit.get("checkpoint")
-    if not isinstance(checkpoint, dict) or not isinstance(checkpoint.get("path"), str):
-        raise ValueError("recovery permit lacks checkpoint binding")
-    checkpoint_path = Path(checkpoint["path"])
-    if binding(checkpoint_path) != {key: checkpoint[key] for key in ("path", "bytes", "sha256")}:
-        raise ValueError("recovery checkpoint binding drift")
+    if args.checkpoint_reference is not None:
+        checkpoint_path = args.checkpoint_reference
+        reference = read_json(checkpoint_path)
+        if reference.get("status") != "passed" or not isinstance(reference.get("checkpoint_root"), str):
+            raise ValueError("checkpoint reference is not an accepted terminal checkpoint")
+    elif isinstance(checkpoint, dict) and isinstance(checkpoint.get("path"), str):
+        checkpoint_path = Path(checkpoint["path"])
+        if binding(checkpoint_path) != {key: checkpoint[key] for key in ("path", "bytes", "sha256")}:
+            raise ValueError("recovery checkpoint binding drift")
+    elif isinstance(permit.get("checkpoint_root"), str):
+        raise ValueError("terminal checkpoint permit requires --checkpoint-reference")
+    else:
+        raise ValueError("recovery evidence lacks a checkpoint binding or checkpoint_root")
 
     science = campaign.get("science")
     segments = campaign.get("segments")
     if not isinstance(science, dict) or not isinstance(segments, list):
         raise ValueError("source campaign missing science or segments")
-    s2_index = next((index for index, row in enumerate(segments) if row.get("id") == "s2"), None)
-    if s2_index is None:
-        raise ValueError("source campaign lacks s2")
+    first_index = next(
+        (index for index, row in enumerate(segments) if row.get("id") == args.first_segment), None
+    )
+    if first_index is None:
+        raise ValueError(f"source campaign lacks {args.first_segment}")
     training_data_manifest = resolve_source_binding(
         science.get("training_data_manifest"),
         source_directory=args.source_campaign.parent,
@@ -208,7 +223,7 @@ def main() -> int:
         "bytes": training_data_manifest["bytes"],
         "sha256": training_data_manifest["sha256"],
     }
-    continuation_segments = continuation["segments"][s2_index:]
+    continuation_segments = continuation["segments"][first_index:]
     continuation_segments[0]["load_checkpoint"] = str(checkpoint_path)
     continuation["segments"] = continuation_segments
     continuation["legacy_continuation"] = {
@@ -265,7 +280,7 @@ def main() -> int:
         "status": "passed",
         "issue": "https://github.com/fffoivos/apertus-cscs-efficiency/issues/115",
         "adapter": binding(Path(__file__).resolve()),
-        "purpose": "current-controller continuation at S2; train science unchanged",
+        "purpose": f"current-controller continuation at {args.first_segment}; train science unchanged",
         "source": {
             "campaign": binding(args.source_campaign),
             "runtime": binding(args.source_runtime),
@@ -274,7 +289,7 @@ def main() -> int:
             "training_data_manifest": training_data_manifest,
             "readiness_plan": readiness_plan,
         },
-        "s2_checkpoint": binding(checkpoint_path),
+        "recovery_checkpoint": binding(checkpoint_path),
         "outputs": {
             "campaign": binding(campaign_path),
             "runtime_candidate": binding(runtime_path),
@@ -287,8 +302,8 @@ def main() -> int:
             "train_argv_unchanged": continuation_science["train_argv"] == science["train_argv"],
             "campaign_id_unchanged": continuation["campaign_id"] == campaign["campaign_id"],
             "immutable_inputs_unchanged": continuation_science["immutable_inputs"] == science["immutable_inputs"],
-            "s2_and_later_segment_overrides_unchanged": continuation_segments[0]["argv_overrides"] == segments[s2_index]["argv_overrides"],
-            "s2_load_checkpoint_rebound_to_recovery_permit": continuation_segments[0]["load_checkpoint"] == str(checkpoint_path),
+            "retained_first_segment_override_unchanged": continuation_segments[0]["argv_overrides"] == segments[first_index]["argv_overrides"],
+            "first_segment_load_checkpoint_rebound_to_recovery_evidence": continuation_segments[0]["load_checkpoint"] == str(checkpoint_path),
             "entrypoint_added_from_existing_train_argv": True,
             "training_data_manifest_rebound_without_content_change": True,
             "prepared_gate_receipts_rebound_without_content_change": True,
