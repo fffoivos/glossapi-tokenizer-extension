@@ -147,6 +147,13 @@ class PublicIdentityTests(unittest.TestCase):
             hashlib.sha256(expected_doc_id.encode("utf-8") + b"\0" + text_sha).digest()[:16],
         )
 
+    def test_export_worker_bound_matches_forked_catalog_memory_budget(self) -> None:
+        module = load("export_public_modern_greek_train")
+        module.validate_workers("export", 12)
+        module.validate_workers("snapshot", 96)
+        with self.assertRaises(ValueError):
+            module.validate_workers("export", 13)
+
 
 class HubInventoryTests(unittest.TestCase):
     def test_lfs_and_small_file_are_both_checked(self) -> None:

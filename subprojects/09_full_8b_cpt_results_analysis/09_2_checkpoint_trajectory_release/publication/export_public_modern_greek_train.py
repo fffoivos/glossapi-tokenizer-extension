@@ -132,6 +132,12 @@ def source_identity(source_dataset: Any, source_doc_id: Any, text: Any) -> tuple
     return identity, text_sha, masked_text
 
 
+def validate_workers(command: str, workers: int) -> None:
+    """Bound the forked catalog reconstruction to the Xfer memory allocation."""
+    maximum = 12 if command == "export" else 96
+    require(1 <= workers <= maximum, f"{command} workers must be in [1,{maximum}]")
+
+
 def _init_worker(expected: dict[bytes, tuple[bytes, str]]) -> None:
     global _EXPECTED
     _EXPECTED = expected
@@ -262,10 +268,10 @@ def main() -> int:
     build.add_argument("--source-receipt", type=Path, required=True)
     build.add_argument("--training-stage", type=Path, required=True)
     build.add_argument("--output-root", type=Path, required=True)
-    build.add_argument("--workers", type=int, default=32)
+    build.add_argument("--workers", type=int, default=12)
     build.add_argument("--batch-size", type=int, default=4096)
     args = parser.parse_args()
-    require(1 <= args.workers <= 96, "workers must be in [1,96]")
+    validate_workers(args.command, args.workers)
     result = snapshot(args) if args.command == "snapshot" else export(args)
     print(json.dumps({"ok": True, "status": result["status"]}, sort_keys=True))
     return 0
