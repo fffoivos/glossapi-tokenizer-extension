@@ -56,14 +56,25 @@ def main() -> int:
     require(not args.output_jsonl.exists() and not args.output_receipt.exists(), "immutable document catalog exists")
     upstream = read_json(args.input_receipt)
     require(
-        upstream.get("schema_version") == "apertus_hard_h_to_g_stage_b_stream_v1"
+        upstream.get("schema_version") in {
+            "apertus_hard_h_to_g_stage_b_stream_v1",
+            "apertus_hard_h_to_g_published_anonymized_stream_v1",
+        }
         and upstream.get("status") == "passed"
         and upstream.get("stream") == args.stream,
         "document-catalog upstream identity drift",
     )
     block = upstream_output(upstream)
-    source_binding = file_binding(args.input_jsonl)
-    require(block.get("sha256") == source_binding["sha256"] and int(block.get("rows", -1)) > 0, "document-catalog source binding drift")
+    require(
+        args.input_jsonl.is_file()
+        and args.input_jsonl.stat().st_size == int(block.get("bytes", -1))
+        and isinstance(block.get("sha256"), str)
+        and int(block.get("rows", -1)) > 0,
+        "document-catalog source binding drift",
+    )
+    # The input's SHA-256 was established by its immutable upstream receipt.
+    # Rehashing 38GB here would add a redundant pre-tokenization scan.
+    source_binding = {"path": str(args.input_jsonl.resolve()), "bytes": args.input_jsonl.stat().st_size, "sha256": block["sha256"]}
     tokenizer_receipt = read_json(args.tokenizer_receipt)
     tokenizer_json = args.tokenizer_root / "tokenizer.json"
     require(tokenizer_receipt.get("schema_version") == "apertus_historical_tokenizer_148480_v1" and tokenizer_receipt.get("status") == "passed", "document-catalog tokenizer receipt drift")

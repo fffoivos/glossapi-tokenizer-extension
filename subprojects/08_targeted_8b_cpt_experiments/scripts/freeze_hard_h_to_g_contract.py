@@ -43,7 +43,7 @@ DATA_PIPELINE = [
     "e001_character_clean_on_selected_greek_streams",
     "regenerate_greekmmlu_queries_and_filter_selected_greek_streams",
     "normalize_selected_replay_then_filter_native_suite_then_filter_greekmmlu",
-    "verify_v2_anonymization_is_stage_b_noop_and_apply_stage_b_only_to_twice_filtered_replay",
+    "accept_published_v2_anonymization_receipt_without_reaudit_and_apply_stage_b_only_to_twice_filtered_replay",
     "audit_exact_replay_stage_b_bytes_for_zero_greekmmlu_and_native_suite_matches",
     "split_final_replay_into_foreign_and_old_greek",
     "tokenize_four_stage_b_streams_with_receipt_bound_historical_148480_megatron_preprocessing",

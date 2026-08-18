@@ -151,7 +151,7 @@
       "e001_implementation_sha256": "1997aa7a1248f9b946681e32bdcc98f33efc476fa28b53cc9bd8db5a3d883f63",
       "stage_b_masker_sha256": "8f489a175aeb47f2c0996431a9d1c6f93ec03d4f52d9ea33621b76facfc0e83c",
       "stage_b_upstream_commit": "8af990b9401101cf95acd02b066ed0c449789126",
-      "v2_greek_stream_policy": "assert_byte_preserving_noop_after_e001",
+      "v2_greek_stream_policy": "accept_published_anonymization_receipt_without_reaudit",
       "external_replay_policy": "apply_then_verify_idempotent",
       "one_pass_e001_plus_greekmmlu_composition_allowed": true,
       "one_pass_requires_exact_frozen_functions_and_equivalence_test": true
@@ -236,7 +236,7 @@
       "e001_character_clean_on_selected_greek_streams",
       "regenerate_greekmmlu_queries_and_filter_selected_greek_streams",
       "normalize_selected_replay_then_filter_native_suite_then_filter_greekmmlu",
-      "verify_v2_anonymization_is_stage_b_noop_and_apply_stage_b_only_to_twice_filtered_replay",
+      "accept_published_v2_anonymization_receipt_without_reaudit_and_apply_stage_b_only_to_twice_filtered_replay",
       "audit_exact_replay_stage_b_bytes_for_zero_greekmmlu_and_native_suite_matches",
       "split_final_replay_into_foreign_and_old_greek",
       "tokenize_four_stage_b_streams_with_receipt_bound_historical_148480_megatron_preprocessing",

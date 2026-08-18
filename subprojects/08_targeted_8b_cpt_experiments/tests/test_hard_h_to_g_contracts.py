@@ -113,7 +113,7 @@ class HardHToGContractTests(unittest.TestCase):
         self.assertEqual(list(map(int, derived["checkpoint_token_slots"])), CHECKPOINT_UPDATES)
         self.assertEqual(self.experiment["launch"]["required_pre_main_launch_artifacts"], REQUIRED_ARTIFACTS)
         self.assertEqual(self.experiment["data"]["pipeline"], DATA_PIPELINE)
-        self.assertLess(DATA_PIPELINE.index("normalize_selected_replay_then_filter_native_suite_then_filter_greekmmlu"), DATA_PIPELINE.index("verify_v2_anonymization_is_stage_b_noop_and_apply_stage_b_only_to_twice_filtered_replay"))
+        self.assertLess(DATA_PIPELINE.index("normalize_selected_replay_then_filter_native_suite_then_filter_greekmmlu"), DATA_PIPELINE.index("accept_published_v2_anonymization_receipt_without_reaudit_and_apply_stage_b_only_to_twice_filtered_replay"))
         self.assertLess(DATA_PIPELINE.index("audit_exact_replay_stage_b_bytes_for_zero_greekmmlu_and_native_suite_matches"), DATA_PIPELINE.index("split_final_replay_into_foreign_and_old_greek"))
         self.assertFalse(self.experiment["training"]["cross_document_attention"])
         self.assertTrue(self.experiment["training"]["attention_mask_reset_at_document_boundary"])
@@ -1229,6 +1229,17 @@ class HardHToGContractTests(unittest.TestCase):
                     f"{name} sources the runtime verifier before authenticating its code bundle",
                 )
             self.assertNotIn(stale, text)
+
+    def test_phase3_catalog_accepts_published_anonymization_authority_without_text_audit(self) -> None:
+        wrapper = (ROOT / "clariden/build_phase3_openarchives_catalog_debug.sbatch").read_text(encoding="utf-8")
+        adapter = (ROOT / "scripts/adopt_published_anonymized_openarchives.py").read_text(encoding="utf-8")
+        catalog = (ROOT / "scripts/build_jsonl_document_catalog.py").read_text(encoding="utf-8")
+        self.assertIn("adopt_published_anonymized_openarchives.py", wrapper)
+        self.assertIn("phase3_openarchives_candidates_clean.jsonl", wrapper)
+        self.assertNotIn("anonymize_phase3_openarchives_candidates_debug.sbatch", wrapper)
+        self.assertIn("published_v2_authority_no_reaudit", adapter)
+        self.assertIn('"additional_text_scan_performed": False', adapter)
+        self.assertIn("apertus_hard_h_to_g_published_anonymized_stream_v1", catalog)
 
     def test_native_suite_replay_scan_uses_bundle_data_runtime(self) -> None:
         text = (ROOT / "clariden" / "run_native_suite_replay_scan_debug.sbatch").read_text(encoding="utf-8")
