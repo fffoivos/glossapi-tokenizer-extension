@@ -207,6 +207,7 @@ def main() -> int:
     base_root = args.base_campaign.resolve().parent
     portable_data_files = [
         "training_data_manifest.json",
+        "readiness_plan.json",
         "prepared_gate_hplt.json",
         "prepared_gate_openarchives.json",
         "prepared_gate_foreign_replay.json",
