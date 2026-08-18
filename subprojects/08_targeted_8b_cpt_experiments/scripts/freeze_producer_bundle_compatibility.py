@@ -127,6 +127,11 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/scripts/run_canonical_train_segment.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/run_in_allocation_profile_qualification.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/workaround_parameterized_profile_qualification.py",
+        # Contract compilation is a control-plane adaptation only. It reads
+        # existing immutable continuation manifests and passes their frozen
+        # segment identities to the canonical runner; it is not a producer of
+        # data, validation, tokenization, or initialization artifacts.
+        "subprojects/08_targeted_8b_cpt_experiments/scripts/workaround_rebind_resized_continuation_contract.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/td_coverage_prepass_batched.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/verify_td_initialization.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/verify_td_xfer_runtime.py",
