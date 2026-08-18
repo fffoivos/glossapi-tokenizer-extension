@@ -14,6 +14,7 @@ import argparse
 import copy
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -199,6 +200,22 @@ def main() -> int:
     output_root = args.output_root.resolve()
     require(not output_root.exists(), "immutable candidate output already exists")
     output_root.mkdir(parents=True)
+    # The v3 data manifest is intentionally portable: its path and each
+    # prepared gate are relative to the contract directory.  Preserve the
+    # already-frozen bytes by hard-linking that small closure beside the new
+    # candidate, rather than rebuilding or altering the data contract.
+    base_root = args.base_campaign.resolve().parent
+    portable_data_files = [
+        "training_data_manifest.json",
+        "prepared_gate_hplt.json",
+        "prepared_gate_openarchives.json",
+        "prepared_gate_foreign_replay.json",
+        "prepared_gate_old_greek_replay.json",
+    ]
+    for name in portable_data_files:
+        source = base_root / name
+        require(source.is_file() and not source.is_symlink(), f"base portable data file is missing: {source}")
+        os.link(source, output_root / name)
     campaign_path = output_root / "campaign.json"
     runtime_path = output_root / "runtime-candidate.json"
     evaluation_path = output_root / "evaluation.json"
