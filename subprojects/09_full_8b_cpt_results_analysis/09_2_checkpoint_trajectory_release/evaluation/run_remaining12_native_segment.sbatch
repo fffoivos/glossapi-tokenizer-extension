@@ -22,15 +22,19 @@ export PYTHONDONTWRITEBYTECODE=1
 : "${REMAINING12_OUTPUT_ROOT:?set new remaining12 output root}"
 : "${REMAINING12_SEGMENT_INDEX:?set segment index 0..17}"
 : "${REMAINING12_EXPECTED_NNODES:=1}"
+: "${REMAINING12_EXPECTED_PARTITION:=debug}"
 [[ "$REMAINING12_SEGMENT_INDEX" =~ ^([0-9]|1[0-7])$ ]] || { echo "invalid segment index" >&2; exit 2; }
 [[ "$REMAINING12_EXPECTED_NNODES" == 1 || "$REMAINING12_EXPECTED_NNODES" == 2 ]] || {
   echo "remaining12 expected node count must be one or two" >&2; exit 2;
 }
+[[ "$REMAINING12_EXPECTED_PARTITION" == debug || "$REMAINING12_EXPECTED_PARTITION" == normal ]] || {
+  echo "remaining12 expected partition must be debug or normal" >&2; exit 2;
+}
 resume=${REMAINING12_RESUME:-0}
 [[ "$resume" == 0 || "$resume" == 1 ]] || { echo "invalid resume flag" >&2; exit 2; }
 allocation_nodes=${SLURM_NNODES:-${SLURM_STEP_NUM_NODES:-}}
-[[ "${SLURM_JOB_PARTITION:-}" == debug && "$allocation_nodes" == "$REMAINING12_EXPECTED_NNODES" ]] || {
-  echo "remaining12 evaluation requires the requested debug-node geometry" >&2; exit 2;
+[[ "${SLURM_JOB_PARTITION:-}" == "$REMAINING12_EXPECTED_PARTITION" && "$allocation_nodes" == "$REMAINING12_EXPECTED_NNODES" ]] || {
+  echo "remaining12 evaluation requires the explicitly requested partition and node geometry" >&2; exit 2;
 }
 
 SOURCE_ROOT=/iopsstor/scratch/cscs/fffoivos/evals/full8_native_greek_3cp_20260812

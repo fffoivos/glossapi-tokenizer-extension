@@ -19,10 +19,13 @@ class RemainingTwelveResourceProfileTest(unittest.TestCase):
         self.assertIn("#SBATCH --mem=640G", text)
         self.assertIn("#SBATCH --time=01:20:00", text)
         self.assertIn(': "${REMAINING12_EXPECTED_NNODES:=1}"', text)
+        self.assertIn(': "${REMAINING12_EXPECTED_PARTITION:=debug}"', text)
 
     def test_geometry_guard_accepts_only_explicit_one_or_two_node_profiles(self) -> None:
         text = SCRIPT.read_text(encoding="utf-8")
         self.assertIn('"$REMAINING12_EXPECTED_NNODES" == 1 || "$REMAINING12_EXPECTED_NNODES" == 2', text)
+        self.assertIn('"$REMAINING12_EXPECTED_PARTITION" == debug || "$REMAINING12_EXPECTED_PARTITION" == normal', text)
+        self.assertIn('"${SLURM_JOB_PARTITION:-}" == "$REMAINING12_EXPECTED_PARTITION"', text)
         self.assertIn('"$allocation_nodes" == "$REMAINING12_EXPECTED_NNODES"', text)
         self.assertIn("srun --exclusive --exact --nodes=1", text)
         self.assertIn("--mem=160G", text)
