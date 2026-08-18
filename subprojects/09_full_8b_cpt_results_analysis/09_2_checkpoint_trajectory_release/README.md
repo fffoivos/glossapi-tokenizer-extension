@@ -72,8 +72,33 @@ srun --overlap --nodes=1 --ntasks=1 --cpus-per-task=1 \
   .../evaluation/run_remaining12_native_segment.sbatch
 ```
 
-Hugging Face publishing is deferred until the complete 18-row native matrix
-and imported GreekMMLU table pass their consistency checks. The canonical
-issue-104 branch performs private per-branch xfer releases and only promotes
-the repository to public automatic gating once every branch has passed Hub
-inspection.
+## Publication sequence
+
+Checkpoint *weight uploads* no longer wait for the final native-suite matrix.
+They are repaired first as **private** immutable branches on
+[`fffoivos/apertus-8b-greek-cpt`](https://huggingface.co/fffoivos/apertus-8b-greek-cpt),
+using the canonical v1 checkpoint publisher plus an experiment-owned complete
+Hub-inventory verifier. Each private card presents only its already-frozen
+GreekMMLU point and explicitly says that the complete native-Greek matrix is
+pending. No model branch is made public in this step.
+
+The same Xfer-only release job stages two frozen training-data artifacts:
+
+1. **Public:**
+   [`fffoivos/apertus-8b-greek-cpt-modern-greek-train`](https://huggingface.co/datasets/fffoivos/apertus-8b-greek-cpt-modern-greek-train)
+   contains only the exact selected Modern-Greek documents. It is reconstructed
+   from the revision-pinned upstream v2 Parquet source, the selected training
+   catalogs, and per-document content hashes. It performs no extra
+   anonymization, deduplication, text transformation, or retokenization.
+2. **Private:** `fffoivos/apertus-8b-greek-cpt-d0-full-mix` contains the exact
+   portable packed 79/20/1 D0 payload, schedule, reader inputs, and provenance.
+   It remains private because the replay-source redistribution matrix is not a
+   public-release authorization.
+
+The final metadata pass remains blocked on the complete 18-row native matrix.
+Only it can replace the staging cards with the complete score table and only a
+separate explicit decision can make the model repository public.
+
+All preparation, hash sweeping, Parquet reconstruction, and Hugging Face
+transfers run on a captured **Xfer** allocation. The normal checkpoint-
+evaluation allocation is not used for release preparation.
