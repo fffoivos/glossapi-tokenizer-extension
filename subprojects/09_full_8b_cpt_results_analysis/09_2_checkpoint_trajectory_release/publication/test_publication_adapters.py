@@ -150,6 +150,21 @@ class DatasetManifestTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 module.manifest_paths(stage, {"upload_payload_inventory": [{"relative_path": "../unsafe", "bytes": 0, "sha256": "0" * 64}]})
 
+    def test_private_receipt_must_exactly_bind_upload_inventory(self) -> None:
+        module = load("upload_frozen_dataset")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            payload = root / "payload.bin"
+            payload.write_bytes(b"x")
+            receipt = root / "verified.json"
+            row = {"relative_path": "payload.bin", "bytes": 1, "sha256": hashlib.sha256(b"x").hexdigest()}
+            write_json(receipt, {"schema_version": "apertus_full8_d0_private_payload_hash_verification_v1", "status": "passed", "files": [row]})
+            manifest = {"upload_payload_inventory": [row], "hash_verification": {"receipt": str(receipt), "sha256": module.sha256_file(receipt)}}
+            module.verify_private_payload_receipt(manifest)
+            manifest["upload_payload_inventory"] = [{**row, "sha256": "0" * 64}]
+            with self.assertRaises(ValueError):
+                module.verify_private_payload_receipt(manifest)
+
 
 if __name__ == "__main__":
     unittest.main()

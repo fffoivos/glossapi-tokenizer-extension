@@ -40,7 +40,7 @@ def write_json(path: Path, value: dict[str, Any]) -> None:
     os.replace(temporary, path)
 
 
-def manifest_paths(stage: Path, manifest: dict[str, Any]) -> list[str]:
+def manifest_paths(stage: Path, manifest: dict[str, Any], *, verify_content_hashes: bool = True) -> list[str]:
     rows = manifest.get("upload_payload_inventory")
     require(isinstance(rows, list) and rows, "frozen dataset manifest has no upload inventory")
     paths: list[str] = []
@@ -50,9 +50,22 @@ def manifest_paths(stage: Path, manifest: dict[str, Any]) -> list[str]:
         path = stage / relative
         require(path.is_file(), f"manifest file missing: {relative}")
         require(path.stat().st_size == int(row["bytes"]), f"manifest file byte drift: {relative}")
-        require(sha256_file(path) == row["sha256"], f"manifest file checksum drift: {relative}")
+        if verify_content_hashes:
+            require(sha256_file(path) == row["sha256"], f"manifest file checksum drift: {relative}")
         paths.append(relative.as_posix())
     return sorted(set(["manifest.json", *paths]))
+
+
+def verify_private_payload_receipt(manifest: dict[str, Any]) -> None:
+    verification = manifest.get("hash_verification", {})
+    receipt = Path(str(verification.get("receipt", "")))
+    require(receipt.is_file(), "private upload lacks payload hash verification receipt")
+    require(sha256_file(receipt) == verification.get("sha256"), "private payload verification receipt drift")
+    value = json.loads(receipt.read_text(encoding="utf-8"))
+    require(value.get("schema_version") == "apertus_full8_d0_private_payload_hash_verification_v1" and value.get("status") == "passed", "private payload verification receipt is not passing")
+    expected = {str(row["relative_path"]): (int(row["bytes"]), str(row["sha256"])) for row in manifest["upload_payload_inventory"]}
+    observed = {str(row["relative_path"]): (int(row["bytes"]), str(row["sha256"])) for row in value.get("files", [])}
+    require(observed == expected, "private payload verification receipt does not bind the upload inventory")
 
 
 def main() -> int:
@@ -77,13 +90,10 @@ def main() -> int:
     else:
         require(schema == PRIVATE_SCHEMA and status == "verified_payload_hashes", "private upload requires a hash-verified exact D0 stage")
         require(args.repo_id == "fffoivos/apertus-8b-greek-cpt-d0-full-mix", "unexpected private repository")
-        verification = manifest.get("hash_verification", {})
-        receipt = Path(str(verification.get("receipt", "")))
-        require(receipt.is_file(), "private upload lacks payload hash verification receipt")
-        require(sha256_file(receipt) == verification.get("sha256"), "private payload verification receipt drift")
+        verify_private_payload_receipt(manifest)
     from huggingface_hub import HfApi
 
-    paths = manifest_paths(stage, manifest)
+    paths = manifest_paths(stage, manifest, verify_content_hashes=args.public)
     api = HfApi(token=token)
     api.create_repo(repo_id=args.repo_id, repo_type="dataset", private=not args.public, exist_ok=True)
     api.upload_large_folder(repo_id=args.repo_id, repo_type="dataset", folder_path=stage, revision=args.revision, private=not args.public, allow_patterns=paths, ignore_patterns=["*.partial", "logs/**"], num_workers=args.workers, print_report=True, print_report_every=60)
