@@ -189,7 +189,9 @@ def main() -> int:
     )
 
     continuation = json.loads(json.dumps(campaign))
-    continuation["campaign_id"] = f"{campaign['campaign_id']}-current-s2-continuation-v1"
+    # The approved readiness horizon binds campaign_id.  The new immutable run
+    # root, not a renamed science contract, identifies this continuation.
+    continuation["campaign_id"] = campaign["campaign_id"]
     continuation["readiness_plan"] = {
         "path": "readiness_plan.json",
         "bytes": readiness_plan["bytes"],
@@ -283,6 +285,7 @@ def main() -> int:
         },
         "invariants": {
             "train_argv_unchanged": continuation_science["train_argv"] == science["train_argv"],
+            "campaign_id_unchanged": continuation["campaign_id"] == campaign["campaign_id"],
             "immutable_inputs_unchanged": continuation_science["immutable_inputs"] == science["immutable_inputs"],
             "s2_and_later_segment_overrides_unchanged": continuation_segments[0]["argv_overrides"] == segments[s2_index]["argv_overrides"],
             "s2_load_checkpoint_rebound_to_recovery_permit": continuation_segments[0]["load_checkpoint"] == str(checkpoint_path),
