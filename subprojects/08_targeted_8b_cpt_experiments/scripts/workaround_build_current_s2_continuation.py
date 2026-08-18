@@ -18,6 +18,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import sys
 import tempfile
 from pathlib import Path
@@ -58,6 +59,25 @@ def atomic_json(path: Path, value: dict[str, Any]) -> None:
             json.dump(value, handle, ensure_ascii=False, indent=2, sort_keys=True)
             handle.write("\n")
         os.replace(temporary, path)
+    except BaseException:
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def atomic_copy(source: Path, destination: Path) -> None:
+    """Copy a receipt byte-for-byte into a fresh immutable contract root."""
+
+    if destination.exists():
+        raise FileExistsError(f"immutable output already exists: {destination}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(dir=destination.parent, prefix=f".{destination.name}.")
+    try:
+        with source.open("rb") as origin, os.fdopen(fd, "wb") as handle:
+            shutil.copyfileobj(origin, handle)
+        os.replace(temporary, destination)
     except BaseException:
         try:
             os.unlink(temporary)
@@ -132,9 +152,13 @@ def main() -> int:
     continuation_science["entrypoint"] = entrypoint_from_argv(continuation_science["train_argv"])
     continuation_science.pop("required_env", None)
     # Legacy contracts intentionally used a path relative to their own
-    # directory.  A continuation has a different immutable directory, so bind
-    # the exact same source manifest by its checked absolute path.
-    continuation_science["training_data_manifest"] = training_data_manifest
+    # directory.  A continuation has a different immutable directory, so copy
+    # the checked manifest byte-for-byte and keep a portable relative binding.
+    continuation_science["training_data_manifest"] = {
+        "path": "training_data_manifest.json",
+        "bytes": training_data_manifest["bytes"],
+        "sha256": training_data_manifest["sha256"],
+    }
     continuation_segments = continuation["segments"][s2_index:]
     continuation_segments[0]["load_checkpoint"] = str(checkpoint_path)
     continuation["segments"] = continuation_segments
@@ -168,6 +192,10 @@ def main() -> int:
     campaign_path = args.output_root / "campaign.json"
     runtime_path = args.output_root / "runtime-candidate.json"
     evaluation_path = args.output_root / "evaluation.json"
+    continuation_manifest_path = args.output_root / "training_data_manifest.json"
+    atomic_copy(Path(training_data_manifest["path"]), continuation_manifest_path)
+    if binding(continuation_manifest_path)["sha256"] != training_data_manifest["sha256"]:
+        raise ValueError("copied training_data_manifest hash mismatch")
     atomic_json(campaign_path, continuation)
     atomic_json(runtime_path, runtime_candidate)
     atomic_json(evaluation_path, continuation_evaluation)
@@ -189,6 +217,7 @@ def main() -> int:
             "campaign": binding(campaign_path),
             "runtime_candidate": binding(runtime_path),
             "evaluation": binding(evaluation_path),
+            "training_data_manifest": binding(continuation_manifest_path),
         },
         "invariants": {
             "train_argv_unchanged": continuation_science["train_argv"] == science["train_argv"],
