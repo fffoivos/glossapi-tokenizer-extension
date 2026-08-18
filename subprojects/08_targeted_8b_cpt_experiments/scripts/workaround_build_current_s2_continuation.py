@@ -182,9 +182,19 @@ def main() -> int:
         label="training_data_manifest",
     )
     gate_sources = prepared_gate_sources(Path(training_data_manifest["path"]))
+    readiness_plan = resolve_source_binding(
+        campaign.get("readiness_plan"),
+        source_directory=args.source_campaign.parent,
+        label="readiness_plan",
+    )
 
     continuation = json.loads(json.dumps(campaign))
     continuation["campaign_id"] = f"{campaign['campaign_id']}-current-s2-continuation-v1"
+    continuation["readiness_plan"] = {
+        "path": "readiness_plan.json",
+        "bytes": readiness_plan["bytes"],
+        "sha256": readiness_plan["sha256"],
+    }
     continuation_science = continuation["science"]
     continuation_science["entrypoint"] = entrypoint_from_argv(continuation_science["train_argv"])
     continuation_science.pop("required_env", None)
@@ -230,6 +240,7 @@ def main() -> int:
     runtime_path = args.output_root / "runtime-candidate.json"
     evaluation_path = args.output_root / "evaluation.json"
     continuation_manifest_path = args.output_root / "training_data_manifest.json"
+    continuation_readiness_path = args.output_root / "readiness_plan.json"
     atomic_copy(Path(training_data_manifest["path"]), continuation_manifest_path)
     if binding(continuation_manifest_path)["sha256"] != training_data_manifest["sha256"]:
         raise ValueError("copied training_data_manifest hash mismatch")
@@ -241,6 +252,9 @@ def main() -> int:
         if copied["sha256"] != source_binding["sha256"]:
             raise ValueError(f"copied prepared gate hash mismatch: {relative}")
         copied_prepared_gates.append(copied)
+    atomic_copy(Path(readiness_plan["path"]), continuation_readiness_path)
+    if binding(continuation_readiness_path)["sha256"] != readiness_plan["sha256"]:
+        raise ValueError("copied readiness_plan hash mismatch")
     atomic_json(campaign_path, continuation)
     atomic_json(runtime_path, runtime_candidate)
     atomic_json(evaluation_path, continuation_evaluation)
@@ -256,6 +270,7 @@ def main() -> int:
             "evaluation": binding(args.source_evaluation),
             "recovery_permit": binding(args.recovery_permit),
             "training_data_manifest": training_data_manifest,
+            "readiness_plan": readiness_plan,
         },
         "s2_checkpoint": binding(checkpoint_path),
         "outputs": {
@@ -264,6 +279,7 @@ def main() -> int:
             "evaluation": binding(evaluation_path),
             "training_data_manifest": binding(continuation_manifest_path),
             "prepared_gates": copied_prepared_gates,
+            "readiness_plan": binding(continuation_readiness_path),
         },
         "invariants": {
             "train_argv_unchanged": continuation_science["train_argv"] == science["train_argv"],
@@ -273,6 +289,7 @@ def main() -> int:
             "entrypoint_added_from_existing_train_argv": True,
             "training_data_manifest_rebound_without_content_change": True,
             "prepared_gate_receipts_rebound_without_content_change": True,
+            "readiness_plan_rebound_without_content_change": True,
             "evaluation_milestones_restricted_to_continuation_horizon": True,
             "no_dataset_transformation_performed": True,
         },
