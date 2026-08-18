@@ -75,6 +75,20 @@ def entrypoint_from_argv(argv: list[Any]) -> dict[str, Any]:
     return result
 
 
+def resolve_source_binding(value: Any, *, source_directory: Path, label: str) -> dict[str, Any]:
+    """Resolve a legacy relative receipt binding without changing its content."""
+
+    if not isinstance(value, dict) or not isinstance(value.get("path"), str):
+        raise ValueError(f"source campaign lacks {label} binding")
+    recorded_path = Path(value["path"])
+    path = recorded_path if recorded_path.is_absolute() else source_directory / recorded_path
+    resolved = binding(path)
+    expected = {key: value.get(key) for key in ("bytes", "sha256")}
+    if {key: resolved[key] for key in expected} != expected:
+        raise ValueError(f"{label} binding drift: {path}")
+    return resolved
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-campaign", type=Path, required=True)
@@ -106,12 +120,21 @@ def main() -> int:
     s2_index = next((index for index, row in enumerate(segments) if row.get("id") == "s2"), None)
     if s2_index is None:
         raise ValueError("source campaign lacks s2")
+    training_data_manifest = resolve_source_binding(
+        science.get("training_data_manifest"),
+        source_directory=args.source_campaign.parent,
+        label="training_data_manifest",
+    )
 
     continuation = json.loads(json.dumps(campaign))
     continuation["campaign_id"] = f"{campaign['campaign_id']}-current-s2-continuation-v1"
     continuation_science = continuation["science"]
     continuation_science["entrypoint"] = entrypoint_from_argv(continuation_science["train_argv"])
     continuation_science.pop("required_env", None)
+    # Legacy contracts intentionally used a path relative to their own
+    # directory.  A continuation has a different immutable directory, so bind
+    # the exact same source manifest by its checked absolute path.
+    continuation_science["training_data_manifest"] = training_data_manifest
     continuation_segments = continuation["segments"][s2_index:]
     continuation_segments[0]["load_checkpoint"] = str(checkpoint_path)
     continuation["segments"] = continuation_segments
@@ -159,6 +182,7 @@ def main() -> int:
             "runtime": binding(args.source_runtime),
             "evaluation": binding(args.source_evaluation),
             "recovery_permit": binding(args.recovery_permit),
+            "training_data_manifest": training_data_manifest,
         },
         "s2_checkpoint": binding(checkpoint_path),
         "outputs": {
@@ -170,8 +194,9 @@ def main() -> int:
             "train_argv_unchanged": continuation_science["train_argv"] == science["train_argv"],
             "immutable_inputs_unchanged": continuation_science["immutable_inputs"] == science["immutable_inputs"],
             "s2_and_later_segment_overrides_unchanged": continuation_segments[0]["argv_overrides"] == segments[s2_index]["argv_overrides"],
-            "only_s2_load_checkpoint_changed": continuation_segments[0]["load_checkpoint"] == str(checkpoint_path),
+            "s2_load_checkpoint_rebound_to_recovery_permit": continuation_segments[0]["load_checkpoint"] == str(checkpoint_path),
             "entrypoint_added_from_existing_train_argv": True,
+            "training_data_manifest_rebound_without_content_change": True,
             "evaluation_milestones_restricted_to_continuation_horizon": True,
             "no_dataset_transformation_performed": True,
         },
