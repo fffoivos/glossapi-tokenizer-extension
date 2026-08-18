@@ -68,6 +68,30 @@ def verify_private_payload_receipt(manifest: dict[str, Any]) -> None:
     require(observed == expected, "private payload verification receipt does not bind the upload inventory")
 
 
+def verify_hub_inventory(expected: set[str], siblings: list[Any]) -> list[dict[str, Any]]:
+    """Reject payload drift while allowing Hub-created LFS routing metadata.
+
+    ``upload_large_folder`` creates ``.gitattributes`` once a repository
+    receives LFS objects.  It is Hub-owned routing metadata, not part of the
+    frozen dataset payload.  Accept precisely that one generated pathname and
+    record it in the upload receipt; every other addition remains fatal.
+    """
+    actual = {str(row.rfilename): row for row in siblings}
+    generated = {".gitattributes"}
+    missing = expected - set(actual)
+    extra = set(actual) - expected - generated
+    require(not missing and not extra, f"Hub dataset inventory differs: missing={sorted(missing)}, extra={sorted(extra)}")
+    return [
+        {
+            "relative_path": ".gitattributes",
+            "bytes": int(getattr(actual[".gitattributes"], "size", 0) or 0),
+            "method": "hub_generated_lfs_routing_metadata",
+        }
+        for _ in [None]
+        if ".gitattributes" in actual
+    ]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage-root", type=Path, required=True)
@@ -99,9 +123,8 @@ def main() -> int:
     api.upload_large_folder(repo_id=args.repo_id, repo_type="dataset", folder_path=stage, revision=args.revision, private=not args.public, allow_patterns=paths, ignore_patterns=["*.partial", "logs/**"], num_workers=args.workers, print_report=True, print_report_every=60)
     info = api.repo_info(repo_id=args.repo_id, repo_type="dataset", revision=args.revision, files_metadata=True)
     expected = set(paths)
-    actual = {str(row.rfilename) for row in info.siblings}
-    require(expected == actual, f"Hub dataset inventory differs: missing={sorted(expected - actual)}, extra={sorted(actual - expected)}")
-    result = {"schema_version": "apertus_full8_frozen_dataset_hf_upload_v1", "status": "completed", "repo_id": args.repo_id, "revision": info.sha, "private": bool(info.private), "manifest": {"path": str(manifest_path), "sha256": sha256_file(manifest_path)}, "files": len(paths), "training_must_pin_revision": info.sha}
+    hub_generated = verify_hub_inventory(expected, list(info.siblings))
+    result = {"schema_version": "apertus_full8_frozen_dataset_hf_upload_v1", "status": "completed", "repo_id": args.repo_id, "revision": info.sha, "private": bool(info.private), "manifest": {"path": str(manifest_path), "sha256": sha256_file(manifest_path)}, "files": len(paths), "hub_generated_files": hub_generated, "training_must_pin_revision": info.sha}
     write_json(args.output, result)
     print(json.dumps({"ok": True, "repo_id": args.repo_id, "revision": info.sha, "files": len(paths)}, sort_keys=True))
     return 0

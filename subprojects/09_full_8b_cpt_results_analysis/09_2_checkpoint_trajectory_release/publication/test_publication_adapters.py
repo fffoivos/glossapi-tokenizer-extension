@@ -139,6 +139,19 @@ class HubInventoryTests(unittest.TestCase):
 
 
 class DatasetManifestTests(unittest.TestCase):
+    def test_hub_inventory_allows_only_generated_lfs_routing_file(self) -> None:
+        module = load("upload_frozen_dataset")
+        expected = {"manifest.json", "payload/data.bin"}
+        siblings = [
+            SimpleNamespace(rfilename="manifest.json", size=2),
+            SimpleNamespace(rfilename="payload/data.bin", size=3),
+            SimpleNamespace(rfilename=".gitattributes", size=11),
+        ]
+        generated = module.verify_hub_inventory(expected, siblings)
+        self.assertEqual(generated, [{"relative_path": ".gitattributes", "bytes": 11, "method": "hub_generated_lfs_routing_metadata"}])
+        with self.assertRaises(ValueError):
+            module.verify_hub_inventory(expected, [*siblings, SimpleNamespace(rfilename="unexpected.bin", size=1)])
+
     def test_manifest_paths_reject_drift(self) -> None:
         module = load("upload_frozen_dataset")
         with tempfile.TemporaryDirectory() as temporary:
