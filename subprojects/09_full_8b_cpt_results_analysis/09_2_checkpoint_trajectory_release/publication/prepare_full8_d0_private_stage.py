@@ -108,8 +108,10 @@ def payload_inventory(stage: Path) -> tuple[dict[str, dict[str, Any]], dict[str,
     schedule = read_json(schedule_path)
     require(schedule.get("status") == "completed", "schedule manifest is not completed")
     arms = schedule.get("arms")
-    require(isinstance(arms, list) and len(arms) == 1 and arms[0].get("arm_id") == "D0_mixed", "not an exact D0 schedule")
-    arm = arms[0]
+    require(isinstance(arms, list), "schedule manifest has no arm list")
+    d0_arms = [row for row in arms if isinstance(row, dict) and row.get("arm_id") == "D0_mixed"]
+    require(len(d0_arms) == 1, "schedule manifest does not contain exactly one D0 arm")
+    arm = d0_arms[0]
     require({key: int(value) for key, value in arm["pool_active_tokens"].items()} == {"H": EXPECTED_ACTIVE["hplt_new_greek"], "G": EXPECTED_ACTIVE["non_hplt_new_greek"], "F": EXPECTED_ACTIVE["foreign_replay"], "O": EXPECTED_ACTIVE["old_greek_replay"]}, "D0 schedule active tokens drift")
     add_bound_file(files, stage, schedule_path, hash_origin="release_finalizer")
     for key in ("active_tokens", "sequence_ids"):
