@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -48,6 +49,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--extra-valid-sets", required=True)
     parser.add_argument("--new-greek-valid-sets", required=True)
     parser.add_argument(
+        "--remaining-conservative-blocks",
+        type=int,
+        required=True,
+        help="sum of ceil(remaining segment updates / 256) for this allocation",
+    )
+    parser.add_argument(
+        "--checkpoint-reserve-seconds",
+        type=int,
+        required=True,
+        help="wall-time reserve retained after projected training",
+    )
+    parser.add_argument(
+        "--maximum-allocation-seconds",
+        type=int,
+        required=True,
+        help="exact requested wall time for the live allocation",
+    )
+    parser.add_argument(
         "--identity-only",
         action="store_true",
         help="validate the expanded qualification contract without requiring an allocation",
@@ -69,6 +88,9 @@ def scontrol_value(raw: str, key: str) -> str:
 
 def main() -> int:
     args = parse_args()
+    require(args.remaining_conservative_blocks > 0, "remaining block count must be positive")
+    require(args.checkpoint_reserve_seconds >= 0, "checkpoint reserve must be non-negative")
+    require(args.maximum_allocation_seconds > args.checkpoint_reserve_seconds, "allocation wall time must exceed the reserve")
     runner_src = args.canonical_runner_root.resolve() / "src"
     require(runner_src.is_dir(), "canonical runner source root missing")
     sys.path.insert(0, str(runner_src))
@@ -200,6 +222,7 @@ def main() -> int:
     subproject = (
         args.code_root.resolve() / "subprojects/08_targeted_8b_cpt_experiments"
     )
+    qualification_started = time.monotonic()
     subprocess.run(
         ["bash", str(subproject / "clariden/run_prelaunch_benchmark.sbatch")],
         check=True,
@@ -241,6 +264,51 @@ def main() -> int:
         "profile qualification did not pass",
     )
 
+    measurement = profile.get("measurement")
+    require(isinstance(measurement, dict), "profile measurement is missing")
+    production_cadence_wall_seconds = int(
+        measurement.get("production_cadence_wall_seconds", 0)
+    )
+    require(
+        production_cadence_wall_seconds > 0,
+        "profile production-cadence wall time is invalid",
+    )
+    qualification_elapsed_seconds = time.monotonic() - qualification_started
+    projected_training_seconds = (
+        1.15
+        * args.remaining_conservative_blocks
+        * production_cadence_wall_seconds
+    )
+    projected_total_seconds = (
+        qualification_elapsed_seconds
+        + projected_training_seconds
+        + args.checkpoint_reserve_seconds
+    )
+    budget_receipt = qualification_root / "allocation_budget_projection.json"
+    write_json_atomic(
+        budget_receipt,
+        {
+            "schema_version": "apertus_hard_h_to_g_first_allocation_budget_v1",
+            "status": "passed"
+            if projected_total_seconds <= args.maximum_allocation_seconds
+            else "rejected",
+            "campaign_id": args.campaign_id,
+            "contract_digest": args.contract_digest,
+            "qualification_elapsed_seconds": qualification_elapsed_seconds,
+            "candidate_production_cadence_wall_seconds": production_cadence_wall_seconds,
+            "remaining_conservative_blocks": args.remaining_conservative_blocks,
+            "conservative_multiplier": 1.15,
+            "projected_training_seconds": projected_training_seconds,
+            "checkpoint_reserve_seconds": args.checkpoint_reserve_seconds,
+            "maximum_allocation_seconds": args.maximum_allocation_seconds,
+            "projected_total_seconds": projected_total_seconds,
+        },
+    )
+    require(
+        projected_total_seconds <= args.maximum_allocation_seconds,
+        "candidate profile cannot finish the remaining run inside this allocation",
+    )
+
     slurm_receipt = qualification_root / "slurm_profile.json"
     write_json_atomic(
         slurm_receipt,
@@ -265,6 +333,7 @@ def main() -> int:
             "evidence": {
                 "profile_measurement": file_binding(profile_receipt),
                 "slurm_profile": file_binding(slurm_receipt),
+                "allocation_budget": file_binding(budget_receipt),
             },
         },
     )

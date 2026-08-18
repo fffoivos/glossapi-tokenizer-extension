@@ -19,15 +19,28 @@ For 1.5B (TP=1, microbatch=4), the accumulation count is
 For 8B (TP=2, microbatch=2), it is `1024 / (4 * nodes / 2 * 2)`; therefore
 4 and 8 nodes are legal, while 3 is not.
 
-## Result
+## Corrected minimum-profile decision
 
-| Scale | Fewer-node result | Selected candidate | Reason |
-| --- | --- | --- | --- |
-| 1.5B | 2 nodes is legal but requires at least 98.1% of ideal scaling after retaining the first-allocation qualification and reserve. | 4 nodes, TP=1, DP=16, microbatch=4, accumulation=16 | 2 nodes has only 649 seconds of conservative slack, so it cannot be promised to fit 12 hours. |
-| 8B | 2 nodes exceeds 12 hours even at ideal scaling; 3 nodes cannot preserve the global batch. Four nodes would require at least 82.3% of ideal scaling including first-allocation qualification. | 8 nodes, TP=2, DP=16, microbatch=2, accumulation=32 | 8 nodes needs only 41.1% of ideal scaling against the conservative budget. |
+The earlier version of this note incorrectly carried the 1.5B one-node
+qualification wall time into the two-node candidate estimate.  That is not a
+valid calculation: the qualification runs on the candidate profile and its
+actual elapsed time must be charged to that same allocation.
 
-The 1.5B observed one-node tail was about 25.12 seconds/update; the 8B
-16-node tail was about 8.67 seconds/update. These are inputs to the sizing
-calculation, not evidence that an unmeasured new profile is promoted. Each
-selected profile must qualify inside its first actual allocation before it
-continues canonical training.
+Let `W` be the candidate's measured 256-update production-cadence wall time,
+and `Q` the measured elapsed time for its restart checks plus that throughput
+window.  The 12-hour gate is deliberately evaluated only after `Q` exists:
+
+```
+Q + 1.15 * remaining_256_update_blocks * W + 1,200 seconds <= 43,200 seconds
+```
+
+| Scale | Smallest exact-batch geometry | Remaining blocks | Pre-measurement screen | Decision |
+| --- | --- | ---: | --- | --- |
+| 1.5B | 2 nodes, TP=1, DP=8, microbatch=4, accumulation=32 | 8 | At the ideal extrapolation from the frozen one-node 256-update wall (`W=3,692s`), the theoretical screen requires about 89.7% scaling efficiency. | Candidate; continue only if the live `Q`/`W` budget gate passes. |
+| 8B | 4 nodes, TP=2, DP=8, microbatch=2, accumulation=64 | 2 | At the ideal extrapolation from the measured 16-node wall (`W=10,472s`), the theoretical screen requires about 82.3% scaling efficiency. | Candidate; continue only if the live `Q`/`W` budget gate passes. |
+
+For 8B, two nodes cannot fit even under ideal scaling and three nodes cannot
+preserve the 1,024-sequence global batch.  A four-node candidate therefore is
+the smallest possible 8B profile.  The candidates are not promoted from these
+extrapolations: each first allocation measures `Q` and `W`, rejects itself if
+the full remaining run cannot fit, and only then enters canonical training.
