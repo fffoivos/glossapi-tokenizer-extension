@@ -88,8 +88,10 @@ The same Xfer-only release job stages two frozen training-data artifacts:
    [`fffoivos/apertus-8b-greek-cpt-modern-greek-train`](https://huggingface.co/datasets/fffoivos/apertus-8b-greek-cpt-modern-greek-train)
    contains only the exact selected Modern-Greek documents. It is reconstructed
    from the revision-pinned upstream v2 Parquet source, the selected training
-   catalogs, and per-document content hashes. It performs no extra
-   anonymization, deduplication, text transformation, or retokenization.
+   catalogs, and per-document content hashes. It preserves the source schema
+   and non-text metadata, while reproducing `text` with the exact
+   already-approved Apertus-parity PII masker used before training. It performs
+   no additional policy, deduplication, or retokenization pass.
 2. **Private:** `fffoivos/apertus-8b-greek-cpt-d0-full-mix` contains the exact
    portable packed 79/20/1 D0 payload, schedule, reader inputs, and provenance.
    It remains private because the replay-source redistribution matrix is not a

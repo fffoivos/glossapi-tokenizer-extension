@@ -110,7 +110,8 @@ class PublicIdentityTests(unittest.TestCase):
                 module.EXPECTED_DOCUMENTS = {"hplt_new_greek": 1, "non_hplt_new_greek": 1}
                 expected = []
                 for pool, doc_id, text in (("hplt_new_greek", "one", "άλφα"), ("non_hplt_new_greek", "two", "βήτα")):
-                    identity, content = module.source_identity(doc_id, text)
+                    identity, content, masked = module.source_identity(pool, doc_id, text)
+                    self.assertEqual(masked, text)
                     expected.append((pool, identity, content))
                     catalog = stage / "inventory/catalog" / f"{pool}.source_local_selected.catalog45"
                     catalog.parent.mkdir(parents=True, exist_ok=True)
@@ -123,6 +124,28 @@ class PublicIdentityTests(unittest.TestCase):
                 self.assertEqual(selected[expected[0][1]], (expected[0][2], "hplt_new_greek"))
             finally:
                 module.EXPECTED_DOCUMENTS = original_docs
+
+    def test_identity_is_bridge_docv2_plus_exact_masked_text(self) -> None:
+        module = load("export_public_modern_greek_train")
+        source_dataset, source_doc_id = "openarchives", "thesis-42"
+        raw = "Mail me at test@example.org from 192.0.2.1."
+        payload = {
+            "components": [["source_dataset", source_dataset], ["source_doc_id", source_doc_id]],
+            "contract": "full-cpt-document-identity-v2",
+            "identity_scope": "global",
+            "source_name": "cleaned_greek_v2",
+        }
+        expected_doc_id = "docv2:" + hashlib.sha256(
+            json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        self.assertEqual(module.training_document_id(source_dataset, source_doc_id), expected_doc_id)
+        identity, text_sha, masked = module.source_identity(source_dataset, source_doc_id, raw)
+        self.assertEqual(masked, "Mail me at <email-pii> from <ip-pii>.")
+        self.assertEqual(text_sha, hashlib.sha256(masked.encode("utf-8")).digest())
+        self.assertEqual(
+            identity,
+            hashlib.sha256(expected_doc_id.encode("utf-8") + b"\0" + text_sha).digest()[:16],
+        )
 
 
 class HubInventoryTests(unittest.TestCase):

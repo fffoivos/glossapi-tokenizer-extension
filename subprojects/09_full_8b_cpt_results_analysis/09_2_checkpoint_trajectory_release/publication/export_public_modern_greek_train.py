@@ -3,15 +3,17 @@
 
 The source is revision-pinned ``glossapi-greek-nanochat-pretraining-dataset-v2``.
 Selection is rebuilt solely from the full-8B stage's immutable catalog45 and
-content57 evidence.  Rows retain the source schema and values verbatim; an
-identity or text-hash mismatch fails rather than silently applying a new
-deduplication or anonymization policy.
+content57 evidence. Rows retain the source schema and non-text metadata; the
+``text`` field is reproduced through the exact already-approved training-time
+PII masker. An identity or text-hash mismatch fails rather than silently
+applying a new deduplication or anonymization policy.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import multiprocessing as mp
 import os
@@ -24,9 +26,12 @@ CONTENT_BYTES = 57
 EXPECTED_DOCUMENTS = {"hplt_new_greek": 46_535_439, "non_hplt_new_greek": 3_086_052}
 EXPECTED_ACTIVE_TOKENS = {"hplt_new_greek": 41_512_804_679, "non_hplt_new_greek": 19_068_732_797}
 EXPECTED_REPO = "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2"
+DOCUMENT_ID_CONTRACT = "full-cpt-document-identity-v2"
+SOURCE_NAME = "cleaned_greek_v2"
 
 # Under Linux ``fork`` lets many Parquet workers share the read-only table.
 _EXPECTED: dict[bytes, tuple[bytes, str]] | None = None
+_MASK = None
 
 
 def require(condition: bool, message: str) -> None:
@@ -84,12 +89,47 @@ def selected_expected(stage_root: Path) -> dict[bytes, tuple[bytes, str]]:
     return result
 
 
-def source_identity(source_doc_id: Any, text: Any) -> tuple[bytes, bytes]:
-    require(source_doc_id is not None and text is not None, "source row has null source_doc_id or text")
-    text_bytes = str(text).encode("utf-8")
+def load_masker():
+    """Load the exact Apertus-parity masker frozen with the release code."""
+    global _MASK
+    if _MASK is None:
+        root = Path(__file__).resolve().parents[4]
+        path = root / "subprojects/05_token_distillation_cpt/02_corpus_preparation/40_anonymize/scripts/pii_masker.py"
+        require(path.is_file(), f"frozen PII masker is missing: {path}")
+        spec = importlib.util.spec_from_file_location("full8_release_pii_masker", path)
+        require(spec is not None and spec.loader is not None, "cannot load frozen PII masker")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _MASK = module.mask
+    return _MASK
+
+
+def training_document_id(source_dataset: Any, source_doc_id: Any) -> str:
+    """Reproduce the bridge's global docv2 identity for the v2 Greek source."""
+    require(source_dataset is not None and source_doc_id is not None, "source row has null identity column")
+    components = []
+    for key, value in (("source_dataset", source_dataset), ("source_doc_id", source_doc_id)):
+        if value is not None and str(value):
+            components.append([key, str(value)])
+    require(components, "source row has no usable identity components")
+    payload = {
+        "contract": DOCUMENT_ID_CONTRACT,
+        "source_name": SOURCE_NAME,
+        "identity_scope": "global",
+        "components": components,
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return "docv2:" + hashlib.sha256(encoded).hexdigest()
+
+
+def source_identity(source_dataset: Any, source_doc_id: Any, text: Any) -> tuple[bytes, bytes, str]:
+    require(text is not None, "source row has null text")
+    document_id = training_document_id(source_dataset, source_doc_id)
+    masked_text, _ = load_masker()(str(text))
+    text_bytes = masked_text.encode("utf-8")
     text_sha = hashlib.sha256(text_bytes).digest()
-    identity = hashlib.sha256(str(source_doc_id).encode("utf-8") + b"\0" + text_sha).digest()[:16]
-    return identity, text_sha
+    identity = hashlib.sha256(document_id.encode("utf-8") + b"\0" + text_sha).digest()[:16]
+    return identity, text_sha, masked_text
 
 
 def _init_worker(expected: dict[bytes, tuple[bytes, str]]) -> None:
@@ -107,8 +147,8 @@ def export_one(task: tuple[str, str, int]) -> dict[str, Any]:
 
     reader = pq.ParquetFile(source)
     names = reader.schema_arrow.names
-    require("source_doc_id" in names and "text" in names, f"source schema lacks exact identity columns: {source}")
-    source_index, text_index = names.index("source_doc_id"), names.index("text")
+    require({"source_dataset", "source_doc_id", "text"}.issubset(names), f"source schema lacks exact identity columns: {source}")
+    dataset_index, source_index, text_index = names.index("source_dataset"), names.index("source_doc_id"), names.index("text")
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = output.with_name(output.name + ".partial")
     writer: pq.ParquetWriter | None = None
@@ -116,10 +156,11 @@ def export_one(task: tuple[str, str, int]) -> dict[str, Any]:
     matched = 0
     try:
         for batch in reader.iter_batches(batch_size=batch_size):
-            doc_ids, texts = batch.column(source_index), batch.column(text_index)
+            datasets, doc_ids, texts = batch.column(dataset_index), batch.column(source_index), batch.column(text_index)
             rows: list[int] = []
+            masked_texts: list[str] = []
             for index in range(batch.num_rows):
-                identity, text_sha = source_identity(doc_ids[index].as_py(), texts[index].as_py())
+                identity, text_sha, masked = source_identity(datasets[index].as_py(), doc_ids[index].as_py(), texts[index].as_py())
                 binding = expected.get(identity)
                 if binding is None:
                     continue
@@ -127,8 +168,11 @@ def export_one(task: tuple[str, str, int]) -> dict[str, Any]:
                 counts[binding[1]] += 1
                 matched += 1
                 rows.append(index)
+                masked_texts.append(masked)
             if rows:
-                table = pa.Table.from_batches([batch.take(pa.array(rows, type=pa.int64()))])
+                selected = batch.take(pa.array(rows, type=pa.int64()))
+                selected = selected.set_column(text_index, "text", pa.array(masked_texts, type=selected.column(text_index).type))
+                table = pa.Table.from_batches([selected])
                 if writer is None:
                     writer = pq.ParquetWriter(temporary, table.schema, compression="zstd")
                 writer.write_table(table)
@@ -187,19 +231,19 @@ def export(args: argparse.Namespace) -> dict[str, Any]:
     readme = "\n".join((
         "---", "language: el", "license: apache-2.0", "---", "",
         "# Exact Modern-Greek training content for Apertus 8B Greek CPT", "",
-        "This is the public Modern-Greek, train-only document snapshot selected for the full 8B D0 continued-pretraining run. It preserves the upstream v2 schema and row values; selection is reconstructed from the immutable post-mask training catalogs and content hashes. It contains no replay payload.", "",
+        "This is the public Modern-Greek, train-only document snapshot selected for the full 8B D0 continued-pretraining run. It preserves the upstream v2 schema and metadata; `text` is reproduced as its exact training-time Apertus-parity PII-masked value. Selection is reconstructed from immutable post-mask training catalogs and content hashes. It contains no replay payload.", "",
         "## Exact selected content", "",
         f"- HPLT Modern Greek: {EXPECTED_DOCUMENTS['hplt_new_greek']:,} documents; {EXPECTED_ACTIVE_TOKENS['hplt_new_greek']:,} active training tokens.",
         f"- GlossAPI/non-HPLT Modern Greek: {EXPECTED_DOCUMENTS['non_hplt_new_greek']:,} documents; {EXPECTED_ACTIVE_TOKENS['non_hplt_new_greek']:,} active training tokens.",
         f"- Total: {sum(EXPECTED_DOCUMENTS.values()):,} documents; {sum(EXPECTED_ACTIVE_TOKENS.values()):,} active training tokens.", "",
         "## Processing and provenance", "",
-        "The upstream corpus was revision-pinned. The training workflow applied heldout exclusion, GreekMMLU decontamination, Apertus-standard PII masking, and global exact post-mask deduplication before tokenization. This release does not perform an additional anonymization, deduplication, text transformation, or retokenization; it only selects the exact Modern-Greek documents that the frozen training catalogs identify.", "",
+        "The upstream corpus was revision-pinned. The training workflow applied heldout exclusion, GreekMMLU decontamination, Apertus-standard email/IP/validated-IBAN masking, and global exact post-mask deduplication before tokenization. This release reapplies that frozen masking function only to reproduce the selected training text; it does not introduce another policy, deduplication, or retokenization pass.", "",
         "The companion private dataset `fffoivos/apertus-8b-greek-cpt-d0-full-mix` contains the complete packed 79/20/1 mixture and its restricted replay provenance. This public dataset does not grant redistribution rights for those replay sources.", "",
     ))
     (output / "README.md").write_text(readme, encoding="utf-8")
     inventory = [{"relative_path": path.relative_to(output).as_posix(), "bytes": path.stat().st_size, "sha256": sha256_file(path)} for path in generated]
     source_binding = {"path": str(args.source_receipt.resolve()), "sha256": sha256_file(args.source_receipt), "resolved_revision": receipt["resolved_revision"]}
-    manifest = {"schema_version": "apertus_full8_modern_greek_train_snapshot_v1", "status": "verified", "visibility": "public", "source": source_binding, "training_stage": {"path": str(stage_root), "catalogs": ["inventory/catalog/hplt_new_greek.source_local_selected.catalog45", "inventory/catalog/non_hplt_new_greek.source_local_selected.catalog45"], "content_receipt": "inventory/raw/modern.content57"}, "selection": {"row_counts": counts, "active_tokens": EXPECTED_ACTIVE_TOKENS, "total_documents": sum(counts.values()), "total_active_tokens": sum(EXPECTED_ACTIVE_TOKENS.values()), "identity": "sha256(str(source_doc_id) UTF-8 || NUL || sha256(text UTF-8))[:16]", "content_hash_verified": True}, "upload_payload_inventory": [{"relative_path": "README.md", "bytes": (output / "README.md").stat().st_size, "sha256": sha256_file(output / "README.md")}, *inventory], "shards": sorted(outputs, key=lambda row: row["source_relative_path"])}
+    manifest = {"schema_version": "apertus_full8_modern_greek_train_snapshot_v1", "status": "verified", "visibility": "public", "source": source_binding, "training_stage": {"path": str(stage_root), "catalogs": ["inventory/catalog/hplt_new_greek.source_local_selected.catalog45", "inventory/catalog/non_hplt_new_greek.source_local_selected.catalog45"], "content_receipt": "inventory/raw/modern.content57"}, "selection": {"row_counts": counts, "active_tokens": EXPECTED_ACTIVE_TOKENS, "total_documents": sum(counts.values()), "total_active_tokens": sum(EXPECTED_ACTIVE_TOKENS.values()), "document_id": "docv2:canonical_sha256(full-cpt-document-identity-v2, cleaned_greek_v2, global(source_dataset,source_doc_id))", "identity": "sha256(docv2 UTF-8 || NUL || sha256(Apertus-parity PII-masked text UTF-8))[:16]", "content_hash_verified": True}, "upload_payload_inventory": [{"relative_path": "README.md", "bytes": (output / "README.md").stat().st_size, "sha256": sha256_file(output / "README.md")}, *inventory], "shards": sorted(outputs, key=lambda row: row["source_relative_path"])}
     write_json(output / "manifest.json", manifest)
     return manifest
 
