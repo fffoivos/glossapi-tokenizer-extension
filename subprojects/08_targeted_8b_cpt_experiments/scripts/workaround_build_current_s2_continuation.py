@@ -109,6 +109,42 @@ def resolve_source_binding(value: Any, *, source_directory: Path, label: str) ->
     return resolved
 
 
+def portable_relative_path(value: str, *, label: str) -> Path:
+    path = Path(value)
+    if path.is_absolute() or ".." in path.parts or path == Path("."):
+        raise ValueError(f"{label} must be a portable non-empty relative path")
+    return path
+
+
+def prepared_gate_sources(training_manifest: Path) -> list[tuple[Path, Path, dict[str, Any]]]:
+    """Return the small receipt closure required to verify a data manifest."""
+
+    manifest = read_json(training_manifest)
+    root_value = str(manifest.get("root", "."))
+    root = Path(root_value)
+    if root_value != ".":
+        root = portable_relative_path(root_value, label="training_data_manifest.root")
+    else:
+        root = Path(".")
+    datasets = manifest.get("datasets")
+    if not isinstance(datasets, list) or not datasets:
+        raise ValueError("training_data_manifest lacks datasets")
+    sources: list[tuple[Path, Path, dict[str, Any]]] = []
+    for dataset in datasets:
+        if not isinstance(dataset, dict):
+            raise ValueError("training_data_manifest dataset is not an object")
+        gate = dataset.get("prepared_gate")
+        if not isinstance(gate, dict) or not isinstance(gate.get("path"), str):
+            raise ValueError("training_data_manifest lacks prepared_gate binding")
+        relative = portable_relative_path(gate["path"], label="prepared_gate.path")
+        source_directory = training_manifest.parent / root
+        source = resolve_source_binding(
+            gate, source_directory=source_directory, label=f"prepared_gate:{dataset.get('id', '?')}"
+        )
+        sources.append((root / relative, Path(source["path"]), source))
+    return sources
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-campaign", type=Path, required=True)
@@ -145,6 +181,7 @@ def main() -> int:
         source_directory=args.source_campaign.parent,
         label="training_data_manifest",
     )
+    gate_sources = prepared_gate_sources(Path(training_data_manifest["path"]))
 
     continuation = json.loads(json.dumps(campaign))
     continuation["campaign_id"] = f"{campaign['campaign_id']}-current-s2-continuation-v1"
@@ -196,6 +233,14 @@ def main() -> int:
     atomic_copy(Path(training_data_manifest["path"]), continuation_manifest_path)
     if binding(continuation_manifest_path)["sha256"] != training_data_manifest["sha256"]:
         raise ValueError("copied training_data_manifest hash mismatch")
+    copied_prepared_gates: list[dict[str, Any]] = []
+    for relative, source, source_binding in gate_sources:
+        destination = args.output_root / relative
+        atomic_copy(source, destination)
+        copied = binding(destination)
+        if copied["sha256"] != source_binding["sha256"]:
+            raise ValueError(f"copied prepared gate hash mismatch: {relative}")
+        copied_prepared_gates.append(copied)
     atomic_json(campaign_path, continuation)
     atomic_json(runtime_path, runtime_candidate)
     atomic_json(evaluation_path, continuation_evaluation)
@@ -218,6 +263,7 @@ def main() -> int:
             "runtime_candidate": binding(runtime_path),
             "evaluation": binding(evaluation_path),
             "training_data_manifest": binding(continuation_manifest_path),
+            "prepared_gates": copied_prepared_gates,
         },
         "invariants": {
             "train_argv_unchanged": continuation_science["train_argv"] == science["train_argv"],
@@ -226,6 +272,7 @@ def main() -> int:
             "s2_load_checkpoint_rebound_to_recovery_permit": continuation_segments[0]["load_checkpoint"] == str(checkpoint_path),
             "entrypoint_added_from_existing_train_argv": True,
             "training_data_manifest_rebound_without_content_change": True,
+            "prepared_gate_receipts_rebound_without_content_change": True,
             "evaluation_milestones_restricted_to_continuation_horizon": True,
             "no_dataset_transformation_performed": True,
         },
