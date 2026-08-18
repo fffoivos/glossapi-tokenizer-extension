@@ -26,9 +26,10 @@ from producer_bundle_compatibility import SCHEMA, validate_authority
 # anonymization, tokenization, packing, model geometry, or optimization.
 ALLOWED_CHANGED_PATHS = frozenset(
     {
-        # Operational verifier bootstrap only: absolute-path workers run with
-        # PYTHONSAFEPATH=1 and must add this script's own production directory
-        # before importing campaign_contract.  No scientific input changes.
+        # Operational bundle tooling only: absolute-path workers run with
+        # PYTHONSAFEPATH=1, so the verifier and freezer are intentionally
+        # self-contained.  No scientific input changes.
+        "subprojects/06_dataset_scheduling_experiments/production/freeze_code_bundle.py",
         "subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py",
         # The deployment patch changes only the historical launch wrapper's
         # uenv mounting syntax (uenv-run-around-srun to the CSCS-supported
