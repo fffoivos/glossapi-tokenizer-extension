@@ -60,7 +60,13 @@ def inventory_check(
 ) -> list[dict[str, Any]]:
     actual = {str(item.rfilename): item for item in siblings}
     wanted = {str(row["relative_path"]): row for row in expected}
-    require(set(actual) == set(wanted), f"Hub file inventory differs from frozen checkpoint: missing={sorted(set(wanted) - set(actual))}, extra={sorted(set(actual) - set(wanted))}")
+    # The Hub creates this LFS routing file when a repository first receives
+    # a large object. It is platform metadata rather than release payload;
+    # record it separately while rejecting every other unexpected object.
+    hub_generated = {".gitattributes"}
+    missing = set(wanted) - set(actual)
+    extra = set(actual) - set(wanted) - hub_generated
+    require(not missing and not extra, f"Hub file inventory differs from frozen checkpoint: missing={sorted(missing)}, extra={sorted(extra)}")
     checked: list[dict[str, Any]] = []
     for relative, row in sorted(wanted.items()):
         sibling = actual[relative]
@@ -77,6 +83,9 @@ def inventory_check(
             require(sha256_file(local) == row["sha256"], f"Hub content SHA-256 drift: {relative}")
             method = "downloaded_content_sha256"
         checked.append({"relative_path": relative, "bytes": expected_bytes, "sha256": row["sha256"], "method": method})
+    generated = sorted(set(actual) & hub_generated)
+    if generated:
+        checked.append({"relative_path": ".gitattributes", "bytes": int(getattr(actual[".gitattributes"], "size", 0) or 0), "sha256": None, "method": "hub_generated_lfs_routing_metadata"})
     return checked
 
 

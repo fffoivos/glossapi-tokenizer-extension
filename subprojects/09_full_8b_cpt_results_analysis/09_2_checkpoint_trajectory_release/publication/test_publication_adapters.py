@@ -131,9 +131,9 @@ class HubInventoryTests(unittest.TestCase):
             small = root / "README.md"
             small.write_text("ok", encoding="utf-8")
             large_sha = hashlib.sha256(b"large").hexdigest()
-            siblings = [SimpleNamespace(rfilename="README.md", size=2, lfs=None), SimpleNamespace(rfilename="model.safetensors", size=5, lfs=SimpleNamespace(oid=large_sha))]
+            siblings = [SimpleNamespace(rfilename="README.md", size=2, lfs=None), SimpleNamespace(rfilename="model.safetensors", size=5, lfs=SimpleNamespace(oid=large_sha)), SimpleNamespace(rfilename=".gitattributes", size=1, lfs=None)]
             checked = module.inventory_check([{"relative_path": "README.md", "bytes": 2, "sha256": module.sha256_file(small)}, {"relative_path": "model.safetensors", "bytes": 5, "sha256": large_sha}], siblings, lambda name: small if name == "README.md" else (_ for _ in ()).throw(AssertionError(name)))
-            self.assertEqual([row["method"] for row in checked], ["downloaded_content_sha256", "hub_lfs_oid"])
+            self.assertEqual([row["method"] for row in checked], ["downloaded_content_sha256", "hub_lfs_oid", "hub_generated_lfs_routing_metadata"])
 
 
 class DatasetManifestTests(unittest.TestCase):
