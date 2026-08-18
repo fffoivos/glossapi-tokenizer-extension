@@ -1,6 +1,6 @@
 # The canonical replay xfer environment pins the Hub client and its transport.
 # Resolve this relative include from the immutable Clariden release bundle.
--r ../../../../canonical/configs/replay_xfer_requirements.txt
+-r ../../../../../canonical/configs/replay_xfer_requirements.txt
 
 # Parquet reconstruction preserves the public source schema and values.
 pyarrow==21.0.0
