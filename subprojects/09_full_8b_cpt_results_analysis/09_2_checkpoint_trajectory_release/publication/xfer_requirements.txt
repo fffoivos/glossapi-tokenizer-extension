@@ -3,4 +3,5 @@
 -r ../../../../../canonical/configs/replay_xfer_requirements.txt
 
 # Parquet reconstruction preserves the public source schema and values.
-pyarrow==21.0.0
+pyarrow==21.0.0 \
+    --hash=sha256:40ebfcb54a4f11bcde86bc586cbd0272bac0d516cfa539c799c2453768477569
