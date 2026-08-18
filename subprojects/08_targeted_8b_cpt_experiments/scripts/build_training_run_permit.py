@@ -133,14 +133,22 @@ def main() -> int:
             and str(profile_authority.get("floor_lr")) == "5.5e-6",
             "first-allocation qualification LR drift",
         )
+        # The profile-benchmark schema records dimensions that can vary. PP
+        # and CP are fixed at one throughout this experiment and are therefore
+        # deliberately absent from its frozen benchmark contract.
         profile = {
-            field: profile_authority[field]
-            for field in (
-                "profile_id", "nodes", "gpus_per_node", "tensor_parallel",
-                "pipeline_parallel", "context_parallel", "data_parallel",
-                "microbatch", "gradient_accumulation_microbatches",
-                "global_batch_sequences",
-            )
+            "profile_id": profile_authority["profile_id"],
+            "nodes": profile_authority["nodes"],
+            "gpus_per_node": profile_authority["gpus_per_node"],
+            "tensor_parallel": profile_authority["tensor_parallel"],
+            "pipeline_parallel": 1,
+            "context_parallel": 1,
+            "data_parallel": profile_authority["data_parallel"],
+            "microbatch": profile_authority["microbatch"],
+            "gradient_accumulation_microbatches": profile_authority[
+                "gradient_accumulation_microbatches"
+            ],
+            "global_batch_sequences": profile_authority["global_batch_sequences"],
         }
     nodes = int(profile.get("nodes", 0))
     tp = int(profile.get("tensor_parallel", 0))
