@@ -43,7 +43,6 @@ query_builder_sources=(
   subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/native_greek_benchmark_registry.json
 )
 historical_tokenizer_source=$repo_root/subprojects/03_apertus_extension_and_embedding_adaptation/03_3_cscs_experiments_kickoff/ship/apertus_greek_modern_only_148480
-pii_masker_source=$repo_root/subprojects/05_token_distillation_cpt/02_corpus_preparation/40_anonymize/scripts/pii_masker.py
 pii_masker_sha256=8f489a175aeb47f2c0996431a9d1c6f93ec03d4f52d9ea33621b76facfc0e83c
 init_bakeoff_root=$repo_root/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff
 td_tools_source=$init_bakeoff_root/token_distillation
@@ -96,10 +95,6 @@ for training_relative in \
     echo "training source is dirty: $training_relative" >&2; exit 2;
   }
 done
-[[ "$(shasum -a 256 "$pii_masker_source" | awk '{print $1}')" == "$pii_masker_sha256" ]] || {
-  echo "published v2 Stage-B masker drift: $pii_masker_source" >&2
-  exit 2
-}
 [[ -d "$native_eval_worktree/$native_eval_relative" ]] || {
   echo "native-suite evaluation source is missing: $native_eval_worktree/$native_eval_relative" >&2
   exit 2
@@ -222,7 +217,6 @@ done
 ssh -o BatchMode=yes clariden mkdir -p "$remote_root/frozen_historical_dataset_tools"
 rsync -a "$repo_root/subprojects/05_token_distillation_cpt/03_training_experiments/dataset_build/hplt_clean.py" \
   "clariden:$remote_root/frozen_historical_dataset_tools/hplt_clean.py"
-rsync -a "$pii_masker_source" "clariden:$remote_root/frozen_historical_dataset_tools/pii_masker.py"
 rsync -a "$repo_root/$packing_builder_test" "clariden:$remote_root/$packing_builder_test"
 
 ssh -o BatchMode=yes clariden /usr/bin/env \
@@ -233,6 +227,11 @@ extra_valid_patch="$REMOTE_ROOT/subprojects/06_dataset_scheduling_experiments/tr
 [[ -f "$extra_valid_patch" ]] || { echo "proven base lacks named extra-validation patch" >&2; exit 2; }
 [[ "$(sha256sum "$extra_valid_patch" | awk '{print $1}')" == "2e6810fa8b6c25597ccb3bcb9dc1ff5bf843ead2337e3edde0344605a23ec4c6" ]] || {
   echo "proven-base extra-validation patch drift" >&2; exit 2;
+}
+pii_masker="$REMOTE_ROOT/frozen_historical_dataset_tools/pii_masker.py"
+[[ -f "$pii_masker" ]] || { echo "proven base lacks pinned PII masker" >&2; exit 2; }
+[[ "$(sha256sum "$pii_masker" | awk '{print $1}')" == "8f489a175aeb47f2c0996431a9d1c6f93ec03d4f52d9ea33621b76facfc0e83c" ]] || {
+  echo "proven-base PII masker drift" >&2; exit 2;
 }
 target_train="$REMOTE_ROOT/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch"
 if ! grep -q 'FULL8_BENCHMARK_BASE_ITERATION' "$target_train"; then
