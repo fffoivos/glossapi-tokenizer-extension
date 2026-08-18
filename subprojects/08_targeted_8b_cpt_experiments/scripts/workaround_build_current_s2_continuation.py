@@ -115,6 +115,27 @@ def main() -> int:
     continuation_segments = continuation["segments"][s2_index:]
     continuation_segments[0]["load_checkpoint"] = str(checkpoint_path)
     continuation["segments"] = continuation_segments
+    continuation["legacy_continuation"] = {
+        "source_manifest": binding(args.source_campaign),
+        "recovery_permit": binding(args.recovery_permit),
+        "preserve_train_argv": True,
+    }
+
+    minimum = int(continuation_segments[0]["start_iteration"])
+    maximum = int(continuation_segments[-1]["end_iteration"])
+    continuation_evaluation = json.loads(json.dumps(evaluation))
+    continuation_evaluation["evaluators"] = [
+        {
+            **row,
+            "milestone_iterations": [
+                value
+                for value in row["milestone_iterations"]
+                if minimum <= int(value) <= maximum
+            ],
+        }
+        for row in continuation_evaluation["evaluators"]
+        if any(minimum <= int(value) <= maximum for value in row["milestone_iterations"])
+    ]
 
     runtime_candidate = json.loads(json.dumps(runtime))
     runtime_candidate["status"] = "candidate"
@@ -126,7 +147,7 @@ def main() -> int:
     evaluation_path = args.output_root / "evaluation.json"
     atomic_json(campaign_path, continuation)
     atomic_json(runtime_path, runtime_candidate)
-    atomic_json(evaluation_path, evaluation)
+    atomic_json(evaluation_path, continuation_evaluation)
     receipt = {
         "schema_version": SCHEMA,
         "status": "passed",
@@ -151,6 +172,7 @@ def main() -> int:
             "s2_and_later_segment_overrides_unchanged": continuation_segments[0]["argv_overrides"] == segments[s2_index]["argv_overrides"],
             "only_s2_load_checkpoint_changed": continuation_segments[0]["load_checkpoint"] == str(checkpoint_path),
             "entrypoint_added_from_existing_train_argv": True,
+            "evaluation_milestones_restricted_to_continuation_horizon": True,
             "no_dataset_transformation_performed": True,
         },
     }
