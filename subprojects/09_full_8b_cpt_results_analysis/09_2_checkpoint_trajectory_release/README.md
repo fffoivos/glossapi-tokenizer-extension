@@ -102,3 +102,8 @@ separate explicit decision can make the model repository public.
 All preparation, hash sweeping, Parquet reconstruction, and Hugging Face
 transfers run on a captured **Xfer** allocation. The normal checkpoint-
 evaluation allocation is not used for release preparation.
+
+The Xfer Python environment is an immutable x86 virtual environment whose
+receipt binds the canonical replay/HF dependency lock plus the pinned Parquet
+writer. It is created and verified on the captured Xfer node, never copied
+from the Mac or a GPU UENV.
