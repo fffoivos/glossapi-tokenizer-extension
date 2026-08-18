@@ -66,7 +66,9 @@ class PrivateD0StageTests(unittest.TestCase):
             receipt_path = output / "payload_sha256_verification.json"
             verified = module.verify(SimpleNamespace(output_stage=output, output=receipt_path))
             self.assertEqual(verified["status"], "passed")
-            self.assertEqual(json.loads((output / "manifest.json").read_text())["status"], "verified_payload_hashes")
+            manifest = json.loads((output / "manifest.json").read_text())
+            self.assertEqual(manifest["status"], "verified_payload_hashes")
+            self.assertTrue(all(isinstance(row["sha256"], str) and len(row["sha256"]) == 64 for row in manifest["upload_payload_inventory"]))
 
 
 class PrivateModelPlanTests(unittest.TestCase):

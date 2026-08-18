@@ -196,8 +196,17 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
         if expected is not None:
             require(observed == expected, f"payload checksum drift: {relative}")
         verified.append({"relative_path": relative.as_posix(), "bytes": path.stat().st_size, "sha256": observed, "prior_hash_origin": row.get("hash_origin")})
-    receipt = {"schema_version": "apertus_full8_d0_private_payload_hash_verification_v1", "status": "passed", "manifest_sha256": sha256_file(manifest_path), "files": verified}
+    receipt = {"schema_version": "apertus_full8_d0_private_payload_hash_verification_v1", "status": "passed", "manifest_sha256_before_verification": sha256_file(manifest_path), "files": verified}
     write_json(args.output, receipt)
+    verified_by_path = {str(row["relative_path"]): row for row in verified}
+    manifest["upload_payload_inventory"] = [
+        {
+            **row,
+            "sha256": verified_by_path[str(row["relative_path"])]["sha256"],
+            "hash_origin": "release_payload_sha256_verification",
+        }
+        for row in rows
+    ]
     manifest["status"] = "verified_payload_hashes"
     manifest["hash_verification"] = {"required_before_upload": True, "receipt": str(args.output.resolve()), "sha256": sha256_file(args.output)}
     write_json(manifest_path, manifest)
