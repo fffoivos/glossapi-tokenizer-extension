@@ -1,6 +1,6 @@
 {
   "schema_version": "apertus_hard_h_to_g_allocation_v1",
-  "status": "candidate_4node_profiles_pending_first_allocation_qualification",
+  "status": "candidate_minimum_defensible_profiles_pending_first_allocation_qualification",
   "account": "a0140",
   "uenv": "pytorch/v2.9.1:v2",
   "allocation_limit_seconds": 43200,
@@ -22,9 +22,9 @@
   "profiles": {
     "8b": {
       "status": "candidate",
-      "profile_id": "8b_tp2_dp8_4node",
+      "profile_id": "hard_h2g_8b_tp2_dp16_8node",
       "partition": "normal",
-      "nodes": 4,
+      "nodes": 8,
       "gpus_per_node": 4,
       "ntasks_per_node": 4,
       "gpus_per_task": 1,
@@ -33,7 +33,7 @@
       "tensor_parallel": 2,
       "pipeline_parallel": 1,
       "context_parallel": 1,
-      "data_parallel": 8,
+      "data_parallel": 16,
       "microbatch": 2,
       "global_batch_sequences": 1024,
       "exclusive": true,
@@ -41,21 +41,7 @@
     },
     "1p5b_candidates": [
       {
-        "profile_id": "1p5b_tp1_1node_mb8",
-        "partition": "normal",
-        "nodes": 1,
-        "gpus_per_node": 4,
-        "ntasks_per_node": 4,
-        "tensor_parallel": 1,
-        "pipeline_parallel": 1,
-        "context_parallel": 1,
-        "data_parallel": 4,
-        "microbatch": 8,
-        "gradient_accumulation_microbatches": 32,
-        "status": "unmeasured"
-      },
-      {
-        "profile_id": "1p5b_tp1_2node_mb8",
+        "profile_id": "hard_h2g_1p5b_tp1_dp8_2node_mb4",
         "partition": "normal",
         "nodes": 2,
         "gpus_per_node": 4,
@@ -64,12 +50,12 @@
         "pipeline_parallel": 1,
         "context_parallel": 1,
         "data_parallel": 8,
-        "microbatch": 8,
-        "gradient_accumulation_microbatches": 16,
-        "status": "unmeasured"
+        "microbatch": 4,
+        "gradient_accumulation_microbatches": 32,
+        "status": "legal_but_not_12h_defensible"
       },
       {
-        "profile_id": "1p5b_tp1_dp16_4node_mb4",
+        "profile_id": "hard_h2g_1p5b_tp1_dp16_4node",
         "partition": "normal",
         "nodes": 4,
         "gpus_per_node": 4,
@@ -80,7 +66,7 @@
         "data_parallel": 16,
         "microbatch": 4,
         "gradient_accumulation_microbatches": 16,
-        "status": "unmeasured"
+        "status": "selected_minimum_defensible_candidate"
       }
     ],
     "common_rank_binding": {
