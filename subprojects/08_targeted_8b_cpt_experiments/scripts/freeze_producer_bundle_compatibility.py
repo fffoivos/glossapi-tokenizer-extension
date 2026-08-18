@@ -85,6 +85,11 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/clariden/tokenize_phase3_stream_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/configs/1p5b_tokenizer_compatibility_v1.json",
         "subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_allocation_v1.json",
+        # The resized profiles remain within the fixed global batch and use
+        # first-allocation qualification. These are declaration/evidence
+        # assets only; they do not change prepared data or the recipe.
+        "subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_allocation_v3_minimum_defensible.json",
+        "subprojects/08_targeted_8b_cpt_experiments/ALLOCATION_GEOMETRY_DECISION_20260818.md",
         "subprojects/08_targeted_8b_cpt_experiments/runtime_compat/sitecustomize.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/adopt_canonical_pre_main_data.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/audit_training_checkpoint.py",
@@ -120,6 +125,7 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/scripts/patch_bakeoff_runtime_compat.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/run_canonical_train_segment.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/run_in_allocation_profile_qualification.py",
+        "subprojects/08_targeted_8b_cpt_experiments/scripts/workaround_parameterized_profile_qualification.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/td_coverage_prepass_batched.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/verify_td_initialization.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/verify_td_xfer_runtime.py",
