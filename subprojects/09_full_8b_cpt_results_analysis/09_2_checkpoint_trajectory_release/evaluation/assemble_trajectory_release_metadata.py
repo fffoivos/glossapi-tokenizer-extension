@@ -13,6 +13,8 @@ from typing import Any
 
 TOKENS_PER_UPDATE = 4_194_304
 REPOSITORY_ID = "fffoivos/apertus-8b-greek-cpt"
+PUBLIC_TRAIN_REPOSITORY_ID = "fffoivos/apertus-8b-greek-cpt-modern-greek-train"
+PRIVATE_FULL_MIX_REPOSITORY_ID = "fffoivos/apertus-8b-greek-cpt-d0-full-mix"
 PARENT = {"repo_id": "swiss-ai/Apertus-8B-2509", "revision": "3162c99675aa588097cecd4a24b9aa1f712af477"}
 TOKENIZER = {"repo_id": "fffoivos/apertus-tokenizer-extension", "sha256": "acf4d5c6a8aa0cc64c9c781c203fd6dbb4581b0124cca0a76a9e10322fd81092"}
 NATIVE_COUNTS = {
@@ -146,7 +148,19 @@ def format_number(value: float | None, *, percent: bool = False) -> str:
     return f"{100 * value:.2f}%" if percent else f"{value:.4f}"
 
 
-def card(row: dict[str, Any], *, trajectory: list[dict[str, Any]]) -> str:
+def frozen_dataset_upload(path: Path, *, repo_id: str, private: bool) -> dict[str, Any]:
+    """Bind release cards to the exact companion-dataset commit, not a moving main."""
+    value = read_json(path)
+    require(value.get("schema_version") == "apertus_full8_frozen_dataset_hf_upload_v1", "dataset upload receipt schema drift")
+    require(value.get("status") == "completed", "dataset upload receipt is incomplete")
+    require(value.get("repo_id") == repo_id, "dataset upload repository drift")
+    require(bool(value.get("private")) is private, "dataset upload visibility drift")
+    revision = str(value.get("revision", ""))
+    require(len(revision) == 40 and value.get("training_must_pin_revision") == revision, "dataset upload revision is not immutable")
+    return {"repo_id": repo_id, "revision": revision, "private": private, "receipt": {"path": str(path.resolve()), "sha256": sha256(path)}}
+
+
+def card(row: dict[str, Any], *, trajectory: list[dict[str, Any]], datasets: dict[str, dict[str, Any]]) -> str:
     checkpoint = row["checkpoint"]
     greek = row["greekmmlu"]["decontaminated"]
     lines = [
@@ -167,7 +181,8 @@ def card(row: dict[str, Any], *, trajectory: list[dict[str, Any]]) -> str:
     ]
     for benchmark, metric in sorted(row["native_greek_suite"]["benchmarks"].items()):
         lines.append(f"| {benchmark} | {metric['n']:,} | {format_number(metric['accuracy'], percent=True)} | {format_number(metric['choice_nll'])} | {format_number(metric['correct_answer_bpb'])} |")
-    lines += ["", "## Which questions were used?", "", "The native Greek suite starts with 83,970 scored rows. It excludes 10,076 only when the evaluation identity has a strong two-surface match to the CPT corpus, leaving 73,894 rows. The public audit includes the excluded IDs and matched document/line evidence: [exclusion list](https://huggingface.co/datasets/fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2/blob/main/benchmark_contamination/native_greek_suite_v1/recommended_excluded_example_ids.jsonl) and [match table](https://huggingface.co/datasets/fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2/blob/main/benchmark_contamination/native_greek_suite_v1/qa_document_line_matches.parquet). GreekMMLU uses its separate frozen 16,159-question decontaminated subset.", ""]
+    public_train, private_mix = datasets["public_modern_greek_train"], datasets["private_d0_full_mix"]
+    lines += ["", "## Frozen training-data provenance", "", f"- Exact public Modern-Greek train-only snapshot: [`{public_train['repo_id']}`](https://huggingface.co/datasets/{public_train['repo_id']}/tree/{public_train['revision']}) at `{public_train['revision']}`.", f"- Exact packed 79/20/1 D0 mixture: [`{private_mix['repo_id']}`](https://huggingface.co/datasets/{private_mix['repo_id']}/tree/{private_mix['revision']}) at `{private_mix['revision']}` (private because replay redistribution is restricted).", "- These companion snapshots document the already-trained content only; neither changes the checkpoint’s text order, masking, tokenizer, or weights.", "", "## Which questions were used?", "", "The native Greek suite starts with 83,970 scored rows. It excludes 10,076 only when the evaluation identity has a strong two-surface match to the CPT corpus, leaving 73,894 rows. The public audit includes the excluded IDs and matched document/line evidence: [exclusion list](https://huggingface.co/datasets/fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2/blob/main/benchmark_contamination/native_greek_suite_v1/recommended_excluded_example_ids.jsonl) and [match table](https://huggingface.co/datasets/fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2/blob/main/benchmark_contamination/native_greek_suite_v1/qa_document_line_matches.parquet). GreekMMLU uses its separate frozen 16,159-question decontaminated subset.", ""]
     if checkpoint["branch"] == "main":
         lines += ["## GreekMMLU trajectory", "", "| Branch | Token slots | Clean accuracy | Clean choice NLL |", "| --- | ---: | ---: | ---: |"]
         for item in trajectory:
@@ -185,6 +200,8 @@ def main() -> int:
     parser.add_argument("--peak-results", type=Path, required=True)
     parser.add_argument("--final-filtered-metrics", type=Path, required=True)
     parser.add_argument("--final-filtered-receipt", type=Path, required=True)
+    parser.add_argument("--public-train-upload-receipt", type=Path, required=True)
+    parser.add_argument("--private-full-mix-upload-receipt", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     require(not args.output_dir.exists(), "refusing to overwrite release metadata")
@@ -192,6 +209,10 @@ def main() -> int:
     remaining = remaining_metrics(args.remaining_root)
     final_receipt = read_json(args.final_filtered_receipt)
     require(final_receipt.get("status") == "completed", "final filtered evidence is incomplete")
+    datasets = {
+        "public_modern_greek_train": frozen_dataset_upload(args.public_train_upload_receipt, repo_id=PUBLIC_TRAIN_REPOSITORY_ID, private=False),
+        "private_d0_full_mix": frozen_dataset_upload(args.private_full_mix_upload_receipt, repo_id=PRIVATE_FULL_MIX_REPOSITORY_ID, private=True),
+    }
     final_native = parse_metrics(args.final_filtered_metrics)
     trajectory: list[dict[str, Any]] = []
     for iteration, attempt, branch in CHECKPOINTS:
@@ -211,14 +232,14 @@ def main() -> int:
         })
     args.output_dir.mkdir(parents=True)
     population = {"schema_version": "apertus_full8_release_question_population_v1", "status": "passed", "native_greek": {"source_scored_rows": 83970, "excluded_strong_matches": 10076, "retained_rows": 73894, "counts": NATIVE_COUNTS, "training_dataset": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2", "training_dataset_revision": "987b8955fcd395c6219e39df9e64715457f69065", "exclusions_sha256": "7a8559461b15a308f599faf0ff25cd16c07be0a597078864f779af7f2f1fdd32", "audit_receipt_sha256": "78273fcc9e45e2e8d54c72d4b765fe9d43af2b29a5602c59b1aab8cee4849feb"}, "greekmmlu": {"full_rows": 16632, "decontaminated_rows": 16159}}
-    index = {"schema_version": "apertus_full8_checkpoint_trajectory_release_index_v1", "status": "ready_for_private_release", "repository_id": REPOSITORY_ID, "parent": PARENT, "tokenizer": TOKENIZER, "checkpoints": trajectory, "population": population}
+    index = {"schema_version": "apertus_full8_checkpoint_trajectory_release_index_v1", "status": "ready_for_private_release", "repository_id": REPOSITORY_ID, "parent": PARENT, "tokenizer": TOKENIZER, "datasets": datasets, "checkpoints": trajectory, "population": population}
     for row in trajectory:
         branch_root = args.output_dir / "branches" / row["checkpoint"]["branch"]
         (branch_root / "evaluation").mkdir(parents=True)
-        (branch_root / "README.md").write_text(card(row, trajectory=trajectory), encoding="utf-8")
+        (branch_root / "README.md").write_text(card(row, trajectory=trajectory, datasets=datasets), encoding="utf-8")
         write_json(branch_root / "evaluation" / "metrics.json", row)
         write_json(branch_root / "evaluation" / "population.json", population)
-        write_json(branch_root / "evaluation" / "provenance.json", {"schema_version": "apertus_full8_checkpoint_release_provenance_v1", "status": "passed", "checkpoint": row["checkpoint"], "provenance": row["provenance"]})
+        write_json(branch_root / "evaluation" / "provenance.json", {"schema_version": "apertus_full8_checkpoint_release_provenance_v1", "status": "passed", "checkpoint": row["checkpoint"], "datasets": datasets, "provenance": row["provenance"]})
     write_json(args.output_dir / "release_index.json", index)
     print(json.dumps({"ok": True, "branches": len(trajectory), "output": str(args.output_dir)}, sort_keys=True))
     return 0

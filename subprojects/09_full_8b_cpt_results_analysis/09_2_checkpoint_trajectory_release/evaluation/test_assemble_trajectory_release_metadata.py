@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import sys
 import tempfile
 import unittest
@@ -13,7 +14,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from assemble_trajectory_release_metadata import CHECKPOINTS, NATIVE_COUNTS, parse_metrics
+from assemble_trajectory_release_metadata import (
+    CHECKPOINTS,
+    NATIVE_COUNTS,
+    PRIVATE_FULL_MIX_REPOSITORY_ID,
+    PUBLIC_TRAIN_REPOSITORY_ID,
+    frozen_dataset_upload,
+    parse_metrics,
+)
 
 
 class ReleaseIndexTest(unittest.TestCase):
@@ -37,6 +45,23 @@ class ReleaseIndexTest(unittest.TestCase):
             parsed = parse_metrics(path)
             self.assertEqual(set(parsed), set(NATIVE_COUNTS))
             self.assertEqual(parsed["demosqa"]["accuracy"], 0.5)
+
+    def test_frozen_dataset_upload_binds_visibility_and_immutable_revision(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "upload.json"
+            revision = "a" * 40
+            path.write_text(json.dumps({
+                "schema_version": "apertus_full8_frozen_dataset_hf_upload_v1",
+                "status": "completed",
+                "repo_id": PUBLIC_TRAIN_REPOSITORY_ID,
+                "revision": revision,
+                "training_must_pin_revision": revision,
+                "private": False,
+            }), encoding="utf-8")
+            bound = frozen_dataset_upload(path, repo_id=PUBLIC_TRAIN_REPOSITORY_ID, private=False)
+            self.assertEqual(bound["revision"], revision)
+            with self.assertRaises(ValueError):
+                frozen_dataset_upload(path, repo_id=PRIVATE_FULL_MIX_REPOSITORY_ID, private=True)
 
 
 if __name__ == "__main__":
