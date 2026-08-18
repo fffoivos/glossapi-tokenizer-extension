@@ -78,7 +78,10 @@ def qualification_argv(
     return [
         "/usr/bin/env",
         f"PYTHONPATH={code_root / 'subprojects/08_targeted_8b_cpt_experiments/scripts'}:{code_root / 'subprojects/08_targeted_8b_cpt_experiments/evaluation'}:{canonical_runner_root / 'src'}:{canonical_runner_root / 'src/_vendor/campaign_pydeps'}",
-        "/usr/bin/python3.11",
+        # The frozen canonical schema wheel is CPython-3.12/aarch64 and the
+        # held worker runs inside the declared uenv.  Do not bypass it with
+        # the login host's /usr/bin Python.
+        "python3.12",
         str(code_root / "subprojects/08_targeted_8b_cpt_experiments/scripts/workaround_parameterized_profile_qualification.py"),
         "--manifest", "{manifest}", "--scale", scale,
         "--allocation", str(allocation),
