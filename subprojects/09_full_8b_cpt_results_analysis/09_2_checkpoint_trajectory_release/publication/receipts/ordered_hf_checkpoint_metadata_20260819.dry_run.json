@@ -1,0 +1,1131 @@
+{
+  "apply": false,
+  "metadata_files": [
+    "README.md",
+    "CHECKPOINTS.md",
+    "checkpoint-index.json"
+  ],
+  "old_refs": {
+    "main": {
+      "commit": "d9f323e97f9117d1aef2655d084003b77c160c1f",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1156,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step10728-tokens45B": {
+      "commit": "de42b4ab8baf72c22965b8fb6a8315ff01795f86",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1171,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step1192-tokens5B": {
+      "commit": "24aa1fc032d68119831082a2f570d41f6ec08765",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1169,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step11920-tokens50B": {
+      "commit": "32e226db812f7387667a89b65667a9231fbde3aa",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1171,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step13112-tokens55B": {
+      "commit": "2c25f77e460fbaf796325f2e7b0f26116ff6b078",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1171,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step14304-tokens60B": {
+      "commit": "def75ba815034a32de89b94903b1978e2e4a1de4",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1171,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step14627-tokens61B": {
+      "commit": "371ae00ea9c7acf92aa1a20a873ca44e3ee67683",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1171,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step15496-tokens65B": {
+      "commit": "910efa4a8d4a46bb1592d37f058f409a4bc39088",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1171,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step16688-tokens70B": {
+      "commit": "5d055f168f2ddd1a45fd41b4c5375a93756b73f4",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1171,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step17880-tokens75B": {
+      "commit": "3b8bfc8aad61933cd55846d58e6e0e0275676c8f",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1171,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step2384-tokens10B": {
+      "commit": "3afece5c7d9a84f2c84af0de18e5b05dbf4a3f12",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1170,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step3576-tokens15B": {
+      "commit": "36a597682fe035b2e54f02af7b316afe7c316a32",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1170,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step400-tokens2B": {
+      "commit": "e82d3634a9fbf46a2a3d6a38152881d780d1826b",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1168,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step4768-tokens20B": {
+      "commit": "beed943f07ba52019e7b59889df5a231f5c3d637",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1170,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step5960-tokens25B": {
+      "commit": "9c0780532409ded11d360129c046c6308fdc0755",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1170,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step7152-tokens30B": {
+      "commit": "b94ab971d2e51f65c58341a4669dff1ffa961a1d",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1170,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step8344-tokens35B": {
+      "commit": "a2db6845aef5eb710c055480af4914d112028950",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1170,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    },
+    "step9536-tokens40B": {
+      "commit": "4777be16d2aae8f800d325cf06a188c2602bf392",
+      "model_inventory": {
+        ".gitattributes": [
+          1570,
+          null
+        ],
+        "config.json": [
+          892,
+          null
+        ],
+        "generation_config.json": [
+          111,
+          null
+        ],
+        "model-00001-of-00004.safetensors": [
+          4970399384,
+          null
+        ],
+        "model-00002-of-00004.safetensors": [
+          4974664816,
+          null
+        ],
+        "model-00003-of-00004.safetensors": [
+          4882374208,
+          null
+        ],
+        "model-00004-of-00004.safetensors": [
+          1572889680,
+          null
+        ],
+        "model.safetensors.index.json": [
+          36480,
+          null
+        ],
+        "provenance/training_data.json": [
+          1170,
+          null
+        ],
+        "receipts/provenance.json": [
+          951,
+          null
+        ],
+        "special_tokens_map.json": [
+          552,
+          null
+        ],
+        "tokenizer.json": [
+          18994464,
+          null
+        ],
+        "tokenizer_config.json": [
+          177324,
+          null
+        ]
+      }
+    }
+  },
+  "ordered_refs": [
+    {
+      "iteration": 400,
+      "new": "00-step400-tokens2B",
+      "old": "step400-tokens2B"
+    },
+    {
+      "iteration": 1192,
+      "new": "01-step1192-tokens5B",
+      "old": "step1192-tokens5B"
+    },
+    {
+      "iteration": 2384,
+      "new": "02-step2384-tokens10B",
+      "old": "step2384-tokens10B"
+    },
+    {
+      "iteration": 3576,
+      "new": "03-step3576-tokens15B",
+      "old": "step3576-tokens15B"
+    },
+    {
+      "iteration": 4768,
+      "new": "04-step4768-tokens20B",
+      "old": "step4768-tokens20B"
+    },
+    {
+      "iteration": 5960,
+      "new": "05-step5960-tokens25B",
+      "old": "step5960-tokens25B"
+    },
+    {
+      "iteration": 7152,
+      "new": "06-step7152-tokens30B",
+      "old": "step7152-tokens30B"
+    },
+    {
+      "iteration": 8344,
+      "new": "07-step8344-tokens35B",
+      "old": "step8344-tokens35B"
+    },
+    {
+      "iteration": 9536,
+      "new": "08-step9536-tokens40B",
+      "old": "step9536-tokens40B"
+    },
+    {
+      "iteration": 10728,
+      "new": "09-step10728-tokens45B",
+      "old": "step10728-tokens45B"
+    },
+    {
+      "iteration": 11920,
+      "new": "10-step11920-tokens50B",
+      "old": "step11920-tokens50B"
+    },
+    {
+      "iteration": 13112,
+      "new": "11-step13112-tokens55B",
+      "old": "step13112-tokens55B"
+    },
+    {
+      "iteration": 14304,
+      "new": "12-step14304-tokens60B",
+      "old": "step14304-tokens60B"
+    },
+    {
+      "iteration": 14627,
+      "new": "13-step14627-tokens61B",
+      "old": "step14627-tokens61B"
+    },
+    {
+      "iteration": 15496,
+      "new": "14-step15496-tokens65B",
+      "old": "step15496-tokens65B"
+    },
+    {
+      "iteration": 16688,
+      "new": "15-step16688-tokens70B",
+      "old": "step16688-tokens70B"
+    },
+    {
+      "iteration": 17880,
+      "new": "16-step17880-tokens75B",
+      "old": "step17880-tokens75B"
+    },
+    {
+      "iteration": 18284,
+      "new": "17-step18284-tokens77B",
+      "old": "main"
+    }
+  ],
+  "repo": "fffoivos/apertus-8b-greek-cpt",
+  "schema_version": "apertus_ordered_hf_checkpoint_metadata_release_v1",
+  "status": "dry_run_passed"
+}
