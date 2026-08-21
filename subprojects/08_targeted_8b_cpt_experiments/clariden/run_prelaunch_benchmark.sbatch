@@ -44,7 +44,11 @@ phase2_data_path=$(read_contract phase2_data_path)
 phase2_cache_root=$(read_contract phase2_cache_root)
 phase2_cache_tree=$(read_contract phase2_cache_tree_sha256)
 [[ "$nodes" == "${SLURM_NNODES:-0}" ]] || { echo "contract/live nodes drift" >&2; exit 2; }
-preflight="$H2G_STAGE_ROOT/receipts/prelaunch_${kind}_${scale}_${profile_id}_${peak}_${SLURM_JOB_ID}.json"
+# A held salloc can legitimately host more than one qualification attempt.
+# Job-id-only naming made the second attempt collide with immutable evidence
+# from the first before any GPU work (apertus-cscs-efficiency issue #73).
+# The benchmark output root is already attempt-bound by the canonical runner.
+preflight="$H2G_BENCHMARK_OUTPUT_ROOT/preflight.generated.json"
 env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.11 "$subproject/scripts/verify_prelaunch_benchmark_contract.py" \
   --contract "$H2G_BENCHMARK_CONTRACT" --output-root "$H2G_BENCHMARK_OUTPUT_ROOT" \
   --megatron-root "$H2G_MEGATRON_DIR" --megatron-receipt "$H2G_MEGATRON_RECEIPT" \
