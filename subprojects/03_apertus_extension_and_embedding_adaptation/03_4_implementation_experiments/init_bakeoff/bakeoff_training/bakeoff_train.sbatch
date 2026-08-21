@@ -714,7 +714,9 @@ case "$LAUNCH_MODE" in
         ;;
     torchrun)
         uenv run "$UENV_IMAGE" --view=default -- \
-            srun --ntasks-per-node=1 --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
+            srun --nodes="${SLURM_NNODES:-$NODES}" \
+                --ntasks="${SLURM_NNODES:-$NODES}" \
+                --ntasks-per-node=1 --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
                 -lu bash -c "$RUNTIME_ENV_PREFIX export PYTHONPATH='$MEGATRON_LM_SWISSAI_DIR' MASTER_ADDR='$MASTER_ADDR' MASTER_PORT='$MASTER_PORT'; exec torchrun --no-python --nnodes='${SLURM_NNODES:-$NODES}' --nproc_per_node='$GPUS_PER_NODE' --node_rank=\$SLURM_PROCID --rdzv_backend=c10d --rdzv_endpoint='$MASTER_ADDR:$MASTER_PORT' $TRAINING_CMD_Q"
         ;;
     *)

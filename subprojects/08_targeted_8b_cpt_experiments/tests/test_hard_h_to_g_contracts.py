@@ -1350,6 +1350,17 @@ class HardHToGContractTests(unittest.TestCase):
         self.assertNotIn("\nsbatch ", text)
         self.assertNotIn("\nscancel ", text)
 
+    def test_torchrun_launcher_starts_exactly_one_agent_per_node(self) -> None:
+        trainer = (
+            ROOT.parents[1]
+            / "subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments"
+            / "init_bakeoff/bakeoff_training/bakeoff_train.sbatch"
+        )
+        text = trainer.read_text(encoding="utf-8")
+        self.assertIn('srun --nodes="${SLURM_NNODES:-$NODES}"', text)
+        self.assertIn('--ntasks="${SLURM_NNODES:-$NODES}"', text)
+        self.assertIn("--ntasks-per-node=1", text)
+
     def test_phase_boundary_checkpoint_permit_binds_source_not_target_cache(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
