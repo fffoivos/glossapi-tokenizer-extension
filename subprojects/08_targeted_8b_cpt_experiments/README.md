@@ -89,9 +89,16 @@ Current executable entry points are:
   authorization only after the other 25 roles pass, and produce the immutable
   launch-ready pre-main gate; every manifest accepts only explicitly audited
   producer bundles; and
-- Phase-3 cursor and constant-floor continuation are checked from checkpoint
-  metadata, frozen cache identities and deterministic scheduler/data-loader
-  simulation before submission. No one-update `normal` proof job is required.
+- Phase-3 cursor and constant-floor continuation are checked by the frozen
+  one-update resume path against checkpoint metadata and exact cache identity.
+  Run those checks inside the already-held scale-matched allocations; they do
+  not justify separate `normal` allocations.
+
+The cross-scale realized-ledger authority accepts only producer bundles named
+by the audited compatibility receipt. It treats a scale-specific cache as
+matched only when it is either the canonical cache byte-for-byte or a proven
+hardlink superset whose cache-build and overlay receipts bind every canonical
+training-index file unchanged; validation-only cache additions are ignored.
 
 Every production segment, including the first, must pass the authorization
 gate appropriate to its stage inside `preflight_train_segment.py`. Phase 1/2

@@ -205,6 +205,7 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/scripts/evaluate_td_objective.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_1p5b_td_policy_authorization.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_cross_scale_sentinel_authority.py",
+        "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_cross_scale_realized_ledger.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_production_timing_and_allocation.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_statistical_decision_contract.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_submission_dry_run.py",

@@ -17,6 +17,7 @@ set -euo pipefail
 : "${H2G_STAGE_ROOT:?set immutable stage root}"
 : "${H2G_8B_UPDATE_3218_PERMIT:?set exact canonical 8B update-3218 permit}"
 : "${H2G_1P5B_UPDATE_3218_PERMIT:?set exact canonical 1.5B update-3218 permit}"
+: "${H2G_PRODUCER_COMPATIBILITY:?set audited producer-bundle compatibility authority}"
 [[ "${SLURM_JOB_PARTITION:-}" == debug && "${SLURM_NNODES:-0}" == 1 ]] || { echo "ledger authority requires one debug node" >&2; exit 2; }
 /usr/bin/python3.11 "$H2G_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" --root "$H2G_CODE_ROOT" --receipt "$H2G_CODE_RECEIPT" --kind scientific
 subproject="$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments"
@@ -28,4 +29,5 @@ env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.11 "$subproject/scripts/freeze_cr
   --realized-ledger-receipt "$H2G_STAGE_ROOT/receipts/phase1_phase2_realized_documents.json" \
   --8b-checkpoint-permit "$H2G_8B_UPDATE_3218_PERMIT" \
   --1p5b-checkpoint-permit "$H2G_1P5B_UPDATE_3218_PERMIT" \
+  --producer-compatibility "$H2G_PRODUCER_COMPATIBILITY" \
   --output "$out"

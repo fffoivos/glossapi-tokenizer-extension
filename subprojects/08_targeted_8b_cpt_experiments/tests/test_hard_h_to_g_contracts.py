@@ -1096,6 +1096,19 @@ class HardHToGContractTests(unittest.TestCase):
         self.assertIn("#SBATCH --partition=debug", finalizer)
         self.assertIn("verify_data_runtime.py", finalizer)
 
+    def test_cross_scale_ledger_accepts_only_audited_producer_bundles(self) -> None:
+        producer = (ROOT / "scripts/freeze_cross_scale_realized_ledger.py").read_text(
+            encoding="utf-8"
+        )
+        wrapper = (ROOT / "clariden/freeze_cross_scale_realized_ledger_debug.sbatch").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('parser.add_argument("--producer-compatibility"', producer)
+        self.assertIn("require_accepted_producer(permit", producer)
+        self.assertIn("require_accepted_producer(audit", producer)
+        self.assertIn("require_accepted_producer(ledger", producer)
+        self.assertIn("H2G_PRODUCER_COMPATIBILITY", wrapper)
+
     def test_production_timing_requires_measured_wall_and_test_only_evidence(self) -> None:
         finalizer = (ROOT / "scripts/freeze_production_timing_and_allocation.py").read_text(encoding="utf-8")
         wrapper = (ROOT / "clariden/freeze_production_timing_and_allocation_debug.sbatch").read_text(encoding="utf-8")
