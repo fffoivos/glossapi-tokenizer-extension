@@ -76,7 +76,19 @@ run_one() {
   export OUTPUT_DIR="$output" INIT_CKPT="$load" H2G_START_UPDATE="$start" H2G_EXIT_UPDATE="$exit_update"
   export H2G_SAVE_INTERVAL_OVERRIDE="$save_interval" H2G_EVAL_INTERVAL_OVERRIDE="$eval_interval"
   started_epoch=$(date +%s)
+  set +e
   bash "$SCRIPT_DIR_OVERRIDE/bakeoff_train.sbatch" > "$output.driver.partial" 2>&1
+  launcher_rc=$?
+  set -e
+  if (( launcher_rc != 0 )); then
+    env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.11 \
+      "$subproject/scripts/workaround_accept_intentional_torchrun_teardown.py" \
+      --log "$output.driver.partial" \
+      --checkpoint-root "$output/checkpoints" \
+      --expected-update "$exit_update" \
+      --launcher-returncode "$launcher_rc" \
+      --output "$output/intentional_torchrun_teardown.json"
+  fi
   mv "$output.driver.partial" "$output/driver.out"
   completed_epoch=$(date +%s)
   printf '%s\n' "$((completed_epoch - started_epoch))" > "$output/wall_seconds.txt"
