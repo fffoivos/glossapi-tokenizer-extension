@@ -169,6 +169,16 @@ def main() -> int:
     replace_binding(inputs, "allocation_contract", allocation_path)
     replace_binding(inputs, "qualification_contract", qualification_contract)
     replace_binding(inputs, "producer_compatibility", producer_compatibility)
+    scientific_gates = [
+        row for row in campaign.get("gates", [])
+        if row.get("id") == "scientific_code_binding"
+    ]
+    require(len(scientific_gates) == 1, "scientific code gate is not unique")
+    require(
+        scientific_gates[0].get("type") == "file_binding",
+        "scientific code gate type drift",
+    )
+    scientific_gates[0]["binding"] = file_binding(code_receipt)
     runtime["profile_id"] = str(profile["profile_id"])
     runtime["slurm"]["nodes"] = int(profile["nodes"])
     runtime["parallelism"] = {

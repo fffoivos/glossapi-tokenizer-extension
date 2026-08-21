@@ -53,10 +53,19 @@ runtime_compat_receipt="$H2G_STAGE_ROOT/receipts/train_preflight/dcp_metadata_co
   echo "missing frozen DCP metadata compatibility shim" >&2
   exit 2
 }
-uenv run pytorch/v2.9.1:v2 --view=default -- \
-  env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$runtime_compat_dir" \
-  python3 "$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments/scripts/check_dcp_metadata_compat.py" \
+runtime_compat_command=(
+  env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$runtime_compat_dir"
+  python3 "$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments/scripts/check_dcp_metadata_compat.py"
   --runtime-compat-dir "$runtime_compat_dir" --output "$runtime_compat_receipt"
+)
+if [[ -n "${UENV_MOUNT_LIST:-}" ]]; then
+  # The canonical direct-salloc controller already runs in the manifest's
+  # verified uenv. Re-entering it fails before model load; execute this
+  # metadata-only compatibility probe in the mounted environment instead.
+  "${runtime_compat_command[@]}"
+else
+  uenv run pytorch/v2.9.1:v2 --view=default -- "${runtime_compat_command[@]}"
+fi
 preflight="$H2G_STAGE_ROOT/receipts/train_preflight/${H2G_MODEL_SCALE}_p${H2G_PHASE}_${H2G_START_UPDATE}_${H2G_EXIT_UPDATE}_${SLURM_JOB_ID}.json"
 preflight_args=(
   --experiment "$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_replication_v1.json"
