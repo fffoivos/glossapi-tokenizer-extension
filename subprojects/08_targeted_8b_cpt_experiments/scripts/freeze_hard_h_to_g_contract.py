@@ -103,7 +103,6 @@ PRE_EXTENSION_ARTIFACTS = [
     "main_8b_update_3218_checkpoint_permit",
     "main_1p5b_update_3218_checkpoint_permit",
     "cross_scale_realized_sample_ledger_match_through_3218",
-    "same_stack_sentinel_calibration_state",
     "phase_3_unseen_blend_and_capacity_receipt",
     "phase_local_cursor_guard_receipt",
     "constant_floor_scheduler_resume_receipt",
@@ -114,6 +113,7 @@ PRE_SECOND_EXTENSION_ARTIFACTS = [
     "phase_3_3456_to_3457_resume_receipts",
 ]
 PRE_FINALIZATION_ARTIFACTS = [
+    "same_stack_sentinel_calibration_state",
     "all_required_source_panel_receipts",
     "all_required_greekmmlu_receipts",
     "all_required_native_suite_receipts",

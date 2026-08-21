@@ -96,7 +96,9 @@ Current executable entry points are:
 Every production segment, including the first, must pass the authorization
 gate appropriate to its stage inside `preflight_train_segment.py`. Phase 1/2
 requires `pre_main`; Phase 3 production requires `pre_extension` and then
-`pre_second_extension`. The one-update Phase-3 proof jobs consume the previous
+`pre_second_extension`. GreekMMLU sentinel calibration is evaluation-only: it
+runs concurrently from the saved checkpoints and gates `pre_finalization`, not
+Phase-3 optimizer entry. The one-update Phase-3 proof jobs consume the previous
 stage's gate so they can produce, rather than circularly require, the next
 gate. A direct `sbatch` therefore cannot bypass the staged artifact manifest or
 owner authorization.

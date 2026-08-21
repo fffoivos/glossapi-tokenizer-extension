@@ -34,7 +34,6 @@ case "$H2G_GATE_STAGE:$H2G_MANIFEST_MODE" in
       "main_8b_update_3218_checkpoint_permit=$H2G_8B_UPDATE_3218_PERMIT"
       "main_1p5b_update_3218_checkpoint_permit=$H2G_1P5B_UPDATE_3218_PERMIT"
       "cross_scale_realized_sample_ledger_match_through_3218=$receipts/cross_scale_realized_ledger_match.json"
-      "same_stack_sentinel_calibration_state=$receipts/greekmmlu_sentinel_calibration_authority.json"
       "phase_3_unseen_blend_and_capacity_receipt=$receipts/phase3_authority.json"
       "phase_local_cursor_guard_receipt=$receipts/phase_local_cursor_guard.json"
       "constant_floor_scheduler_resume_receipt=$receipts/constant_floor_scheduler_resume.json"
@@ -50,7 +49,6 @@ case "$H2G_GATE_STAGE:$H2G_MANIFEST_MODE" in
       "main_8b_update_3218_checkpoint_permit=$H2G_8B_UPDATE_3218_PERMIT"
       "main_1p5b_update_3218_checkpoint_permit=$H2G_1P5B_UPDATE_3218_PERMIT"
       "cross_scale_realized_sample_ledger_match_through_3218=$receipts/cross_scale_realized_ledger_match.json"
-      "same_stack_sentinel_calibration_state=$receipts/greekmmlu_sentinel_calibration_authority.json"
       "phase_3_unseen_blend_and_capacity_receipt=$receipts/phase3_authority.json"
       "phase_local_cursor_guard_receipt=$receipts/phase_local_cursor_guard.json"
       "constant_floor_scheduler_resume_receipt=$receipts/constant_floor_scheduler_resume.json"
@@ -68,6 +66,7 @@ case "$H2G_GATE_STAGE:$H2G_MANIFEST_MODE" in
   pre_finalization:final)
     final="$H2G_STAGE_ROOT/evaluation/final_matched_evidence"
     rows=(
+      "same_stack_sentinel_calibration_state=$receipts/greekmmlu_sentinel_calibration_authority.json"
       "all_required_source_panel_receipts=$final/source_panel_authority.json"
       "all_required_greekmmlu_receipts=$final/greekmmlu_authority.json"
       "all_required_native_suite_receipts=$final/native_suite_authority.json"

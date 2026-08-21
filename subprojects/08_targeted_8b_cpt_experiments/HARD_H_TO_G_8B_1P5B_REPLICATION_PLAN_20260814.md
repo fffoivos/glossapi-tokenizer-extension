@@ -1204,10 +1204,11 @@ not saturation.
 13. **Launch main segmented trajectories:** run the historical segmented
     harness for `R-HG-8B` and `R-HG-1p5B`, concurrently only when disjoint
     audited allocations are available.
-14. **Same-stack sentinel calibration:** score the complete clean panel and both
-    nested subsets in the early and late four-checkpoint windows; authorize
-    4,096, expand to 8,192 or activate full-panel fallback only after both
-    window tests resolve exactly as Section 8 specifies.
+14. **Start same-stack sentinel calibration in parallel:** score the complete
+    clean panel and both nested subsets from the saved early and late
+    four-checkpoint windows; authorize 4,096, expand to 8,192 or activate
+    full-panel fallback only after both window tests resolve exactly as Section
+    8 specifies. This evaluation-only decision does not gate optimizer entry.
 15. **Replication-endpoint freeze:** at update 3,218, verify complete
     model/optimizer/RNG/phase-local data-cursor receipts before any extension
     update becomes authoritative.
@@ -1215,15 +1216,17 @@ not saturation.
     separate unseen Phase-3 blend/cache, consume it from cursor zero at constant
     floor LR, and force exact saves at 3,456 and 3,694; prove both phase-local
     transitions before the corresponding segment is authorized.
-17. **Evaluation and finalization:** complete all source, GreekMMLU and native-
-    Greek receipts; enforce selection authorization; publish raw per-question
-    predictions; and generate separate A, B and C verdicts.
+17. **Evaluation and finalization:** complete sentinel calibration plus all
+    source, GreekMMLU and native-Greek receipts; enforce selection
+    authorization; publish raw per-question predictions; and generate separate
+    A, B and C verdicts. Sentinel calibration gates this stage.
 
 No launch gate may be stamped true by construction. Every gate requires the
 path and SHA-256 of its backing receipt and the immutable executable bundle.
 The gates are chronological: `pre_main`, `pre_extension`,
 `pre_second_extension`, and `pre_finalization`. Post-update artifacts are never
-required by an earlier gate.
+required by an earlier gate. Evaluation-only sentinel calibration is allowed
+to overlap Phase 3 and becomes mandatory only at `pre_finalization`.
 
 ## 11. CSCS resource policy
 

@@ -126,6 +126,8 @@ class HardHToGContractTests(unittest.TestCase):
             "pre_finalization": PRE_FINALIZATION_ARTIFACTS,
         })
         self.assertNotIn("phase_3_unseen_blend_and_capacity_receipt", PRE_MAIN_ARTIFACTS)
+        self.assertNotIn("same_stack_sentinel_calibration_state", PRE_EXTENSION_ARTIFACTS)
+        self.assertIn("same_stack_sentinel_calibration_state", PRE_FINALIZATION_ARTIFACTS)
         for scale in ("8b", "1p5b"):
             self.assertEqual(
                 artifacts_for_stage("pre_main", scale),
@@ -1264,6 +1266,7 @@ class HardHToGContractTests(unittest.TestCase):
 
     def test_sentinel_freeze_is_transactional_and_cross_scale_authorized(self) -> None:
         freeze = (ROOT / "clariden/freeze_greekmmlu_sentinels_debug.sbatch").read_text(encoding="utf-8")
+        extension_manifest = (ROOT / "clariden/freeze_extension_artifact_manifest_debug.sbatch").read_text(encoding="utf-8")
         authority = (ROOT / "scripts/freeze_cross_scale_sentinel_authority.py").read_text(encoding="utf-8")
         self.assertIn(".greekmmlu_sentinels.${SLURM_JOB_ID}.partial", freeze)
         self.assertIn('mv "$temporary" "$root"', freeze)
@@ -1275,6 +1278,11 @@ class HardHToGContractTests(unittest.TestCase):
             ROLE_SCHEMAS["same_stack_sentinel_calibration_state"],
             "apertus_greekmmlu_sentinel_calibration_authority_v1",
         )
+        pre_extension, pre_finalization = extension_manifest.split(
+            "pre_finalization:final)", maxsplit=1
+        )
+        self.assertNotIn("same_stack_sentinel_calibration_state", pre_extension)
+        self.assertIn("same_stack_sentinel_calibration_state", pre_finalization)
 
     def test_replay_filters_precede_stage_b_and_post_audits_bind_stage_b_bytes(self) -> None:
         stage_b = (ROOT / "clariden/anonymize_training_stream_debug.sbatch").read_text(encoding="utf-8")
