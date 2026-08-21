@@ -77,6 +77,12 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/clariden/run_1p5b_td_init_common.sh",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/run_native_suite_replay_scan_debug.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/run_phase3_resume_smoke.sbatch",
+        # Issue #128: the exact-profile benchmark still runs the unchanged
+        # multi-node torchrun workload.  These two experiment-owned paths only
+        # classify the known post-checkpoint elastic-rendezvous teardown after
+        # proving the expected finite row and complete DCP metadata; restart
+        # parity remains mandatory and every other launcher failure is fatal.
+        "subprojects/08_targeted_8b_cpt_experiments/clariden/run_prelaunch_benchmark.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/train_hard_h_to_g_segment.sbatch",
         # These wrappers now consume the exact compiled Megatron receipt
         # instead of silently selecting the retired pre-helper receipt.  The
@@ -127,6 +133,7 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/scripts/run_canonical_train_segment.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/run_in_allocation_profile_qualification.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/workaround_parameterized_profile_qualification.py",
+        "subprojects/08_targeted_8b_cpt_experiments/scripts/workaround_accept_intentional_torchrun_teardown.py",
         # Contract compilation is a control-plane adaptation only. It reads
         # existing immutable continuation manifests and passes their frozen
         # segment identities to the canonical runner; it is not a producer of
