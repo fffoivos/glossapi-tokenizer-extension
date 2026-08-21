@@ -19,6 +19,7 @@ from contract_utils import (
     write_json_atomic,
 )
 from materialize_phase_cache import validate_overlay_receipt
+from producer_bundle_compatibility import load_authority
 
 FIELD_PATTERNS = {
     "iteration": re.compile(r"iteration\s+(\d+)/"),
@@ -99,6 +100,15 @@ def main() -> int:
     current = executing_code_bundle()
     bundle = contract.get("executing_code_bundle")
     require(isinstance(bundle, dict) and bundle.get("root") == current["root"] and bundle.get("tree_sha256") == current["tree_sha256"], "benchmark contract code-bundle drift")
+    compatibility_binding = contract.get("producer_compatibility")
+    require(isinstance(compatibility_binding, dict), "benchmark producer compatibility binding missing")
+    compatibility_path = Path(str(compatibility_binding.get("path", "")))
+    require(
+        compatibility_path.is_file() and compatibility_binding == file_binding(compatibility_path),
+        "benchmark producer compatibility binding drift",
+    )
+    _, accepted_producers = load_authority(compatibility_path, current)
+    accepted_code_bundles = {(root, tree) for root, tree, *_ in accepted_producers}
     output_root = Path(str(contract.get("output_root", ""))).resolve()
     expected_paths = {
         args.preflight.resolve(): output_root / "preflight.json",
@@ -126,6 +136,7 @@ def main() -> int:
             receipt,
             phase=phase,
             overlay_root=Path(str(contract.get(root_field, ""))),
+            accepted_code_bundles=accepted_code_bundles,
             require_pristine=False,
         )
     reference_contract = read_json(args.reference_benchmark_contract)

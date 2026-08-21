@@ -1025,7 +1025,10 @@ class HardHToGContractTests(unittest.TestCase):
         self.assertIn('restart/load_update_1', text)
         self.assertIn('restart/phase2_uninterrupted', text)
         self.assertIn('restart/phase2_resumed', text)
-        self.assertIn('phase_local_samples=1024', (ROOT / "scripts/finalize_profile_benchmark.py").read_text(encoding="utf-8"))
+        finalizer = (ROOT / "scripts/finalize_profile_benchmark.py").read_text(encoding="utf-8")
+        self.assertIn('phase_local_samples=1024', finalizer)
+        self.assertIn("load_authority(compatibility_path, current)", finalizer)
+        self.assertIn("accepted_code_bundles=accepted_code_bundles", finalizer)
         self.assertNotIn('restart/source', text)
         self.assertIn('H2G_PHASE_CACHE_ROOT="$cache_root"', text)
 
