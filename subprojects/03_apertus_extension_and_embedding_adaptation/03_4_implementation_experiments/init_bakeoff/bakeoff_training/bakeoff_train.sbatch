@@ -213,12 +213,12 @@ TRANSFORMER_ENGINE_ARGS=(
 # The released HF `main` checkpoint carries post-long-context rope 12M / seq
 # 65536, so CPT init checkpoints must be geometry-reverted before training.
 NETWORK_SIZE_ARGS=(
-    --num-layers 32
-    --hidden-size 4096
-    --ffn-hidden-size 21504
-    --num-attention-heads 32
+    --num-layers ${MODEL_NUM_LAYERS:-32}
+    --hidden-size ${MODEL_HIDDEN_SIZE:-4096}
+    --ffn-hidden-size ${MODEL_FFN_HIDDEN_SIZE:-21504}
+    --num-attention-heads ${MODEL_NUM_ATTENTION_HEADS:-32}
     --group-query-attention
-    --num-query-groups 8
+    --num-query-groups ${MODEL_NUM_QUERY_GROUPS:-8}
     --max-position-embeddings ${MAX_POSITION_EMBEDDINGS:-$SEQ_LEN}
     --position-embedding-type rope
     --rotary-base ${ROTARY_BASE:-500000}
@@ -441,6 +441,11 @@ cat > "$OUTPUT_DIR/run_metadata.json" <<META
   "output_dir": "$OUTPUT_DIR",
   "megatron_dir": "$MEGATRON_LM_SWISSAI_DIR",
   "megatron_commit": "$MEGATRON_LM_SWISSAI_COMMIT",
+  "model_num_layers": ${MODEL_NUM_LAYERS:-32},
+  "model_hidden_size": ${MODEL_HIDDEN_SIZE:-4096},
+  "model_ffn_hidden_size": ${MODEL_FFN_HIDDEN_SIZE:-21504},
+  "model_num_attention_heads": ${MODEL_NUM_ATTENTION_HEADS:-32},
+  "model_num_query_groups": ${MODEL_NUM_QUERY_GROUPS:-8},
   "seq_length": $SEQ_LEN,
   "max_position_embeddings": ${MAX_POSITION_EMBEDDINGS:-$SEQ_LEN},
   "rotary_base": ${ROTARY_BASE:-500000},
@@ -514,6 +519,7 @@ DATA_ARGS=(
     $EOD_LOSS_MASK_FLAG
     --num-workers $DATALOADER_WORKERS
     --num-dataset-builder-threads 4
+    --data-cache-path "${H2G_PHASE_CACHE_ROOT:?set frozen phase cache root}"
 )
 if [ "$USE_MOCK_DATA" = "1" ]; then
     DATA_ARGS+=(--mock-data)
@@ -587,7 +593,15 @@ printf -v TRAINING_CMD_Q '%q ' "${TRAINING_CMD[@]}"
 printf '%s\n' "$TRAINING_CMD_Q" > "$OUTPUT_DIR/training_command.sh"
 
 # ===== Launch =====
-export PYTHONPATH="$MEGATRON_LM_SWISSAI_DIR"
+runtime_pythonpath="$MEGATRON_LM_SWISSAI_DIR"
+if [[ -n "${RUNTIME_COMPAT_DIR:-}" ]]; then
+    [[ -f "$RUNTIME_COMPAT_DIR/sitecustomize.py" ]] || {
+        echo "ERROR: runtime compatibility shim is missing" >&2
+        exit 2
+    }
+    runtime_pythonpath="$RUNTIME_COMPAT_DIR:$runtime_pythonpath"
+fi
+export PYTHONPATH="$runtime_pythonpath"
 export TORCH_NCCL_AVOID_RECORD_STREAMS=1
 export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
 export CUDA_DEVICE_MAX_CONNECTIONS=1
@@ -708,16 +722,15 @@ cd "$MEGATRON_LM_SWISSAI_DIR"
 
 case "$LAUNCH_MODE" in
     slurm)
-        uenv run "$UENV_IMAGE" --view=default -- \
-            srun --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
-                -lu bash -c "$RUNTIME_ENV_PREFIX export PYTHONPATH='$MEGATRON_LM_SWISSAI_DIR' RANK=\$SLURM_PROCID LOCAL_RANK=\$SLURM_LOCALID; exec $TRAINING_CMD_Q"
+        srun --uenv="$UENV_IMAGE" --view=default --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
+                -lu bash -c "$RUNTIME_ENV_PREFIX export PYTHONPATH='$runtime_pythonpath' RANK=\$SLURM_PROCID LOCAL_RANK=\$SLURM_LOCALID; exec $TRAINING_CMD_Q"
         ;;
     torchrun)
-        uenv run "$UENV_IMAGE" --view=default -- \
-            srun --nodes="${SLURM_NNODES:-$NODES}" \
+        srun --uenv="$UENV_IMAGE" --view=default \
+                --nodes="${SLURM_NNODES:-$NODES}" \
                 --ntasks="${SLURM_NNODES:-$NODES}" \
                 --ntasks-per-node=1 --cpus-per-task "${SLURM_CPUS_PER_TASK:-4}" \
-                -lu bash -c "$RUNTIME_ENV_PREFIX export PYTHONPATH='$MEGATRON_LM_SWISSAI_DIR' MASTER_ADDR='$MASTER_ADDR' MASTER_PORT='$MASTER_PORT'; exec torchrun --no-python --nnodes='${SLURM_NNODES:-$NODES}' --nproc_per_node='$GPUS_PER_NODE' --node_rank=\$SLURM_PROCID --rdzv_backend=c10d --rdzv_endpoint='$MASTER_ADDR:$MASTER_PORT' $TRAINING_CMD_Q"
+                -lu bash -c "$RUNTIME_ENV_PREFIX export PYTHONPATH='$runtime_pythonpath' MASTER_ADDR='$MASTER_ADDR' MASTER_PORT='$MASTER_PORT'; exec torchrun --no-python --nnodes='${SLURM_NNODES:-$NODES}' --nproc_per_node='$GPUS_PER_NODE' --node_rank=\$SLURM_PROCID --rdzv_backend=c10d --rdzv_endpoint='$MASTER_ADDR:$MASTER_PORT' $TRAINING_CMD_Q"
         ;;
     *)
         echo "ERROR: LAUNCH_MODE=$LAUNCH_MODE not recognized (expected slurm|torchrun)" >&2

@@ -1357,7 +1357,8 @@ class HardHToGContractTests(unittest.TestCase):
             / "init_bakeoff/bakeoff_training/bakeoff_train.sbatch"
         )
         text = trainer.read_text(encoding="utf-8")
-        self.assertIn('srun --nodes="${SLURM_NNODES:-$NODES}"', text)
+        self.assertIn('srun --uenv="$UENV_IMAGE" --view=default', text)
+        self.assertIn('--nodes="${SLURM_NNODES:-$NODES}"', text)
         self.assertIn('--ntasks="${SLURM_NNODES:-$NODES}"', text)
         self.assertIn("--ntasks-per-node=1", text)
 
