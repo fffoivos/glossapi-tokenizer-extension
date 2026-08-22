@@ -20,7 +20,7 @@ script=$code_root/$relative/run_native_greek_mcq_eval.py
 registry=$code_root/$relative/native_greek_benchmark_registry.json
 output_root=/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1
 python=/iopsstor/scratch/cscs/fffoivos/python_envs/h2g_greekmmlu_eval_runtime_20260817_v2/bin/python
-cache=/iopsstor/scratch/cscs/fffoivos/native_greek_eval/cache
+cache=/iopsstor/scratch/cscs/fffoivos/native_greek_eval/legacy_bf16_cache_rank_${rank}
 
 [[ $(sha256sum "$script" | awk '{print $1}') == b9f75809b6e617cfd419dc5420e480dee72bb3f1df7fa8f82e04793b4dfd19c4 ]]
 [[ $(sha256sum "$registry" | awk '{print $1}') == fcf732c142efdd204fe8a64ac4fb1159f47e7b2bac0e947207c2a971329bf508 ]]
