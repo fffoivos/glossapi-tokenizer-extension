@@ -84,6 +84,7 @@ ALLOWED_CHANGED_PATHS = frozenset(
         # parity remains mandatory and every other launcher failure is fatal.
         "subprojects/08_targeted_8b_cpt_experiments/clariden/run_prelaunch_benchmark.sbatch",
         "subprojects/08_targeted_8b_cpt_experiments/clariden/train_hard_h_to_g_segment.sbatch",
+        "subprojects/08_targeted_8b_cpt_experiments/clariden/hard_h_to_g_training.env",
         # These wrappers now consume the exact compiled Megatron receipt
         # instead of silently selecting the retired pre-helper receipt.  The
         # tokenized payloads are unchanged; this closes future load/config
@@ -101,6 +102,7 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/scripts/adopt_canonical_pre_main_data.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/audit_training_checkpoint.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/build_checkpoint_permit.py",
+        "subprojects/08_targeted_8b_cpt_experiments/scripts/build_external_checkpoint_reference.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/build_training_run_permit.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/check_dcp_metadata_compat.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/diagnose_1p5b_td_row_norms.py",
@@ -121,6 +123,7 @@ ALLOWED_CHANGED_PATHS = frozenset(
         "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_prelaunch_benchmark_contract.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/materialize_historical_tokenizer.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/materialize_phase_cache.py",
+        "subprojects/08_targeted_8b_cpt_experiments/scripts/materialize_intermediate_checkpoint_branch.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_pre_main_data_authorities.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_producer_bundle_compatibility.py",
         "subprojects/08_targeted_8b_cpt_experiments/scripts/freeze_replay_source_inventory.py",

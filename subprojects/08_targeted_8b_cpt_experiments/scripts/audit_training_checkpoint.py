@@ -23,6 +23,7 @@ from contract_utils import (
 )
 from freeze_phase_blend_cache import PHASE_START
 from freeze_phase_blend_cache import validate_receipt as validate_phase_cache
+from producer_bundle_compatibility import load_authority
 
 TRAINING_ROW = re.compile(
     r"iteration\s+(?P<iteration>\d+)/\s*\d+.*?"
@@ -47,6 +48,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--allow-graceful-stop", action="store_true")
     parser.add_argument("--allow-intermediate-save", action="store_true")
+    parser.add_argument("--producer-compatibility", type=Path)
     return parser.parse_args()
 
 
@@ -129,12 +131,21 @@ def main() -> int:
     common_path = root / "common.pt"
     require(common_path.is_file(), "checkpoint common.pt missing")
 
+    accepted_code_bundles = None
+    if args.producer_compatibility is not None:
+        _, accepted = load_authority(
+            args.producer_compatibility, executing_code_bundle()
+        )
+        accepted_code_bundles = {
+            (root, tree) for root, tree, _receipt, _bytes, _sha256 in accepted
+        }
     source_cache = read_json(args.source_phase_cache_receipt)
     validate_phase_cache(
         source_cache,
         phase=args.source_phase,
         data_path_spec=Path(str(source_cache.get("data_path_spec", {}).get("path", ""))),
         cache_root=Path(str(source_cache.get("cache_root", ""))),
+        accepted_code_bundles=accepted_code_bundles,
     )
     preflight = read_json(args.segment_preflight)
     require(preflight.get("schema_version") == "apertus_hard_h_to_g_train_segment_preflight_v1", "segment preflight schema drift")
@@ -237,6 +248,11 @@ def main() -> int:
         "checkpoint_file_count": len(checkpoint_files),
         "training_log_summary": log,
         "source_phase_cache_receipt": file_binding(args.source_phase_cache_receipt),
+        "producer_bundle_compatibility": (
+            file_binding(args.producer_compatibility)
+            if args.producer_compatibility is not None
+            else None
+        ),
         "segment_preflight": file_binding(args.segment_preflight),
         "training_log": file_binding(args.training_log),
         "executing_code_bundle": executing_code_bundle(),

@@ -86,6 +86,20 @@ sanitized form; credentials and private infrastructure tokens are excluded.
   greater than 2,499. The standard audit still requires the last retained
   optimizer row to be 2,499, finite, zero-skipped/zero-NaN, and accompanied by
   the exact successful-save message.
+- The corrected materializer then completed and froze the no-copy view. Its
+  first audit invocation used `/usr/bin/python3.11` inside the PyTorch uenv;
+  that interpreter does not expose the uenv's `torch` package and failed at
+  import before producing an audit. The audit is retried with the uenv's
+  `python3`; no checkpoint or scientific input changed.
+- The uenv audit then correctly rejected the old Phase-2 cache because the new
+  executing bundle had no producer-compatibility authority yet. Separately,
+  attempting to extend that authority from the full reporting/evaluation
+  bundle produced a very large unaudited-path list dominated by presentation
+  evidence. Rather than broadening producer trust to irrelevant files, Track B
+  now uses a minimal bundle cloned from the already accepted v103 training
+  bundle and overlays only the LR-policy adapter, intermediate-branch tools,
+  and their direct validators. This keeps the compatibility delta narrow and
+  reviewable.
 
 ## Deviations
 

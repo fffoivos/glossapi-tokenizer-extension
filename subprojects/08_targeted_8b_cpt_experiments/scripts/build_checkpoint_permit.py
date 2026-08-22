@@ -16,6 +16,7 @@ from contract_utils import (
     write_json_atomic,
 )
 from freeze_phase_blend_cache import validate_receipt as validate_phase_cache
+from producer_bundle_compatibility import load_authority
 
 REQUIRED_CHECKS = (
     "model_state_metadata_complete",
@@ -39,6 +40,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint-audit", type=Path, required=True)
     parser.add_argument("--source-phase-cache-receipt", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--producer-compatibility", type=Path)
     return parser.parse_args()
 
 
@@ -82,6 +84,14 @@ def main() -> int:
     load_root = root.parent
     tracker = load_root / "latest_checkpointed_iteration.txt"
     require(tracker.is_file() and tracker.read_text(encoding="utf-8").strip() == str(args.update), "checkpoint load-root tracker drift")
+    accepted_code_bundles = None
+    if args.producer_compatibility is not None:
+        _, accepted = load_authority(
+            args.producer_compatibility, executing_code_bundle()
+        )
+        accepted_code_bundles = {
+            (root, tree) for root, tree, _receipt, _bytes, _sha256 in accepted
+        }
     source_cache = read_json(args.source_phase_cache_receipt)
     source_data_path_spec = Path(str(source_cache.get("data_path_spec", {}).get("path", "")))
     source_cache_root = Path(str(source_cache.get("cache_root", "")))
@@ -90,6 +100,7 @@ def main() -> int:
         phase=args.source_phase,
         data_path_spec=source_data_path_spec,
         cache_root=source_cache_root,
+        accepted_code_bundles=accepted_code_bundles,
     )
     audit = read_json(args.checkpoint_audit)
     require(audit.get("schema_version") == "apertus_hard_h_to_g_checkpoint_state_audit_v1", "checkpoint audit schema drift")
@@ -123,6 +134,11 @@ def main() -> int:
         "load_tracker": file_binding(tracker),
         "checkpoint_audit": file_binding(args.checkpoint_audit),
         "source_phase_cache_receipt": file_binding(args.source_phase_cache_receipt),
+        "producer_bundle_compatibility": (
+            file_binding(args.producer_compatibility)
+            if args.producer_compatibility is not None
+            else None
+        ),
         "checks": {name: True for name in REQUIRED_CHECKS},
         "executing_code_bundle": executing_code_bundle(),
     }
