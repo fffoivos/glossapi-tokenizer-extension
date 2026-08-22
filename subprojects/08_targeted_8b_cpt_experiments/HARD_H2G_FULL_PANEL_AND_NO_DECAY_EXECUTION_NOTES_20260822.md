@@ -385,3 +385,35 @@ None yet.
   was committed and pushed to `apertus-cscs-efficiency` as commit `1a0d672`.
   Pull request [#148](https://github.com/fffoivos/apertus-cscs-efficiency/pull/148)
   connects the tested implementation to issue #146.
+- The optimizer-row ETA excludes the nine-panel validation pass every 25
+  updates. Measured end-to-end cadence was approximately 4.3 minutes per
+  25-update block (about 10.3 seconds/update amortized), rather than the
+  approximately 8.9-second optimizer-only row. The allocation plan was
+  recomputed from this measured cadence and still fits, with less reserve.
+  Reusable ETA handling is tracked in efficiency issue
+  [#149](https://github.com/fffoivos/apertus-cscs-efficiency/issues/149).
+- At update 2,800, stable LR had slightly lower OpenArchives validation loss
+  than the decayed arm (`1.476476` versus `1.478760`) but higher loss on HPLT
+  (`2.028437` versus `2.017839`) and each retention panel. This is an interim
+  loss observation, not the pre-registered GreekMMLU branch decision, and the
+  plan already warns against treating the stable-versus-decayed level gap as
+  a pure curriculum result.
+
+## Stable-LR update 2,856 result
+
+- Update 2,856 saved successfully and training continued at update 2,857.
+  The saved row used LR `5.5e-5` and retained zero skipped and zero non-finite
+  updates.
+- The exact-weight mapping passed for its HF export. The probability-space
+  parity diagnostic remained a warning, as it did for the prior trajectory
+  exports, so this result remains inside the explicitly documented
+  trajectory-comparison scope.
+- Full-public FP32 result: `9,612 / 16,632 = 57.7922%`, choice NLL
+  `1.061940`, correct-answer BPB `0.167040`.
+- Paired decayed result: `9,560 / 16,632 = 57.4796%`, choice NLL `1.069602`,
+  correct-answer BPB `0.170266`. Stable LR is ahead by 0.3126 percentage
+  points at this checkpoint, but its own accuracy fell 0.4449 points from
+  stable update 2,618. The no-decay arm is therefore not rising over the first
+  interval; the pre-registered decision remains open until 3,094 and 3,218.
+- After the immutable aggregate receipt was checked, scoring allocation
+  `3151839` was cancelled with 31:21 unused rather than being left idle.
