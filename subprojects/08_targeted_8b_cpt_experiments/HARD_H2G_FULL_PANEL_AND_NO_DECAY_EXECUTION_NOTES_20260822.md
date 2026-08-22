@@ -217,6 +217,20 @@ None yet.
   cluster state was changed by those failed authentication requests. The
   older full-panel controller connection remains live and continues to report
   completed checkpoints.
+- The newly issued certificate is structurally valid for principal `fffoivos`,
+  has the expected key fingerprint, and covers the current wall clock. A
+  verbose SSH probe shows the gateway recognizes the certificate/public-key
+  identity but authentication still does not complete; at the same time direct
+  HTTPS requests to `auth.cscs.ch` time out. This narrows the interruption to
+  the CSCS authentication path rather than a local key, certificate-expiry, or
+  Clariden job-state problem. A bounded Mac-side reconnect monitor now retries
+  without touching the live Slurm allocations.
+- The full-public 8B trajectory has completed through update 2,142 while new
+  SSH sessions are unavailable. Each completed scorer receipt passes the
+  immutable scientific-bundle check. The repeated Slurm warning that the
+  nested step asks for more CPUs per task than the outer control step has not
+  prevented any scorer result, but it is retained as operational evidence for
+  the post-run runner review.
 - Reusable follow-up is recorded in efficiency issue
   [#137](https://github.com/fffoivos/apertus-cscs-efficiency/issues/137)
   (document/scaffold directory-valued scientific inputs as `required_env`).
