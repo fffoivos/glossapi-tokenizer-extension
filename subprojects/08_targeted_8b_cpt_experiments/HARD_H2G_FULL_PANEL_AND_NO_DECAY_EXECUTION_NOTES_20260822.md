@@ -83,6 +83,12 @@ None yet.
   `--overlap` only when `SLURM_STEP_ID` proves it is nested; top-level batch
   behavior is unchanged. This held-allocation compatibility should be checked
   against the canonical issue tracker before handoff.
+- The first held-allocation retry exposed a second incompatibility in that
+  compatibility change: it supplied both `--overlap` and the pre-existing
+  `--exclusive`, which Slurm rejects as mutually exclusive. No evaluator rank
+  started and no score was produced. The failed immutable output was retained
+  under its `_failed_*` path. The correction selects exactly one step mode:
+  `--overlap` when nested, otherwise `--exclusive`.
 
 ## Receipt index
 

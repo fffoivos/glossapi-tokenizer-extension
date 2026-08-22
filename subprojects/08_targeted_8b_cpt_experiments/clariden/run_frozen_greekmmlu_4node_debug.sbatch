@@ -116,9 +116,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
-overlap=()
-[[ -n "${SLURM_STEP_ID:-}" ]] && overlap=(--overlap)
-srun "${overlap[@]}" --exclusive --exact --nodes=4 --ntasks=16 --ntasks-per-node=4 \
+step_mode=(--exclusive)
+[[ -n "${SLURM_STEP_ID:-}" ]] && step_mode=(--overlap)
+srun "${step_mode[@]}" --exact --nodes=4 --ntasks=16 --ntasks-per-node=4 \
   --cpus-per-task=54 --mem-per-cpu=2900M --gpus-per-task=1 --cpu-bind=cores \
   --output="$H2G_GREEKMMLU_STAGING/logs/shard-%t.out" \
   --error="$H2G_GREEKMMLU_STAGING/logs/shard-%t.err" \
