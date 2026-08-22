@@ -372,3 +372,16 @@ None yet.
   `+0.0601` percentage points for stable LR, far below the approximately
   0.4-point checkpoint noise scale; no trajectory conclusion is drawn from
   this single pair.
+
+## 2026-08-22 22:13 UTC monitoring update
+
+- Stable-LR training reached update 2,716 / 3,218 on allocation `3152592`.
+  The latest rows continue to show LR `5.500000E-05`, zero skipped updates,
+  zero non-finite updates, and approximately 8.8--9.1 seconds per update.
+- Allocation `3152592` had 2:04 remaining at this observation, while its
+  model-reported training ETA was approximately 1:15. Allocation `3151839`
+  remained live with 1:08 remaining for the update-2,856 full-panel score.
+- The reusable full-geometry rank-zero controller plus peer-holder wrapper
+  was committed and pushed to `apertus-cscs-efficiency` as commit `1a0d672`.
+  Pull request [#148](https://github.com/fffoivos/apertus-cscs-efficiency/pull/148)
+  connects the tested implementation to issue #146.
