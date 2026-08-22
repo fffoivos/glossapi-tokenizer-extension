@@ -1,0 +1,149 @@
+{
+  "created_at": "2026-08-22T20:04:29.030203+00:00",
+  "evaluator_revision": "cfdd0e7b",
+  "registry": {
+    "bytes": 9038,
+    "path": "/iopsstor/scratch/cscs/fffoivos/evals/hard_h2g_legacy_bf16_20260822/code_cfdd0e7b/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/native_greek_benchmark_registry.json",
+    "sha256": "fcf732c142efdd204fe8a64ac4fb1159f47e7b2bac0e947207c2a971329bf508"
+  },
+  "replication_decision": {
+    "best_delta_percentage_points": -2.0622895622895654,
+    "best_update": 2618,
+    "historical_target_accuracy": 0.5996272246272246,
+    "historical_target_correct": 9973,
+    "historical_target_n": 16632,
+    "pre_registered_band_percentage_points": 1.0,
+    "replicated": false
+  },
+  "results": [
+    {
+      "accuracy": 0.579004329004329,
+      "correct": 9630,
+      "files": [
+        {
+          "bytes": 812,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0002618/hard-h2g-8b-u2618_native_mcq_aggregate.json",
+          "sha256": "82731c65650db105ebb11da7300c1dbe05eaa2796504d9c2bece82d75b0bea42"
+        },
+        {
+          "bytes": 3,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0002618/hard-h2g-8b-u2618_native_mcq_diagnostics.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        {
+          "bytes": 139,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0002618/hard-h2g-8b-u2618_native_mcq_headline.json",
+          "sha256": "ed7742faec800d24b6ffb56585606ee2a9c1eaa5892d17d4cd3d50a114cbce52"
+        },
+        {
+          "bytes": 8671715,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0002618/hard-h2g-8b-u2618_native_mcq_predictions.jsonl",
+          "sha256": "3852a8eaae162a57a1d1b5542fb714482e9ea93ea9c1cd0b2929c366ffc7bb68"
+        },
+        {
+          "bytes": 1716,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0002618/hard-h2g-8b-u2618_native_mcq_summary.csv",
+          "sha256": "50b6c3078057c5ebb3850c6182a5d46247d2bf72394cd17b08556afaf475514d"
+        },
+        {
+          "bytes": 749,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0002618/run_metadata.json",
+          "sha256": "a2633478d91faaf634cfddf5a5fffad2cf0017f2d98f9372f4069c0eca06c540"
+        }
+      ],
+      "n": 16632,
+      "update": 2618
+    },
+    {
+      "accuracy": 0.568001443001443,
+      "correct": 9447,
+      "files": [
+        {
+          "bytes": 812,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003218/hard-h2g-8b-u3218_native_mcq_aggregate.json",
+          "sha256": "62a8aa9674eeb24d3ae2d30011680f93c2f8586bc163dfe2b735ae7ee891e671"
+        },
+        {
+          "bytes": 3,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003218/hard-h2g-8b-u3218_native_mcq_diagnostics.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        {
+          "bytes": 139,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003218/hard-h2g-8b-u3218_native_mcq_headline.json",
+          "sha256": "f57d8463fbb6d9643b49309937e6f1205f7bb22d605c0781f099ced016f9e171"
+        },
+        {
+          "bytes": 8669198,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003218/hard-h2g-8b-u3218_native_mcq_predictions.jsonl",
+          "sha256": "15d171879574b307a765862f0742db7463a4a0a1078cb391cc391e778fa1de24"
+        },
+        {
+          "bytes": 1696,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003218/hard-h2g-8b-u3218_native_mcq_summary.csv",
+          "sha256": "350d5c3a5de7c3804e776c0ac6d2eb61d79e8fd872d4bf5dd0b6afc4b6cefd39"
+        },
+        {
+          "bytes": 749,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003218/run_metadata.json",
+          "sha256": "52ecc19f27c4961e8324c45a87861cd2606c6910dc0f6795bce07eecfbbd1f06"
+        }
+      ],
+      "n": 16632,
+      "update": 3218
+    },
+    {
+      "accuracy": 0.5676406926406926,
+      "correct": 9441,
+      "files": [
+        {
+          "bytes": 816,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003694/hard-h2g-8b-u3694_native_mcq_aggregate.json",
+          "sha256": "be5907b75a3ae6062fa28b64ff4e4ff536be113ee56e436a32b103bc97cff7a5"
+        },
+        {
+          "bytes": 3,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003694/hard-h2g-8b-u3694_native_mcq_diagnostics.json",
+          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+        },
+        {
+          "bytes": 140,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003694/hard-h2g-8b-u3694_native_mcq_headline.json",
+          "sha256": "040cb3bfd89e8798ef258d6ac9239eaf8972e57e70345f94a92be60452139358"
+        },
+        {
+          "bytes": 8670156,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003694/hard-h2g-8b-u3694_native_mcq_predictions.jsonl",
+          "sha256": "52ccb735a79c42e587d7a310c3c761c79921f540602916c8a620bf7eb5d03a7e"
+        },
+        {
+          "bytes": 1689,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003694/hard-h2g-8b-u3694_native_mcq_summary.csv",
+          "sha256": "6b6b813d106d821966618d9eec3f53a2816805f25a96d7a6c87ee527e54457ed"
+        },
+        {
+          "bytes": 703,
+          "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/iter_0003694/run_metadata.json",
+          "sha256": "e4b2bf0b2270543e2cec8c3a0746d3bd6b5ce76332aa60848bffa44b90c2f9ff"
+        }
+      ],
+      "n": 16632,
+      "update": 3694
+    }
+  ],
+  "schema_version": "apertus_hard_h2g_legacy_bf16_matrix_v1",
+  "scorer": {
+    "bytes": 20544,
+    "path": "/iopsstor/scratch/cscs/fffoivos/evals/hard_h2g_legacy_bf16_20260822/code_cfdd0e7b/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/run_native_greek_mcq_eval.py",
+    "sha256": "b9f75809b6e617cfd419dc5420e480dee72bb3f1df7fa8f82e04793b4dfd19c4"
+  },
+  "settings": {
+    "candidate_batch_size": 16,
+    "dtype": "bfloat16",
+    "example_batch_size": 16,
+    "max_input_tokens": 3072,
+    "questions": 16632,
+    "random_state": 42
+  },
+  "status": "completed"
+}

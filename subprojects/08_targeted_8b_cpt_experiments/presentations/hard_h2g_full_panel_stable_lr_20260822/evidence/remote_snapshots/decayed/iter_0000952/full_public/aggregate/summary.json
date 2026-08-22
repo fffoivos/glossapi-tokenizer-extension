@@ -1,0 +1,1160 @@
+{
+  "iteration": 952,
+  "mode": "full_public",
+  "model_label": "8b_iter_0000952",
+  "scale": "8b",
+  "schema_version": "apertus_frozen_greekmmlu_summary_v1",
+  "scored_rows": 16632,
+  "status": "completed",
+  "views": {
+    "full_public": {
+      "metrics": {
+        "by_educational_level": {
+          "NA": {
+            "accuracy": 0.5126658624849216,
+            "choice_nll": 1.103889580690982,
+            "choice_nll_sum": 1830.2489247856483,
+            "correct": 850,
+            "correct_answer_bpb": 0.15328357195388462,
+            "correct_answer_neg_log2_sum": 26857.274492755983,
+            "correct_answer_utf8_bytes": 175213,
+            "n": 1658
+          },
+          "Primary School": {
+            "accuracy": 0.5845663555656727,
+            "choice_nll": 1.3293334318883483,
+            "choice_nll_sum": 5839.761766285514,
+            "correct": 2568,
+            "correct_answer_bpb": 0.3225218641698233,
+            "correct_answer_neg_log2_sum": 51404.179755114776,
+            "correct_answer_utf8_bytes": 159382,
+            "n": 4393
+          },
+          "Professional": {
+            "accuracy": 0.5095643588794274,
+            "choice_nll": 1.1131720103966214,
+            "choice_nll_sum": 9020.032800243824,
+            "correct": 4129,
+            "correct_answer_bpb": 0.18538492305010684,
+            "correct_answer_neg_log2_sum": 90663.79431211611,
+            "correct_answer_utf8_bytes": 489057,
+            "n": 8103
+          },
+          "Secondary School": {
+            "accuracy": 0.5089399744572158,
+            "choice_nll": 1.2742672125600534,
+            "choice_nll_sum": 1995.5024548690435,
+            "correct": 797,
+            "correct_answer_bpb": 0.31592312537343614,
+            "correct_answer_neg_log2_sum": 18138.726243315836,
+            "correct_answer_utf8_bytes": 57415,
+            "n": 1566
+          },
+          "University": {
+            "accuracy": 0.47478070175438597,
+            "choice_nll": 1.2945009141427,
+            "choice_nll_sum": 1180.5848336981423,
+            "correct": 433,
+            "correct_answer_bpb": 0.17297759202761429,
+            "correct_answer_neg_log2_sum": 12187.309223897591,
+            "correct_answer_utf8_bytes": 70456,
+            "n": 912
+          }
+        },
+        "by_subject": {
+          "Accounting": {
+            "accuracy": 0.41847826086956524,
+            "choice_nll": 1.354827991568237,
+            "choice_nll_sum": 249.28835044855563,
+            "correct": 77,
+            "correct_answer_bpb": 0.21772236992867441,
+            "correct_answer_neg_log2_sum": 2183.5376480146756,
+            "correct_answer_utf8_bytes": 10029,
+            "n": 184
+          },
+          "Agriculture": {
+            "accuracy": 0.5134474327628362,
+            "choice_nll": 1.1380770676431702,
+            "choice_nll_sum": 465.47352066605663,
+            "correct": 210,
+            "correct_answer_bpb": 0.15194786664855064,
+            "correct_answer_neg_log2_sum": 5346.437635895903,
+            "correct_answer_utf8_bytes": 35186,
+            "n": 409
+          },
+          "Art": {
+            "accuracy": 0.511520737327189,
+            "choice_nll": 1.0583989900900288,
+            "choice_nll_sum": 689.0177425486087,
+            "correct": 333,
+            "correct_answer_bpb": 0.2506092675608678,
+            "correct_answer_neg_log2_sum": 6372.241846270186,
+            "correct_answer_utf8_bytes": 25427,
+            "n": 651
+          },
+          "Biology": {
+            "accuracy": 0.42822966507177035,
+            "choice_nll": 1.495942326366734,
+            "choice_nll_sum": 625.3038924212948,
+            "correct": 179,
+            "correct_answer_bpb": 0.3162684429716425,
+            "correct_answer_neg_log2_sum": 6675.79429424543,
+            "correct_answer_utf8_bytes": 21108,
+            "n": 418
+          },
+          "Chemistry": {
+            "accuracy": 0.41975308641975306,
+            "choice_nll": 1.8782931390273385,
+            "choice_nll_sum": 152.14174426121443,
+            "correct": 34,
+            "correct_answer_bpb": 0.5178463803954523,
+            "correct_answer_neg_log2_sum": 1028.4429114653683,
+            "correct_answer_utf8_bytes": 1986,
+            "n": 81
+          },
+          "Civil Engineering": {
+            "accuracy": 0.4980494148244473,
+            "choice_nll": 1.0791821925816358,
+            "choice_nll_sum": 829.8911060952779,
+            "correct": 383,
+            "correct_answer_bpb": 0.24343404859214304,
+            "correct_answer_neg_log2_sum": 6996.537990586783,
+            "correct_answer_utf8_bytes": 28741,
+            "n": 769
+          },
+          "Clinical Knowledge": {
+            "accuracy": 0.584518167456556,
+            "choice_nll": 1.0080563308365131,
+            "choice_nll_sum": 638.0996574195128,
+            "correct": 370,
+            "correct_answer_bpb": 0.20971783223027976,
+            "correct_answer_neg_log2_sum": 7007.511646142568,
+            "correct_answer_utf8_bytes": 33414,
+            "n": 633
+          },
+          "Computer Networks & Security": {
+            "accuracy": 0.25396825396825395,
+            "choice_nll": 2.3581981560202347,
+            "choice_nll_sum": 148.5664838292748,
+            "correct": 16,
+            "correct_answer_bpb": 0.19525813991148208,
+            "correct_answer_neg_log2_sum": 937.0438134352025,
+            "correct_answer_utf8_bytes": 4799,
+            "n": 63
+          },
+          "Computer Science": {
+            "accuracy": 0.5614525139664804,
+            "choice_nll": 1.0960888559214765,
+            "choice_nll_sum": 392.39981041988864,
+            "correct": 201,
+            "correct_answer_bpb": 0.19280059612715697,
+            "correct_answer_neg_log2_sum": 4675.221655487429,
+            "correct_answer_utf8_bytes": 24249,
+            "n": 358
+          },
+          "Computer_Networks_and_Security": {
+            "accuracy": 0.5217391304347826,
+            "choice_nll": 1.7942587329130393,
+            "choice_nll_sum": 41.2679508569999,
+            "correct": 12,
+            "correct_answer_bpb": 0.4504436778674017,
+            "correct_answer_neg_log2_sum": 309.0043630170376,
+            "correct_answer_utf8_bytes": 686,
+            "n": 23
+          },
+          "Driving Rules": {
+            "accuracy": 0.5126658624849216,
+            "choice_nll": 1.103889580690982,
+            "choice_nll_sum": 1830.2489247856483,
+            "correct": 850,
+            "correct_answer_bpb": 0.15328357195388462,
+            "correct_answer_neg_log2_sum": 26857.274492755983,
+            "correct_answer_utf8_bytes": 175213,
+            "n": 1658
+          },
+          "Economics": {
+            "accuracy": 0.48936170212765956,
+            "choice_nll": 1.2020933087475447,
+            "choice_nll_sum": 338.99031306680763,
+            "correct": 138,
+            "correct_answer_bpb": 0.1440335626992255,
+            "correct_answer_neg_log2_sum": 3459.2540753472986,
+            "correct_answer_utf8_bytes": 24017,
+            "n": 282
+          },
+          "Education": {
+            "accuracy": 0.5850340136054422,
+            "choice_nll": 0.9711802275219972,
+            "choice_nll_sum": 285.5269868914672,
+            "correct": 172,
+            "correct_answer_bpb": 0.178766195589688,
+            "correct_answer_neg_log2_sum": 3228.159959958586,
+            "correct_answer_utf8_bytes": 18058,
+            "n": 294
+          },
+          "Electrical Engineering": {
+            "accuracy": 0.48188405797101447,
+            "choice_nll": 1.2304214197328107,
+            "choice_nll_sum": 679.1926236925115,
+            "correct": 266,
+            "correct_answer_bpb": 0.2767662599827555,
+            "correct_answer_neg_log2_sum": 5406.352122503146,
+            "correct_answer_utf8_bytes": 19534,
+            "n": 552
+          },
+          "General Knowledge": {
+            "accuracy": 0.46438746438746437,
+            "choice_nll": 1.263682937872042,
+            "choice_nll_sum": 443.55271119308674,
+            "correct": 163,
+            "correct_answer_bpb": 0.19382882741336957,
+            "correct_answer_neg_log2_sum": 4367.932625760283,
+            "correct_answer_utf8_bytes": 22535,
+            "n": 351
+          },
+          "Geography": {
+            "accuracy": 0.6018957345971564,
+            "choice_nll": 1.2678509944180936,
+            "choice_nll_sum": 535.0331196444355,
+            "correct": 254,
+            "correct_answer_bpb": 0.2946567781498852,
+            "correct_answer_neg_log2_sum": 5435.828243309083,
+            "correct_answer_utf8_bytes": 18448,
+            "n": 422
+          },
+          "Government and Politics": {
+            "accuracy": 0.6788732394366197,
+            "choice_nll": 0.9201008340084311,
+            "choice_nll_sum": 326.63579607299306,
+            "correct": 241,
+            "correct_answer_bpb": 0.2120487089847525,
+            "correct_answer_neg_log2_sum": 4411.037244300822,
+            "correct_answer_utf8_bytes": 20802,
+            "n": 355
+          },
+          "Greek History": {
+            "accuracy": 0.6275964391691394,
+            "choice_nll": 1.0694042596351951,
+            "choice_nll_sum": 720.7784709941216,
+            "correct": 423,
+            "correct_answer_bpb": 0.27330074045283714,
+            "correct_answer_neg_log2_sum": 8670.465990866258,
+            "correct_answer_utf8_bytes": 31725,
+            "n": 674
+          },
+          "Greek Literature": {
+            "accuracy": 0.5,
+            "choice_nll": 0.9669875258571972,
+            "choice_nll_sum": 13.53782536200076,
+            "correct": 7,
+            "correct_answer_bpb": 0.24698255911630046,
+            "correct_answer_neg_log2_sum": 142.50893661010537,
+            "correct_answer_utf8_bytes": 577,
+            "n": 14
+          },
+          "Greek Mythology": {
+            "accuracy": 0.592436974789916,
+            "choice_nll": 1.0832053353900175,
+            "choice_nll_sum": 257.80286982282416,
+            "correct": 141,
+            "correct_answer_bpb": 0.27642732887033383,
+            "correct_answer_neg_log2_sum": 3102.3439119117565,
+            "correct_answer_utf8_bytes": 11223,
+            "n": 238
+          },
+          "Greek Traditions": {
+            "accuracy": 0.5877659574468085,
+            "choice_nll": 0.9117666890451257,
+            "choice_nll_sum": 342.82427508096725,
+            "correct": 221,
+            "correct_answer_bpb": 0.24873126661667838,
+            "correct_answer_neg_log2_sum": 3615.557691540037,
+            "correct_answer_utf8_bytes": 14536,
+            "n": 376
+          },
+          "Law": {
+            "accuracy": 0.35683760683760685,
+            "choice_nll": 1.4227194677832737,
+            "choice_nll_sum": 1331.6654218451442,
+            "correct": 334,
+            "correct_answer_bpb": 0.11605155131196294,
+            "correct_answer_neg_log2_sum": 14496.231377479915,
+            "correct_answer_utf8_bytes": 124912,
+            "n": 936
+          },
+          "Management": {
+            "accuracy": 0.5480480480480481,
+            "choice_nll": 0.9323524730883639,
+            "choice_nll_sum": 620.9467470768503,
+            "correct": 365,
+            "correct_answer_bpb": 0.29334771671243587,
+            "correct_answer_neg_log2_sum": 6223.371810054327,
+            "correct_answer_utf8_bytes": 21215,
+            "n": 666
+          },
+          "Maritime Safety and Rescue Operations": {
+            "accuracy": 0.3783783783783784,
+            "choice_nll": 1.2451237117633878,
+            "choice_nll_sum": 184.2783093409814,
+            "correct": 56,
+            "correct_answer_bpb": 0.15460195210594346,
+            "correct_answer_neg_log2_sum": 2223.176071283467,
+            "correct_answer_utf8_bytes": 14380,
+            "n": 148
+          },
+          "Mathematics": {
+            "accuracy": 0.5608228980322003,
+            "choice_nll": 1.3004150093244042,
+            "choice_nll_sum": 1453.8639804246839,
+            "correct": 627,
+            "correct_answer_bpb": 0.5394898707534083,
+            "correct_answer_neg_log2_sum": 9660.645115581281,
+            "correct_answer_utf8_bytes": 17907,
+            "n": 1118
+          },
+          "Medicine": {
+            "accuracy": 0.4756554307116105,
+            "choice_nll": 1.1326114154663967,
+            "choice_nll_sum": 604.8144958590558,
+            "correct": 254,
+            "correct_answer_bpb": 0.22903665865583508,
+            "correct_answer_neg_log2_sum": 6692.909239240813,
+            "correct_answer_utf8_bytes": 29222,
+            "n": 534
+          },
+          "Modern Greek Language": {
+            "accuracy": 0.5063613231552163,
+            "choice_nll": 1.534037603383204,
+            "choice_nll_sum": 3617.2606687775947,
+            "correct": 1194,
+            "correct_answer_bpb": 0.3645049375586805,
+            "correct_answer_neg_log2_sum": 26586.99014553016,
+            "correct_answer_utf8_bytes": 72940,
+            "n": 2358
+          },
+          "Physics": {
+            "accuracy": 0.5975943138326955,
+            "choice_nll": 0.989197804773868,
+            "choice_nll_sum": 1809.2427849314045,
+            "correct": 1093,
+            "correct_answer_bpb": 0.18358107236807197,
+            "correct_answer_neg_log2_sum": 19650.15082413369,
+            "correct_answer_utf8_bytes": 107038,
+            "n": 1829
+          },
+          "Prehistory": {
+            "accuracy": 0.8095238095238095,
+            "choice_nll": 0.7270922908870285,
+            "choice_nll_sum": 45.8068143258828,
+            "correct": 51,
+            "correct_answer_bpb": 0.2372945426349929,
+            "correct_answer_neg_log2_sum": 888.6680621680483,
+            "correct_answer_utf8_bytes": 3745,
+            "n": 63
+          },
+          "World History": {
+            "accuracy": 0.85,
+            "choice_nll": 0.7084531070710584,
+            "choice_nll_sum": 14.169062141421167,
+            "correct": 17,
+            "correct_answer_bpb": 0.228994973222064,
+            "correct_answer_neg_log2_sum": 258.9933147141544,
+            "correct_answer_utf8_bytes": 1131,
+            "n": 20
+          },
+          "World Religions": {
+            "accuracy": 0.6129032258064516,
+            "choice_nll": 1.1516665779716455,
+            "choice_nll_sum": 178.50831958560505,
+            "correct": 95,
+            "correct_answer_bpb": 0.13988404824315961,
+            "correct_answer_neg_log2_sum": 2341.658967590492,
+            "correct_answer_utf8_bytes": 16740,
+            "n": 155
+          }
+        },
+        "overall": {
+          "accuracy": 0.5277176527176527,
+          "choice_nll": 1.1944523075927231,
+          "choice_nll_sum": 19866.130779882173,
+          "correct": 8777,
+          "correct_answer_bpb": 0.20940248846028975,
+          "correct_answer_neg_log2_sum": 199251.28402720028,
+          "correct_answer_utf8_bytes": 951523,
+          "n": 16632
+        }
+      },
+      "predictions": {
+        "bytes": 10646222,
+        "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0000952/full_public/aggregate/views/full_public.predictions.jsonl",
+        "sha256": "88e71908bda67cd934fa8e9201257069dc5598bc492449172d41344e5521d1b2"
+      }
+    },
+    "sentinel_4096": {
+      "metrics": {
+        "by_educational_level": {
+          "NA": {
+            "accuracy": 0.540625,
+            "choice_nll": 1.0738780792573557,
+            "choice_nll_sum": 343.64098536235383,
+            "correct": 173,
+            "correct_answer_bpb": 0.14833663012891146,
+            "correct_answer_neg_log2_sum": 5180.508470622104,
+            "correct_answer_utf8_bytes": 34924,
+            "n": 320
+          },
+          "Primary School": {
+            "accuracy": 0.6057605760576058,
+            "choice_nll": 1.3072695707412845,
+            "choice_nll_sum": 1452.376493093567,
+            "correct": 673,
+            "correct_answer_bpb": 0.32217556361922456,
+            "correct_answer_neg_log2_sum": 12920.528803385381,
+            "correct_answer_utf8_bytes": 40104,
+            "n": 1111
+          },
+          "Professional": {
+            "accuracy": 0.5056289769946157,
+            "choice_nll": 1.1020744817516732,
+            "choice_nll_sum": 2251.5381662186683,
+            "correct": 1033,
+            "correct_answer_bpb": 0.18367006661222013,
+            "correct_answer_neg_log2_sum": 22877.20881695169,
+            "correct_answer_utf8_bytes": 124556,
+            "n": 2043
+          },
+          "Secondary School": {
+            "accuracy": 0.5581395348837209,
+            "choice_nll": 1.216054672857832,
+            "choice_nll_sum": 470.61315839598103,
+            "correct": 216,
+            "correct_answer_bpb": 0.31623721987703657,
+            "correct_answer_neg_log2_sum": 4425.42365495925,
+            "correct_answer_utf8_bytes": 13994,
+            "n": 387
+          },
+          "University": {
+            "accuracy": 0.4808510638297872,
+            "choice_nll": 1.3250321612375957,
+            "choice_nll_sum": 311.382557890835,
+            "correct": 113,
+            "correct_answer_bpb": 0.1670903686940451,
+            "correct_answer_neg_log2_sum": 3130.772238220323,
+            "correct_answer_utf8_bytes": 18737,
+            "n": 235
+          }
+        },
+        "by_subject": {
+          "Accounting": {
+            "accuracy": 0.40425531914893614,
+            "choice_nll": 1.2314116693912205,
+            "choice_nll_sum": 57.876348461387366,
+            "correct": 19,
+            "correct_answer_bpb": 0.2249765416803165,
+            "correct_answer_neg_log2_sum": 544.6682074080462,
+            "correct_answer_utf8_bytes": 2421,
+            "n": 47
+          },
+          "Agriculture": {
+            "accuracy": 0.5631067961165048,
+            "choice_nll": 1.058507724202585,
+            "choice_nll_sum": 109.02629559286626,
+            "correct": 58,
+            "correct_answer_bpb": 0.16413786516457124,
+            "correct_answer_neg_log2_sum": 1301.1208571595562,
+            "correct_answer_utf8_bytes": 7927,
+            "n": 103
+          },
+          "Art": {
+            "accuracy": 0.5151515151515151,
+            "choice_nll": 1.0188667969972032,
+            "choice_nll_sum": 168.11302150453852,
+            "correct": 85,
+            "correct_answer_bpb": 0.21743914335827635,
+            "correct_answer_neg_log2_sum": 1637.5341886311792,
+            "correct_answer_utf8_bytes": 7531,
+            "n": 165
+          },
+          "Biology": {
+            "accuracy": 0.41237113402061853,
+            "choice_nll": 1.4633183035547306,
+            "choice_nll_sum": 141.94187544480886,
+            "correct": 40,
+            "correct_answer_bpb": 0.3050210653125809,
+            "correct_answer_neg_log2_sum": 1570.5534652944789,
+            "correct_answer_utf8_bytes": 5149,
+            "n": 97
+          },
+          "Chemistry": {
+            "accuracy": 0.42857142857142855,
+            "choice_nll": 2.1201924528169234,
+            "choice_nll_sum": 44.52404150915539,
+            "correct": 9,
+            "correct_answer_bpb": 0.5444188324137113,
+            "correct_answer_neg_log2_sum": 236.27777326755069,
+            "correct_answer_utf8_bytes": 434,
+            "n": 21
+          },
+          "Civil Engineering": {
+            "accuracy": 0.520618556701031,
+            "choice_nll": 1.0305441569079759,
+            "choice_nll_sum": 199.92556644014732,
+            "correct": 101,
+            "correct_answer_bpb": 0.2503624341423175,
+            "correct_answer_neg_log2_sum": 1714.231586572448,
+            "correct_answer_utf8_bytes": 6847,
+            "n": 194
+          },
+          "Clinical Knowledge": {
+            "accuracy": 0.5625,
+            "choice_nll": 1.0643179843575523,
+            "choice_nll_sum": 170.29087749720836,
+            "correct": 90,
+            "correct_answer_bpb": 0.20444222750660168,
+            "correct_answer_neg_log2_sum": 1828.9401672740587,
+            "correct_answer_utf8_bytes": 8946,
+            "n": 160
+          },
+          "Computer Networks & Security": {
+            "accuracy": 0.17647058823529413,
+            "choice_nll": 2.7308881884828087,
+            "choice_nll_sum": 46.42509920420775,
+            "correct": 3,
+            "correct_answer_bpb": 0.1726825433654587,
+            "correct_answer_neg_log2_sum": 278.88230753521583,
+            "correct_answer_utf8_bytes": 1615,
+            "n": 17
+          },
+          "Computer Science": {
+            "accuracy": 0.5164835164835165,
+            "choice_nll": 1.2427022690685532,
+            "choice_nll_sum": 113.08590648523834,
+            "correct": 47,
+            "correct_answer_bpb": 0.18738764735447194,
+            "correct_answer_neg_log2_sum": 1237.6954107762872,
+            "correct_answer_utf8_bytes": 6605,
+            "n": 91
+          },
+          "Computer_Networks_and_Security": {
+            "accuracy": 0.5,
+            "choice_nll": 0.8575118303841135,
+            "choice_nll_sum": 5.145070982304681,
+            "correct": 3,
+            "correct_answer_bpb": 0.4313882262019183,
+            "correct_answer_neg_log2_sum": 76.78710426394146,
+            "correct_answer_utf8_bytes": 178,
+            "n": 6
+          },
+          "Driving Rules": {
+            "accuracy": 0.540625,
+            "choice_nll": 1.0738780792573557,
+            "choice_nll_sum": 343.64098536235383,
+            "correct": 173,
+            "correct_answer_bpb": 0.14833663012891146,
+            "correct_answer_neg_log2_sum": 5180.508470622104,
+            "correct_answer_utf8_bytes": 34924,
+            "n": 320
+          },
+          "Economics": {
+            "accuracy": 0.49295774647887325,
+            "choice_nll": 1.2797657571800147,
+            "choice_nll_sum": 90.86336875978104,
+            "correct": 35,
+            "correct_answer_bpb": 0.14632994415741804,
+            "correct_answer_neg_log2_sum": 875.6383858379895,
+            "correct_answer_utf8_bytes": 5984,
+            "n": 71
+          },
+          "Education": {
+            "accuracy": 0.581081081081081,
+            "choice_nll": 0.989063486094809,
+            "choice_nll_sum": 73.19069797101587,
+            "correct": 43,
+            "correct_answer_bpb": 0.16728075485936758,
+            "correct_answer_neg_log2_sum": 792.7434972785429,
+            "correct_answer_utf8_bytes": 4739,
+            "n": 74
+          },
+          "Electrical Engineering": {
+            "accuracy": 0.4316546762589928,
+            "choice_nll": 1.2440983273410693,
+            "choice_nll_sum": 172.92966750040864,
+            "correct": 60,
+            "correct_answer_bpb": 0.3102304543319254,
+            "correct_answer_neg_log2_sum": 1337.0932581705986,
+            "correct_answer_utf8_bytes": 4310,
+            "n": 139
+          },
+          "General Knowledge": {
+            "accuracy": 0.48314606741573035,
+            "choice_nll": 1.2081731031285907,
+            "choice_nll_sum": 107.52740617844458,
+            "correct": 43,
+            "correct_answer_bpb": 0.173219588999934,
+            "correct_answer_neg_log2_sum": 1068.7648641295928,
+            "correct_answer_utf8_bytes": 6170,
+            "n": 89
+          },
+          "Geography": {
+            "accuracy": 0.6261682242990654,
+            "choice_nll": 1.27240217841851,
+            "choice_nll_sum": 136.14703309078058,
+            "correct": 67,
+            "correct_answer_bpb": 0.2875871209914509,
+            "correct_answer_neg_log2_sum": 1366.0388247093917,
+            "correct_answer_utf8_bytes": 4750,
+            "n": 107
+          },
+          "Government and Politics": {
+            "accuracy": 0.7222222222222222,
+            "choice_nll": 0.9938329634716718,
+            "choice_nll_sum": 89.44496671245047,
+            "correct": 65,
+            "correct_answer_bpb": 0.23090648039527936,
+            "correct_answer_neg_log2_sum": 1142.987077956633,
+            "correct_answer_utf8_bytes": 4950,
+            "n": 90
+          },
+          "Greek History": {
+            "accuracy": 0.6647058823529411,
+            "choice_nll": 1.0463433358705616,
+            "choice_nll_sum": 177.87836709799546,
+            "correct": 113,
+            "correct_answer_bpb": 0.24843051312773395,
+            "correct_answer_neg_log2_sum": 2135.2602603328733,
+            "correct_answer_utf8_bytes": 8595,
+            "n": 170
+          },
+          "Greek Literature": {
+            "accuracy": 0.25,
+            "choice_nll": 1.1345239822738287,
+            "choice_nll_sum": 4.538095929095315,
+            "correct": 1,
+            "correct_answer_bpb": 0.2744352792900832,
+            "correct_answer_neg_log2_sum": 43.086338848543065,
+            "correct_answer_utf8_bytes": 157,
+            "n": 4
+          },
+          "Greek Mythology": {
+            "accuracy": 0.5901639344262295,
+            "choice_nll": 1.102969195070262,
+            "choice_nll_sum": 67.28112089928598,
+            "correct": 36,
+            "correct_answer_bpb": 0.29659125467375635,
+            "correct_answer_neg_log2_sum": 801.6861613831635,
+            "correct_answer_utf8_bytes": 2703,
+            "n": 61
+          },
+          "Greek Traditions": {
+            "accuracy": 0.5473684210526316,
+            "choice_nll": 0.946093169975755,
+            "choice_nll_sum": 89.87885114769672,
+            "correct": 52,
+            "correct_answer_bpb": 0.29151284046729325,
+            "correct_answer_neg_log2_sum": 899.608625682067,
+            "correct_answer_utf8_bytes": 3086,
+            "n": 95
+          },
+          "Law": {
+            "accuracy": 0.3404255319148936,
+            "choice_nll": 1.452015644423425,
+            "choice_nll_sum": 341.22367643950486,
+            "correct": 80,
+            "correct_answer_bpb": 0.11917621289095849,
+            "correct_answer_neg_log2_sum": 3684.570973949764,
+            "correct_answer_utf8_bytes": 30917,
+            "n": 235
+          },
+          "Management": {
+            "accuracy": 0.562874251497006,
+            "choice_nll": 0.905598897671101,
+            "choice_nll_sum": 151.23501591107387,
+            "correct": 94,
+            "correct_answer_bpb": 0.2509871679434301,
+            "correct_answer_neg_log2_sum": 1613.8474898762558,
+            "correct_answer_utf8_bytes": 6430,
+            "n": 167
+          },
+          "Maritime Safety and Rescue Operations": {
+            "accuracy": 0.2972972972972973,
+            "choice_nll": 1.1276537661416555,
+            "choice_nll_sum": 41.72318934724125,
+            "correct": 11,
+            "correct_answer_bpb": 0.17429367364238404,
+            "correct_answer_neg_log2_sum": 568.197376074172,
+            "correct_answer_utf8_bytes": 3260,
+            "n": 37
+          },
+          "Mathematics": {
+            "accuracy": 0.6063829787234043,
+            "choice_nll": 1.2087038840555098,
+            "choice_nll_sum": 340.8544953036538,
+            "correct": 171,
+            "correct_answer_bpb": 0.5662257824947557,
+            "correct_answer_neg_log2_sum": 2338.512481703341,
+            "correct_answer_utf8_bytes": 4130,
+            "n": 282
+          },
+          "Medicine": {
+            "accuracy": 0.5373134328358209,
+            "choice_nll": 1.0601942149460009,
+            "choice_nll_sum": 142.0660248027641,
+            "correct": 72,
+            "correct_answer_bpb": 0.209443285402279,
+            "correct_answer_neg_log2_sum": 1679.7351489262776,
+            "correct_answer_utf8_bytes": 8020,
+            "n": 134
+          },
+          "Modern Greek Language": {
+            "accuracy": 0.534453781512605,
+            "choice_nll": 1.5076422999523609,
+            "choice_nll_sum": 897.0471684716547,
+            "correct": 318,
+            "correct_answer_bpb": 0.3794764308329794,
+            "correct_answer_neg_log2_sum": 6695.4821456170885,
+            "correct_answer_utf8_bytes": 17644,
+            "n": 595
+          },
+          "Physics": {
+            "accuracy": 0.5952380952380952,
+            "choice_nll": 0.9561433587898046,
+            "choice_nll_sum": 441.73823176088973,
+            "correct": 275,
+            "correct_answer_bpb": 0.17765365451193985,
+            "correct_answer_neg_log2_sum": 4960.800648591408,
+            "correct_answer_utf8_bytes": 27924,
+            "n": 462
+          },
+          "Prehistory": {
+            "accuracy": 0.7058823529411765,
+            "choice_nll": 0.8847229353058531,
+            "choice_nll_sum": 15.040289900199502,
+            "correct": 12,
+            "correct_answer_bpb": 0.2970771129404058,
+            "correct_answer_neg_log2_sum": 242.71200127231154,
+            "correct_answer_utf8_bytes": 817,
+            "n": 17
+          },
+          "World History": {
+            "accuracy": 0.8333333333333334,
+            "choice_nll": 0.7440058740067172,
+            "choice_nll_sum": 4.4640352440403035,
+            "correct": 5,
+            "correct_answer_bpb": 0.1625071927732376,
+            "correct_answer_neg_log2_sum": 68.41552815753303,
+            "correct_answer_utf8_bytes": 421,
+            "n": 6
+          },
+          "World Religions": {
+            "accuracy": 0.675,
+            "choice_nll": 1.112114250230286,
+            "choice_nll_sum": 44.484570009211446,
+            "correct": 27,
+            "correct_answer_bpb": 0.12937251254202828,
+            "correct_answer_neg_log2_sum": 612.0613568363358,
+            "correct_answer_utf8_bytes": 4731,
+            "n": 40
+          }
+        },
+        "overall": {
+          "accuracy": 0.5390625,
+          "choice_nll": 1.179089687734718,
+          "choice_nll_sum": 4829.5513609614045,
+          "correct": 2208,
+          "correct_answer_bpb": 0.20891652275633837,
+          "correct_answer_neg_log2_sum": 48534.44198413875,
+          "correct_answer_utf8_bytes": 232315,
+          "n": 4096
+        }
+      },
+      "predictions": {
+        "bytes": 2625328,
+        "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0000952/full_public/aggregate/views/sentinel_4096.predictions.jsonl",
+        "sha256": "f89ab9f68b84db57409be0ab319fd224569af4bf57165f30d8426856fe24f93c"
+      }
+    },
+    "sentinel_8192": {
+      "metrics": {
+        "by_educational_level": {
+          "NA": {
+            "accuracy": 0.5226209048361935,
+            "choice_nll": 1.1066705597044928,
+            "choice_nll_sum": 709.3758287705799,
+            "correct": 335,
+            "correct_answer_bpb": 0.14543820520692394,
+            "correct_answer_neg_log2_sum": 10427.046684105206,
+            "correct_answer_utf8_bytes": 71694,
+            "n": 641
+          },
+          "Primary School": {
+            "accuracy": 0.588314606741573,
+            "choice_nll": 1.3329451731275803,
+            "choice_nll_sum": 2965.8030102088665,
+            "correct": 1309,
+            "correct_answer_bpb": 0.31955080270530106,
+            "correct_answer_neg_log2_sum": 25993.54049526001,
+            "correct_answer_utf8_bytes": 81344,
+            "n": 2225
+          },
+          "Professional": {
+            "accuracy": 0.508192712154561,
+            "choice_nll": 1.1077560577037215,
+            "choice_nll_sum": 4529.614519950517,
+            "correct": 2078,
+            "correct_answer_bpb": 0.1811971766549883,
+            "correct_answer_neg_log2_sum": 45822.229215573374,
+            "correct_answer_utf8_bytes": 252886,
+            "n": 4089
+          },
+          "Secondary School": {
+            "accuracy": 0.5316946959896507,
+            "choice_nll": 1.1966434925152984,
+            "choice_nll_sum": 925.0054197143257,
+            "correct": 411,
+            "correct_answer_bpb": 0.31377590456432,
+            "correct_answer_neg_log2_sum": 8755.602840962785,
+            "correct_answer_utf8_bytes": 27904,
+            "n": 773
+          },
+          "University": {
+            "accuracy": 0.47629310344827586,
+            "choice_nll": 1.305830231863535,
+            "choice_nll_sum": 605.9052275846802,
+            "correct": 221,
+            "correct_answer_bpb": 0.1644000155168566,
+            "correct_answer_neg_log2_sum": 6254.762990354326,
+            "correct_answer_utf8_bytes": 38046,
+            "n": 464
+          }
+        },
+        "by_subject": {
+          "Accounting": {
+            "accuracy": 0.43010752688172044,
+            "choice_nll": 1.3133694118576629,
+            "choice_nll_sum": 122.14335530276266,
+            "correct": 40,
+            "correct_answer_bpb": 0.22174411980192008,
+            "correct_answer_neg_log2_sum": 1108.4988548897984,
+            "correct_answer_utf8_bytes": 4999,
+            "n": 93
+          },
+          "Agriculture": {
+            "accuracy": 0.5097087378640777,
+            "choice_nll": 1.0942769741182528,
+            "choice_nll_sum": 225.42105666836005,
+            "correct": 105,
+            "correct_answer_bpb": 0.16277156050772035,
+            "correct_answer_neg_log2_sum": 2660.501156498689,
+            "correct_answer_utf8_bytes": 16345,
+            "n": 206
+          },
+          "Art": {
+            "accuracy": 0.5212121212121212,
+            "choice_nll": 1.048194726763816,
+            "choice_nll_sum": 345.9042598320593,
+            "correct": 172,
+            "correct_answer_bpb": 0.2361021354548919,
+            "correct_answer_neg_log2_sum": 3250.181996672042,
+            "correct_answer_utf8_bytes": 13766,
+            "n": 330
+          },
+          "Biology": {
+            "accuracy": 0.4256410256410256,
+            "choice_nll": 1.4305668439423986,
+            "choice_nll_sum": 278.96053456876774,
+            "correct": 83,
+            "correct_answer_bpb": 0.30892278078943786,
+            "correct_answer_neg_log2_sum": 3097.5687229756936,
+            "correct_answer_utf8_bytes": 10027,
+            "n": 195
+          },
+          "Chemistry": {
+            "accuracy": 0.40476190476190477,
+            "choice_nll": 1.9886543716193215,
+            "choice_nll_sum": 83.5234836080115,
+            "correct": 17,
+            "correct_answer_bpb": 0.5421424051965069,
+            "correct_answer_neg_log2_sum": 484.13316784048067,
+            "correct_answer_utf8_bytes": 893,
+            "n": 42
+          },
+          "Civil Engineering": {
+            "accuracy": 0.4961439588688946,
+            "choice_nll": 1.0623913384875148,
+            "choice_nll_sum": 413.2702306716432,
+            "correct": 193,
+            "correct_answer_bpb": 0.23555075690172775,
+            "correct_answer_neg_log2_sum": 3503.5819581562987,
+            "correct_answer_utf8_bytes": 14874,
+            "n": 389
+          },
+          "Clinical Knowledge": {
+            "accuracy": 0.5794392523364486,
+            "choice_nll": 1.0166934891858042,
+            "choice_nll_sum": 326.3586100286431,
+            "correct": 186,
+            "correct_answer_bpb": 0.19336956388487053,
+            "correct_answer_neg_log2_sum": 3727.5850830086492,
+            "correct_answer_utf8_bytes": 19277,
+            "n": 321
+          },
+          "Computer Networks & Security": {
+            "accuracy": 0.2727272727272727,
+            "choice_nll": 2.3635754467252377,
+            "choice_nll_sum": 77.99798974193284,
+            "correct": 9,
+            "correct_answer_bpb": 0.1766686248174412,
+            "correct_answer_neg_log2_sum": 488.3120789954075,
+            "correct_answer_utf8_bytes": 2764,
+            "n": 33
+          },
+          "Computer Science": {
+            "accuracy": 0.5469613259668509,
+            "choice_nll": 1.1423687065079915,
+            "choice_nll_sum": 206.76873587794645,
+            "correct": 99,
+            "correct_answer_bpb": 0.181403230812007,
+            "correct_answer_neg_log2_sum": 2450.2134385777786,
+            "correct_answer_utf8_bytes": 13507,
+            "n": 181
+          },
+          "Computer_Networks_and_Security": {
+            "accuracy": 0.5454545454545454,
+            "choice_nll": 1.6543620743961223,
+            "choice_nll_sum": 18.197982818357346,
+            "correct": 6,
+            "correct_answer_bpb": 0.4924023776730156,
+            "correct_answer_neg_log2_sum": 130.48663008334913,
+            "correct_answer_utf8_bytes": 265,
+            "n": 11
+          },
+          "Driving Rules": {
+            "accuracy": 0.5226209048361935,
+            "choice_nll": 1.1066705597044928,
+            "choice_nll_sum": 709.3758287705799,
+            "correct": 335,
+            "correct_answer_bpb": 0.14543820520692394,
+            "correct_answer_neg_log2_sum": 10427.046684105206,
+            "correct_answer_utf8_bytes": 71694,
+            "n": 641
+          },
+          "Economics": {
+            "accuracy": 0.5140845070422535,
+            "choice_nll": 1.1782170097250102,
+            "choice_nll_sum": 167.30681538095143,
+            "correct": 73,
+            "correct_answer_bpb": 0.14405097135839107,
+            "correct_answer_neg_log2_sum": 1791.1297778702346,
+            "correct_answer_utf8_bytes": 12434,
+            "n": 142
+          },
+          "Education": {
+            "accuracy": 0.5570469798657718,
+            "choice_nll": 1.021299846796543,
+            "choice_nll_sum": 152.17367717268493,
+            "correct": 83,
+            "correct_answer_bpb": 0.17533503647274368,
+            "correct_answer_neg_log2_sum": 1621.6737523364063,
+            "correct_answer_utf8_bytes": 9249,
+            "n": 149
+          },
+          "Electrical Engineering": {
+            "accuracy": 0.4784172661870504,
+            "choice_nll": 1.159081668314838,
+            "choice_nll_sum": 322.224703791525,
+            "correct": 133,
+            "correct_answer_bpb": 0.29032984065575246,
+            "correct_answer_neg_log2_sum": 2691.647952719481,
+            "correct_answer_utf8_bytes": 9271,
+            "n": 278
+          },
+          "General Knowledge": {
+            "accuracy": 0.4157303370786517,
+            "choice_nll": 1.3745386362545373,
+            "choice_nll_sum": 244.66787725330764,
+            "correct": 74,
+            "correct_answer_bpb": 0.20262088880619647,
+            "correct_answer_neg_log2_sum": 2182.6322142203485,
+            "correct_answer_utf8_bytes": 10772,
+            "n": 178
+          },
+          "Geography": {
+            "accuracy": 0.5794392523364486,
+            "choice_nll": 1.319584540347155,
+            "choice_nll_sum": 282.3910916342912,
+            "correct": 124,
+            "correct_answer_bpb": 0.29766849613747304,
+            "correct_answer_neg_log2_sum": 2709.3786518432794,
+            "correct_answer_utf8_bytes": 9102,
+            "n": 214
+          },
+          "Government and Politics": {
+            "accuracy": 0.6888888888888889,
+            "choice_nll": 0.9720467170323805,
+            "choice_nll_sum": 174.9684090658285,
+            "correct": 124,
+            "correct_answer_bpb": 0.2078593822213108,
+            "correct_answer_neg_log2_sum": 2229.49973370578,
+            "correct_answer_utf8_bytes": 10726,
+            "n": 180
+          },
+          "Greek History": {
+            "accuracy": 0.6342182890855457,
+            "choice_nll": 1.0573428644606326,
+            "choice_nll_sum": 358.43923105215447,
+            "correct": 215,
+            "correct_answer_bpb": 0.25344252406632006,
+            "correct_answer_neg_log2_sum": 4368.335344807093,
+            "correct_answer_utf8_bytes": 17236,
+            "n": 339
+          },
+          "Greek Literature": {
+            "accuracy": 0.2857142857142857,
+            "choice_nll": 1.0765180471526852,
+            "choice_nll_sum": 7.535626330068796,
+            "correct": 2,
+            "correct_answer_bpb": 0.2229827181855352,
+            "correct_answer_neg_log2_sum": 77.15202049219518,
+            "correct_answer_utf8_bytes": 346,
+            "n": 7
+          },
+          "Greek Mythology": {
+            "accuracy": 0.5867768595041323,
+            "choice_nll": 1.1044674290125802,
+            "choice_nll_sum": 133.6405589105222,
+            "correct": 71,
+            "correct_answer_bpb": 0.26201810705786543,
+            "correct_answer_neg_log2_sum": 1620.31997404584,
+            "correct_answer_utf8_bytes": 6184,
+            "n": 121
+          },
+          "Greek Traditions": {
+            "accuracy": 0.5789473684210527,
+            "choice_nll": 0.947547499471607,
+            "choice_nll_sum": 180.03402489960533,
+            "correct": 110,
+            "correct_answer_bpb": 0.276219095111672,
+            "correct_answer_neg_log2_sum": 1873.8703412375826,
+            "correct_answer_utf8_bytes": 6784,
+            "n": 190
+          },
+          "Law": {
+            "accuracy": 0.35668789808917195,
+            "choice_nll": 1.4190900281580159,
+            "choice_nll_sum": 668.3914032624255,
+            "correct": 168,
+            "correct_answer_bpb": 0.11375254198341855,
+            "correct_answer_neg_log2_sum": 7255.364632786403,
+            "correct_answer_utf8_bytes": 63782,
+            "n": 471
+          },
+          "Management": {
+            "accuracy": 0.5598802395209581,
+            "choice_nll": 0.8805076419135893,
+            "choice_nll_sum": 294.0895523991388,
+            "correct": 187,
+            "correct_answer_bpb": 0.28679680440348304,
+            "correct_answer_neg_log2_sum": 3110.8849373645808,
+            "correct_answer_utf8_bytes": 10847,
+            "n": 334
+          },
+          "Maritime Safety and Rescue Operations": {
+            "accuracy": 0.3424657534246575,
+            "choice_nll": 1.1590457910933272,
+            "choice_nll_sum": 84.61034274981289,
+            "correct": 25,
+            "correct_answer_bpb": 0.14224808909368472,
+            "correct_answer_neg_log2_sum": 1113.6602895144576,
+            "correct_answer_utf8_bytes": 7829,
+            "n": 73
+          },
+          "Mathematics": {
+            "accuracy": 0.5628318584070796,
+            "choice_nll": 1.2836482896140808,
+            "choice_nll_sum": 725.2612836319557,
+            "correct": 318,
+            "correct_answer_bpb": 0.5330047229156553,
+            "correct_answer_neg_log2_sum": 4864.20110132827,
+            "correct_answer_utf8_bytes": 9126,
+            "n": 565
+          },
+          "Medicine": {
+            "accuracy": 0.5186567164179104,
+            "choice_nll": 1.11618162906726,
+            "choice_nll_sum": 299.1366765900257,
+            "correct": 139,
+            "correct_answer_bpb": 0.2072177574531667,
+            "correct_answer_neg_log2_sum": 3272.5900434578616,
+            "correct_answer_utf8_bytes": 15793,
+            "n": 268
+          },
+          "Modern Greek Language": {
+            "accuracy": 0.5234505862646566,
+            "choice_nll": 1.4907478169751092,
+            "choice_nll_sum": 1779.9528934682803,
+            "correct": 625,
+            "correct_answer_bpb": 0.36912312143659454,
+            "correct_answer_neg_log2_sum": 13377.021920862186,
+            "correct_answer_utf8_bytes": 36240,
+            "n": 1194
+          },
+          "Physics": {
+            "accuracy": 0.6,
+            "choice_nll": 1.003613505775016,
+            "choice_nll_sum": 928.3424928418898,
+            "correct": 555,
+            "correct_answer_bpb": 0.17630887902744768,
+            "correct_answer_neg_log2_sum": 9959.159649623438,
+            "correct_answer_utf8_bytes": 56487,
+            "n": 925
+          },
+          "Prehistory": {
+            "accuracy": 0.7878787878787878,
+            "choice_nll": 0.743722688520035,
+            "choice_nll_sum": 24.542848721161153,
+            "correct": 26,
+            "correct_answer_bpb": 0.2697895362000764,
+            "correct_answer_neg_log2_sum": 474.29000463973426,
+            "correct_answer_utf8_bytes": 1758,
+            "n": 33
+          },
+          "World History": {
+            "accuracy": 0.7,
+            "choice_nll": 0.8901737579797482,
+            "choice_nll_sum": 8.901737579797482,
+            "correct": 7,
+            "correct_answer_bpb": 0.19019036697177774,
+            "correct_answer_neg_log2_sum": 114.11422018306665,
+            "correct_answer_utf8_bytes": 600,
+            "n": 10
+          },
+          "World Religions": {
+            "accuracy": 0.6329113924050633,
+            "choice_nll": 1.1540593873984581,
+            "choice_nll_sum": 91.1706916044782,
+            "correct": 50,
+            "correct_answer_bpb": 0.136916476499278,
+            "correct_answer_neg_log2_sum": 1218.1458914140762,
+            "correct_answer_utf8_bytes": 8897,
+            "n": 79
+          }
+        },
+        "overall": {
+          "accuracy": 0.531494140625,
+          "choice_nll": 1.1884404304478722,
+          "choice_nll_sum": 9735.704006228969,
+          "correct": 4354,
+          "correct_answer_bpb": 0.20609989579051974,
+          "correct_answer_neg_log2_sum": 97253.18222625571,
+          "correct_answer_utf8_bytes": 471874,
+          "n": 8192
+        }
+      },
+      "predictions": {
+        "bytes": 5254834,
+        "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0000952/full_public/aggregate/views/sentinel_8192.predictions.jsonl",
+        "sha256": "1583131362641f1e1982a2ad644516f89b4ed68b287ca07d87c811d21e0c6705"
+      }
+    }
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "checkpoint_export": {
+    "bytes": 5729,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0003456/checkpoint_export_receipt.json",
+    "sha256": "4d2945b234141128833cf98bb09a727dc9cdaa7fab2c5530a119ce2110f6bfe4"
+  },
+  "clean_examples": {
+    "bytes": 2538203,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/public_examples.json",
+    "sha256": "4c0e4330391a96ca9920940f92583b83d98debc29583fd3b89ec243573505b49"
+  },
+  "executing_code_bundle": {
+    "receipt": {
+      "bytes": 326098,
+      "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T200100Z-hard-h2g-full-public-stablelr-b1951246-v4.receipt.json",
+      "sha256": "95bbed36e574e6329a539be80667d1968647b3a175ffde67812ef6941b9c9493"
+    },
+    "root": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T200100Z-hard-h2g-full-public-stablelr-b1951246-v4",
+    "tree_sha256": "9940b5e7b314a8cc10e21996557e85b9bec3576640b38ed9d4a778f83e138ecb"
+  },
+  "iteration": 3456,
+  "mode": "full_public",
+  "model": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0003456/hf",
+  "model_label": "8b_iter_0003456",
+  "predictions": {
+    "bytes": 10645519,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/aggregate/predictions.jsonl",
+    "sha256": "7450f882de1aaac88b9707005f64bffa47fb2b08efc1f9d423b18db3f1d1f97c"
+  },
+  "scale": "8b",
+  "schema_version": "apertus_frozen_greekmmlu_evaluation_v1",
+  "scoring": {
+    "candidate_batch_size": 1,
+    "dtype": "float32",
+    "example_batch_size": 16,
+    "max_input_tokens": 3072,
+    "shards": 16
+  },
+  "sentinel_manifest": {
+    "bytes": 3913,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_sentinels/sentinel_manifest.json",
+    "sha256": "03328ae1281c6054562b125a021c772e99aba9962215335896f57ef94b738eae"
+  },
+  "sentinel_source_examples": {
+    "bytes": 2470306,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/.greekmmlu_sentinels.3086110.partial/clean_examples.json",
+    "sha256": "d46dee58fcbd210e5d84c42a7a5d297507970b7c72d21d648041ff6542efffb8"
+  },
+  "shard_receipts": [
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_000/receipt.json",
+      "sha256": "e580c57ca2da2f42da8a536f81fc5dd7c9a01d90f19415fca20dde0d6a3fcf28"
+    },
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_001/receipt.json",
+      "sha256": "f8fd99c52e017d1c6aec5dc435c858a4ba0f328e30f617ee5f7dc86cd3a7232e"
+    },
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_002/receipt.json",
+      "sha256": "619c0e81f71fbe0c37774a32a2ca94fee79eb3df5f5a4e77e831cc00196cca61"
+    },
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_003/receipt.json",
+      "sha256": "86f9db6b295561ea7f1970332c1e6a7f4cae4822ea39ee6130a755b2acf3e1c6"
+    },
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_004/receipt.json",
+      "sha256": "91a6253b8cb85169fdf74bda915b947526a6b0eed002dd30a53da4d62dc03fad"
+    },
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_005/receipt.json",
+      "sha256": "dc82b96727f8ae12f9d5e45bbe70e4dcdd486213cac64a1e1c3f45330fc37ddb"
+    },
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_006/receipt.json",
+      "sha256": "49db02e5454f9a7255e9489f6e8f801e061c2b3d5e4bb311f7ec09efb0b09272"
+    },
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_007/receipt.json",
+      "sha256": "15ce69d28aa084d564f085253afe3eb163195af4d308f4be1c60e5653a7784c3"
+    },
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_008/receipt.json",
+      "sha256": "6f8c90dff6d1195adfb332b4517f415a4d22827356c85d1b6b6f93fabaed6a0a"
+    },
+    {
+      "bytes": 2441,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_009/receipt.json",
+      "sha256": "2cd0d49ec24c4761f6fb54c2cd14745c057d2938a208068d503b316841954766"
+    },
+    {
+      "bytes": 2442,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_010/receipt.json",
+      "sha256": "3c4b3e9b39d5c858e310eb55f162609b0ae28d8400cf8512eb3b80d06558bb9e"
+    },
+    {
+      "bytes": 2442,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_011/receipt.json",
+      "sha256": "3e8921fe3457241c2ab39a19e57d43fe65ca8c933af73159d074af62cbf62174"
+    },
+    {
+      "bytes": 2442,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_012/receipt.json",
+      "sha256": "0f44a503c11e340dfc2294594ba31fb5e77cbf7640e2db111f32c0125b4da22b"
+    },
+    {
+      "bytes": 2442,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_013/receipt.json",
+      "sha256": "5d061ceecd7e869f0c990fb2434c7448f07b8608bc416a8a3eccfc9c852dd025"
+    },
+    {
+      "bytes": 2442,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_014/receipt.json",
+      "sha256": "344a7478d52d86851b9262f9cda819bf61915c87907a2cbf548ea3bbedd887c1"
+    },
+    {
+      "bytes": 2442,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/shards/shard_015/receipt.json",
+      "sha256": "fa79b601c46e41e8eafbefd5c91838f1918d75cdd5810817792324d7129f0edd"
+    }
+  ],
+  "status": "completed",
+  "summary": {
+    "bytes": 45420,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/aggregate/summary.json",
+    "sha256": "3d2e97339c1cf49553c315903c6777b3e77b27067c6d725ac696cf9590864f8a"
+  },
+  "views": {
+    "full_public": {
+      "bytes": 10645519,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/aggregate/views/full_public.predictions.jsonl",
+      "sha256": "7450f882de1aaac88b9707005f64bffa47fb2b08efc1f9d423b18db3f1d1f97c"
+    },
+    "sentinel_4096": {
+      "bytes": 2625090,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/aggregate/views/sentinel_4096.predictions.jsonl",
+      "sha256": "4220b72387651132628e5c118f264d110ec273c2cb9dac06536c8a56634b0b98"
+    },
+    "sentinel_8192": {
+      "bytes": 5254612,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory/results/8b/iter_0003456/full_public/aggregate/views/sentinel_8192.predictions.jsonl",
+      "sha256": "39475a66c9174f4e90b4102b38b9d3ca35b98b73da067503621e499cbc71f41c"
+    }
+  }
+}
