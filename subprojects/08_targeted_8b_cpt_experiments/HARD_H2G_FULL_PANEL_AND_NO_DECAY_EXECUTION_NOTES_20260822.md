@@ -433,3 +433,28 @@ None yet.
   scientific change. The exact manifests and launcher are committed under
   `operational_workarounds/`; reusable support is requested in efficiency
   issue [#150](https://github.com/fffoivos/apertus-cscs-efficiency/issues/150).
+
+## Stable-branch post-save finalization repair
+
+- Training itself completed all optimizer updates through 3,218, with zero
+  skipped/non-finite updates, and durably saved `iter_0003218`. The frozen
+  post-save launcher then failed because it invoked `/usr/bin/python3.11`
+  outside the PyTorch uenv; checkpoint audit imports consequently raised
+  `ModuleNotFoundError: No module named 'torch'`. This did not alter model,
+  optimizer, scheduler, RNG or data-cursor state.
+- Three subsequent audit attempts exposed required runtime bindings one at a
+  time: the scientific bundle environment, producer-bundle compatibility and
+  the frozen Megatron path. The retained fourth audit ran under
+  `pytorch/v2.9.1:v2`, with all three bindings, and passed all checkpoint-state
+  checks over 128 storage files.
+- The canonical frozen permit builder then issued a passing update-3,218
+  checkpoint permit using
+  `producer_bundle_compatibility_stable_peak_v3.json`. A small, committed
+  repair helper reproduced the reference schema from the canonical segment
+  launcher without rerunning training. The campaign completion adapter
+  accepted that reference and wrote a `status: completed` receipt for update
+  3,218 at `2026-08-22T21:52:16Z`.
+- The two independent frozen update-3,094 and update-3,218 full-public scorers
+  were then launched concurrently as four-node steps inside the still-held
+  16-node allocation `3152592`. This preserves the evaluator and scientific
+  inputs while avoiding serial idle-node time.

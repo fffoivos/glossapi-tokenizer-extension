@@ -47,6 +47,16 @@ def load_summary_grid(arm: str, required: list[int]) -> dict[int, dict]:
     for path in sorted((SNAPSHOTS / arm).glob("iter_*/full_public/aggregate/summary.json")):
         summary = load(path)
         update = int(summary["iteration"])
+        receipt_path = path.with_name("receipt.json")
+        receipt = load(receipt_path)
+        if not (
+            receipt.get("status") == "completed"
+            and int(receipt.get("iteration", -1)) == update
+            and receipt.get("scale") == "8b"
+            and receipt.get("mode") == "full_public"
+            and receipt.get("scoring", {}).get("dtype") == "float32"
+        ):
+            raise ValueError(f"aggregate receipt identity drift: {receipt_path}")
         metrics = summary["views"]["full_public"]["metrics"]
         overall = metrics["overall"]
         rows[update] = {
@@ -58,11 +68,19 @@ def load_summary_grid(arm: str, required: list[int]) -> dict[int, dict]:
             "correct_answer_bpb": float(overall["correct_answer_bpb"]),
             "by_subject": metrics["by_subject"],
             "by_educational_level": metrics["by_educational_level"],
+            "executing_code_tree_sha256": receipt["executing_code_bundle"]["tree_sha256"],
+            "examples_sha256": receipt["clean_examples"]["sha256"],
             "summary": bind(path),
-            "receipt": bind(path.with_name("receipt.json")),
+            "receipt": bind(receipt_path),
         }
     if sorted(rows) != sorted(required):
         raise ValueError(f"{arm} checkpoint grid drift: got={sorted(rows)} expected={required}")
+    if {row["executing_code_tree_sha256"] for row in rows.values()} != {
+        "9940b5e7b314a8cc10e21996557e85b9bec3576640b38ed9d4a778f83e138ecb"
+    }:
+        raise ValueError(f"{arm} executing scorer bundle drift")
+    if len({row["examples_sha256"] for row in rows.values()}) != 1:
+        raise ValueError(f"{arm} frozen example identity drift")
     return rows
 
 
@@ -105,6 +123,8 @@ def finite_tree(value) -> None:
 def main() -> None:
     decayed = load_summary_grid("decayed", UPDATES)
     stable = load_summary_grid("stable", PAIRED)
+    if {row["examples_sha256"] for row in decayed.values()} != {row["examples_sha256"] for row in stable.values()}:
+        raise ValueError("paired arms use different frozen examples")
     legacy_path = EVIDENCE / "legacy_bf16_matrix_receipt.json"
     legacy = load(legacy_path)
     if legacy.get("status") != "completed":
