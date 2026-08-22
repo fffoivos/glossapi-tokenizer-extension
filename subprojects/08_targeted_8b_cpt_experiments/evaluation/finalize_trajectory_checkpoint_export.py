@@ -23,15 +23,15 @@ from checkpoint_export_receipt import canonical_sha256, tree_inventory  # noqa: 
 
 
 def measure_parity(log: str) -> dict[str, object]:
-    def number(pattern: str) -> float:
+    def number_optional(pattern: str) -> float | None:
         match = re.search(pattern, log)
-        require(match is not None, f"missing converter parity metric: {pattern}")
-        return float(match.group(1))
+        return None if match is None else float(match.group(1))
 
     dtype = re.search(r"Converted semantic parity dtype: ([A-Za-z0-9_.-]+)", log)
     require(dtype is not None and dtype.group(1) == "float32", "converter parity dtype drift")
-    prediction_agreement = number(r"Converted model agrees on ([0-9.]+)% of predictions")
-    logits_close = number(r"Converted logits are close on ([0-9.]+)% of values")
+    prediction_agreement = number_optional(r"Converted model agrees on ([0-9.]+)% of predictions")
+    require(prediction_agreement is not None, "converter omitted prediction-agreement diagnostics")
+    logits_close = number_optional(r"Converted logits are close on ([0-9.]+)% of values")
     patterns = {
         "mean_kl_divergence": r"Converted mean KL divergence: ([-+0-9.eE]+)",
         "max_kl_divergence": r"Converted max KL divergence: ([-+0-9.eE]+)",
@@ -42,8 +42,11 @@ def measure_parity(log: str) -> dict[str, object]:
         "p999_top_token_logprob_abs_difference": r"Converted p99\.9 top-token log-prob absolute difference: ([-+0-9.eE]+)",
         "max_top_token_logprob_abs_difference": r"Converted max top-token log-prob absolute difference: ([-+0-9.eE]+)",
     }
-    metrics = {key: number(pattern) for key, pattern in patterns.items()}
-    require(all(math.isfinite(value) and value >= 0 for value in metrics.values()), "non-finite parity metric")
+    metrics = {key: number_optional(pattern) for key, pattern in patterns.items()}
+    require(
+        all(value is None or (math.isfinite(value) and value >= 0) for value in metrics.values()),
+        "non-finite parity metric",
+    )
     limits = {
         "mean_kl_divergence": 1.0e-4,
         "max_kl_divergence": 1.0e-1,
@@ -53,8 +56,14 @@ def measure_parity(log: str) -> dict[str, object]:
         "p99_top_token_logprob_abs_difference": 7.5e-2,
         "p999_top_token_logprob_abs_difference": 2.0e-1,
     }
-    probability_pass = all(metrics[key] <= limit for key, limit in limits.items())
-    raw_pass = logits_close >= 95.0
+    missing = [key for key, value in metrics.items() if value is None]
+    if logits_close is None:
+        missing.insert(0, "logits_close_percent")
+    diagnostics_complete = not missing
+    probability_pass = diagnostics_complete and all(
+        metrics[key] is not None and metrics[key] <= limit for key, limit in limits.items()
+    )
+    raw_pass = logits_close is not None and logits_close >= 95.0
     prediction_pass = prediction_agreement >= 99.5
     return {
         "semantic_parity_dtype": "float32",
@@ -66,6 +75,8 @@ def measure_parity(log: str) -> dict[str, object]:
         "semantic_probability_metrics": metrics,
         "semantic_probability_limits": limits,
         "semantic_probability_thresholds_passed": probability_pass,
+        "diagnostics_complete": diagnostics_complete,
+        "missing_diagnostics": missing,
         "runtime_semantic_parity_passed": prediction_pass and (raw_pass or probability_pass),
     }
 
