@@ -417,3 +417,19 @@ None yet.
   interval; the pre-registered decision remains open until 3,094 and 3,218.
 - After the immutable aggregate receipt was checked, scoring allocation
   `3151839` was cancelled with 31:21 unused rather than being left idle.
+
+## Endpoint allocation packing
+
+- The initial post-training handoff would have scored updates 3,094 and 3,218
+  serially on four nodes while the 16-node training allocation remained held.
+  Before it triggered, that login-side waiter was terminated; no Slurm step or
+  evaluation had begun.
+- The replacement waits for the successful training-controller completion
+  marker, final checkpoint metadata and tracker, then launches the two frozen
+  four-node evaluators concurrently. Their checkpoint exports, result roots,
+  TSV manifests and controller-done files are disjoint; scorer code, panel and
+  model inputs are unchanged.
+- This is operational bin-packing after training, not concurrent training or a
+  scientific change. The exact manifests and launcher are committed under
+  `operational_workarounds/`; reusable support is requested in efficiency
+  issue [#150](https://github.com/fffoivos/apertus-cscs-efficiency/issues/150).
