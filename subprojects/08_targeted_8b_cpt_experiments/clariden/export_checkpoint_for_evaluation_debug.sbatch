@@ -24,9 +24,12 @@ set -euo pipefail
 : "${H2G_EXPORT_ROOT:?set unique checkpoint export root}"
 : "${H2G_EVAL_PYTHON:?set frozen evaluation Python}"
 
-[[ "${SLURM_JOB_PARTITION:-}" == debug ]] || { echo "checkpoint export must run on debug" >&2; exit 2; }
+case "${SLURM_JOB_PARTITION:-}" in
+  debug|normal) ;;
+  *) echo "checkpoint export requires a debug or held normal allocation" >&2; exit 2 ;;
+esac
 [[ "${SLURM_NNODES:-0}" == 1 && "${SLURM_JOB_NUM_NODES:-0}" == 1 ]] || {
-  echo "checkpoint export requires exactly one debug node" >&2
+  echo "checkpoint export requires exactly one allocated node" >&2
   exit 2
 }
 case "$H2G_SCALE" in 8b|1p5b) ;; *) echo "invalid model scale" >&2; exit 2;; esac
