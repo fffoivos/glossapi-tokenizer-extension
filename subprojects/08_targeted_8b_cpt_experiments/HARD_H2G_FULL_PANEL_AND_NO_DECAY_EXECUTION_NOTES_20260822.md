@@ -181,6 +181,37 @@ None yet.
   declared environment inputs in the existing adapter, preserving their exact
   values while avoiding false file bindings for directories. No GPU training
   was started under the incomplete contract.
+- Adapter regression coverage after moving the four directory arguments to
+  declared environment inputs is `54 passed` (`test_canonical_train_adapter`
+  plus `test_r2_orchestration`). The flags remain accepted for every historical
+  caller; only the stable branch uses the environment form.
+- Scientific bundle v9 was materialized as a one-file sparse overlay on v8,
+  then fully re-inventoried and verified. Producer compatibility v3, checkpoint
+  audit/permit/reference v3, training-run permit v2, branch gate v2, DCP runtime
+  compatibility v2, and static preflight v2 all passed under that exact bundle.
+- The first v9 branch-gate invocation rejected the v8 checkpoint permit. This
+  is the intended code-binding behavior; the checkpoint was re-audited under
+  v9 plus the narrow compatibility authority, rather than copying or editing
+  the old permit.
+- The first current-runner compile found that the portable training-data
+  manifest had been copied without its relative prepared-dataset receipts.
+  The original frozen v108 sibling receipts were copied byte-for-byte into the
+  campaign-contract directory; no dataset payload or training order changed.
+- The next compile rejected evaluation milestones outside the 2,499--3,218
+  branch. The branch evaluation contract now contains only paired checkpoints
+  2,618, 2,856, 3,094 and 3,218 (with the native suite at 2,618 and 3,218), as
+  specified by the plan.
+- Reusing the original run's readiness approval correctly failed because it
+  authorized a different arm and horizon. A new intake-v2 bound to the user's
+  2026-08-22 plan and exact branch horizon was frozen; its generated readiness
+  plan reports `ready`, zero pending tasks, and production authorization. The
+  candidate campaign then compiled successfully with contract digest
+  `fcc708ca56792ef3a972944070e26a88a8efb160c5f3e4cf6a5754fbd4c47f74`.
+- At the final proven-runtime rebind, new Clariden SSH connections began
+  rejecting a freshly valid CSCS certificate. The certificate was refreshed,
+  its UTC validity and key fingerprint were checked, and the current key plus
+  certificate were reloaded into the agent. Existing Slurm work continued;
+  this is an access-path interruption, not a training/evaluation failure.
 
 ## Receipt index
 
@@ -202,3 +233,8 @@ None yet.
 - Latest canonical runner bundle v1:
   `/iopsstor/scratch/cscs/fffoivos/orchestration/apertus-cscs-efficiency/20260822T212000Z-9006ae31-stable-peak-v1`, tree SHA-256
   `54e39f4b59155bd88233e6056185648cb466665b06f7b58180845a27930472ae`.
+- Minimal stable-peak scientific bundle v9:
+  `/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T213000Z-hard-h2g-stablelr-minimal-6e945d38-v9`, tree SHA-256
+  `fb575d1f70634c317b2251c2df109b796e327bcaed5038b029141a34ccae227b`.
+- Current branch campaign contracts and readiness evidence:
+  `/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/stable_peak_branch/20260822T202000Z-v1/campaign_v1`.
