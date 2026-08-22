@@ -487,3 +487,74 @@ None yet.
   is included in the audit trail rather than hidden.
 - Full consumer-geometry compilation is tracked as efficiency issue
   [#152](https://github.com/fffoivos/apertus-cscs-efficiency/issues/152).
+
+### Stable-LR update 3,094 result
+
+- Both update-3,094 and update-3,218 checkpoint exports completed with exact
+  weight mapping and the same trajectory-scoped probability-parity policy as
+  the earlier branch points. The old 16-node training allocation was released
+  immediately after the second immutable export receipt passed.
+- Stable-LR update 3,094 full-public score: `9,432 / 16,632 = 56.7100%`,
+  choice NLL `1.091757`, correct-answer BPB `0.175727`.
+- Paired decayed update 3,094: `9,501 / 16,632 = 57.1248%`. Stable LR is now
+  0.4148 percentage points behind the decayed arm and has fallen 1.5272 points
+  from its own update-2,618 value. This is already inconsistent with a rising
+  stable-LR trajectory; the pre-registered B3 decision is finalized only after
+  the update-3,218 aggregate receipt.
+
+### Stable-LR update 3,218 result and B3 decision
+
+- Stable-LR update 3,218 full-public score: `9,270 / 16,632 = 55.7359%`,
+  choice NLL `1.111750`, correct-answer BPB `0.183188`.
+- Paired decayed update 3,218: `9,495 / 16,632 = 57.0887%`. Stable LR is
+  1.3528 percentage points behind the decayed arm at the endpoint and has
+  fallen 2.5012 points from its own update-2,618 score.
+- **Pre-registered B3 outcome: stop.** The constant-LR trajectory is falling,
+  not rising, across every observed interval after 2,618. The unauthorized
+  3,219→3,694 extension was not submitted. This answers the exploratory
+  question at the registered gate; it does not establish that no alternative
+  cooldown could improve the endpoint.
+- Both endpoint aggregate receipts report `status: completed`, FP32 scoring,
+  all 16,632 frozen public examples and scorer tree
+  `9940b5e7b314a8cc10e21996557e85b9bec3576640b38ed9d4a778f83e138ecb`.
+  The correctly shaped scoring allocation was released immediately after the
+  second receipt passed.
+
+### Allocation accounting
+
+- `3151839`: 4 nodes / 16 GPUs for 3:28:39 = **55.64 allocated GPU-h**.
+  This exceeded the plan's approximately 35 GPU-h Track-A/branch-scoring
+  envelope because the allocation remained held across scoring waits and
+  operational retries; 31:21 was released at the end.
+- `3152592`: 16 nodes / 64 GPUs for 2:52:29 = **183.98 allocated GPU-h**.
+  The B2 estimate was approximately 112 GPU-h. Training itself completed in
+  about 2:06, while recurrent validation, checkpointing, post-save repair and
+  serialized endpoint export consumed the remainder. The last 7:31 was
+  released once both export receipts passed.
+- `3153569`: mis-shaped recovery allocation held for 0:52 = **0.23 allocated
+  GPU-h**, then relinquished.
+- `3153706`: correctly shaped 4-node scorer allocation held for 0:14:54 =
+  **3.97 allocated GPU-h**, then relinquished after both endpoint receipts.
+  Interactive `salloc` relinquishment records these holder jobs as `FAILED` in
+  Slurm even though their scientific child steps and immutable result receipts
+  completed; this distinction is preserved here.
+
+## Final report and QA
+
+- Final single-page report:
+  `presentations/hard_h2g_full_panel_stable_lr_20260822/HARD_H2G_FULL_PANEL_AND_STABLE_LR_20260822.html`
+  (`135,361` bytes; SHA-256
+  `6e4ae4a66ac406e68c1077e385e0cc269c051431aa57d54a51845af56c18dedf`).
+- Evidence analysis: `evidence/analysis.json` (`661,953` bytes; SHA-256
+  `67a2989d0aeac7dc41ad212cdc50471f74ac93b8da723ff9e2ecd1088f37c293`).
+  Its builder rejects missing aggregate receipts, scorer-tree drift, example
+  identity drift, non-FP32 results, incomplete checkpoint grids, skipped or
+  non-finite stable updates and non-finite values anywhere in the output.
+- Complete layouts were rendered and visually inspected at 1,440×1,000 and
+  430×932 viewports. The QA receipt is `qa/qa_receipt.json`, status `passed`,
+  SHA-256
+  `99405c20e8af9dd446bbc5ea987049a32bc29105535f29df4eb521d999f9e24a`.
+- The report keeps the full 17-checkpoint public-panel curve primary, shows
+  choice NLL and correct-answer BPB, retains every validation panel over the
+  complete horizon, labels the legacy replication miss, records the B3 stop
+  decision, and includes the allocated-compute ledger and parity caveat.

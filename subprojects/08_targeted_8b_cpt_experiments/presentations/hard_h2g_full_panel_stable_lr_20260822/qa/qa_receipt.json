@@ -1,0 +1,67 @@
+{
+  "evidence": {
+    "bytes": 661953,
+    "path": "/Users/foivoskarounos-zamparloukos/Projects/.codex-worktrees/h2g-greekmmlu-trajectories/subprojects/08_targeted_8b_cpt_experiments/presentations/hard_h2g_full_panel_stable_lr_20260822/evidence/analysis.json",
+    "sha256": "67a2989d0aeac7dc41ad212cdc50471f74ac93b8da723ff9e2ecd1088f37c293"
+  },
+  "report": {
+    "bytes": 135361,
+    "path": "/Users/foivoskarounos-zamparloukos/Projects/.codex-worktrees/h2g-greekmmlu-trajectories/subprojects/08_targeted_8b_cpt_experiments/presentations/hard_h2g_full_panel_stable_lr_20260822/HARD_H2G_FULL_PANEL_AND_STABLE_LR_20260822.html",
+    "sha256": "6e4ae4a66ac406e68c1077e385e0cc269c051431aa57d54a51845af56c18dedf"
+  },
+  "schema_version": "apertus_academic_html_report_qa_v1",
+  "screenshots": {
+    "desktop-1440.png": {
+      "bytes": 1021951,
+      "height": 7863,
+      "sha256": "f6bd25502f1b1ba7db37965083cf4759010973357ee2f3b8d0253c30769a0346",
+      "width": 1440
+    },
+    "narrow-430.png": {
+      "bytes": 686173,
+      "height": 7219,
+      "sha256": "f98c865a717589a925c1f803429224e60152c738f179c8a46398f31945220e33",
+      "width": 430
+    }
+  },
+  "status": "passed",
+  "structure": {
+    "body": 1,
+    "circle": 59,
+    "code": 11,
+    "desc": 5,
+    "div": 26,
+    "figcaption": 5,
+    "figure": 5,
+    "footer": 1,
+    "h1": 1,
+    "h2": 7,
+    "h3": 4,
+    "head": 1,
+    "header": 1,
+    "html": 1,
+    "line": 91,
+    "main": 1,
+    "meta": 2,
+    "p": 11,
+    "path": 34,
+    "rect": 39,
+    "section": 7,
+    "span": 4,
+    "strong": 11,
+    "style": 1,
+    "svg": 5,
+    "table": 5,
+    "tbody": 5,
+    "td": 113,
+    "text": 168,
+    "th": 23,
+    "thead": 5,
+    "title": 6,
+    "tr": 30
+  },
+  "visual_inspection": {
+    "method": "full-page Playwright Chromium renders inspected at desktop and narrow widths",
+    "status": "passed"
+  }
+}
