@@ -212,6 +212,17 @@ None yet.
   its UTC validity and key fingerprint were checked, and the current key plus
   certificate were reloaded into the agent. Existing Slurm work continued;
   this is an access-path interruption, not a training/evaluation failure.
+- A forced fresh device authorization then timed out at CSCS's token endpoint;
+  the following retry could not fetch the OIDC discovery document. No code or
+  cluster state was changed by those failed authentication requests. The
+  older full-panel controller connection remains live and continues to report
+  completed checkpoints.
+- Reusable follow-up is recorded in efficiency issue
+  [#137](https://github.com/fffoivos/apertus-cscs-efficiency/issues/137)
+  (document/scaffold directory-valued scientific inputs as `required_env`).
+  Live nested-step evidence, including the `--overlap`/`--exclusive` mutual
+  exclusion, was added to existing issue
+  [#61](https://github.com/fffoivos/apertus-cscs-efficiency/issues/61#issuecomment-5381931332).
 
 ## Receipt index
 
