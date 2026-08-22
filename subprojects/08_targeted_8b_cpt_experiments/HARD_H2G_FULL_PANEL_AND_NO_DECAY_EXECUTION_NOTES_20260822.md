@@ -263,3 +263,49 @@ None yet.
   `fb575d1f70634c317b2251c2df109b796e327bcaed5038b029141a34ccae227b`.
 - Current branch campaign contracts and readiness evidence:
   `/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/stable_peak_branch/20260822T202000Z-v1/campaign_v1`.
+
+## 2026-08-22 21:18--21:35 UTC update
+
+- Track A1 completed all 17 pre-existing 8B checkpoints on the public
+  16,632-question panel. The immutable aggregate receipts run from update 0
+  through update 3,694 under
+  `evaluation/greekmmlu_full_public/20260822T193500Z-v1/trajectory`; every
+  scorer-side bundle verification reported tree SHA-256
+  `9940b5e7b314a8cc10e21996557e85b9bec3576640b38ed9d4a778f83e138ecb`.
+- Stable-branch normal allocation `3152592` was granted immediately with 16
+  nodes / 64 GH200 and a three-hour limit. It remains held; failed controller
+  attempts did not release or replace the allocation and produced zero model
+  updates.
+- The first current-runner attempt rejected a stale entrypoint byte/hash
+  binding before training. Campaign v2 corrected only that file binding to
+  the already frozen v9 entrypoint (`25132` bytes, SHA-256
+  `fb0ffc8584fb272e7f790b03c357fa404768fb26fed9e328873efd1d5f335fe5`).
+- Direct `run-in-allocation` initially lacked the two canonical environment
+  bindings `APERTUS_CAMPAIGN_MANIFEST` and `APERTUS_CAMPAIGN_CODE_ROOT`.
+  Supplying the exact manifest and runner roots moved execution to the next
+  fail-closed check; no scientific input changed.
+- A one-node controller step exposed `SLURM_NNODES=1` to the scientific child,
+  so the 16-node training-run permit correctly rejected it as profile drift.
+  The permit never bound the allocation time limit; the earlier diagnosis of
+  a three-hour-versus-twelve-hour permit mismatch was therefore withdrawn.
+- Retrying inside the same allocation exposed a retry-key bug: DCP compatibility
+  output is keyed only by Slurm job ID. The earlier valid 791-byte receipt was
+  retained under `receipts/train_preflight/quarantine_retry_3152592_20260822T222900Z`
+  before retry; no evidence was overwritten or deleted.
+- A one-task adopted-allocation controller cannot launch the historical
+  training payload unchanged because the frozen payload's nested `srun`
+  inherits one task. The corrected operational wrapper starts one lightweight
+  controller task per allocated node, executes the canonical controller only
+  on rank 0, and holds the peers until rank 0 completes. The nested trainer
+  then observes exactly 16 nodes / 16 launcher tasks and starts 64 model ranks.
+- The active run is
+  `stable_peak_b2_v6_fullgeometry_wrapper`. Before the first optimizer update,
+  its log verified: Phase 2; resume update 2,499; TP2/DP32; microbatch 2;
+  global batch 1,024 sequences / 4,194,304 tokens; RoPE base 500,000 with
+  factor 8; vocabulary divisor 256; the frozen Phase-2 blend; and the
+  constant-LR guard at `5.5e-5` on every launcher rank.
+- Reusable runner follow-up from this sequence: adopted controllers must
+  propagate scheduler-complete geometry to legacy scientific payloads; direct
+  execution should inject its canonical manifest/code-root environment; and
+  retry-scoped receipts must include an attempt nonce rather than only the
+  Slurm job ID.
