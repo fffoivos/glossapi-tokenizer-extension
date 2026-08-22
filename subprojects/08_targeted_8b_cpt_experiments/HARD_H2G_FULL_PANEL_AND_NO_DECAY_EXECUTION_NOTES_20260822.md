@@ -146,6 +146,41 @@ None yet.
   started and no score was produced. The failed immutable output was retained
   under its `_failed_*` path. The correction selects exactly one step mode:
   `--overlap` when nested, otherwise `--exclusive`.
+- Both SSH processes that originally owned `salloc --no-shell` disconnected,
+  but Slurm correctly retained allocations `3151839` and `3152052`. Work was
+  reattached with audited `srun --jobid ... --overlap` steps; neither allocation
+  nor any completed score was lost. This is a useful distinction for the
+  canonical runner: controller transport loss is not allocation loss.
+- The first source view of update 2,499 was retained under
+  `_failed_source_async_log_prefix_20260822T202500Z`; the corrected no-copy
+  branch passed the standard checkpoint audit and permit as
+  `checkpoint_audit_v2.json`, `checkpoint_permit_v2.json`, and
+  `checkpoint_reference_v2.json`.
+- Producer compatibility initially rejected the full reporting bundle because
+  it included many unrelated presentation/evaluation paths. The accepted
+  training bundle is instead a minimal overlay of the already accepted v103
+  trainer. This narrowed rather than widened the trusted producer surface.
+- The current training-run permit had to be rebuilt after that bundle changed;
+  the stable-peak authorization gate correctly rejected the stale permit and
+  passed only after binding `training_run_permit_8b_stable_peak_v1.json`.
+- Static B2 preflight passed exactly for 8B, Phase 2, update 2,499 to 3,218,
+  DP32 on 16 nodes, and Phase-2 cache tree
+  `486b7d724d6a9d7ebc163293d971726b5e5a79a2f9919abc434308a3a7048068`.
+- Freezing the latest canonical runner with `/usr/bin/python3.11` as a vendor
+  installer failed because that interpreter has no `pip`. Reusing the previous
+  proven dependency directory produced a bundle that imports under the uenv's
+  Python 3.12 but not under host Python 3.11: its `rpds` extension is
+  `cpython-312` only. The training controller will therefore execute in the
+  uenv; this packaging gap will be filed against the efficiency repository.
+- The first campaign status invocation correctly rejected a source campaign
+  JSON where a compiled manifest was required. After copying the exact prior
+  runtime/evaluation source contracts, the latest compiler exposed an older
+  campaign-format gap: `/usr/bin/env`, the PYTHONPATH value, and mutable
+  directory arguments were not covered by the new argv-closure gate. System
+  executables were file-bound. The four directory arguments are being moved to
+  declared environment inputs in the existing adapter, preserving their exact
+  values while avoiding false file bindings for directories. No GPU training
+  was started under the incomplete contract.
 
 ## Receipt index
 
@@ -159,3 +194,11 @@ None yet.
   `/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T200100Z-hard-h2g-full-public-stablelr-b1951246-v4`
   with tree SHA-256
   `9940b5e7b314a8cc10e21996557e85b9bec3576640b38ed9d4a778f83e138ecb`.
+- Stable-peak source branch:
+  `/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/stable_peak_branch/20260822T202000Z-v1`.
+- Minimal stable-peak scientific bundle v8:
+  `/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T211000Z-hard-h2g-stablelr-minimal-59231dc7-v8`, tree SHA-256
+  `12ed7a6d6de52dc5263ae463f69e129c1ea224a7b4b4c135d6136ad977038a21`.
+- Latest canonical runner bundle v1:
+  `/iopsstor/scratch/cscs/fffoivos/orchestration/apertus-cscs-efficiency/20260822T212000Z-9006ae31-stable-peak-v1`, tree SHA-256
+  `54e39f4b59155bd88233e6056185648cb466665b06f7b58180845a27930472ae`.

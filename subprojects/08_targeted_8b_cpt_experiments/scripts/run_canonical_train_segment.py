@@ -42,15 +42,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--contract-digest", required=True)
     parser.add_argument("--code-root", type=Path, required=True)
     parser.add_argument("--code-receipt", type=Path, required=True)
-    parser.add_argument("--stage-root", type=Path, required=True)
+    parser.add_argument("--stage-root", type=Path, default=os.environ.get("H2G_STAGE_ROOT"))
     parser.add_argument("--phase-data-path-spec", type=Path, required=True)
     parser.add_argument("--phase-data-path", required=True)
     parser.add_argument("--phase-cache-receipt", type=Path, required=True)
-    parser.add_argument("--phase-cache-root", type=Path, required=True)
+    parser.add_argument(
+        "--phase-cache-root", type=Path, default=os.environ.get("H2G_PHASE_CACHE_ROOT")
+    )
     parser.add_argument("--phase-cache-tree-sha256", required=True)
-    parser.add_argument("--megatron-root", type=Path, required=True)
+    parser.add_argument(
+        "--megatron-root", type=Path, default=os.environ.get("H2G_MEGATRON_DIR")
+    )
     parser.add_argument("--megatron-receipt", type=Path, required=True)
-    parser.add_argument("--validation-root", type=Path, required=True)
+    parser.add_argument(
+        "--validation-root", type=Path, default=os.environ.get("H2G_VAL_DATA_DIR")
+    )
     parser.add_argument("--validation-receipt", type=Path, required=True)
     parser.add_argument("--extra-valid-sets", required=True)
     parser.add_argument("--new-greek-valid-sets", required=True)
@@ -66,7 +72,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--microbatch", type=int, required=True)
     parser.add_argument("--tensor-parallel", type=int, required=True)
-    return parser.parse_args()
+    args = parser.parse_args()
+    for name in ("stage_root", "phase_cache_root", "megatron_root", "validation_root"):
+        if getattr(args, name) is None:
+            parser.error(
+                f"--{name.replace('_', '-')} or its declared H2G environment value is required"
+            )
+    return args
 
 
 def load_checkpoint_reference(path: Path, *, scale: str, update: int) -> dict[str, Any]:
