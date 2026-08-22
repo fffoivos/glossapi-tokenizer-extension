@@ -1,0 +1,1201 @@
+{
+  "cross_scale": {
+    "correctness_agreement_max": 0.7601336716380964,
+    "correctness_agreement_mean": 0.7155036530361881,
+    "correctness_agreement_min": 0.668543845534996,
+    "metric_gaps_8b_minus_1p5b": {
+      "1190": {
+        "accuracy": 0.10650411535367293,
+        "choice_nll": -0.22343920686397434,
+        "correct_answer_bpb": -0.01800992247126168
+      },
+      "1428": {
+        "accuracy": 0.11058852651773005,
+        "choice_nll": -0.19815703188646427,
+        "correct_answer_bpb": -0.011118182346001565
+      },
+      "1666": {
+        "accuracy": 0.12383192029209728,
+        "choice_nll": -0.22213409991948718,
+        "correct_answer_bpb": -0.016800940902379047
+      },
+      "1904": {
+        "accuracy": 0.12197536976298046,
+        "choice_nll": -0.2204948680854606,
+        "correct_answer_bpb": -0.01233034690146087
+      },
+      "2142": {
+        "accuracy": 0.12024258926913794,
+        "choice_nll": -0.1988531934314819,
+        "correct_answer_bpb": -0.0024865561472212083
+      },
+      "2261": {
+        "accuracy": 0.12989665202054584,
+        "choice_nll": -0.21598231707755677,
+        "correct_answer_bpb": -0.009406784125150724
+      },
+      "238": {
+        "accuracy": 0.07320997586484312,
+        "choice_nll": -0.09448418954459092,
+        "correct_answer_bpb": 0.01674315277764285
+      },
+      "2380": {
+        "accuracy": 0.16529488210904142,
+        "choice_nll": -0.29776685030666394,
+        "correct_answer_bpb": -0.03640081056254926
+      },
+      "2618": {
+        "accuracy": 0.1830558821709264,
+        "choice_nll": -0.3083283791830109,
+        "correct_answer_bpb": -0.04611625138858519
+      },
+      "2856": {
+        "accuracy": 0.1785382758834086,
+        "choice_nll": -0.3066041964257966,
+        "correct_answer_bpb": -0.042941576894805406
+      },
+      "3094": {
+        "accuracy": 0.17216411906677392,
+        "choice_nll": -0.2746990593853844,
+        "correct_answer_bpb": -0.029184395022150755
+      },
+      "3218": {
+        "accuracy": 0.17352558945479296,
+        "choice_nll": -0.272302257957566,
+        "correct_answer_bpb": -0.028845579384809333
+      },
+      "3456": {
+        "accuracy": 0.17482517482517484,
+        "choice_nll": -0.27659769718651805,
+        "correct_answer_bpb": -0.02964211136905706
+      },
+      "3694": {
+        "accuracy": 0.1734637044371557,
+        "choice_nll": -0.2666960803702936,
+        "correct_answer_bpb": -0.025996194797807598
+      },
+      "476": {
+        "accuracy": 0.09115663097963983,
+        "choice_nll": -0.15725648409399917,
+        "correct_answer_bpb": -0.0022989367740475497
+      },
+      "714": {
+        "accuracy": 0.10520452998329105,
+        "choice_nll": -0.19658592899954974,
+        "correct_answer_bpb": -0.002755755421444517
+      },
+      "952": {
+        "accuracy": 0.09765455783154897,
+        "choice_nll": -0.1859573786771771,
+        "correct_answer_bpb": -0.00028347572514345054
+      }
+    },
+    "shape": {
+      "accuracy": {
+        "adjacent_first_difference_pearson": -0.058133510534430895,
+        "adjacent_first_difference_spearman": 0.1264705882352941,
+        "level_pearson": -0.6697773717503255
+      },
+      "choice_nll": {
+        "adjacent_first_difference_pearson": -0.013029632810817617,
+        "adjacent_first_difference_spearman": 0.03529411764705882,
+        "level_pearson": 0.3946298400216442
+      },
+      "correct_answer_bpb": {
+        "adjacent_first_difference_pearson": 0.24504247815164643,
+        "adjacent_first_difference_spearman": 0.07941176470588235,
+        "level_pearson": -0.057573604460105475
+      }
+    }
+  },
+  "scales": {
+    "1p5b": {
+      "educational_levels": {
+        "NA": {
+          "final": 0.45296442687747035,
+          "final_minus_first": 0.01106719367588932,
+          "final_minus_peak": -0.007114624505928868,
+          "first": 0.44189723320158103,
+          "n": 1265,
+          "peak": 0.4600790513833992,
+          "peak_phase": "hplt",
+          "peak_update": 1904
+        },
+        "Primary School": {
+          "final": 0.4116173120728929,
+          "final_minus_first": 0.006605922551252863,
+          "final_minus_peak": -0.017767653758542168,
+          "first": 0.40501138952164006,
+          "n": 4390,
+          "peak": 0.4293849658314351,
+          "peak_phase": "hplt",
+          "peak_update": 1190
+        },
+        "Professional": {
+          "final": 0.38376703841387855,
+          "final_minus_first": -0.05353159851301115,
+          "final_minus_peak": -0.06109045848822803,
+          "first": 0.4372986369268897,
+          "n": 8070,
+          "peak": 0.4448574969021066,
+          "peak_phase": "hplt",
+          "peak_update": 1190
+        },
+        "Secondary School": {
+          "final": 0.37820091923834537,
+          "final_minus_first": 0.0006565988181221338,
+          "final_minus_peak": -0.014445173998686833,
+          "first": 0.37754432042022323,
+          "n": 1523,
+          "peak": 0.3926460932370322,
+          "peak_phase": "hplt",
+          "peak_update": 2142
+        },
+        "University": {
+          "final": 0.4127332601536773,
+          "final_minus_first": -0.02524698133918768,
+          "final_minus_peak": -0.02524698133918768,
+          "first": 0.43798024149286496,
+          "n": 911,
+          "peak": 0.43798024149286496,
+          "peak_phase": "hplt",
+          "peak_update": 238
+        }
+      },
+      "metrics": {
+        "accuracy": {
+          "best": {
+            "update": 1904,
+            "value": 0.4354848691131877
+          },
+          "landmarks": {
+            "final": 0.39785877838975187,
+            "first": 0.4232935206386534,
+            "hplt_boundary": 0.42966767745528806,
+            "oa_endpoint": 0.3987870536543103
+          },
+          "phase_deltas": {
+            "extension_endpoint_to_final": -0.0009282752645584091,
+            "final_minus_best": -0.03762609072343581,
+            "hplt_first_to_boundary": 0.0063741568166346685,
+            "openarchives_boundary_to_endpoint": -0.03088062380097778,
+            "overall_first_to_final": -0.02543474224890152
+          }
+        },
+        "choice_nll": {
+          "best": {
+            "update": 2261,
+            "value": 1.343250397172913
+          },
+          "landmarks": {
+            "final": 1.3466957602452418,
+            "first": 1.382639312050417,
+            "hplt_boundary": 1.343250397172913,
+            "oa_endpoint": 1.3562368786483383
+          },
+          "phase_deltas": {
+            "extension_endpoint_to_final": -0.00954111840309646,
+            "final_minus_best": 0.0034453630723287887,
+            "hplt_first_to_boundary": -0.039388914877503955,
+            "openarchives_boundary_to_endpoint": 0.012986481475425249,
+            "overall_first_to_final": -0.03594355180517517
+          }
+        },
+        "correct_answer_bpb": {
+          "best": {
+            "update": 714,
+            "value": 0.19674712541785225
+          },
+          "landmarks": {
+            "final": 0.2007947655188676,
+            "first": 0.20892420928973512,
+            "hplt_boundary": 0.19805845793838547,
+            "oa_endpoint": 0.20553025683985668
+          },
+          "phase_deltas": {
+            "extension_endpoint_to_final": -0.004735491320989077,
+            "final_minus_best": 0.004047640101015354,
+            "hplt_first_to_boundary": -0.01086575135134965,
+            "openarchives_boundary_to_endpoint": 0.007471798901471205,
+            "overall_first_to_final": -0.008129443770867523
+          }
+        }
+      },
+      "subject_peak_phase_counts": {
+        "extension": 1,
+        "hplt": 29,
+        "openarchives": 1
+      },
+      "subjects": {
+        "Accounting": {
+          "final": 0.2857142857142857,
+          "final_minus_first": -0.08791208791208793,
+          "final_minus_peak": -0.08791208791208793,
+          "first": 0.37362637362637363,
+          "n": 182,
+          "peak": 0.37362637362637363,
+          "peak_phase": "hplt",
+          "peak_update": 238
+        },
+        "Agriculture": {
+          "final": 0.3432098765432099,
+          "final_minus_first": -0.13580246913580246,
+          "final_minus_peak": -0.15555555555555556,
+          "first": 0.47901234567901235,
+          "n": 405,
+          "peak": 0.49876543209876545,
+          "peak_phase": "hplt",
+          "peak_update": 1190
+        },
+        "Art": {
+          "final": 0.39938556067588327,
+          "final_minus_first": -0.055299539170506895,
+          "final_minus_peak": -0.09216589861751151,
+          "first": 0.45468509984639016,
+          "n": 651,
+          "peak": 0.4915514592933948,
+          "peak_phase": "hplt",
+          "peak_update": 1904
+        },
+        "Biology": {
+          "final": 0.35340314136125656,
+          "final_minus_first": -0.023560209424083767,
+          "final_minus_peak": -0.023560209424083767,
+          "first": 0.3769633507853403,
+          "n": 382,
+          "peak": 0.3769633507853403,
+          "peak_phase": "hplt",
+          "peak_update": 238
+        },
+        "Chemistry": {
+          "final": 0.3950617283950617,
+          "final_minus_first": 0.0,
+          "final_minus_peak": -0.037037037037037035,
+          "first": 0.3950617283950617,
+          "n": 81,
+          "peak": 0.43209876543209874,
+          "peak_phase": "hplt",
+          "peak_update": 476
+        },
+        "Civil Engineering": {
+          "final": 0.3468057366362451,
+          "final_minus_first": -0.13298565840938725,
+          "final_minus_peak": -0.13298565840938725,
+          "first": 0.47979139504563234,
+          "n": 767,
+          "peak": 0.47979139504563234,
+          "peak_phase": "hplt",
+          "peak_update": 238
+        },
+        "Clinical Knowledge": {
+          "final": 0.4186413902053712,
+          "final_minus_first": -0.00789889415481837,
+          "final_minus_peak": -0.05845181674565564,
+          "first": 0.4265402843601896,
+          "n": 633,
+          "peak": 0.47709320695102686,
+          "peak_phase": "hplt",
+          "peak_update": 2142
+        },
+        "Computer Networks & Security": {
+          "final": 0.19047619047619047,
+          "final_minus_first": -0.015873015873015872,
+          "final_minus_peak": -0.015873015873015872,
+          "first": 0.20634920634920634,
+          "n": 63,
+          "peak": 0.20634920634920634,
+          "peak_phase": "hplt",
+          "peak_update": 238
+        },
+        "Computer Science": {
+          "final": 0.48324022346368717,
+          "final_minus_first": -0.008379888268156388,
+          "final_minus_peak": -0.01955307262569833,
+          "first": 0.49162011173184356,
+          "n": 358,
+          "peak": 0.5027932960893855,
+          "peak_phase": "hplt",
+          "peak_update": 2142
+        },
+        "Computer_Networks_and_Security": {
+          "final": 0.2857142857142857,
+          "final_minus_first": -0.14285714285714285,
+          "final_minus_peak": -0.14285714285714285,
+          "first": 0.42857142857142855,
+          "n": 21,
+          "peak": 0.42857142857142855,
+          "peak_phase": "hplt",
+          "peak_update": 238
+        },
+        "Driving Rules": {
+          "final": 0.45296442687747035,
+          "final_minus_first": 0.01106719367588932,
+          "final_minus_peak": -0.007114624505928868,
+          "first": 0.44189723320158103,
+          "n": 1265,
+          "peak": 0.4600790513833992,
+          "peak_phase": "hplt",
+          "peak_update": 1904
+        },
+        "Economics": {
+          "final": 0.3202846975088968,
+          "final_minus_first": -0.010676156583629859,
+          "final_minus_peak": -0.024911032028469726,
+          "first": 0.3309608540925267,
+          "n": 281,
+          "peak": 0.34519572953736655,
+          "peak_phase": "hplt",
+          "peak_update": 476
+        },
+        "Education": {
+          "final": 0.41836734693877553,
+          "final_minus_first": -0.08843537414965985,
+          "final_minus_peak": -0.10204081632653061,
+          "first": 0.5068027210884354,
+          "n": 294,
+          "peak": 0.5204081632653061,
+          "peak_phase": "hplt",
+          "peak_update": 476
+        },
+        "Electrical Engineering": {
+          "final": 0.3709090909090909,
+          "final_minus_first": -0.06909090909090909,
+          "final_minus_peak": -0.06909090909090909,
+          "first": 0.44,
+          "n": 550,
+          "peak": 0.44,
+          "peak_phase": "hplt",
+          "peak_update": 238
+        },
+        "General Knowledge": {
+          "final": 0.3561253561253561,
+          "final_minus_first": -0.01709401709401709,
+          "final_minus_peak": -0.02849002849002852,
+          "first": 0.3732193732193732,
+          "n": 351,
+          "peak": 0.38461538461538464,
+          "peak_phase": "hplt",
+          "peak_update": 476
+        },
+        "Geography": {
+          "final": 0.4679334916864608,
+          "final_minus_first": 0.04750593824228028,
+          "final_minus_peak": -0.011876484560570055,
+          "first": 0.42042755344418054,
+          "n": 421,
+          "peak": 0.47980997624703087,
+          "peak_phase": "openarchives",
+          "peak_update": 3218
+        },
+        "Government and Politics": {
+          "final": 0.5354107648725213,
+          "final_minus_first": 0.014164305949008527,
+          "final_minus_peak": -0.019830028328611915,
+          "first": 0.5212464589235127,
+          "n": 353,
+          "peak": 0.5552407932011332,
+          "peak_phase": "hplt",
+          "peak_update": 952
+        },
+        "Greek History": {
+          "final": 0.4289985052316891,
+          "final_minus_first": 0.0179372197309417,
+          "final_minus_peak": -0.023916292974588915,
+          "first": 0.4110612855007474,
+          "n": 669,
+          "peak": 0.452914798206278,
+          "peak_phase": "hplt",
+          "peak_update": 1428
+        },
+        "Greek Literature": {
+          "final": 0.5714285714285714,
+          "final_minus_first": -0.07142857142857151,
+          "final_minus_peak": -0.1428571428571429,
+          "first": 0.6428571428571429,
+          "n": 14,
+          "peak": 0.7142857142857143,
+          "peak_phase": "hplt",
+          "peak_update": 714
+        },
+        "Greek Mythology": {
+          "final": 0.46835443037974683,
+          "final_minus_first": -0.012658227848101278,
+          "final_minus_peak": -0.042194092827004204,
+          "first": 0.4810126582278481,
+          "n": 237,
+          "peak": 0.510548523206751,
+          "peak_phase": "hplt",
+          "peak_update": 952
+        },
+        "Greek Traditions": {
+          "final": 0.41333333333333333,
+          "final_minus_first": -0.058666666666666645,
+          "final_minus_peak": -0.058666666666666645,
+          "first": 0.472,
+          "n": 375,
+          "peak": 0.472,
+          "peak_phase": "hplt",
+          "peak_update": 238
+        },
+        "Law": {
+          "final": 0.32438238453276047,
+          "final_minus_first": -0.015037593984962405,
+          "final_minus_peak": -0.02685284640171859,
+          "first": 0.3394199785177229,
+          "n": 931,
+          "peak": 0.35123523093447906,
+          "peak_phase": "hplt",
+          "peak_update": 476
+        },
+        "Management": {
+          "final": 0.37727272727272726,
+          "final_minus_first": -0.1257575757575758,
+          "final_minus_peak": -0.13333333333333336,
+          "first": 0.503030303030303,
+          "n": 660,
+          "peak": 0.5106060606060606,
+          "peak_phase": "hplt",
+          "peak_update": 476
+        },
+        "Maritime Safety and Rescue Operations": {
+          "final": 0.3380281690140845,
+          "final_minus_first": -0.007042253521126751,
+          "final_minus_peak": -0.04225352112676056,
+          "first": 0.34507042253521125,
+          "n": 142,
+          "peak": 0.38028169014084506,
+          "peak_phase": "hplt",
+          "peak_update": 1666
+        },
+        "Mathematics": {
+          "final": 0.30590339892665475,
+          "final_minus_first": -0.04114490161001788,
+          "final_minus_peak": -0.06797853309481217,
+          "first": 0.3470483005366726,
+          "n": 1118,
+          "peak": 0.3738819320214669,
+          "peak_phase": "hplt",
+          "peak_update": 952
+        },
+        "Medicine": {
+          "final": 0.3465160075329567,
+          "final_minus_first": -0.03389830508474573,
+          "final_minus_peak": -0.03578154425612051,
+          "first": 0.3804143126177024,
+          "n": 531,
+          "peak": 0.3822975517890772,
+          "peak_phase": "hplt",
+          "peak_update": 1904
+        },
+        "Modern Greek Language": {
+          "final": 0.3748939779474131,
+          "final_minus_first": 0.01653944020356235,
+          "final_minus_peak": -0.001696352841390969,
+          "first": 0.35835453774385073,
+          "n": 2358,
+          "peak": 0.37659033078880405,
+          "peak_phase": "hplt",
+          "peak_update": 2142
+        },
+        "Physics": {
+          "final": 0.47319474835886216,
+          "final_minus_first": -0.01258205689277897,
+          "final_minus_peak": -0.03555798687089712,
+          "first": 0.48577680525164113,
+          "n": 1828,
+          "peak": 0.5087527352297593,
+          "peak_phase": "hplt",
+          "peak_update": 1190
+        },
+        "Prehistory": {
+          "final": 0.6507936507936508,
+          "final_minus_first": 0.0,
+          "final_minus_peak": -0.015873015873015817,
+          "first": 0.6507936507936508,
+          "n": 63,
+          "peak": 0.6666666666666666,
+          "peak_phase": "hplt",
+          "peak_update": 952
+        },
+        "World History": {
+          "final": 0.8,
+          "final_minus_first": 0.10000000000000009,
+          "final_minus_peak": -0.04999999999999993,
+          "first": 0.7,
+          "n": 20,
+          "peak": 0.85,
+          "peak_phase": "extension",
+          "peak_update": 3456
+        },
+        "World Religions": {
+          "final": 0.6193548387096774,
+          "final_minus_first": 0.07096774193548394,
+          "final_minus_peak": -0.032258064516129004,
+          "first": 0.5483870967741935,
+          "n": 155,
+          "peak": 0.6516129032258065,
+          "peak_phase": "hplt",
+          "peak_update": 2261
+        }
+      },
+      "subjects_final_above_first": 7,
+      "subjects_final_below_first": 22,
+      "validation_loss": {
+        "code": {
+          "extension_delta": -0.0010941624641418457,
+          "final": 0.9188354015350342,
+          "final_forgetting": 0.03669244050979614,
+          "first": 1.6859462261199951,
+          "hplt_boundary": 0.9068568348884583,
+          "hplt_delta": -0.7790893912315369,
+          "minimum": 0.882142961025238,
+          "minimum_update": 775,
+          "oa_endpoint": 0.919929563999176,
+          "openarchives_delta": 0.013072729110717773
+        },
+        "de": {
+          "extension_delta": -0.004921436309814453,
+          "final": 2.347614288330078,
+          "final_forgetting": 0.025498151779174805,
+          "first": 3.5621402263641357,
+          "hplt_boundary": 2.3497092723846436,
+          "hplt_delta": -1.2124309539794922,
+          "minimum": 2.3221161365509033,
+          "minimum_update": 625,
+          "oa_endpoint": 2.3525357246398926,
+          "openarchives_delta": 0.0028264522552490234
+        },
+        "english": {
+          "extension_delta": -0.003285646438598633,
+          "final": 2.370889186859131,
+          "final_forgetting": 0.03363466262817383,
+          "first": 3.197307586669922,
+          "hplt_boundary": 2.3671507835388184,
+          "hplt_delta": -0.8301568031311035,
+          "minimum": 2.337254524230957,
+          "minimum_update": 625,
+          "oa_endpoint": 2.3741748332977295,
+          "openarchives_delta": 0.007024049758911133
+        },
+        "greek_phd": {
+          "extension_delta": -0.007872223854064941,
+          "final": 1.8878589868545532,
+          "final_forgetting": 0.0,
+          "first": 4.356722354888916,
+          "hplt_boundary": 2.05147647857666,
+          "hplt_delta": -2.305245876312256,
+          "minimum": 1.8878589868545532,
+          "minimum_update": 3675,
+          "oa_endpoint": 1.8957312107086182,
+          "openarchives_delta": -0.155745267868042
+        },
+        "hplt": {
+          "extension_delta": -0.0019180774688720703,
+          "final": 2.30476450920105,
+          "final_forgetting": 0.024126768112182617,
+          "first": 6.4099345207214355,
+          "hplt_boundary": 2.280637741088867,
+          "hplt_delta": -4.129296779632568,
+          "minimum": 2.280637741088867,
+          "minimum_update": 2250,
+          "oa_endpoint": 2.306682586669922,
+          "openarchives_delta": 0.026044845581054688
+        },
+        "old_greek": {
+          "extension_delta": -0.003458261489868164,
+          "final": 2.253602981567383,
+          "final_forgetting": 0.0,
+          "first": 6.077942848205566,
+          "hplt_boundary": 2.2579894065856934,
+          "hplt_delta": -3.819953441619873,
+          "minimum": 2.253602981567383,
+          "minimum_update": 3675,
+          "oa_endpoint": 2.257061243057251,
+          "openarchives_delta": -0.0009281635284423828
+        },
+        "openarchives": {
+          "extension_delta": -0.008515357971191406,
+          "final": 1.65900456905365,
+          "final_forgetting": 0.0,
+          "first": 4.742027759552002,
+          "hplt_boundary": 1.8734205961227417,
+          "hplt_delta": -2.8686071634292603,
+          "minimum": 1.65900456905365,
+          "minimum_update": 3675,
+          "oa_endpoint": 1.6675199270248413,
+          "openarchives_delta": -0.2059006690979004
+        },
+        "ru": {
+          "extension_delta": -0.00270843505859375,
+          "final": 1.9793757200241089,
+          "final_forgetting": 0.03276658058166504,
+          "first": 3.0555083751678467,
+          "hplt_boundary": 1.976867437362671,
+          "hplt_delta": -1.0786409378051758,
+          "minimum": 1.9466091394424438,
+          "minimum_update": 600,
+          "oa_endpoint": 1.9820841550827026,
+          "openarchives_delta": 0.005216717720031738
+        },
+        "zh": {
+          "extension_delta": -0.0041429996490478516,
+          "final": 2.2224724292755127,
+          "final_forgetting": 0.035481929779052734,
+          "first": 3.550116777420044,
+          "hplt_boundary": 2.21854305267334,
+          "hplt_delta": -1.331573724746704,
+          "minimum": 2.18699049949646,
+          "minimum_update": 775,
+          "oa_endpoint": 2.2266154289245605,
+          "openarchives_delta": 0.008072376251220703
+        }
+      }
+    },
+    "8b": {
+      "educational_levels": {
+        "NA": {
+          "final": 0.5185770750988142,
+          "final_minus_first": 0.04110671936758892,
+          "final_minus_peak": -0.012648221343873556,
+          "first": 0.4774703557312253,
+          "n": 1265,
+          "peak": 0.5312252964426878,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Primary School": {
+          "final": 0.6444191343963553,
+          "final_minus_first": 0.09384965831435077,
+          "final_minus_peak": -0.015945330296127547,
+          "first": 0.5505694760820046,
+          "n": 4390,
+          "peak": 0.6603644646924829,
+          "peak_phase": "openarchives",
+          "peak_update": 2380
+        },
+        "Professional": {
+          "final": 0.5453531598513011,
+          "final_minus_first": 0.07534076827757119,
+          "final_minus_peak": -0.007930607187112804,
+          "first": 0.47001239157372987,
+          "n": 8070,
+          "peak": 0.5532837670384139,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Secondary School": {
+          "final": 0.5837163493105713,
+          "final_minus_first": 0.07747866053841101,
+          "final_minus_peak": -0.022324359816152328,
+          "first": 0.5062376887721602,
+          "n": 1523,
+          "peak": 0.6060407091267236,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "University": {
+          "final": 0.5016465422612514,
+          "final_minus_first": 0.020856201975850697,
+          "final_minus_peak": -0.015367727771679496,
+          "first": 0.4807903402854007,
+          "n": 911,
+          "peak": 0.5170142700329309,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        }
+      },
+      "metrics": {
+        "accuracy": {
+          "best": {
+            "update": 2618,
+            "value": 0.5831425211956185
+          },
+          "landmarks": {
+            "final": 0.5713224828269076,
+            "first": 0.4965034965034965,
+            "hplt_boundary": 0.5595643294758339,
+            "oa_endpoint": 0.5723126431091032
+          },
+          "phase_deltas": {
+            "extension_endpoint_to_final": -0.0009901602821956734,
+            "final_minus_best": -0.011820038368710928,
+            "hplt_first_to_boundary": 0.06306083297233739,
+            "openarchives_boundary_to_endpoint": 0.012748313633269337,
+            "overall_first_to_final": 0.07481898632341105
+          }
+        },
+        "choice_nll": {
+          "best": {
+            "update": 2618,
+            "value": 1.05944216386358
+          },
+          "landmarks": {
+            "final": 1.0799996798749483,
+            "first": 1.288155122505826,
+            "hplt_boundary": 1.1272680800953563,
+            "oa_endpoint": 1.0839346206907723
+          },
+          "phase_deltas": {
+            "extension_endpoint_to_final": -0.003934940815824017,
+            "final_minus_best": 0.020557516011368238,
+            "hplt_first_to_boundary": -0.1608870424104698,
+            "openarchives_boundary_to_endpoint": -0.043333459404583996,
+            "overall_first_to_final": -0.20815544263087782
+          }
+        },
+        "correct_answer_bpb": {
+          "best": {
+            "update": 2618,
+            "value": 0.16570058217616251
+          },
+          "landmarks": {
+            "final": 0.17479857072106,
+            "first": 0.22566736206737797,
+            "hplt_boundary": 0.18865167381323475,
+            "oa_endpoint": 0.17668467745504735
+          },
+          "phase_deltas": {
+            "extension_endpoint_to_final": -0.0018861067339873416,
+            "final_minus_best": 0.00909798854489749,
+            "hplt_first_to_boundary": -0.037015688254143225,
+            "openarchives_boundary_to_endpoint": -0.011966996358187404,
+            "overall_first_to_final": -0.05086879134631797
+          }
+        }
+      },
+      "subject_peak_phase_counts": {
+        "extension": 0,
+        "hplt": 9,
+        "openarchives": 22
+      },
+      "subjects": {
+        "Accounting": {
+          "final": 0.510989010989011,
+          "final_minus_first": 0.1428571428571428,
+          "final_minus_peak": 0.0,
+          "first": 0.36813186813186816,
+          "n": 182,
+          "peak": 0.510989010989011,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Agriculture": {
+          "final": 0.5604938271604938,
+          "final_minus_first": 0.09876543209876537,
+          "final_minus_peak": -0.01728395061728394,
+          "first": 0.4617283950617284,
+          "n": 405,
+          "peak": 0.5777777777777777,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Art": {
+          "final": 0.565284178187404,
+          "final_minus_first": 0.11213517665130562,
+          "final_minus_peak": -0.009216589861751223,
+          "first": 0.45314900153609833,
+          "n": 651,
+          "peak": 0.5745007680491552,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Biology": {
+          "final": 0.5026178010471204,
+          "final_minus_first": 0.06282722513089001,
+          "final_minus_peak": -0.01308900523560208,
+          "first": 0.4397905759162304,
+          "n": 382,
+          "peak": 0.5157068062827225,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Chemistry": {
+          "final": 0.37037037037037035,
+          "final_minus_first": 0.0,
+          "final_minus_peak": -0.04938271604938271,
+          "first": 0.37037037037037035,
+          "n": 81,
+          "peak": 0.41975308641975306,
+          "peak_phase": "hplt",
+          "peak_update": 952
+        },
+        "Civil Engineering": {
+          "final": 0.5332464146023468,
+          "final_minus_first": 0.0847457627118644,
+          "final_minus_peak": -0.018252933507170832,
+          "first": 0.4485006518904824,
+          "n": 767,
+          "peak": 0.5514993481095176,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Clinical Knowledge": {
+          "final": 0.593996840442338,
+          "final_minus_first": 0.09004739336492884,
+          "final_minus_peak": -0.018957345971564066,
+          "first": 0.5039494470774092,
+          "n": 633,
+          "peak": 0.6129541864139021,
+          "peak_phase": "hplt",
+          "peak_update": 1904
+        },
+        "Computer Networks & Security": {
+          "final": 0.2857142857142857,
+          "final_minus_first": 0.047619047619047616,
+          "final_minus_peak": -0.015873015873015872,
+          "first": 0.23809523809523808,
+          "n": 63,
+          "peak": 0.30158730158730157,
+          "peak_phase": "hplt",
+          "peak_update": 2142
+        },
+        "Computer Science": {
+          "final": 0.6731843575418994,
+          "final_minus_first": 0.0949720670391061,
+          "final_minus_peak": 0.0,
+          "first": 0.5782122905027933,
+          "n": 358,
+          "peak": 0.6731843575418994,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Computer_Networks_and_Security": {
+          "final": 0.6666666666666666,
+          "final_minus_first": 0.09523809523809523,
+          "final_minus_peak": -0.04761904761904767,
+          "first": 0.5714285714285714,
+          "n": 21,
+          "peak": 0.7142857142857143,
+          "peak_phase": "hplt",
+          "peak_update": 1428
+        },
+        "Driving Rules": {
+          "final": 0.5185770750988142,
+          "final_minus_first": 0.04110671936758892,
+          "final_minus_peak": -0.012648221343873556,
+          "first": 0.4774703557312253,
+          "n": 1265,
+          "peak": 0.5312252964426878,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Economics": {
+          "final": 0.5480427046263345,
+          "final_minus_first": 0.06049822064056942,
+          "final_minus_peak": -0.007117437722419906,
+          "first": 0.4875444839857651,
+          "n": 281,
+          "peak": 0.5551601423487544,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Education": {
+          "final": 0.6360544217687075,
+          "final_minus_first": 0.04421768707482998,
+          "final_minus_peak": 0.0,
+          "first": 0.5918367346938775,
+          "n": 294,
+          "peak": 0.6360544217687075,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Electrical Engineering": {
+          "final": 0.4909090909090909,
+          "final_minus_first": 0.07090909090909092,
+          "final_minus_peak": -0.023636363636363622,
+          "first": 0.42,
+          "n": 550,
+          "peak": 0.5145454545454545,
+          "peak_phase": "openarchives",
+          "peak_update": 2380
+        },
+        "General Knowledge": {
+          "final": 0.4843304843304843,
+          "final_minus_first": 0.037037037037037035,
+          "final_minus_peak": -0.02279202279202286,
+          "first": 0.4472934472934473,
+          "n": 351,
+          "peak": 0.5071225071225072,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Geography": {
+          "final": 0.7149643705463183,
+          "final_minus_first": 0.14251781472684089,
+          "final_minus_peak": -0.0332541567695962,
+          "first": 0.5724465558194775,
+          "n": 421,
+          "peak": 0.7482185273159145,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Government and Politics": {
+          "final": 0.7705382436260623,
+          "final_minus_first": 0.09348441926345608,
+          "final_minus_peak": -0.0056657223796034994,
+          "first": 0.6770538243626062,
+          "n": 353,
+          "peak": 0.7762039660056658,
+          "peak_phase": "openarchives",
+          "peak_update": 2856
+        },
+        "Greek History": {
+          "final": 0.7085201793721974,
+          "final_minus_first": 0.10911808669656209,
+          "final_minus_peak": -0.020926756352765308,
+          "first": 0.5994020926756353,
+          "n": 669,
+          "peak": 0.7294469357249627,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Greek Literature": {
+          "final": 0.42857142857142855,
+          "final_minus_first": 0.0,
+          "final_minus_peak": -0.28571428571428575,
+          "first": 0.42857142857142855,
+          "n": 14,
+          "peak": 0.7142857142857143,
+          "peak_phase": "hplt",
+          "peak_update": 1428
+        },
+        "Greek Mythology": {
+          "final": 0.6371308016877637,
+          "final_minus_first": 0.0675105485232067,
+          "final_minus_peak": -0.03375527426160341,
+          "first": 0.569620253164557,
+          "n": 237,
+          "peak": 0.6708860759493671,
+          "peak_phase": "openarchives",
+          "peak_update": 2856
+        },
+        "Greek Traditions": {
+          "final": 0.624,
+          "final_minus_first": 0.05600000000000005,
+          "final_minus_peak": -0.02400000000000002,
+          "first": 0.568,
+          "n": 375,
+          "peak": 0.648,
+          "peak_phase": "openarchives",
+          "peak_update": 2380
+        },
+        "Law": {
+          "final": 0.37056928034371645,
+          "final_minus_first": 0.011815252416756183,
+          "final_minus_peak": -0.011815252416756183,
+          "first": 0.35875402792696026,
+          "n": 931,
+          "peak": 0.38238453276047263,
+          "peak_phase": "openarchives",
+          "peak_update": 2856
+        },
+        "Management": {
+          "final": 0.6075757575757575,
+          "final_minus_first": 0.12878787878787878,
+          "final_minus_peak": -0.027272727272727337,
+          "first": 0.47878787878787876,
+          "n": 660,
+          "peak": 0.6348484848484849,
+          "peak_phase": "openarchives",
+          "peak_update": 2856
+        },
+        "Maritime Safety and Rescue Operations": {
+          "final": 0.4154929577464789,
+          "final_minus_first": 0.02816901408450706,
+          "final_minus_peak": 0.0,
+          "first": 0.3873239436619718,
+          "n": 142,
+          "peak": 0.4154929577464789,
+          "peak_phase": "hplt",
+          "peak_update": 1428
+        },
+        "Mathematics": {
+          "final": 0.5679785330948122,
+          "final_minus_first": 0.04203935599284436,
+          "final_minus_peak": -0.038461538461538436,
+          "first": 0.5259391771019678,
+          "n": 1118,
+          "peak": 0.6064400715563506,
+          "peak_phase": "openarchives",
+          "peak_update": 2380
+        },
+        "Medicine": {
+          "final": 0.5009416195856874,
+          "final_minus_first": 0.060263653483992485,
+          "final_minus_peak": -0.01883239171374762,
+          "first": 0.4406779661016949,
+          "n": 531,
+          "peak": 0.519774011299435,
+          "peak_phase": "openarchives",
+          "peak_update": 2380
+        },
+        "Modern Greek Language": {
+          "final": 0.5742154368108566,
+          "final_minus_first": 0.1000848176420695,
+          "final_minus_peak": -0.010178117048346036,
+          "first": 0.4741306191687871,
+          "n": 2358,
+          "peak": 0.5843935538592027,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Physics": {
+          "final": 0.6362144420131292,
+          "final_minus_first": 0.06892778993435456,
+          "final_minus_peak": -0.01094091903719907,
+          "first": 0.5672866520787746,
+          "n": 1828,
+          "peak": 0.6471553610503282,
+          "peak_phase": "openarchives",
+          "peak_update": 2618
+        },
+        "Prehistory": {
+          "final": 0.7936507936507936,
+          "final_minus_first": 0.015873015873015817,
+          "final_minus_peak": -0.015873015873015928,
+          "first": 0.7777777777777778,
+          "n": 63,
+          "peak": 0.8095238095238095,
+          "peak_phase": "hplt",
+          "peak_update": 476
+        },
+        "World History": {
+          "final": 0.9,
+          "final_minus_first": 0.09999999999999998,
+          "final_minus_peak": 0.0,
+          "first": 0.8,
+          "n": 20,
+          "peak": 0.9,
+          "peak_phase": "hplt",
+          "peak_update": 1904
+        },
+        "World Religions": {
+          "final": 0.632258064516129,
+          "final_minus_first": 0.02580645161290318,
+          "final_minus_peak": -0.012903225806451646,
+          "first": 0.6064516129032258,
+          "n": 155,
+          "peak": 0.6451612903225806,
+          "peak_phase": "hplt",
+          "peak_update": 2261
+        }
+      },
+      "subjects_final_above_first": 29,
+      "subjects_final_below_first": 0,
+      "validation_loss": {
+        "code": {
+          "extension_delta": -0.006537735462188721,
+          "final": 0.7608782052993774,
+          "final_forgetting": 0.01881706714630127,
+          "first": 0.8312925696372986,
+          "hplt_boundary": 0.7605982422828674,
+          "hplt_delta": -0.07069432735443115,
+          "minimum": 0.7420611381530762,
+          "minimum_update": 800,
+          "oa_endpoint": 0.7674159407615662,
+          "openarchives_delta": 0.0068176984786987305
+        },
+        "de": {
+          "extension_delta": -0.020210981369018555,
+          "final": 1.9431380033493042,
+          "final_forgetting": 0.020261645317077637,
+          "first": 2.0329041481018066,
+          "hplt_boundary": 1.9604151248931885,
+          "hplt_delta": -0.07248902320861816,
+          "minimum": 1.9228763580322266,
+          "minimum_update": 250,
+          "oa_endpoint": 1.9633489847183228,
+          "openarchives_delta": 0.0029338598251342773
+        },
+        "english": {
+          "extension_delta": -0.0060122013092041016,
+          "final": 2.0050737857818604,
+          "final_forgetting": 0.04471588134765625,
+          "first": 2.0717504024505615,
+          "hplt_boundary": 2.001832962036133,
+          "hplt_delta": -0.06991744041442871,
+          "minimum": 1.960357904434204,
+          "minimum_update": 325,
+          "oa_endpoint": 2.0110859870910645,
+          "openarchives_delta": 0.00925302505493164
+        },
+        "greek_phd": {
+          "extension_delta": -0.011902570724487305,
+          "final": 1.6596752405166626,
+          "final_forgetting": 0.0,
+          "first": 2.9458506107330322,
+          "hplt_boundary": 1.7914053201675415,
+          "hplt_delta": -1.1544452905654907,
+          "minimum": 1.6596752405166626,
+          "minimum_update": 3675,
+          "oa_endpoint": 1.67157781124115,
+          "openarchives_delta": -0.1198275089263916
+        },
+        "hplt": {
+          "extension_delta": -0.019871234893798828,
+          "final": 1.9953291416168213,
+          "final_forgetting": 0.0,
+          "first": 4.267104625701904,
+          "hplt_boundary": 1.9972275495529175,
+          "hplt_delta": -2.269877076148987,
+          "minimum": 1.9953291416168213,
+          "minimum_update": 3675,
+          "oa_endpoint": 2.01520037651062,
+          "openarchives_delta": 0.017972826957702637
+        },
+        "old_greek": {
+          "extension_delta": -0.019940972328186035,
+          "final": 1.9317229986190796,
+          "final_forgetting": 0.0,
+          "first": 3.8454761505126953,
+          "hplt_boundary": 1.9515941143035889,
+          "hplt_delta": -1.8938820362091064,
+          "minimum": 1.9317229986190796,
+          "minimum_update": 3675,
+          "oa_endpoint": 1.9516639709472656,
+          "openarchives_delta": 6.985664367675781e-05
+        },
+        "openarchives": {
+          "extension_delta": -0.01339733600616455,
+          "final": 1.4508527517318726,
+          "final_forgetting": 0.0,
+          "first": 3.0912604331970215,
+          "hplt_boundary": 1.625350832939148,
+          "hplt_delta": -1.4659096002578735,
+          "minimum": 1.4508527517318726,
+          "minimum_update": 3675,
+          "oa_endpoint": 1.464250087738037,
+          "openarchives_delta": -0.16110074520111084
+        },
+        "ru": {
+          "extension_delta": -0.007928133010864258,
+          "final": 1.6412822008132935,
+          "final_forgetting": 0.031572818756103516,
+          "first": 1.7089849710464478,
+          "hplt_boundary": 1.6423258781433105,
+          "hplt_delta": -0.06665909290313721,
+          "minimum": 1.60970938205719,
+          "minimum_update": 325,
+          "oa_endpoint": 1.6492103338241577,
+          "openarchives_delta": 0.006884455680847168
+        },
+        "zh": {
+          "extension_delta": -0.022507071495056152,
+          "final": 1.8371961116790771,
+          "final_forgetting": 0.023699641227722168,
+          "first": 1.9510600566864014,
+          "hplt_boundary": 1.8488168716430664,
+          "hplt_delta": -0.10224318504333496,
+          "minimum": 1.813496470451355,
+          "minimum_update": 425,
+          "oa_endpoint": 1.8597031831741333,
+          "openarchives_delta": 0.010886311531066895
+        }
+      }
+    }
+  },
+  "schema_version": "apertus_h2g_cross_scale_report_analysis_v1",
+  "source_aggregate_sha256": "49c43d10cfc28067461c538c001e3f0c1cd99a3d2b4d577be8f58c50566839b6",
+  "source_training_trajectories_sha256": "9e240c701fb0bb6f567de4fc8e39fd20e1099080a46c12c80981d01084a2f5cd",
+  "status": "completed"
+}

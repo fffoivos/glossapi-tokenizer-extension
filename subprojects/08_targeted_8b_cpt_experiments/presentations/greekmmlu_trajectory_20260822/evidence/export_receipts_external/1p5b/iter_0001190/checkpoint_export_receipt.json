@@ -1,0 +1,117 @@
+{
+  "conversion": {
+    "converter_overlay": {
+      "bytes": 2387,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/runs/efficiency_main_1p5b_s1_rerun_from_952_after_signal_fault_v1_eval_export_parity_i1190_v107/evaluations/checkpoint_export/iter_0001190/attempts/attempt_000001/export/converter_overlay/converter_overlay_receipt.json",
+      "sha256": "3c06a89e576a50659baf4dbe9c258b220c5ad2591a5467b38587c36ba761d2a7"
+    },
+    "diagnostic_99_5_percent_agreement_passed": false,
+    "logits_close_percent": 95.78,
+    "minimum_prediction_agreement_percent": 99.0,
+    "native_argmax_threshold_passed": true,
+    "parity_acceptance_path": "canonical_raw_logits",
+    "pipeline": [
+      "SwissAI Megatron scripts/conversion/torchdist_2_torch.py",
+      "SwissAI Megatron tools/checkpoint/convert.py --loader core --saver swissai_hf"
+    ],
+    "prediction_agreement_percent": 99.49,
+    "raw_logit_threshold_passed": true,
+    "runtime_semantic_parity_passed": true,
+    "semantic_parity_dtype": "float32",
+    "semantic_probability_limits": {
+      "max_kl_divergence": 0.1,
+      "max_total_variation": 0.2,
+      "mean_kl_divergence": 0.0001,
+      "mean_top_token_logprob_abs_difference": 0.01,
+      "mean_total_variation": 0.005,
+      "p999_top_token_logprob_abs_difference": 0.2,
+      "p99_top_token_logprob_abs_difference": 0.075
+    },
+    "semantic_probability_metrics": {
+      "max_kl_divergence": 0.01833038032055,
+      "max_top_token_logprob_abs_difference": 0.3077739477158,
+      "max_total_variation": 0.07932109385729,
+      "mean_kl_divergence": 4.625496633074e-05,
+      "mean_top_token_logprob_abs_difference": 0.00363822369706,
+      "mean_total_variation": 0.002032808407191,
+      "p999_top_token_logprob_abs_difference": 0.09358932822943,
+      "p99_top_token_logprob_abs_difference": 0.03631057590246
+    },
+    "semantic_probability_thresholds_passed": true,
+    "timing": {
+      "exact_weight_mapping_verification_seconds": 31,
+      "torch_dist_to_torch_seconds": 266,
+      "torch_to_hf_and_logit_test_seconds": 781,
+      "total_conversion_seconds": 1078
+    }
+  },
+  "exact_weight_mapping": {
+    "bytes": 2394,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/runs/efficiency_main_1p5b_s1_rerun_from_952_after_signal_fault_v1_eval_export_parity_i1190_v107/evaluations/checkpoint_export/iter_0001190/attempts/attempt_000001/export/exact_weight_mapping_receipt.json",
+    "sha256": "978d02dc36b6c9bde97edbfb654d7dcaf59894121cc6cfee431eb8b393998913"
+  },
+  "geometry": {
+    "hidden_size": 2048,
+    "max_position_embeddings": 4096,
+    "num_attention_heads": 32,
+    "num_hidden_layers": 16,
+    "num_key_value_heads": 8,
+    "rope_scaling_factor": 8.0,
+    "rope_theta": 500000.0,
+    "tie_word_embeddings": false,
+    "vocab_size": 148480
+  },
+  "hf_export": {
+    "files": [
+      {
+        "bytes": 892,
+        "path": "config.json",
+        "sha256": "3923a6e46a3af20b6b777d7f7fe10a62c228b743fb61e35db93180218b9bf425"
+      },
+      {
+        "bytes": 111,
+        "path": "generation_config.json",
+        "sha256": "181ac3dad6d269eddcf39f02c775a813299c2ae2e61ae9c751e2af6f62cb14a5"
+      },
+      {
+        "bytes": 3162669864,
+        "path": "model.safetensors",
+        "sha256": "c3384a7ea25e6c1582668c4a6eed28effeebe8a62966e38b0cf8cb96a6c470e3"
+      },
+      {
+        "bytes": 552,
+        "path": "special_tokens_map.json",
+        "sha256": "358c249e2fb29060c6b73157d428853b0c48710deffc8ee670ab1013880946c9"
+      },
+      {
+        "bytes": 18948426,
+        "path": "tokenizer.json",
+        "sha256": "37c110e765160f64a22bf913f714a40744c84208d0ec22d8f22b8232b1923c34"
+      },
+      {
+        "bytes": 177324,
+        "path": "tokenizer_config.json",
+        "sha256": "ea64a17b41e1deaa7469212f413676129f33977ca3a48767f0ca68dc346df502"
+      }
+    ],
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/runs/efficiency_main_1p5b_s1_rerun_from_952_after_signal_fault_v1_eval_export_parity_i1190_v107/evaluations/checkpoint_export/iter_0001190/attempts/attempt_000001/export/hf",
+    "tokenizer_json_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+    "tokenizer_semantically_identical_to_frozen_overlay": true,
+    "tree_manifest_sha256": "3302a34fa8a19cb47ab9b214334675dfc50865896d391a17f02a4c725feeec2e"
+  },
+  "iteration": 1190,
+  "model_contract": {
+    "bytes": 28431,
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260817T090000Z-hard-h2g-7a5d2cca-export-view-v107/subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_replication_v1.json",
+    "sha256": "d08b5a1b39b3ed97f4ffb3026fcec29056cdb1448f65b106e059ff43a59828b3"
+  },
+  "ready_for_frozen_evaluators": true,
+  "scale": "1p5b",
+  "schema_version": "apertus_hard_h_to_g_checkpoint_export_v1",
+  "source_checkpoint": {
+    "bytes": 2383,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/runs/efficiency_main_1p5b_s1_rerun_from_952_after_signal_fault_v1_eval_export_parity_i1190_v107/evaluations/checkpoint_export/iter_0001190/attempts/attempt_000001/export/source_checkpoint_receipt.json",
+    "sha256": "6c291188dc150937dcfc8985cf85435f2dacfcb73abb02a42780507c3316a15c"
+  },
+  "status": "completed"
+}

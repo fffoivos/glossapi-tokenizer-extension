@@ -1,0 +1,138 @@
+{
+  "conversion": {
+    "converter_overlay": {
+      "bytes": 2655,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/control/retries/export_overlay_v105_lowmem_v2/converter_overlay_receipt.json",
+      "sha256": "97824034e34815fe96a86deba3562c9aeacf52dcd5a45f24f6f8479dfe2f3d72"
+    },
+    "diagnostic_99_5_percent_agreement_passed": false,
+    "logits_close_percent": 91.89,
+    "minimum_prediction_agreement_percent": 99.0,
+    "native_argmax_threshold_passed": true,
+    "parity_acceptance_path": "probability_space",
+    "pipeline": [
+      "SwissAI Megatron scripts/conversion/torchdist_2_torch.py",
+      "SwissAI Megatron tools/checkpoint/convert.py --loader core --saver swissai_hf"
+    ],
+    "prediction_agreement_percent": 99.22,
+    "raw_logit_threshold_passed": false,
+    "runtime_semantic_parity_passed": true,
+    "semantic_parity_dtype": "float32",
+    "semantic_probability_limits": {
+      "max_kl_divergence": 0.1,
+      "max_total_variation": 0.2,
+      "mean_kl_divergence": 0.0001,
+      "mean_top_token_logprob_abs_difference": 0.01,
+      "mean_total_variation": 0.005,
+      "p999_top_token_logprob_abs_difference": 0.2,
+      "p99_top_token_logprob_abs_difference": 0.075
+    },
+    "semantic_probability_metrics": {
+      "max_kl_divergence": 0.001037298701704,
+      "max_top_token_logprob_abs_difference": 0.05300331115723,
+      "max_total_variation": 0.01729229651392,
+      "mean_kl_divergence": 5.795096999706e-05,
+      "mean_top_token_logprob_abs_difference": 0.005981990736473,
+      "mean_total_variation": 0.002887115551349,
+      "p999_top_token_logprob_abs_difference": 0.0508921444416,
+      "p99_top_token_logprob_abs_difference": 0.04383227229118
+    },
+    "semantic_probability_thresholds_passed": true,
+    "timing": {
+      "exact_weight_mapping_verification_seconds": 30,
+      "recovery_reused_verified_intermediate": true,
+      "torch_dist_to_torch_seconds": 0,
+      "torch_to_hf_and_logit_test_seconds": 50,
+      "total_conversion_seconds": 80
+    }
+  },
+  "exact_weight_mapping": {
+    "bytes": 2923,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/final_exports/8b_update3694_v15/exact_weight_mapping_receipt.json",
+    "sha256": "7ad350dcec7620d57b72558c468a63d3a1943108200b6f5c5e1b69e2c87bc048"
+  },
+  "geometry": {
+    "hidden_size": 4096,
+    "max_position_embeddings": 4096,
+    "num_attention_heads": 32,
+    "num_hidden_layers": 32,
+    "num_key_value_heads": 8,
+    "rope_scaling_factor": 8.0,
+    "rope_theta": 500000.0,
+    "tie_word_embeddings": false,
+    "vocab_size": 148480
+  },
+  "hf_export": {
+    "files": [
+      {
+        "bytes": 892,
+        "path": "config.json",
+        "sha256": "242506beda99d22a3ff8a40d5a8dd6a520e28d1667b3b6301ee1bcafba8321a0"
+      },
+      {
+        "bytes": 111,
+        "path": "generation_config.json",
+        "sha256": "181ac3dad6d269eddcf39f02c775a813299c2ae2e61ae9c751e2af6f62cb14a5"
+      },
+      {
+        "bytes": 4966205080,
+        "path": "model-00001-of-00004.safetensors",
+        "sha256": "16c13cf19da4bd84579b64b957d8d5718b2eb102fc130b8be823f6ec8bbd0abd"
+      },
+      {
+        "bytes": 4974664816,
+        "path": "model-00002-of-00004.safetensors",
+        "sha256": "ddea081fc7b32d0ed994ad3bacfe04588abe2e1741287daf53928838f6249b9b"
+      },
+      {
+        "bytes": 4882374208,
+        "path": "model-00003-of-00004.safetensors",
+        "sha256": "6945638cee3af66f8c2002b95eb12f6c7754c5872793aba463bd24e8c1c43453"
+      },
+      {
+        "bytes": 1568695376,
+        "path": "model-00004-of-00004.safetensors",
+        "sha256": "e06401cfe6dd6b9af0526b06a9d9687f0e037b53df794c4b4fb64afcb88e819c"
+      },
+      {
+        "bytes": 36480,
+        "path": "model.safetensors.index.json",
+        "sha256": "36c81d02d3f253906a1df1b72c7f2910fc3fc17a24470464611b210feeefd4d1"
+      },
+      {
+        "bytes": 552,
+        "path": "special_tokens_map.json",
+        "sha256": "358c249e2fb29060c6b73157d428853b0c48710deffc8ee670ab1013880946c9"
+      },
+      {
+        "bytes": 18948426,
+        "path": "tokenizer.json",
+        "sha256": "37c110e765160f64a22bf913f714a40744c84208d0ec22d8f22b8232b1923c34"
+      },
+      {
+        "bytes": 177324,
+        "path": "tokenizer_config.json",
+        "sha256": "ea64a17b41e1deaa7469212f413676129f33977ca3a48767f0ca68dc346df502"
+      }
+    ],
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/final_exports/8b_update3694_v15/hf",
+    "tokenizer_json_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+    "tokenizer_semantically_identical_to_frozen_overlay": true,
+    "tree_manifest_sha256": "33357155249bd4bf5e44e0a8f9992c1aa9e70c403713b33832f47f352cc9bdba"
+  },
+  "iteration": 3694,
+  "model_contract": {
+    "bytes": 28431,
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T014000Z-hard-h2g-ledger-invariant-v15/subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_replication_v1.json",
+    "sha256": "7b101874422170083846f4ce0bcad6e119ea00af8aaec616e224852a3d3971dc"
+  },
+  "ready_for_frozen_evaluators": true,
+  "scale": "8b",
+  "schema_version": "apertus_hard_h_to_g_checkpoint_export_v1",
+  "source_checkpoint": {
+    "bytes": 20710,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/final_exports/8b_update3694_v15/source_checkpoint_receipt.json",
+    "sha256": "035743027b9ba15ccad5fd7de722ff80b8b3c3b8e34534bc86f5e8beb726bf3b"
+  },
+  "status": "completed"
+}

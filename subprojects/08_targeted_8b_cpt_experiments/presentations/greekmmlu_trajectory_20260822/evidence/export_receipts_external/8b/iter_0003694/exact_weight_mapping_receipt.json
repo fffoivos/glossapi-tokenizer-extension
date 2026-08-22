@@ -1,0 +1,61 @@
+{
+  "all_hf_tensors_accounted_for": true,
+  "all_mapped_parameter_tensors_bit_exact": true,
+  "all_source_parameters_covered": true,
+  "created_at_utc": "2026-08-22T05:01:38.720828+00:00",
+  "geometry": {
+    "head_size": 128,
+    "hidden_size": 4096,
+    "max_position_embeddings": 4096,
+    "num_attention_heads": 32,
+    "num_hidden_layers": 32,
+    "num_key_value_heads": 8,
+    "rope_scaling_factor": 8.0,
+    "rope_theta": 500000.0,
+    "tie_word_embeddings": false,
+    "vocab_size": 148480
+  },
+  "hf_config": {
+    "bytes": 892,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/final_exports/8b_update3694_v15/hf/config.json",
+    "sha256": "242506beda99d22a3ff8a40d5a8dd6a520e28d1667b3b6301ee1bcafba8321a0"
+  },
+  "hf_weight_files": [
+    {
+      "bytes": 4966205080,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/final_exports/8b_update3694_v15/hf/model-00001-of-00004.safetensors",
+      "sha256": "16c13cf19da4bd84579b64b957d8d5718b2eb102fc130b8be823f6ec8bbd0abd"
+    },
+    {
+      "bytes": 4974664816,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/final_exports/8b_update3694_v15/hf/model-00002-of-00004.safetensors",
+      "sha256": "ddea081fc7b32d0ed994ad3bacfe04588abe2e1741287daf53928838f6249b9b"
+    },
+    {
+      "bytes": 4882374208,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/final_exports/8b_update3694_v15/hf/model-00003-of-00004.safetensors",
+      "sha256": "6945638cee3af66f8c2002b95eb12f6c7754c5872793aba463bd24e8c1c43453"
+    },
+    {
+      "bytes": 1568695376,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/final_exports/8b_update3694_v15/hf/model-00004-of-00004.safetensors",
+      "sha256": "e06401cfe6dd6b9af0526b06a9d9687f0e037b53df794c4b4fb64afcb88e819c"
+    }
+  ],
+  "intermediate_checkpoint": {
+    "bytes": 16392139425,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/final_exports/8b_update3694_v15/intermediate/torch/iter_0003694/mp_rank_00/model_optim_rng.pt",
+    "sha256": "518b9610aaf45f3f6f294e3716f066eabdb6a41dd888f33ac04e99f83d62ed4e"
+  },
+  "model_contract": {
+    "bytes": 28431,
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T014000Z-hard-h2g-ledger-invariant-v15/subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_replication_v1.json",
+    "sha256": "7b101874422170083846f4ce0bcad6e119ea00af8aaec616e224852a3d3971dc"
+  },
+  "scale": "8b",
+  "schema_version": "apertus_exact_checkpoint_weight_mapping_v2",
+  "source_parameter_tensors_checked_exact": 323,
+  "source_parameter_tensors_expected": 323,
+  "status": "passed",
+  "xielu_constant_tensors_checked": 64
+}

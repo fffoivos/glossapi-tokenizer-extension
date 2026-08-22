@@ -1,0 +1,61 @@
+{
+  "all_hf_tensors_accounted_for": true,
+  "all_mapped_parameter_tensors_bit_exact": true,
+  "all_source_parameters_covered": true,
+  "created_at_utc": "2026-08-22T11:36:02.488571+00:00",
+  "geometry": {
+    "head_size": 128,
+    "hidden_size": 4096,
+    "max_position_embeddings": 4096,
+    "num_attention_heads": 32,
+    "num_hidden_layers": 32,
+    "num_key_value_heads": 8,
+    "rope_scaling_factor": 8.0,
+    "rope_theta": 500000.0,
+    "tie_word_embeddings": false,
+    "vocab_size": 148480
+  },
+  "hf_config": {
+    "bytes": 892,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0002142/hf/config.json",
+    "sha256": "242506beda99d22a3ff8a40d5a8dd6a520e28d1667b3b6301ee1bcafba8321a0"
+  },
+  "hf_weight_files": [
+    {
+      "bytes": 4966205080,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0002142/hf/model-00001-of-00004.safetensors",
+      "sha256": "64d1269d5900d8bf5ded693cdb96b762738e393a5f86a268d228a86ac99ba8d0"
+    },
+    {
+      "bytes": 4974664816,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0002142/hf/model-00002-of-00004.safetensors",
+      "sha256": "42c79b20c04e27f0c50f472afacc2f0e5664241969574d0892a21ee682856852"
+    },
+    {
+      "bytes": 4882374208,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0002142/hf/model-00003-of-00004.safetensors",
+      "sha256": "7f0eca79575c71609fee22eaf682fade053dec3960bed8cd309855201454606f"
+    },
+    {
+      "bytes": 1568695376,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0002142/hf/model-00004-of-00004.safetensors",
+      "sha256": "38cca6e2d941904d9c2fb0b0578a87d683132189c809672ee70d92e3f2b0c96a"
+    }
+  ],
+  "intermediate_checkpoint": {
+    "bytes": 16392139553,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0002142/intermediate/torch/iter_0002142/mp_rank_00/model_optim_rng.pt",
+    "sha256": "7eef6789c51797064b8e5c9554173fc20f405f862ffab180a83571efe18a5a05"
+  },
+  "model_contract": {
+    "bytes": 28431,
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T122000Z-hard-h2g-greekmmlu-trajectories-3817baa6-v10/subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_replication_v1.json",
+    "sha256": "d08b5a1b39b3ed97f4ffb3026fcec29056cdb1448f65b106e059ff43a59828b3"
+  },
+  "scale": "8b",
+  "schema_version": "apertus_exact_checkpoint_weight_mapping_v2",
+  "source_parameter_tensors_checked_exact": 323,
+  "source_parameter_tensors_expected": 323,
+  "status": "passed",
+  "xielu_constant_tensors_checked": 64
+}

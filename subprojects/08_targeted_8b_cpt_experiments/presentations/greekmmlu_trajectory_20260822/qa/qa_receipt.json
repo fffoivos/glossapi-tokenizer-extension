@@ -1,0 +1,79 @@
+{
+  "evidence": {
+    "analysis_summary.json": {
+      "bytes": 41800,
+      "sha256": "14419741806f0a382dbf60f06e6a76ce18b2b7ac824a82ff70274cf5b92d5fd5"
+    },
+    "export_parity_audit.json": {
+      "bytes": 26313,
+      "sha256": "666d18f3d14ba9ca5d2aea4d928df2985581fd25c67ce81b71b7c0032987aa30"
+    },
+    "trajectory_aggregate.json": {
+      "bytes": 513183,
+      "sha256": "49c43d10cfc28067461c538c001e3f0c1cd99a3d2b4d577be8f58c50566839b6"
+    }
+  },
+  "report": {
+    "bytes": 205202,
+    "path": "/Users/foivoskarounos-zamparloukos/Projects/.codex-worktrees/h2g-greekmmlu-trajectories/subprojects/08_targeted_8b_cpt_experiments/presentations/greekmmlu_trajectory_20260822/GREEKMMLU_H2G_CROSS_SCALE_TRAJECTORIES_20260822.html",
+    "sha256": "ebcaf9c61cbd5a8002547d8a476df3dbfd42a16eeb3ca89d05d307bdd4ae2b08"
+  },
+  "schema_version": "apertus_academic_html_report_qa_v1",
+  "screenshots": {
+    "desktop-1440.png": {
+      "bytes": 1428337,
+      "height": 9870,
+      "sha256": "8a3c4369fb00287035c0a35963044400707c77c51a7a8919ba3f559596317286",
+      "width": 1608
+    },
+    "narrow-430.png": {
+      "bytes": 1028753,
+      "height": 10490,
+      "sha256": "2a86198f14e89b7b85726ec29cc6a578dcb69e2eb7cc5349110ad67ec4de8d41",
+      "width": 430
+    }
+  },
+  "status": "passed",
+  "structure": {
+    "a": 1,
+    "article": 6,
+    "body": 1,
+    "circle": 158,
+    "code": 14,
+    "desc": 8,
+    "div": 49,
+    "figcaption": 8,
+    "figure": 8,
+    "footer": 1,
+    "h1": 1,
+    "h2": 10,
+    "h3": 2,
+    "head": 1,
+    "header": 1,
+    "html": 1,
+    "line": 108,
+    "main": 1,
+    "meta": 2,
+    "p": 16,
+    "path": 32,
+    "rect": 44,
+    "section": 9,
+    "span": 209,
+    "strong": 12,
+    "style": 1,
+    "svg": 8,
+    "table": 4,
+    "tbody": 4,
+    "td": 327,
+    "text": 205,
+    "th": 57,
+    "thead": 4,
+    "title": 9,
+    "tr": 38
+  },
+  "visual_inspection": {
+    "in_app_browser_available": false,
+    "method": "full-page Playwright Chromium renders inspected at desktop and narrow widths",
+    "status": "passed"
+  }
+}

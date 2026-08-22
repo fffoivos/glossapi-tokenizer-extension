@@ -1,0 +1,137 @@
+{
+  "conversion": {
+    "converter_overlay": {
+      "bytes": 2655,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/control/retries/export_overlay_v105_lowmem_v2/converter_overlay_receipt.json",
+      "sha256": "97824034e34815fe96a86deba3562c9aeacf52dcd5a45f24f6f8479dfe2f3d72"
+    },
+    "diagnostic_99_5_percent_agreement_passed": true,
+    "logits_close_percent": 96.04,
+    "minimum_prediction_agreement_percent": 99.0,
+    "native_argmax_threshold_passed": true,
+    "parity_acceptance_path": "canonical_raw_logits",
+    "pipeline": [
+      "SwissAI Megatron scripts/conversion/torchdist_2_torch.py",
+      "SwissAI Megatron tools/checkpoint/convert.py --loader core --saver swissai_hf"
+    ],
+    "prediction_agreement_percent": 99.61,
+    "raw_logit_threshold_passed": true,
+    "runtime_semantic_parity_passed": true,
+    "semantic_parity_dtype": "float32",
+    "semantic_probability_limits": {
+      "max_kl_divergence": 0.1,
+      "max_total_variation": 0.2,
+      "mean_kl_divergence": 0.0001,
+      "mean_top_token_logprob_abs_difference": 0.01,
+      "mean_total_variation": 0.005,
+      "p999_top_token_logprob_abs_difference": 0.2,
+      "p99_top_token_logprob_abs_difference": 0.075
+    },
+    "semantic_probability_metrics": {
+      "max_kl_divergence": 7.814556010999e-05,
+      "max_top_token_logprob_abs_difference": 0.01896119117737,
+      "max_total_variation": 0.005263903643936,
+      "mean_kl_divergence": 1.228997446848e-05,
+      "mean_top_token_logprob_abs_difference": 0.004695069106674,
+      "mean_total_variation": 0.001743042503165,
+      "p999_top_token_logprob_abs_difference": 0.01818867586553,
+      "p99_top_token_logprob_abs_difference": 0.01476004719734
+    },
+    "semantic_probability_thresholds_passed": true,
+    "timing": {
+      "exact_weight_mapping_verification_seconds": 40,
+      "torch_dist_to_torch_seconds": 67,
+      "torch_to_hf_and_logit_test_seconds": 45,
+      "total_conversion_seconds": 152
+    }
+  },
+  "exact_weight_mapping": {
+    "bytes": 3214,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0003094/exact_weight_mapping_receipt.json",
+    "sha256": "52150330e3beaa289de822ac898a1798444bdd195d69f16b434265128ae54fd8"
+  },
+  "geometry": {
+    "hidden_size": 4096,
+    "max_position_embeddings": 4096,
+    "num_attention_heads": 32,
+    "num_hidden_layers": 32,
+    "num_key_value_heads": 8,
+    "rope_scaling_factor": 8.0,
+    "rope_theta": 500000.0,
+    "tie_word_embeddings": false,
+    "vocab_size": 148480
+  },
+  "hf_export": {
+    "files": [
+      {
+        "bytes": 892,
+        "path": "config.json",
+        "sha256": "242506beda99d22a3ff8a40d5a8dd6a520e28d1667b3b6301ee1bcafba8321a0"
+      },
+      {
+        "bytes": 111,
+        "path": "generation_config.json",
+        "sha256": "181ac3dad6d269eddcf39f02c775a813299c2ae2e61ae9c751e2af6f62cb14a5"
+      },
+      {
+        "bytes": 4966205080,
+        "path": "model-00001-of-00004.safetensors",
+        "sha256": "bdda03cd8900ac520d20db9b28431a3bb94dfbfb29f0fdc5baf7ef1a385cc135"
+      },
+      {
+        "bytes": 4974664816,
+        "path": "model-00002-of-00004.safetensors",
+        "sha256": "d57e29ffaea8c4141f683158f13323fc5a40f56580e4f519692e9fd7d49a9f3e"
+      },
+      {
+        "bytes": 4882374208,
+        "path": "model-00003-of-00004.safetensors",
+        "sha256": "dfcc65c40b2cc8bd1ce3c8f53c36284428d27fc7b160f36fa0ab3e243f9e8f57"
+      },
+      {
+        "bytes": 1568695376,
+        "path": "model-00004-of-00004.safetensors",
+        "sha256": "e1832d1cd6b294660235e0a005498024630b83f6901049f982d37dcbfdf3fd56"
+      },
+      {
+        "bytes": 36480,
+        "path": "model.safetensors.index.json",
+        "sha256": "36c81d02d3f253906a1df1b72c7f2910fc3fc17a24470464611b210feeefd4d1"
+      },
+      {
+        "bytes": 552,
+        "path": "special_tokens_map.json",
+        "sha256": "358c249e2fb29060c6b73157d428853b0c48710deffc8ee670ab1013880946c9"
+      },
+      {
+        "bytes": 18948426,
+        "path": "tokenizer.json",
+        "sha256": "37c110e765160f64a22bf913f714a40744c84208d0ec22d8f22b8232b1923c34"
+      },
+      {
+        "bytes": 177324,
+        "path": "tokenizer_config.json",
+        "sha256": "ea64a17b41e1deaa7469212f413676129f33977ca3a48767f0ca68dc346df502"
+      }
+    ],
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0003094/hf",
+    "tokenizer_json_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+    "tokenizer_semantically_identical_to_frozen_overlay": true,
+    "tree_manifest_sha256": "68ba01076c5b1d97006d0a0c22ff231f3e2c51aefff7bab903b04926a5f23169"
+  },
+  "iteration": 3094,
+  "model_contract": {
+    "bytes": 28431,
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T122000Z-hard-h2g-greekmmlu-trajectories-3817baa6-v10/subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_replication_v1.json",
+    "sha256": "d08b5a1b39b3ed97f4ffb3026fcec29056cdb1448f65b106e059ff43a59828b3"
+  },
+  "ready_for_frozen_evaluators": true,
+  "scale": "8b",
+  "schema_version": "apertus_hard_h_to_g_checkpoint_export_v1",
+  "source_checkpoint": {
+    "bytes": 20864,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/8b/iter_0003094/source_checkpoint_receipt.json",
+    "sha256": "3fada76f1d5beeaf68a7912d99b15f45f89b642120b1bdf07c778afc784f5359"
+  },
+  "status": "completed"
+}

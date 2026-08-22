@@ -1,0 +1,114 @@
+{
+  "conversion": {
+    "converter_overlay": {
+      "bytes": 2655,
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/control/retries/export_overlay_v105_lowmem_v2/converter_overlay_receipt.json",
+      "sha256": "97824034e34815fe96a86deba3562c9aeacf52dcd5a45f24f6f8479dfe2f3d72"
+    },
+    "logits_close_percent": 91.77,
+    "prediction_agreement_percent": 99.41,
+    "prediction_agreement_threshold_passed": false,
+    "prediction_agreement_threshold_percent": 99.5,
+    "raw_logit_threshold_passed": false,
+    "runtime_semantic_parity_passed": false,
+    "semantic_parity_dtype": "float32",
+    "semantic_probability_limits": {
+      "max_kl_divergence": 0.1,
+      "max_total_variation": 0.2,
+      "mean_kl_divergence": 0.0001,
+      "mean_top_token_logprob_abs_difference": 0.01,
+      "mean_total_variation": 0.005,
+      "p999_top_token_logprob_abs_difference": 0.2,
+      "p99_top_token_logprob_abs_difference": 0.075
+    },
+    "semantic_probability_metrics": {
+      "max_kl_divergence": 0.0161971244961,
+      "max_top_token_logprob_abs_difference": 0.1314475536346,
+      "max_total_variation": 0.07004373520613,
+      "mean_kl_divergence": 0.0001407942251274,
+      "mean_top_token_logprob_abs_difference": 0.007873255633946,
+      "mean_total_variation": 0.003639529266251,
+      "p999_top_token_logprob_abs_difference": 0.1290174424648,
+      "p99_top_token_logprob_abs_difference": 0.09183708578348
+    },
+    "semantic_probability_thresholds_passed": false,
+    "timing": {
+      "exact_weight_mapping_verification_seconds": 12,
+      "torch_dist_to_torch_seconds": 32,
+      "torch_to_hf_and_logit_test_seconds": 26,
+      "total_conversion_seconds": 70
+    }
+  },
+  "exact_weight_mapping": {
+    "bytes": 2166,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/1p5b/iter_0000238/exact_weight_mapping_receipt.json",
+    "sha256": "a23ae4d9b966be4f0f5521329b5360118394b44c67ba8f8b4d0b8fe9915dca78"
+  },
+  "exact_weight_mapping_passed": true,
+  "geometry": {
+    "hidden_size": 2048,
+    "max_position_embeddings": 4096,
+    "num_attention_heads": 32,
+    "num_hidden_layers": 16,
+    "num_key_value_heads": 8,
+    "rope_scaling_factor": 8.0,
+    "rope_theta": 500000.0,
+    "tie_word_embeddings": false,
+    "vocab_size": 148480
+  },
+  "hf_export": {
+    "files": [
+      {
+        "bytes": 892,
+        "path": "config.json",
+        "sha256": "3923a6e46a3af20b6b777d7f7fe10a62c228b743fb61e35db93180218b9bf425"
+      },
+      {
+        "bytes": 111,
+        "path": "generation_config.json",
+        "sha256": "181ac3dad6d269eddcf39f02c775a813299c2ae2e61ae9c751e2af6f62cb14a5"
+      },
+      {
+        "bytes": 3162669864,
+        "path": "model.safetensors",
+        "sha256": "943f7515f627cbe2da2002e70daaf1bbaa219d15a95cdc265da14b0976f102ed"
+      },
+      {
+        "bytes": 552,
+        "path": "special_tokens_map.json",
+        "sha256": "358c249e2fb29060c6b73157d428853b0c48710deffc8ee670ab1013880946c9"
+      },
+      {
+        "bytes": 18948426,
+        "path": "tokenizer.json",
+        "sha256": "37c110e765160f64a22bf913f714a40744c84208d0ec22d8f22b8232b1923c34"
+      },
+      {
+        "bytes": 177324,
+        "path": "tokenizer_config.json",
+        "sha256": "ea64a17b41e1deaa7469212f413676129f33977ca3a48767f0ca68dc346df502"
+      }
+    ],
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/1p5b/iter_0000238/hf",
+    "tokenizer_json_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+    "tokenizer_semantically_identical_to_frozen_overlay": true,
+    "tree_manifest_sha256": "25caa71482b1c7876d6f62bc298f501f1d0a588c0322fc8d91986bf5aa29d186"
+  },
+  "iteration": 238,
+  "model_contract": {
+    "bytes": 28431,
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T120500Z-hard-h2g-greekmmlu-trajectories-134a5ffa-v9/subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_replication_v1.json",
+    "sha256": "d08b5a1b39b3ed97f4ffb3026fcec29056cdb1448f65b106e059ff43a59828b3"
+  },
+  "ready_for_frozen_evaluators": false,
+  "ready_for_trajectory_evaluator": true,
+  "scale": "1p5b",
+  "schema_version": "apertus_h2g_trajectory_checkpoint_export_v1",
+  "scope": "matched_cross_scale_greekmmlu_trajectory_only",
+  "source_checkpoint": {
+    "bytes": 2334,
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_trajectories/20260822T110500Z-full-clean-v1/exports/1p5b/iter_0000238/source_checkpoint_receipt.json",
+    "sha256": "35cadf141918fac64dd7bb1d2c81489e734ed4b999402418fadf0815dd2f5056"
+  },
+  "status": "completed"
+}
