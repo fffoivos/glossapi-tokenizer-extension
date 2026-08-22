@@ -45,7 +45,11 @@ tail -n +2 "$H2G_CHECKPOINT_SOURCES" | while IFS=$'\t' read -r scale update sour
   export H2G_TOKENIZER_DIR="$tokenizer_root"
   export H2G_MODEL_CONTRACT="$model_contract"
   export H2G_EXPORT_ROOT="$export_root"
-  export H2G_EVAL_PYTHON="$EVAL_VENV/bin/python"
+  # The native-suite venv is intentionally minimal and currently contains an
+  # incomplete dill namespace.  Conversion itself uses only packages already
+  # pinned in the uenv, so allow the uenv Python without changing converter
+  # code or checkpoint semantics.
+  export H2G_EVAL_PYTHON="${H2G_CONVERSION_PYTHON:-$EVAL_VENV/bin/python}"
   completed=false
   for attempt in 1 2; do
     if bash "$export_script" \
