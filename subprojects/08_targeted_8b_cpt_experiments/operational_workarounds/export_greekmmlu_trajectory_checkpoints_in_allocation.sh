@@ -14,6 +14,7 @@ export_script="$subproject/clariden/export_checkpoint_for_evaluation_debug.sbatc
 megatron_root="$H2G_STAGE_ROOT/tools/megatron_training_c92402e_extra_valid_helpers_v2"
 tokenizer_root="$H2G_STAGE_ROOT/assets/tokenizer_148480"
 model_contract="$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments/configs/hard_h_to_g_replication_v1.json"
+converter_overlay="$H2G_STAGE_ROOT/control/retries/export_overlay_v105_lowmem_v2"
 
 /usr/bin/python3.11 \
   "$H2G_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
@@ -44,6 +45,8 @@ tail -n +2 "$H2G_CHECKPOINT_SOURCES" | while IFS=$'\t' read -r scale update sour
   export H2G_MEGATRON_DIR="$megatron_root"
   export H2G_TOKENIZER_DIR="$tokenizer_root"
   export H2G_MODEL_CONTRACT="$model_contract"
+  export H2G_CONVERTER_OVERLAY_ROOT="$converter_overlay"
+  export H2G_CONVERTER_OVERLAY_RECEIPT="$converter_overlay/converter_overlay_receipt.json"
   export H2G_EXPORT_ROOT="$export_root"
   # The native-suite venv is intentionally minimal and currently contains an
   # incomplete dill namespace.  Conversion itself uses only packages already

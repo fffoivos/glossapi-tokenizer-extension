@@ -23,6 +23,8 @@ set -euo pipefail
 : "${H2G_MODEL_CONTRACT:?set frozen matched-study contract}"
 : "${H2G_EXPORT_ROOT:?set unique checkpoint export root}"
 : "${H2G_EVAL_PYTHON:?set frozen evaluation Python}"
+: "${H2G_CONVERTER_OVERLAY_ROOT:?set approved converter overlay root}"
+: "${H2G_CONVERTER_OVERLAY_RECEIPT:?set approved converter overlay receipt}"
 
 case "${SLURM_JOB_PARTITION:-}" in
   debug|normal) ;;
@@ -45,6 +47,9 @@ subproject="$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments"
   "$H2G_CODE_ROOT/subprojects/06_dataset_scheduling_experiments/production/verify_code_bundle.py" \
   --root "$H2G_CODE_ROOT" --receipt "$H2G_CODE_RECEIPT" --kind scientific
 [[ -f "$PYTHON_COMPAT_DIR/sitecustomize.py" ]] || { echo "compatibility shim missing" >&2; exit 2; }
+[[ -f "$H2G_CONVERTER_OVERLAY_ROOT/convert.py" && -f "$H2G_CONVERTER_OVERLAY_RECEIPT" ]] || {
+  echo "approved converter overlay is incomplete" >&2; exit 2;
+}
 [[ ! -e "$H2G_EXPORT_ROOT" ]] || { echo "immutable export root exists" >&2; exit 2; }
 export PYTHONPATH="$PYTHON_COMPAT_DIR"
 export CUDA_DEVICE_MAX_CONNECTIONS=1
@@ -82,8 +87,8 @@ fi
 start_hf=$(date +%s)
 uenv run "$UENV_IMAGE" --view=default -- bash -lc "
   set -o pipefail
-  export PYTHONPATH='$PYTHON_COMPAT_DIR:$H2G_MEGATRON_DIR:$H2G_MEGATRON_DIR/tools/checkpoint'
-  '$H2G_EVAL_PYTHON' '$H2G_MEGATRON_DIR/tools/checkpoint/convert.py' \
+  export PYTHONPATH='$PYTHON_COMPAT_DIR:$H2G_MEGATRON_DIR:$H2G_CONVERTER_OVERLAY_ROOT'
+  '$H2G_EVAL_PYTHON' '$H2G_CONVERTER_OVERLAY_ROOT/convert.py' \
     --model-type GPT \
     --loader core \
     --saver swissai_hf \
@@ -135,4 +140,5 @@ uenv run "$UENV_IMAGE" --view=default -- "$H2G_EVAL_PYTHON" \
   --model-contract "$H2G_MODEL_CONTRACT" \
   --true-vocab-size "$TRUE_VOCAB_SIZE" \
   --tokenizer-json "$H2G_TOKENIZER_DIR/tokenizer.json" \
-  --tokenizer-sha256 "$TOKENIZER_SHA256"
+  --tokenizer-sha256 "$TOKENIZER_SHA256" \
+  --converter-overlay-receipt "$H2G_CONVERTER_OVERLAY_RECEIPT"
