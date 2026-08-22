@@ -29,6 +29,7 @@ set -euo pipefail
 : "${H2G_SEGMENT_OUTPUT_ROOT:?set new segment output root}"
 : "${H2G_PEAK_LR:?set frozen peak LR}"
 : "${H2G_FLOOR_LR:?set exact 0.1-times floor LR}"
+: "${H2G_LR_POLICY:?set matched_wsd or stable_peak}"
 : "${H2G_MICROBATCH_SIZE:?set promoted microbatch}"
 : "${H2G_TENSOR_PARALLEL_SIZE:?set promoted tensor parallel}"
 : "${H2G_VAL_DATA_DIR:?set frozen validation binary root}"
@@ -86,6 +87,7 @@ preflight_args=(
   --authorization-gate "$H2G_AUTHORIZATION_GATE"
   --static-preflight-receipt "$H2G_STATIC_PREFLIGHT"
   --peak-lr "$H2G_PEAK_LR" --floor-lr "$H2G_FLOOR_LR"
+  --lr-policy "$H2G_LR_POLICY"
 )
 if (( H2G_START_UPDATE > 0 )); then
   : "${H2G_CHECKPOINT_PERMIT:?resumed segment requires a signed checkpoint permit}"

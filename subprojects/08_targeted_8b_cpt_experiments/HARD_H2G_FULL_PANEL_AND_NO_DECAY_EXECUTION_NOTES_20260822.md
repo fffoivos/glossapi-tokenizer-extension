@@ -55,6 +55,25 @@ sanitized form; credentials and private infrastructure tokens are excluded.
   remains attached while the immutable scientific bundle and inputs are
   finalized.
 
+### 2026-08-22 20:01–20:12 Europe/Athens — corrected scorer and B2 adapter
+
+- Frozen scientific bundle v4 after correcting nested Slurm step mode; its
+  independent verifier reports tree SHA-256 `9940b5e7b314a8cc10e21996557e85b9bec3576640b38ed9d4a778f83e138ecb`.
+- Reattached to live allocation `3151839`. All 16 evaluator ranks loaded the
+  first checkpoint; the full-public trajectory is now computing.
+- Added one explicit LR-policy axis to the existing canonical training
+  adapter. `matched_wsd` is the default and preserves the old path;
+  `stable_peak` is fail-closed to 8B, Phase 2, update 2,499 to 3,218, and
+  5.5e-5. It reuses the already proven scheduler-restore wrapper, which also
+  chains into the existing phase-local data-index guard.
+- Added an intermediate-save branch materializer. It creates an independent
+  load root with a 2,499 tracker and same-filesystem hard links to the exact
+  DCP files, not a second checkpoint copy. Its receipt records common/metadata
+  bindings, inode identity, file count, bytes, and the training-log prefix
+  through the successful 2,499 save. The existing checkpoint audit and permit
+  then validate this branch like any other resume source.
+- Focused adapter/evaluator tests after these changes: `31 passed`.
+
 ## Deviations
 
 None yet.
@@ -98,3 +117,7 @@ None yet.
   `8364c16f3711f25fd2450fdbd3361537d91acb4663754c585a5d2eb8ab3cc619`.
 - Full-public examples:
   `/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/public_examples.json`.
+- Scientific bundle v4 (active scorer):
+  `/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T200100Z-hard-h2g-full-public-stablelr-b1951246-v4`
+  with tree SHA-256
+  `9940b5e7b314a8cc10e21996557e85b9bec3576640b38ed9d4a778f83e138ecb`.

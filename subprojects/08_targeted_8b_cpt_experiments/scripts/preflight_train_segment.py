@@ -38,11 +38,17 @@ def validate_segment_boundaries(
     exit_update: int,
     one_update_resume_smoke: bool,
     canonical_resume: bool,
+    lr_policy: str,
 ) -> None:
     if one_update_resume_smoke:
         require(
             phase == 3 and (start_update, exit_update) in {(3218, 3219), (3456, 3457)},
             "one-update resume-smoke boundary drift",
+        )
+    elif lr_policy == "stable_peak":
+        require(
+            phase == 2 and start_update == 2499 and exit_update == 3218,
+            "stable-peak branch boundary drift",
         )
     elif canonical_resume:
         require(
@@ -91,6 +97,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--preauthorization-manifest", type=Path)
     parser.add_argument("--peak-lr", required=True)
     parser.add_argument("--floor-lr", required=True)
+    parser.add_argument(
+        "--lr-policy", choices=("matched_wsd", "stable_peak"), default="matched_wsd"
+    )
     parser.add_argument("--nodes", type=int, required=True)
     parser.add_argument("--tensor-parallel", type=int, required=True)
     parser.add_argument("--microbatch", type=int, required=True)
@@ -340,7 +349,17 @@ def main() -> int:
         exit_update=args.exit_update,
         one_update_resume_smoke=args.one_update_resume_smoke,
         canonical_resume=args.canonical_resume,
+        lr_policy=args.lr_policy,
     )
+    if args.lr_policy == "stable_peak":
+        require(
+            args.scale == "8b"
+            and args.phase == 2
+            and args.start_update == 2499
+            and args.exit_update == 3218
+            and args.peak_lr == "5.5e-5",
+            "stable-peak scientific contract drift",
+        )
     accepted_code_bundles = code_bundle_identities(accepted_producers)
     require(args.load_checkpoint.is_dir(), "load checkpoint root missing")
     cache = read_json(args.phase_cache_receipt)
@@ -501,6 +520,7 @@ def main() -> int:
         "authorization_stage": authorization_stage,
         "peak_lr": args.peak_lr,
         "floor_lr": args.floor_lr,
+        "lr_policy": args.lr_policy,
         "load_checkpoint": str(args.load_checkpoint.resolve()),
         "phase_data_path_spec": file_binding(args.phase_data_path_spec),
         "phase_data_path": args.phase_data_path,

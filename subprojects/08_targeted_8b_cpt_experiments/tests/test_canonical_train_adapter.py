@@ -32,6 +32,7 @@ from finalize_legacy_public_greekmmlu import (
     equivalence_decision,
     wilson_interval,
 )
+from materialize_intermediate_checkpoint_branch import hardlink_tree
 from preflight_train_segment import validate_segment_boundaries
 from run_canonical_train_segment import (
     LATE_BOUND_PHASE_CACHE,
@@ -58,6 +59,18 @@ def binding(path: Path) -> dict[str, object]:
         "bytes": path.stat().st_size,
         "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
     }
+
+
+def test_intermediate_branch_is_a_no_copy_checkpoint_view(tmp_path: Path) -> None:
+    source = tmp_path / "source"
+    target = tmp_path / "target"
+    (source / "nested").mkdir(parents=True)
+    payload = source / "nested/state.distcp"
+    payload.write_bytes(b"checkpoint")
+    count, total = hardlink_tree(source, target)
+    linked = target / "nested/state.distcp"
+    assert (count, total) == (1, len(b"checkpoint"))
+    assert linked.stat().st_ino == payload.stat().st_ino
 
 
 def test_phase_cache_arguments_are_exact_by_default() -> None:
@@ -675,10 +688,30 @@ def test_trigger_bridge_reasserts_stop_after_trainer_startup_clears_it(
 def test_graceful_checkpoint_must_be_strictly_inside_claim() -> None:
     preflight = {"start_update": 0, "exit_update": 952}
     assert validate_claim_window(
-        preflight, observed_update=700, allow_graceful_stop=True
+        preflight, observed_update=700, allow_graceful_stop=True,
+        allow_intermediate_save=False,
     ) == (0, 952)
     with pytest.raises(ValueError, match="outside"):
-        validate_claim_window(preflight, observed_update=952, allow_graceful_stop=True)
+        validate_claim_window(
+            preflight, observed_update=952, allow_graceful_stop=True,
+            allow_intermediate_save=False,
+        )
+
+
+def test_intermediate_save_can_anchor_stable_peak_branch() -> None:
+    preflight = {"start_update": 2261, "exit_update": 3218}
+    assert validate_claim_window(
+        preflight, observed_update=2499, allow_graceful_stop=False,
+        allow_intermediate_save=True,
+    ) == (2261, 3218)
+    validate_segment_boundaries(
+        phase=2,
+        start_update=2499,
+        exit_update=3218,
+        one_update_resume_smoke=False,
+        canonical_resume=False,
+        lr_policy="stable_peak",
+    )
 
 
 def test_canonical_resume_keeps_frozen_segment_endpoint() -> None:
@@ -688,6 +721,7 @@ def test_canonical_resume_keeps_frozen_segment_endpoint() -> None:
         exit_update=952,
         one_update_resume_smoke=False,
         canonical_resume=True,
+        lr_policy="matched_wsd",
     )
     with pytest.raises(ValueError, match="canonical resume"):
         validate_segment_boundaries(
@@ -696,6 +730,7 @@ def test_canonical_resume_keeps_frozen_segment_endpoint() -> None:
             exit_update=900,
             one_update_resume_smoke=False,
             canonical_resume=True,
+            lr_policy="matched_wsd",
         )
     with pytest.raises(ValueError, match="crosses"):
         validate_segment_boundaries(
@@ -704,6 +739,7 @@ def test_canonical_resume_keeps_frozen_segment_endpoint() -> None:
             exit_update=2380,
             one_update_resume_smoke=False,
             canonical_resume=True,
+            lr_policy="matched_wsd",
         )
 
 

@@ -46,15 +46,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--training-log", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--allow-graceful-stop", action="store_true")
+    parser.add_argument("--allow-intermediate-save", action="store_true")
     return parser.parse_args()
 
 
 def validate_claim_window(
-    preflight: dict[str, Any], *, observed_update: int, allow_graceful_stop: bool
+    preflight: dict[str, Any], *, observed_update: int, allow_graceful_stop: bool,
+    allow_intermediate_save: bool,
 ) -> tuple[int, int]:
     claimed_start = int(preflight.get("start_update", -1))
     claimed_exit = int(preflight.get("exit_update", -1))
-    if allow_graceful_stop:
+    if allow_graceful_stop or allow_intermediate_save:
         require(
             claimed_start < observed_update < claimed_exit,
             "graceful checkpoint is outside the preflight claim",
@@ -142,6 +144,7 @@ def main() -> int:
         preflight,
         observed_update=args.update,
         allow_graceful_stop=args.allow_graceful_stop,
+        allow_intermediate_save=args.allow_intermediate_save,
     )
     require(preflight.get("phase_cache_receipt") == file_binding(args.source_phase_cache_receipt), "segment preflight phase-cache binding drift")
 
@@ -209,6 +212,7 @@ def main() -> int:
         "update": args.update,
         "claimed_exit_update": claimed_exit,
         "gracefully_stopped": args.allow_graceful_stop,
+        "intermediate_save": args.allow_intermediate_save,
         "checkpoint_root": str(root),
         "checks": checks,
         "state_metadata": {

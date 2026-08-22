@@ -61,6 +61,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--initialization-permit", type=Path)
     parser.add_argument("--peak-lr", required=True)
     parser.add_argument("--floor-lr", required=True)
+    parser.add_argument(
+        "--lr-policy", choices=("matched_wsd", "stable_peak"), default="matched_wsd"
+    )
     parser.add_argument("--microbatch", type=int, required=True)
     parser.add_argument("--tensor-parallel", type=int, required=True)
     return parser.parse_args()
@@ -467,6 +470,7 @@ def main() -> int:
             "H2G_SEGMENT_OUTPUT_ROOT": str(payload_root),
             "H2G_PEAK_LR": args.peak_lr,
             "H2G_FLOOR_LR": args.floor_lr,
+            "H2G_LR_POLICY": args.lr_policy,
             "H2G_MICROBATCH_SIZE": str(args.microbatch),
             "H2G_TENSOR_PARALLEL_SIZE": str(args.tensor_parallel),
             "H2G_VAL_DATA_DIR": str(args.validation_root.resolve()),
