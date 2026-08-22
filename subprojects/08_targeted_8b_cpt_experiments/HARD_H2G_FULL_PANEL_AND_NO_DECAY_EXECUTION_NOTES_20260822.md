@@ -61,8 +61,28 @@ None yet.
 
 ## Failures and reusable findings
 
-None yet.
+- The historical `deploy_targeted_bundle.sh` could not build from this modern
+  experiment worktree because it requires a training patch that is no longer
+  present in the repository revision. No remote bundle had been created when
+  it refused. Workaround: copy the already proven evaluator bundle server-side,
+  overlay only this committed experiment subproject, re-run shell/Python parse
+  gates, freeze a new complete receipt, and verify the resulting tree. This is
+  an experiment-local deployment workaround; canonical follow-up will be
+  checked against the existing issue tracker before handoff.
+- The first public-panel freeze invocation omitted the required
+  `H2G_CODE_ROOT`/`H2G_CODE_RECEIPT` environment. It failed before writing the
+  immutable output; retry with the verified bundle environment succeeded.
+- The broad historical test module currently has five unrelated failures
+  (one missing optional `tokenizers` dependency and four stale assertions in
+  older mix-builder/profile/uenv tests). The focused evaluator/adapter gate is
+  `29 passed`; no unrelated production code was changed to force the broad
+  legacy suite green.
 
 ## Receipt index
 
-To be populated as artifacts are produced.
+- Scientific bundle v1:
+  `/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260822T192900Z-hard-h2g-full-public-stablelr-825e60be-v1`
+  with tree SHA-256
+  `8364c16f3711f25fd2450fdbd3361537d91acb4663754c585a5d2eb8ab3cc619`.
+- Full-public examples:
+  `/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/evaluation/greekmmlu_full_public/20260822T193500Z-v1/public_examples.json`.

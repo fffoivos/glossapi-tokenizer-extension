@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Evaluate every saved 1.5B and 8B checkpoint on the full frozen clean panel.
+# Evaluate a frozen checkpoint table on the selected complete GreekMMLU panel.
 # This is an explicit held-allocation recovery driver.  It does not alter the
 # panel, scorer, tokenizer, model weights, or checkpoint identity.
 
@@ -13,6 +13,13 @@ done
   echo "trajectory evaluation requires a held four-node normal allocation" >&2
   exit 2
 }
+mode="${H2G_GREEKMMLU_MODE:-full_clean}"
+[[ "$mode" == full_clean || "$mode" == full_public ]] || {
+  echo "trajectory mode must be full_clean or full_public" >&2; exit 2;
+}
+if [[ "$mode" == full_public ]]; then
+  : "${H2G_GREEKMMLU_PUBLIC_EXAMPLES:?full-public mode requires frozen examples}"
+fi
 
 subproject="$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments"
 export_script="$subproject/clariden/export_checkpoint_for_evaluation_debug.sbatch"
@@ -98,12 +105,15 @@ tail -n +2 "$H2G_CHECKPOINT_SOURCES" | while IFS=$'\t' read -r scale update sour
   if [[ "$existing_result" != - ]]; then
     result_root="$existing_result"
   else
-    result_root="$H2G_TRAJECTORY_ROOT/results/$scale/$iteration_dir/full_clean"
+    result_root="$H2G_TRAJECTORY_ROOT/results/$scale/$iteration_dir/$mode"
     if [[ ! -f "$result_root/aggregate/receipt.json" ]]; then
       export H2G_SCALE="$scale"
       export H2G_ITERATION="$update"
       export H2G_CHECKPOINT_EXPORT="$export_receipt"
-      export H2G_GREEKMMLU_MODE=full_clean
+      export H2G_GREEKMMLU_MODE="$mode"
+      if [[ "$mode" == full_public ]]; then
+        export H2G_GREEKMMLU_PUBLIC_EXAMPLES
+      fi
       export H2G_GREEKMMLU_CLEAN_EXAMPLES="$clean_examples"
       export H2G_GREEKMMLU_SENTINEL_MANIFEST="$sentinel_manifest"
       export H2G_GREEKMMLU_OUTPUT="$result_root"
