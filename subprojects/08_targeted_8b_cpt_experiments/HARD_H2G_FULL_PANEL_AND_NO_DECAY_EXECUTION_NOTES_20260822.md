@@ -309,3 +309,41 @@ None yet.
   execution should inject its canonical manifest/code-root environment; and
   retry-scoped receipts must include an attempt nonce rather than only the
   Slurm job ID.
+- Those three live failure modes are now filed together as efficiency issue
+  [#146](https://github.com/fffoivos/apertus-cscs-efficiency/issues/146), with
+  the exact 16-node reproduction and acceptance tests.
+- The first real optimizer row was update 2,500 at 21:35:57 UTC. It loaded the
+  exact update-2,499 checkpoint, reported Phase-2 local cursor 243,712 on all
+  64 ranks, used LR `5.500000E-05`, and had zero skipped and zero non-finite
+  updates. The append-only launch timeline now records this as
+  `production_started` with event ID
+  `798a5b88790fef37350f6e495c65e0e7b75414129242786dde9a20a3e2d09d5c`.
+
+### Track A numerical results
+
+- A1 full-public FP32 peak: update 2,618, `9,676 / 16,632 = 58.1770%`.
+  The curve then declines to `9,495 / 16,632 = 57.0887%` at update 3,218
+  and `9,478 / 16,632 = 56.9865%` at update 3,694. The corresponding choice
+  NLL values are 1.05855, 1.08282 and 1.07896.
+- A2 was run from the exact historical evaluator files at git revision
+  `cfdd0e7b`, SHA-256
+  `b9f75809b6e617cfd419dc5420e480dee72bb3f1df7fa8f82e04793b4dfd19c4`
+  for the scorer and
+  `fcf732c142efdd204fe8a64ac4fb1159f47e7b2bac0e947207c2a971329bf508`
+  for its registry. Frozen settings were BF16, max input 3,072, candidate
+  batch 16, example batch 16, and all 16,632 questions.
+- The historical venv named `native_greek_eval_py312_cpt20260610` exists but
+  lacks `datasets` under the current uenv. The failed output was retained.
+  A2 therefore reused the already qualified full-panel runtime v2 while
+  keeping the pinned evaluator code and all scoring parameters unchanged.
+- The first parallel A2 retry shared one Hugging Face datasets cache across
+  ranks. Concurrent materialization produced a missing Arrow-file failure;
+  all partial outputs were retained under `_failed_shared_dataset_cache`.
+  Isolating the cache per rank resolved the race without changing examples.
+- A2 legacy-BF16 results: update 2,618 = `9,630 / 16,632 = 57.9004%`;
+  update 3,218 = `9,447 / 16,632 = 56.8001%`; update 3,694 =
+  `9,441 / 16,632 = 56.7641%`.
+- Pre-registered decision: **replication miss**. The best legacy score is
+  2.0623 percentage points below the selected historical beta2=0.999 target
+  of 59.9627%, outside the ratified plus/minus 1.0-point band. The band was
+  not revised after observing the result.
