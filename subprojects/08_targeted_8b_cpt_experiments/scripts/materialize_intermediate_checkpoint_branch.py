@@ -9,7 +9,7 @@ import os
 import re
 from pathlib import Path
 
-from audit_training_checkpoint import parse_training_log
+from audit_training_checkpoint import TRAINING_ROW, parse_training_log
 from contract_utils import file_binding, require, write_json_atomic
 
 
@@ -57,7 +57,9 @@ def freeze_log_prefix(source: Path, target: Path, update: int) -> dict[str, obje
     found = False
     with source.open(encoding="utf-8", errors="replace") as handle:
         for line in handle:
-            selected.append(line)
+            training_row = TRAINING_ROW.search(line)
+            if training_row is None or int(training_row.group("iteration")) <= update:
+                selected.append(line)
             if marker.search(line):
                 found = True
                 break

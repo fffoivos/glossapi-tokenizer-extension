@@ -74,6 +74,19 @@ sanitized form; credentials and private infrastructure tokens are excluded.
   then validate this branch like any other resume source.
 - Focused adapter/evaluator tests after these changes: `31 passed`.
 
+### 2026-08-22 20:25 Europe/Athens — intermediate-save log ordering
+
+- The first update-2,499 branch-materialization attempt failed closed before
+  audit/permit creation. Megatron's successful-save message for 2,499 is
+  asynchronous and occurs after optimizer rows beyond 2,499, so a literal log
+  prefix did not end on the selected update. The no-copy checkpoint view and
+  failed log were retained under a `_failed_*` source path.
+- Correction: preserve every non-optimizer line through the exact 2,499 save
+  confirmation, while excluding only parsed optimizer rows whose update is
+  greater than 2,499. The standard audit still requires the last retained
+  optimizer row to be 2,499, finite, zero-skipped/zero-NaN, and accompanied by
+  the exact successful-save message.
+
 ## Deviations
 
 None yet.

@@ -32,7 +32,7 @@ from finalize_legacy_public_greekmmlu import (
     equivalence_decision,
     wilson_interval,
 )
-from materialize_intermediate_checkpoint_branch import hardlink_tree
+from materialize_intermediate_checkpoint_branch import freeze_log_prefix, hardlink_tree
 from preflight_train_segment import validate_segment_boundaries
 from run_canonical_train_segment import (
     LATE_BOUND_PHASE_CACHE,
@@ -71,6 +71,25 @@ def test_intermediate_branch_is_a_no_copy_checkpoint_view(tmp_path: Path) -> Non
     linked = target / "nested/state.distcp"
     assert (count, total) == (1, len(b"checkpoint"))
     assert linked.stat().st_ino == payload.stat().st_ino
+
+
+def test_intermediate_branch_filters_async_later_optimizer_rows(tmp_path: Path) -> None:
+    source = tmp_path / "source.log"
+    target = tmp_path / "branch.log"
+    row = (
+        "iteration {it}/ 3218 | consumed samples: {samples} | lm loss: 2.0 | "
+        "grad norm: 1.0 | params norm: 3.0 | number of skipped iterations: 0 | "
+        "number of nan iterations: 0\n"
+    )
+    source.write_text(
+        row.format(it=2499, samples=2499 * 1024)
+        + row.format(it=2500, samples=2500 * 1024)
+        + "successfully saved checkpoint from iteration 2499\n",
+        encoding="utf-8",
+    )
+    summary = freeze_log_prefix(source, target, 2499)
+    assert summary["last_update"] == 2499
+    assert "iteration 2500" not in target.read_text(encoding="utf-8")
 
 
 def test_phase_cache_arguments_are_exact_by_default() -> None:
