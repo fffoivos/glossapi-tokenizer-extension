@@ -458,3 +458,32 @@ None yet.
   were then launched concurrently as four-node steps inside the still-held
   16-node allocation `3152592`. This preserves the evaluator and scientific
   inputs while avoiding serial idle-node time.
+- The implicit post-save runtime contract and repairability gap are tracked as
+  efficiency issue
+  [#151](https://github.com/fffoivos/apertus-cscs-efficiency/issues/151).
+
+### Endpoint conversion concurrency correction
+
+- The first concurrent endpoint attempt showed that independent result roots
+  are not sufficient to make checkpoint conversion concurrent. Both converters
+  initialize shared Megatron fused-kernel/NCCL resources; their first attempts
+  failed with `ncclInvalidUsage` / `Failed to initialize any NET plugin` while
+  entering the common build path. No aggregate score was produced or accepted.
+- Conversion was therefore serialized while preserving the same frozen
+  checkpoint, conversion overlay, tokenizer, examples and scorer. Scoring can
+  still be packed concurrently after exports exist. Partial export directories
+  and logs were retained under timestamped `failed-a*` roots.
+- With less than one endpoint-runtime envelope left in allocation `3152592`, a
+  four-node, one-hour `salloc` successor (`3153569`) was queued while the
+  current allocation remained active. It is a bounded recovery request and is
+  to be cancelled if both immutable aggregate receipts complete on the held
+  allocation.
+- The first successor request specified nodes but not the scorer's CPU/GPU
+  geometry. It was relinquished immediately when granted because the scorer
+  requires 16 tasks, four per node, 54 CPUs and one GPU per task; the held
+  training allocation likewise could export on one node but could not create
+  that 864-CPU scoring step. Correctly shaped successor `3153706` was then
+  queued. This is an allocation-planning error and the unused first allocation
+  is included in the audit trail rather than hidden.
+- Full consumer-geometry compilation is tracked as efficiency issue
+  [#152](https://github.com/fffoivos/apertus-cscs-efficiency/issues/152).
