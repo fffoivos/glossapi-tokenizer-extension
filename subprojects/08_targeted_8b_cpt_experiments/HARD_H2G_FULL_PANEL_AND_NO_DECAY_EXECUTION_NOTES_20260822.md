@@ -77,6 +77,12 @@ None yet.
   older mix-builder/profile/uenv tests). The focused evaluator/adapter gate is
   `29 passed`; no unrelated production code was changed to force the broad
   legacy suite green.
+- Direct `salloc --no-shell` adoption adds an outer `srun` control step. The
+  existing four-node scorer was written as a top-level batch payload and its
+  inner shard step did not declare overlap. The scientific wrapper now adds
+  `--overlap` only when `SLURM_STEP_ID` proves it is nested; top-level batch
+  behavior is unchanged. This held-allocation compatibility should be checked
+  against the canonical issue tracker before handoff.
 
 ## Receipt index
 
