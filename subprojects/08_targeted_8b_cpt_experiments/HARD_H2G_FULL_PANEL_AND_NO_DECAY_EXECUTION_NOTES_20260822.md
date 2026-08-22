@@ -100,6 +100,17 @@ sanitized form; credentials and private infrastructure tokens are excluded.
   bundle and overlays only the LR-policy adapter, intermediate-branch tools,
   and their direct validators. This keeps the compatibility delta narrow and
   reviewable.
+- The first compatibility-backed audit selected the post-processing recovery
+  preflight, which binds the later v103 recovery-cache receipt, while the
+  source checkpoint's original allocated preflight binds the v89r1 Phase-2
+  cache used during training. The audit rejected that mixed pair. Retry uses
+  the original `8b_p2_2261_3218_3102006.json` together with its exact v89r1
+  cache receipt; neither artifact is modified.
+- The next audit reached `common.pt` and exposed a missing runtime import path:
+  deserializing the scheduler state requires the pinned Megatron package on
+  `PYTHONPATH`. The PyTorch uenv alone is insufficient. Retry adds the already
+  receipt-bound Megatron root; this is environment completion, not a model or
+  checkpoint change.
 
 ## Deviations
 

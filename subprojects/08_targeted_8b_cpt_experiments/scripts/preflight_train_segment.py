@@ -221,6 +221,52 @@ def code_bundle_identities(
     return {(root, tree) for root, tree, _receipt, _bytes, _sha256 in accepted_producers}
 
 
+def validate_stable_peak_gate(
+    path: Path,
+    *,
+    load_checkpoint: Path,
+    phase_data_path_spec: Path,
+    phase_cache_receipt: Path,
+    phase_cache_root: Path,
+    training_run_permit: Path,
+) -> set[tuple[str, str, str, int, str]]:
+    gate = read_json(path)
+    current = executing_code_bundle()
+    require(
+        gate.get("schema_version") == "apertus_hard_h_to_g_stable_peak_branch_gate_v1"
+        and gate.get("status") == "launch_ready"
+        and gate.get("scale") == "8b"
+        and gate.get("phase") == 2
+        and gate.get("start_update") == 2499
+        and gate.get("end_update") == 3218
+        and gate.get("lr_policy") == "stable_peak"
+        and gate.get("learning_rate") == "5.5e-5"
+        and gate.get("b3_extension_authorized") is False
+        and gate.get("executing_code_bundle") == current
+        and all(gate.get("checks", {}).values()),
+        "stable-peak branch authorization gate drift",
+    )
+    compatibility = gate.get("producer_bundle_compatibility")
+    reference = gate.get("checkpoint_reference")
+    require(isinstance(compatibility, dict) and isinstance(reference, dict), "stable-peak gate bindings missing")
+    compatibility_path = Path(str(compatibility.get("path", "")))
+    reference_path = Path(str(reference.get("path", "")))
+    require(compatibility == file_binding(compatibility_path), "stable-peak producer authority drift")
+    require(reference == file_binding(reference_path), "stable-peak checkpoint reference drift")
+    _, accepted = load_authority(compatibility_path, current)
+    checkpoint_reference = read_json(reference_path)
+    require(
+        Path(str(checkpoint_reference.get("load_root", ""))).resolve()
+        == load_checkpoint.resolve(),
+        "stable-peak load root drift",
+    )
+    require(gate.get("phase_data_path_spec") == file_binding(phase_data_path_spec), "stable-peak data spec drift")
+    require(gate.get("phase_cache_receipt") == file_binding(phase_cache_receipt), "stable-peak cache receipt drift")
+    require(Path(str(gate.get("phase_cache_root", ""))).resolve() == phase_cache_root.resolve(), "stable-peak cache root drift")
+    require(gate.get("training_run_permit") == file_binding(training_run_permit), "stable-peak run permit drift")
+    return accepted
+
+
 def validate_initialization_load_contract(
     initialization: dict[str, object],
     *,
@@ -308,14 +354,19 @@ def validate_initialization_load_contract(
 
 def main() -> int:
     args = parse_args()
+    stable_peak = args.lr_policy == "stable_peak"
     require(not args.output.exists(), f"immutable preflight receipt exists: {args.output}")
     require(
         not (args.preallocation_static and args.static_preflight_receipt),
         "static creation cannot consume another static-preflight receipt",
     )
     if args.preallocation_static:
-        require(args.authorization_gate is None, "static technical preflight must not self-authorize launch")
-        require(args.preauthorization_manifest is not None, "static technical preflight requires a preauthorization manifest")
+        if stable_peak:
+            require(args.authorization_gate is not None, "stable-peak static preflight requires its branch gate")
+            require(args.preauthorization_manifest is None, "stable-peak static preflight forbids a legacy preauthorization manifest")
+        else:
+            require(args.authorization_gate is None, "static technical preflight must not self-authorize launch")
+            require(args.preauthorization_manifest is not None, "static technical preflight requires a preauthorization manifest")
     else:
         require(args.authorization_gate is not None, "allocated preflight requires the final authorization gate")
         require(args.preauthorization_manifest is None, "allocated preflight must not substitute a partial manifest")
@@ -325,24 +376,35 @@ def main() -> int:
         )
     experiment = read_json(args.experiment)
     require(experiment.get("schema_version") == "apertus_hard_h_to_g_replication_v2", "experiment contract drift")
-    authorization_stage = expected_authorization_stage(
-        phase=args.phase,
-        start_update=args.start_update,
-        resume_smoke=args.one_update_resume_smoke,
-    )
-    if args.preallocation_static:
-        accepted_producers = validate_preauthorization_manifest(
-            args.preauthorization_manifest,
-            expected_stage=authorization_stage,
-            scale=args.scale,
+    if stable_peak:
+        authorization_stage = "stable_peak_b2"
+        accepted_producers = validate_stable_peak_gate(
+            args.authorization_gate,
+            load_checkpoint=args.load_checkpoint,
+            phase_data_path_spec=args.phase_data_path_spec,
+            phase_cache_receipt=args.phase_cache_receipt,
+            phase_cache_root=args.phase_cache_root,
+            training_run_permit=args.training_run_permit,
         )
     else:
-        _, accepted_producers = validate_authorization_gate(
-            args.authorization_gate,
-            experiment_path=args.experiment,
-            expected_stage=authorization_stage,
-            scale=args.scale,
+        authorization_stage = expected_authorization_stage(
+            phase=args.phase,
+            start_update=args.start_update,
+            resume_smoke=args.one_update_resume_smoke,
         )
+        if args.preallocation_static:
+            accepted_producers = validate_preauthorization_manifest(
+                args.preauthorization_manifest,
+                expected_stage=authorization_stage,
+                scale=args.scale,
+            )
+        else:
+            _, accepted_producers = validate_authorization_gate(
+                args.authorization_gate,
+                experiment_path=args.experiment,
+                expected_stage=authorization_stage,
+                scale=args.scale,
+            )
     validate_segment_boundaries(
         phase=args.phase,
         start_update=args.start_update,
