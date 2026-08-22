@@ -47,10 +47,19 @@ readarray -t resolved < <(
 import hashlib, json, pathlib, sys
 receipt_path, scale, iteration, clean_path, manifest_path, mode = sys.argv[1:]
 receipt = json.load(open(receipt_path, encoding="utf-8"))
-if not (receipt.get("schema_version") == "apertus_hard_h_to_g_checkpoint_export_v1"
-        and receipt.get("status") == "completed" and receipt.get("scale") == scale
+canonical = (
+    receipt.get("schema_version") == "apertus_hard_h_to_g_checkpoint_export_v1"
+    and receipt.get("ready_for_frozen_evaluators") is True
+)
+trajectory = (
+    receipt.get("schema_version") == "apertus_h2g_trajectory_checkpoint_export_v1"
+    and receipt.get("ready_for_trajectory_evaluator") is True
+    and receipt.get("exact_weight_mapping_passed") is True
+    and receipt.get("scope") == "matched_cross_scale_greekmmlu_trajectory_only"
+)
+if not (receipt.get("status") == "completed" and receipt.get("scale") == scale
         and int(receipt.get("iteration", -1)) == int(iteration)
-        and receipt.get("ready_for_frozen_evaluators") is True):
+        and (canonical or trajectory)):
     raise SystemExit("checkpoint export drift")
 model = pathlib.Path(receipt["hf_export"]["path"]).resolve()
 if not model.is_dir(): raise SystemExit("HF export missing")

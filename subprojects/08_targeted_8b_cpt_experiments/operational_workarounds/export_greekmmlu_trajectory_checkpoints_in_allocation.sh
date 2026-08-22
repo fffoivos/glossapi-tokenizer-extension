@@ -53,6 +53,7 @@ tail -n +2 "$H2G_CHECKPOINT_SOURCES" | while IFS=$'\t' read -r scale update sour
   # pinned in the uenv, so allow the uenv Python without changing converter
   # code or checkpoint semantics.
   export H2G_EVAL_PYTHON="${H2G_CONVERSION_PYTHON:-$EVAL_VENV/bin/python}"
+  export H2G_ALLOW_TRAJECTORY_PARITY_WARNING=1
   completed=false
   for attempt in 1 2; do
     if bash "$export_script" \

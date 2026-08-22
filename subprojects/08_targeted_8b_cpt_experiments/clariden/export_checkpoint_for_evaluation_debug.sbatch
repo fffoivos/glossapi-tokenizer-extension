@@ -133,12 +133,19 @@ with open(out, "w", encoding="utf-8") as handle:
     handle.write("\n")
 PY
 
-uenv run "$UENV_IMAGE" --view=default -- "$H2G_EVAL_PYTHON" \
-  "$subproject/evaluation/checkpoint_export_receipt.py" finalize \
-  --scale "$H2G_SCALE" \
-  --output-root "$H2G_EXPORT_ROOT" \
-  --model-contract "$H2G_MODEL_CONTRACT" \
-  --true-vocab-size "$TRUE_VOCAB_SIZE" \
-  --tokenizer-json "$H2G_TOKENIZER_DIR/tokenizer.json" \
-  --tokenizer-sha256 "$TOKENIZER_SHA256" \
+finalize_args=(
+  --scale "$H2G_SCALE"
+  --output-root "$H2G_EXPORT_ROOT"
+  --model-contract "$H2G_MODEL_CONTRACT"
+  --true-vocab-size "$TRUE_VOCAB_SIZE"
+  --tokenizer-json "$H2G_TOKENIZER_DIR/tokenizer.json"
+  --tokenizer-sha256 "$TOKENIZER_SHA256"
   --converter-overlay-receipt "$H2G_CONVERTER_OVERLAY_RECEIPT"
+)
+if ! uenv run "$UENV_IMAGE" --view=default -- "$H2G_EVAL_PYTHON" \
+  "$subproject/evaluation/checkpoint_export_receipt.py" finalize "${finalize_args[@]}"; then
+  [[ "${H2G_ALLOW_TRAJECTORY_PARITY_WARNING:-0}" == 1 ]] || exit 1
+  uenv run "$UENV_IMAGE" --view=default -- "$H2G_EVAL_PYTHON" \
+    "$subproject/evaluation/finalize_trajectory_checkpoint_export.py" \
+    "${finalize_args[@]}"
+fi

@@ -70,6 +70,7 @@ tail -n +2 "$H2G_CHECKPOINT_SOURCES" | while IFS=$'\t' read -r scale update sour
       export H2G_CONVERTER_OVERLAY_RECEIPT="$converter_overlay/converter_overlay_receipt.json"
       export H2G_EXPORT_ROOT="$export_root"
       export H2G_EVAL_PYTHON="${H2G_CONVERSION_PYTHON:-python3}"
+      export H2G_ALLOW_TRAJECTORY_PARITY_WARNING=1
       export_completed=false
       for export_attempt in 1 2; do
         if srun --exclusive --exact --nodes=1 --ntasks=1 --gpus-per-task=1 \
