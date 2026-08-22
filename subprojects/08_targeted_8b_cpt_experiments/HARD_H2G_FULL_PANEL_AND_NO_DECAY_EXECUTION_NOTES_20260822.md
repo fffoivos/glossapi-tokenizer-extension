@@ -558,3 +558,5 @@ None yet.
   choice NLL and correct-answer BPB, retains every validation panel over the
   complete horizon, labels the legacy replication miss, records the B3 stop
   decision, and includes the allocated-compute ledger and parity caveat.
+- Review integration is opened as
+  [train-apertus-with-glossapi PR #17](https://github.com/fffoivos/train-apertus-with-glossapi/pull/17).
