@@ -65,10 +65,37 @@ def clean_rows(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+def authority_rows(path: Path) -> list[dict[str, Any]]:
+    """Read either the historical clean subset or the corrected public panel."""
+    value = read_json(path)
+    if value.get("schema_version") == "apertus_greekmmlu_clean_examples_v1":
+        return clean_rows(path)
+    require(
+        value.get("schema_version") == "apertus_greekmmlu_public_examples_v1"
+        and value.get("status") == "frozen"
+        and value.get("dataset")
+        == {
+            "repo_id": REPO_ID,
+            "revision": REVISION,
+            "config": CONFIG,
+            "split": SPLIT,
+        }
+        and int(value.get("public_count", -1)) == FULL_COUNT,
+        "frozen public GreekMMLU identity drift",
+    )
+    rows = value.get("examples")
+    require(isinstance(rows, list) and len(rows) == FULL_COUNT, "public example rows drift")
+    require(
+        len({str(row.get("example_id", "")) for row in rows}) == FULL_COUNT,
+        "public example ids are empty or duplicated",
+    )
+    return rows
+
+
 def panel_rows(panel: Path, clean_examples: Path) -> list[dict[str, Any]]:
-    clean = clean_rows(clean_examples)
+    clean = authority_rows(clean_examples)
     clean_by_id = {str(row["example_id"]): row for row in clean}
-    require(len(clean_by_id) == CLEAN_COUNT, "duplicate clean example ids")
+    require(len(clean_by_id) in {CLEAN_COUNT, FULL_COUNT}, "duplicate authority example ids")
     if panel.resolve() == clean_examples.resolve():
         rows = clean
     else:

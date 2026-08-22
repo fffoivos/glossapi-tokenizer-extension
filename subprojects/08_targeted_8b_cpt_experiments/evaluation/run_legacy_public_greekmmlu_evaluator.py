@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Canonical adapter for the frozen 8B update-3218 historical compatibility score."""
+"""Canonical adapter for frozen 8B historical-compatibility checkpoints."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def main() -> int:
     parser.add_argument("--contract-digest", required=True)
     args = parser.parse_args()
 
-    require(args.iteration == 3218, "legacy public evaluator is fixed at update 3218")
+    require(args.iteration in {2618, 3218, 3694}, "legacy public checkpoint is not decision-bearing")
     require(args.output.is_dir(), "canonical evaluation attempt root missing")
     result_path = args.output / "result.json"
     require(not result_path.exists(), "canonical evaluation result already exists")
@@ -67,8 +67,8 @@ def main() -> int:
             == "apertus_legacy_public_greekmmlu_result_v1"
             and compatibility.get("status") == "completed"
             and compatibility.get("scope")
-            == "8b_update_3218_historical_compatibility_only"
-            and compatibility.get("scientific_primary") is False
+            == "8b_decision_checkpoint_historical_compatibility"
+            and compatibility.get("scientific_primary") is True
             and compatibility.get("decision") in {"pass", "fail", "inconclusive"},
             "legacy public compatibility result drift",
         )

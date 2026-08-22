@@ -21,9 +21,13 @@ done
 [[ "${SLURM_JOB_PARTITION:-}" == debug && "${SLURM_NNODES:-0}" == 1 ]] || {
   echo "legacy GreekMMLU requires one debug node" >&2; exit 2;
 }
-[[ "$H2G_SCALE" == 8b && "$H2G_ITERATION" == 3218 ]] || {
-  echo "legacy compatibility is defined only for 8b update 3218" >&2; exit 2;
+[[ "$H2G_SCALE" == 8b ]] || {
+  echo "legacy compatibility is defined only for 8b" >&2; exit 2;
 }
+case "$H2G_ITERATION" in
+  2618|3218|3694) ;;
+  *) echo "legacy compatibility update must be 2618, 3218 or 3694" >&2; exit 2 ;;
+esac
 [[ ! -e "$H2G_LEGACY_OUTPUT" ]] || { echo "immutable legacy output exists" >&2; exit 2; }
 
 subproject="$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments"
@@ -33,14 +37,16 @@ subproject="$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments"
 
 readarray -t resolved < <(
   uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" - \
-    "$H2G_CHECKPOINT_EXPORT" "$H2G_LEGACY_CONTRACT" <<'PY'
+    "$H2G_CHECKPOINT_EXPORT" "$H2G_LEGACY_CONTRACT" "$H2G_ITERATION" <<'PY'
 import hashlib, json, pathlib, sys
-export_path, contract_path = map(pathlib.Path, sys.argv[1:])
+export_path, contract_path = map(pathlib.Path, sys.argv[1:3])
+iteration = int(sys.argv[3])
 export = json.load(export_path.open(encoding="utf-8"))
-if not (export.get("schema_version") == "apertus_hard_h_to_g_checkpoint_export_v1"
+if not (export.get("schema_version") in {"apertus_hard_h_to_g_checkpoint_export_v1", "apertus_h2g_trajectory_checkpoint_export_v1"}
         and export.get("status") == "completed" and export.get("scale") == "8b"
-        and int(export.get("iteration", -1)) == 3218
-        and export.get("ready_for_frozen_evaluators") is True):
+        and int(export.get("iteration", -1)) == int(iteration)
+        and (export.get("ready_for_frozen_evaluators") is True
+             or export.get("ready_for_trajectory_evaluator") is True)):
     raise SystemExit("checkpoint export drift")
 model = pathlib.Path(export["hf_export"]["path"]).resolve()
 config = json.load((model / "config.json").open(encoding="utf-8"))
@@ -72,7 +78,7 @@ evaluator=${resolved[1]}
 registry=${resolved[2]}
 snapshot=${resolved[3]}
 adapter=${resolved[4]}
-label=8b_iter_0003218_legacy_public
+printf -v label '8b_iter_%07d_legacy_public' "$H2G_ITERATION"
 parent=$(dirname "$H2G_LEGACY_OUTPUT")
 base=$(basename "$H2G_LEGACY_OUTPUT")
 staging="$parent/.${base}.${SLURM_JOB_ID}.partial"

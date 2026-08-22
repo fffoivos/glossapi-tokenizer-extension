@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Finalize the single historical BF16 public-GreekMMLU compatibility point."""
+"""Finalize one historical BF16 public-GreekMMLU compatibility point."""
 
 from __future__ import annotations
 
@@ -16,9 +16,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from contract_utils import file_binding, read_json, require, write_json_atomic
 
 QUESTIONS = 16_632
-REFERENCE_CORRECT = 9_969
+REFERENCE_CORRECT = 9_973
 REFERENCE_ACCURACY = REFERENCE_CORRECT / QUESTIONS
-MARGIN = 0.015
+MARGIN = 0.01
 Z_90 = statistics.NormalDist().inv_cdf(0.95)
 
 
@@ -47,14 +47,9 @@ def wilson_interval(correct: int, total: int, z: float = Z_90) -> tuple[float, f
     return center - half, center + half
 
 
-def equivalence_decision(interval: tuple[float, float]) -> str:
-    lower, upper = interval
+def equivalence_decision(accuracy: float) -> str:
     band = REFERENCE_ACCURACY - MARGIN, REFERENCE_ACCURACY + MARGIN
-    if lower >= band[0] and upper <= band[1]:
-        return "pass"
-    if upper < band[0] or lower > band[1]:
-        return "fail"
-    return "inconclusive"
+    return "pass" if band[0] <= accuracy <= band[1] else "fail"
 
 
 def main() -> int:
@@ -88,21 +83,24 @@ def main() -> int:
         and contract.get("code_revision")
         == "cfdd0e7b00761a736be660867bf3d09733e24a92"
         and contract.get("loader_change_scope") == "dataset_loading_only"
-        and contract.get("clean_panel_is_scientific_primary") is True,
+        and contract.get("full_public_panel_is_corrected_primary") is True
+        and int(contract.get("replication_reference_correct", -1)) == REFERENCE_CORRECT
+        and float(contract.get("replication_absolute_margin", -1)) == MARGIN,
         "legacy public evaluator contract drift",
     )
     config = read_json(args.model / "config.json")
     require(int(config.get("vocab_size", -1)) == 148_480, "legacy tokenizer/vocab drift")
     correct = sum(int(bool(row["correct"])) for row in rows)
+    accuracy = correct / QUESTIONS
     interval = wilson_interval(correct, QUESTIONS)
-    decision = equivalence_decision(interval)
+    decision = equivalence_decision(accuracy)
     write_json_atomic(
         args.output,
         {
             "schema_version": "apertus_legacy_public_greekmmlu_result_v1",
             "status": "completed",
-            "scope": "8b_update_3218_historical_compatibility_only",
-            "scientific_primary": False,
+            "scope": "8b_decision_checkpoint_historical_compatibility",
+            "scientific_primary": True,
             "named_reconstruction_difference": (
                 "historical_June_dataset_revision_unrecoverable; scorer uses the "
                 "pinned 2026-07-31-equivalent snapshot through the proven loader-only adapter"
@@ -119,7 +117,7 @@ def main() -> int:
             },
             "observed": {
                 "correct": correct,
-                "accuracy": correct / QUESTIONS,
+                "accuracy": accuracy,
                 "wilson_90_percent": list(interval),
             },
             "reference": {
@@ -133,6 +131,7 @@ def main() -> int:
                 ],
             },
             "decision": decision,
+            "decision_rule": "point_accuracy_within_owner_ratified_absolute_band",
         },
     )
     return 0

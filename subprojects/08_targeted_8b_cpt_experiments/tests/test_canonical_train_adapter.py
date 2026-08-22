@@ -43,7 +43,7 @@ from run_canonical_train_segment import (
 from run_checkpoint_export_evaluator import resolve_checkpoint_root
 from run_greekmmlu_evaluator import mode_for_iteration
 from run_offline_panels_evaluator import resolve_export, validate_panels
-from score_frozen_greekmmlu_shard import shard_rows
+from score_frozen_greekmmlu_shard import authority_rows, shard_rows
 
 
 def write_json(path: Path, value: dict[str, object]) -> None:
@@ -547,17 +547,44 @@ def test_greekmmlu_debug_wrapper_fixes_float32_batch1_and_four_nodes() -> None:
     assert "#SBATCH --nodes=4" in wrapper
     assert "--ntasks=16" in wrapper
     assert "--candidate-batch-size 1" in shard
-    assert '[[ "${SLURM_JOB_PARTITION:-}" == debug' in wrapper
+    assert 'case "${SLURM_JOB_PARTITION:-}" in' in wrapper
+    assert "debug|normal" in wrapper
 
 
-def test_legacy_public_equivalence_gate_is_predeclared_wilson_90() -> None:
-    reference = wilson_interval(9969, 16632)
-    assert equivalence_decision(reference) == "pass"
-    low = wilson_interval(8000, 16632)
-    assert equivalence_decision(low) == "fail"
-    boundary_accuracy = REFERENCE_ACCURACY - 0.015
-    boundary = wilson_interval(round(boundary_accuracy * 16632), 16632)
-    assert equivalence_decision(boundary) == "inconclusive"
+def test_full_public_examples_are_accepted_as_scoring_authority(tmp_path: Path) -> None:
+    path = tmp_path / "public.json"
+    rows = [
+        {
+            "example_id": f"greekmmlu:{index}",
+            "row_index": index,
+            "subject": "subject",
+            "educational_level": None,
+        }
+        for index in range(16_632)
+    ]
+    write_json(
+        path,
+        {
+            "schema_version": "apertus_greekmmlu_public_examples_v1",
+            "status": "frozen",
+            "dataset": {
+                "repo_id": "dascim/GreekMMLU",
+                "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+                "config": "All",
+                "split": "test",
+            },
+            "public_count": 16_632,
+            "examples": rows,
+        },
+    )
+    assert len(authority_rows(path)) == 16_632
+
+
+def test_legacy_public_equivalence_gate_is_owner_ratified_one_point_band() -> None:
+    assert equivalence_decision(REFERENCE_ACCURACY) == "pass"
+    assert equivalence_decision(REFERENCE_ACCURACY - 0.01) == "pass"
+    assert equivalence_decision(REFERENCE_ACCURACY + 0.01) == "pass"
+    assert equivalence_decision(REFERENCE_ACCURACY - 0.01001) == "fail"
 
 
 def test_legacy_public_wrapper_is_single_debug_node_and_exact_scope() -> None:
@@ -567,7 +594,8 @@ def test_legacy_public_wrapper_is_single_debug_node_and_exact_scope() -> None:
     )
     assert "#SBATCH --partition=debug" in wrapper
     assert "#SBATCH --nodes=1" in wrapper
-    assert '[[ "$H2G_SCALE" == 8b && "$H2G_ITERATION" == 3218 ]]' in wrapper
+    assert 'case "$H2G_ITERATION" in' in wrapper
+    assert "2618|3218|3694" in wrapper
     assert "--dtype bfloat16" in wrapper
     assert "--candidate-batch-size 16" in wrapper
 

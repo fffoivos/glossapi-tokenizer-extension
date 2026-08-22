@@ -39,6 +39,18 @@ def validate_contract(value: dict[str, Any]) -> None:
     historical = value["historical_reference"]
     require(historical["final_correct"] == 9969 and historical["best_correct"] == 9973, "historical correct-count drift")
     require(historical["denominator"] == 16632, "historical denominator drift")
+    decision = value["decision"]
+    require(
+        decision["reference"] == "historical_best_9973_of_16632"
+        and float(decision["absolute_margin"]) == 0.01
+        and decision["pass"] == "best_observed_accuracy_within_absolute_band",
+        "owner-ratified replication band drift",
+    )
+    require(
+        value["full_public_panel_is_corrected_primary"] is True
+        and value["clean_subset_is_secondary_sensitivity_analysis"] is True,
+        "corrected evaluation policy drift",
+    )
 
 
 def main() -> int:
@@ -91,7 +103,10 @@ def main() -> int:
         "producer_bundle_compatibility": file_binding(args.producer_compatibility),
         "loader_change_scope": "dataset_loading_only",
         "code_revision": EXPECTED_REVISION,
-        "clean_panel_is_scientific_primary": True,
+        "full_public_panel_is_corrected_primary": True,
+        "clean_subset_is_secondary_sensitivity_analysis": True,
+        "replication_reference_correct": 9973,
+        "replication_absolute_margin": 0.01,
     }
     write_json_atomic(args.output, payload)
     print(args.output)

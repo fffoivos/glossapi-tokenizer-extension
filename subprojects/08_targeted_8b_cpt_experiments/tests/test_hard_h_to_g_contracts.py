@@ -1557,7 +1557,10 @@ class HardHToGContractTests(unittest.TestCase):
             "loader_parity_receipt": {},
             "snapshot_adapter": {},
             "code_revision": "cfdd0e7b00761a736be660867bf3d09733e24a92",
-            "clean_panel_is_scientific_primary": True,
+            "full_public_panel_is_corrected_primary": True,
+            "clean_subset_is_secondary_sensitivity_analysis": True,
+            "replication_reference_correct": 9973,
+            "replication_absolute_margin": 0.01,
         }
         self.assertTrue(role_semantics_match("legacy_public_evaluator_contract", receipt))
         receipt["loader_change_scope"] = "scoring_and_loading"

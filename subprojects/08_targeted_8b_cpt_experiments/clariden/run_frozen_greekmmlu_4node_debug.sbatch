@@ -29,9 +29,12 @@ esac
 }
 [[ "$H2G_SCALE" == 8b || "$H2G_SCALE" == 1p5b ]] || { echo "invalid scale" >&2; exit 2; }
 [[ "$H2G_ITERATION" =~ ^[0-9]+$ ]] || { echo "invalid iteration" >&2; exit 2; }
-[[ "$H2G_GREEKMMLU_MODE" == full_clean || "$H2G_GREEKMMLU_MODE" == sentinel_pair ]] || {
+[[ "$H2G_GREEKMMLU_MODE" == full_clean || "$H2G_GREEKMMLU_MODE" == full_public || "$H2G_GREEKMMLU_MODE" == sentinel_pair ]] || {
   echo "invalid GreekMMLU mode" >&2; exit 2;
 }
+if [[ "$H2G_GREEKMMLU_MODE" == full_public ]]; then
+  : "${H2G_GREEKMMLU_PUBLIC_EXAMPLES:?full-public mode requires its frozen examples}"
+fi
 [[ ! -e "$H2G_GREEKMMLU_OUTPUT" ]] || { echo "immutable GreekMMLU output exists" >&2; exit 2; }
 
 subproject="$H2G_CODE_ROOT/subprojects/08_targeted_8b_cpt_experiments"
@@ -43,9 +46,9 @@ readarray -t resolved < <(
   uenv run pytorch/v2.9.1:v2 --view=default -- "$EVAL_VENV/bin/python" - \
     "$H2G_CHECKPOINT_EXPORT" "$H2G_SCALE" "$H2G_ITERATION" \
     "$H2G_GREEKMMLU_CLEAN_EXAMPLES" "$H2G_GREEKMMLU_SENTINEL_MANIFEST" \
-    "$H2G_GREEKMMLU_MODE" <<'PY'
+    "$H2G_GREEKMMLU_MODE" "${H2G_GREEKMMLU_PUBLIC_EXAMPLES:-}" <<'PY'
 import hashlib, json, pathlib, sys
-receipt_path, scale, iteration, clean_path, manifest_path, mode = sys.argv[1:]
+receipt_path, scale, iteration, clean_path, manifest_path, mode, public_path = sys.argv[1:]
 receipt = json.load(open(receipt_path, encoding="utf-8"))
 canonical = (
     receipt.get("schema_version") == "apertus_hard_h_to_g_checkpoint_export_v1"
@@ -69,6 +72,13 @@ if not (manifest.get("schema_version") == "apertus_greekmmlu_sentinel_manifest_v
     raise SystemExit("sentinel manifest drift")
 if mode == "full_clean":
     panel = pathlib.Path(clean_path).resolve()
+elif mode == "full_public":
+    panel = pathlib.Path(public_path).resolve()
+    payload = json.load(panel.open(encoding="utf-8"))
+    if not (payload.get("schema_version") == "apertus_greekmmlu_public_examples_v1"
+            and payload.get("status") == "frozen"
+            and int(payload.get("public_count", -1)) == 16632):
+        raise SystemExit("public GreekMMLU examples drift")
 else:
     binding = manifest["panels"]["8192"]
     panel = pathlib.Path(binding["path"]).resolve()
@@ -82,6 +92,9 @@ PY
 [[ "${#resolved[@]}" == 2 ]] || { echo "failed to resolve GreekMMLU inputs" >&2; exit 2; }
 export H2G_GREEKMMLU_MODEL="${resolved[0]}"
 export H2G_GREEKMMLU_PANEL="${resolved[1]}"
+if [[ "$H2G_GREEKMMLU_MODE" == full_public ]]; then
+  H2G_GREEKMMLU_CLEAN_EXAMPLES="$H2G_GREEKMMLU_PANEL"
+fi
 export H2G_GREEKMMLU_LABEL="${H2G_SCALE}_iter_$(printf '%07d' "$H2G_ITERATION")"
 export H2G_GREEKMMLU_NATIVE_RUNNER="$H2G_CODE_ROOT/subprojects/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/eval/run_native_greek_mcq_eval.py"
 parent=$(dirname "$H2G_GREEKMMLU_OUTPUT")

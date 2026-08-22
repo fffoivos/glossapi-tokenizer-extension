@@ -25,6 +25,7 @@ from contract_utils import (
     write_json_atomic,
 )
 from score_frozen_greekmmlu_shard import (
+    authority_rows,
     clean_rows,
     panel_rows,
     read_jsonl,
@@ -161,14 +162,16 @@ def aggregate_shards(
         and set(observed_ids) == expected_ids,
         "aggregated GreekMMLU id set drift",
     )
-    order = {str(row["example_id"]): int(row["row_index"]) for row in clean_rows(clean_examples)}
+    order = {str(row["example_id"]): int(row["row_index"]) for row in authority_rows(clean_examples)}
     rows.sort(key=lambda row: order[str(row["example_id"])])
     return rows, receipts
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--mode", choices=("full_clean", "sentinel_pair"), required=True)
+    parser.add_argument(
+        "--mode", choices=("full_clean", "full_public", "sentinel_pair"), required=True
+    )
     parser.add_argument("--clean-examples", type=Path, required=True)
     parser.add_argument("--sentinel-manifest", type=Path, required=True)
     parser.add_argument("--panel", type=Path, required=True)
@@ -195,6 +198,8 @@ def main() -> int:
     ids_by_size, manifest = sentinel_ids(args.sentinel_manifest)
     if args.mode == "full_clean":
         require(len(rows) == 16_159, "full clean GreekMMLU count drift")
+    elif args.mode == "full_public":
+        require(len(rows) == 16_632, "full public GreekMMLU count drift")
     else:
         require(
             len(rows) == 8192
@@ -219,6 +224,13 @@ def main() -> int:
         full_path = args.output_dir / "views/full_clean.predictions.jsonl"
         write_jsonl_atomic(full_path, rows)
         views["full_clean"] = {
+            "predictions": file_binding(full_path),
+            "metrics": stratified_metrics(rows),
+        }
+    elif args.mode == "full_public":
+        full_path = args.output_dir / "views/full_public.predictions.jsonl"
+        write_jsonl_atomic(full_path, rows)
+        views["full_public"] = {
             "predictions": file_binding(full_path),
             "metrics": stratified_metrics(rows),
         }

@@ -682,7 +682,10 @@ def role_semantics_match(
             and isinstance(receipt.get("loader_parity_receipt"), dict)
             and isinstance(receipt.get("snapshot_adapter"), dict)
             and receipt.get("code_revision") == "cfdd0e7b00761a736be660867bf3d09733e24a92"
-            and receipt.get("clean_panel_is_scientific_primary") is True
+            and receipt.get("full_public_panel_is_corrected_primary") is True
+            and receipt.get("clean_subset_is_secondary_sensitivity_analysis") is True
+            and receipt.get("replication_reference_correct") == 9973
+            and receipt.get("replication_absolute_margin") == 0.01
         )
     if role == "dataset_rebuild_and_lineage":
         invariants = receipt.get("invariants", {})

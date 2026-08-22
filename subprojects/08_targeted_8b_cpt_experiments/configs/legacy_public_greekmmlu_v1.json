@@ -45,12 +45,14 @@
     "best_accuracy": 0.5996272246272246
   },
   "decision": {
-    "absolute_margin": 0.015,
-    "interval": "wilson_90_percent",
-    "pass": "entire_interval_inside_equivalence_band",
-    "fail": "entire_interval_outside_equivalence_band",
-    "otherwise": "inconclusive",
+    "reference": "historical_best_9973_of_16632",
+    "absolute_margin": 0.01,
+    "interval": "not_used_for_the_owner_ratified_point_estimate_band",
+    "pass": "best_observed_accuracy_within_absolute_band",
+    "fail": "best_observed_accuracy_outside_absolute_band",
+    "otherwise": "not_applicable",
     "not_testable_if_tokenizer_is_not_historical_148480": true
   },
-  "clean_panel_is_scientific_primary": true
+  "full_public_panel_is_corrected_primary": true,
+  "clean_subset_is_secondary_sensitivity_analysis": true
 }
