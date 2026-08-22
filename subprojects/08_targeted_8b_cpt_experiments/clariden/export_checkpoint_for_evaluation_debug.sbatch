@@ -28,7 +28,7 @@ case "${SLURM_JOB_PARTITION:-}" in
   debug|normal) ;;
   *) echo "checkpoint export requires a debug or held normal allocation" >&2; exit 2 ;;
 esac
-[[ "${SLURM_NNODES:-0}" == 1 && "${SLURM_JOB_NUM_NODES:-0}" == 1 ]] || {
+[[ "${SLURM_NNODES:-0}" == 1 ]] || {
   echo "checkpoint export requires exactly one allocated node" >&2
   exit 2
 }
