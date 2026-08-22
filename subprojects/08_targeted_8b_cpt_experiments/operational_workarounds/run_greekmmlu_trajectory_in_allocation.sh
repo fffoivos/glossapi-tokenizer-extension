@@ -77,7 +77,7 @@ tail -n +2 "$H2G_CHECKPOINT_SOURCES" | while IFS=$'\t' read -r scale update sour
           --cpus-per-task=72 --mem=220G \
           --output="$H2G_TRAJECTORY_ROOT/logs/export-${scale}-${update}-a${export_attempt}.out" \
           --error="$H2G_TRAJECTORY_ROOT/logs/export-${scale}-${update}-a${export_attempt}.err" \
-          bash "$export_script"; then
+          bash "$export_script" </dev/null; then
           export_completed=true
           break
         fi
@@ -109,7 +109,10 @@ tail -n +2 "$H2G_CHECKPOINT_SOURCES" | while IFS=$'\t' read -r scale update sour
       export H2G_GREEKMMLU_OUTPUT="$result_root"
       score_completed=false
       for score_attempt in 1 2; do
-        if bash "$score_script"; then
+        # Keep Slurm and evaluator children from consuming the checkpoint-table
+        # stream that drives this loop.  Without this redirect the first srun
+        # drains the remaining TSV rows and the campaign exits after one model.
+        if bash "$score_script" </dev/null; then
           score_completed=true
           break
         fi

@@ -359,3 +359,11 @@ def test_plateau_uses_full_trajectory_when_calibration_rejects(
     assert result["trajectory_view"] == "full_clean"
     assert result["minimum_choice_nll_iteration"] == 3694
     assert result["confirmation_action"] == "full_panel_trajectory_already_required"
+
+
+def test_trajectory_driver_isolates_checkpoint_table_stdin() -> None:
+    driver = (
+        ROOT / "operational_workarounds/run_greekmmlu_trajectory_in_allocation.sh"
+    ).read_text(encoding="utf-8")
+    assert 'bash "$export_script" </dev/null' in driver
+    assert 'bash "$score_script" </dev/null' in driver
