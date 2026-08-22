@@ -67,11 +67,25 @@ tail -n +2 "$H2G_CHECKPOINT_SOURCES" | while IFS=$'\t' read -r scale update sour
       export H2G_MODEL_CONTRACT="$model_contract"
       export H2G_EXPORT_ROOT="$export_root"
       export H2G_EVAL_PYTHON="$EVAL_VENV/bin/python"
-      srun --exclusive --exact --nodes=1 --ntasks=1 --gpus-per-task=1 \
-        --cpus-per-task=72 --mem=220G \
-        --output="$H2G_TRAJECTORY_ROOT/logs/export-${scale}-${update}.out" \
-        --error="$H2G_TRAJECTORY_ROOT/logs/export-${scale}-${update}.err" \
-        bash "$export_script"
+      export_completed=false
+      for export_attempt in 1 2; do
+        if srun --exclusive --exact --nodes=1 --ntasks=1 --gpus-per-task=1 \
+          --cpus-per-task=72 --mem=220G \
+          --output="$H2G_TRAJECTORY_ROOT/logs/export-${scale}-${update}-a${export_attempt}.out" \
+          --error="$H2G_TRAJECTORY_ROOT/logs/export-${scale}-${update}-a${export_attempt}.err" \
+          bash "$export_script"; then
+          export_completed=true
+          break
+        fi
+        if [[ -e "$export_root" ]]; then
+          failed_export="${export_root}.failed-a${export_attempt}-$(date -u +%Y%m%dT%H%M%SZ)"
+          mv "$export_root" "$failed_export"
+          record_progress "$scale" "$update" export_failed "$failed_export"
+        fi
+      done
+      [[ "$export_completed" == true ]] || {
+        echo "checkpoint export failed twice: $scale@$update" >&2; exit 1;
+      }
       record_progress "$scale" "$update" exported "$export_receipt"
     fi
   fi
@@ -89,7 +103,17 @@ tail -n +2 "$H2G_CHECKPOINT_SOURCES" | while IFS=$'\t' read -r scale update sour
       export H2G_GREEKMMLU_CLEAN_EXAMPLES="$clean_examples"
       export H2G_GREEKMMLU_SENTINEL_MANIFEST="$sentinel_manifest"
       export H2G_GREEKMMLU_OUTPUT="$result_root"
-      bash "$score_script"
+      score_completed=false
+      for score_attempt in 1 2; do
+        if bash "$score_script"; then
+          score_completed=true
+          break
+        fi
+        record_progress "$scale" "$update" score_failed "attempt_$score_attempt"
+      done
+      [[ "$score_completed" == true ]] || {
+        echo "GreekMMLU scoring failed twice: $scale@$update" >&2; exit 1;
+      }
       record_progress "$scale" "$update" scored "$result_root/aggregate/receipt.json"
     fi
   fi
