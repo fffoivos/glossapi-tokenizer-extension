@@ -347,3 +347,28 @@ None yet.
   2.0623 percentage points below the selected historical beta2=0.999 target
   of 59.9627%, outside the ratified plus/minus 1.0-point band. The band was
   not revised after observing the result.
+- The A2 output is frozen in
+  `evaluation/greekmmlu_legacy_bf16/20260822T224500Z-v1/matrix_receipt.json`;
+  the receipt hashes every result file and records the failed replication
+  decision. Parallel cache materialization follow-up is efficiency issue
+  [#147](https://github.com/fffoivos/apertus-cscs-efficiency/issues/147).
+
+### First paired stable-LR checkpoint
+
+- Update 2,618 was saved successfully after 33.1 seconds of checkpoint time;
+  training continued to update 2,619 without a restart. The saved row has LR
+  `5.5e-5`, zero skipped updates and zero non-finite updates.
+- Its HF export completed with the same exact-weight and probability-space
+  parity pipeline used by Track A. A one-node controller retry could export
+  but could not launch the four-node nested scorer (`Only allocated 1 nodes
+  asked for 4`). The failed score attempts remained in `progress.tsv`.
+- Reattaching the scorer with a four-node lightweight outer step and a single
+  rank-0 controller resolved the topology without changing its evaluator or
+  model export. This is the evaluation-side instance of issue #146.
+- Stable-LR update 2,618 full-public score: `9,686 / 16,632 = 58.2371%`,
+  choice NLL `1.053410`, correct-answer BPB `0.164597`.
+- Paired decayed-arm update 2,618: `9,676 / 16,632 = 58.1770%`, choice NLL
+  `1.058548`, BPB `0.165548`. The initial accuracy difference is only
+  `+0.0601` percentage points for stable LR, far below the approximately
+  0.4-point checkpoint noise scale; no trajectory conclusion is drawn from
+  this single pair.
