@@ -87,7 +87,7 @@ fi
 start_hf=$(date +%s)
 uenv run "$UENV_IMAGE" --view=default -- bash -lc "
   set -o pipefail
-  export PYTHONPATH='$PYTHON_COMPAT_DIR:$H2G_MEGATRON_DIR:$H2G_CONVERTER_OVERLAY_ROOT'
+  export PYTHONPATH='$PYTHON_COMPAT_DIR:$H2G_MEGATRON_DIR:$H2G_CONVERTER_OVERLAY_ROOT:$H2G_MEGATRON_DIR/tools/checkpoint'
   '$H2G_EVAL_PYTHON' '$H2G_CONVERTER_OVERLAY_ROOT/convert.py' \
     --model-type GPT \
     --loader core \
