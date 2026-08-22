@@ -2,7 +2,16 @@
 
 Date: 2026-08-22
 
-Status: **training complete; 34/34 clean GreekMMLU checkpoint evaluations complete; report QA passed**
+Status: **training complete; 34/34 subset GreekMMLU checkpoint evaluations complete; full-public replication evaluation still required**
+
+Correction recorded 2026-08-22: the training streams had already been
+decontaminated against GreekMMLU. Removing the corresponding 473 questions
+again from evaluation produced a useful fixed 16,159-question subset, but it
+was an unnecessary second application of decontamination and is not the
+intended primary replication comparison. The public 16,632-question benchmark
+must be retained for the main result. Nothing in this correction changes the
+training run, checkpoints, or the validity of the 16,159-question subset as a
+secondary diagnostic.
 
 Worktree: `/Users/foivoskarounos-zamparloukos/Projects/.codex-worktrees/h2g-greekmmlu-trajectories`
 
@@ -16,7 +25,10 @@ This experiment had three goals:
 2. test whether a matched Apertus 1.5B run follows the same GreekMMLU trajectory as 8B;
 3. extend OpenArchives training by two approximately 1B-token-slot checkpoints.
 
-The cross-scale answer is clear: **1.5B does not mirror 8B on GreekMMLU**.
+On the common 16,159-question subset, the cross-scale answer is clear:
+**1.5B does not mirror 8B on GreekMMLU**. This conclusion is internal to the
+new matched pair and does not depend on comparing either model with the older
+8B experiments.
 
 | Quantity | Apertus 1.5B | Apertus 8B |
 |---|---:|---:|
@@ -38,6 +50,26 @@ Trajectory similarity is poor rather than merely vertically offset:
 The category evidence points the same way. Of 31 subject trajectories, 1.5B reaches its best checkpoint during HPLT for 29 subjects and during OpenArchives for only one. For 8B, 22 subjects peak during OpenArchives and nine during HPLT.
 
 The continuous metrics add an important qualification. The 1.5B final choice NLL (`1.34670`) is lower than at its first measured checkpoint (`1.38264`) despite lower final accuracy. Thus the run improved the average probability assigned to correct choices while changing enough argmax rankings in the wrong direction to reduce accuracy. Accuracy and probability quality are not interchangeable here.
+
+Goal 1, historical 8B replication, is **not yet resolved** by these numbers.
+The current 8B values use a 16,159-question FP32 HF evaluator. The historical
+headline values use a 16,632-question BF16 legacy evaluator. Comparing their
+percentages directly would confound question set and evaluator arithmetic.
+
+### Which earlier 8B experiment is which
+
+Two older 8B results appear in the evidence and must not be conflated:
+
+| Earlier experiment | Role here | GreekMMLU evidence | Relationship to the new run |
+|---|---|---|---|
+| **Selected β₂ curriculum arm** — `curr_td_b20p999_b3p999_13b_20260616T093527Z`, β₂=`0.999` | **Formal replication target** | Public 16,632-question BF16 legacy evaluator; best `9973/16632 = 59.9627%`, final `9969/16632 = 59.9387%` | This is the experiment meant by “replicate the previous 8B result.” A like-for-like score for the new 8B run remains outstanding. |
+| **Earlier surviving two-arm TD study** — the curve preserved in `historical_cpt_2arm_summary.json` | **Visual historical context only** | Public 16,632-question trajectory; peak about `58.75%` at update `3,094`, final about `58.66%` | This is the historical curve drawn in the current HTML because its trajectory survives. It is not the selected β₂ target and must not be described as the 59.94% experiment. |
+
+The HTML therefore compares trajectory shape with the **earlier surviving
+two-arm TD study**, while the replication decision is against the **later
+selected β₂=0.999 arm**. The β₂ arm currently survives as headline best/final
+scores rather than the complete per-question trajectory used by the new
+analysis.
 
 ## 2. Frozen scientific contract
 
@@ -78,14 +110,34 @@ Saved nonzero updates evaluated for both scales:
 
 `238, 476, 714, 952, 1190, 1428, 1666, 1904, 2142, 2261, 2380, 2618, 2856, 3094, 3218, 3456, 3694`.
 
-GreekMMLU authority:
+GreekMMLU subset evaluation completed so far:
 
 - dataset: `dascim/GreekMMLU@6a03aa06b68beb932fb75edff3a34e50b3674649`;
-- frozen clean panel: 16,159 questions (public panel: 16,632);
+- frozen 16,159-question subset (public panel: 16,632);
 - score: mean continuation log probability per answer choice;
 - outputs: accuracy, choice NLL, correct-answer BPB, subject and educational-level breakdowns, and paired per-question correctness.
 
 This produces `17 × 2 × 16,159 = 549,406` checkpoint-question observations. Update 0 was not evaluated on this exact frozen trajectory panel.
+
+The dataset preparation had already removed benchmark-overlapping training
+documents from HPLT, OpenArchives, foreign replay, and Old-Greek replay, with
+post-filter zero scans. Therefore the corrected evaluation policy is:
+
+1. use all **16,632 public GreekMMLU questions** as the primary benchmark;
+2. retain the existing 16,159-question results as a secondary sensitivity
+   analysis;
+3. use the frozen legacy BF16 evaluator for strict comparison with the selected
+   β₂ arm's 59.9627% best and 59.9387% final results;
+4. never subtract 473 questions from training and then silently subtract the
+   same benchmark questions again from the headline evaluation.
+
+The exact legacy contract is
+[legacy_public_greekmmlu_v1.json](configs/legacy_public_greekmmlu_v1.json):
+historical code revision `cfdd0e7b00761a736be660867bf3d09733e24a92`,
+`dascim/GreekMMLU`, 16,632 questions, BF16, maximum input length 3,072, and
+candidate/example batch size 16. The existing HF exports can be reused for a
+current common-evaluator full-panel trajectory; strict historical replication
+also requires the pinned legacy scoring path.
 
 ## 4. Execution record
 
@@ -146,7 +198,12 @@ The inherited online Old-Greek panel is omitted from retention claims because it
 
 ## 7. Interpretation boundary
 
-The experiment establishes a scale-dependent response under this exact recipe. It does not identify a single causal mechanism. The models differ in parameter count, depth, width, parent pretraining, and Token-Distillation target layer. With one model and one source-order seed per scale, capacity cannot be separated from those architectural and initialization differences.
+The 16,159-question matched evaluation establishes a scale-dependent response
+under this exact recipe. It does not identify a single causal mechanism. The
+models differ in parameter count, depth, width, parent pretraining, and
+Token-Distillation target layer. With one model and one source-order seed per
+scale, capacity cannot be separated from those architectural and initialization
+differences.
 
 The most defensible interpretation is:
 
@@ -154,7 +211,13 @@ The most defensible interpretation is:
 - the 1.5B model continues improving average correct-choice probability overall, but OpenArchives exposure changes answer rankings in a way that lowers argmax accuracy;
 - therefore 1.5B is not a reliable proxy for selecting this 8B curriculum from GreekMMLU trajectory shape alone.
 
-The earlier 8B predecessor used the public 16,632-question evaluator and a different reconstructed corpus realization. It is shown as a separate historical curve, never spliced numerically into the clean 16,159-question trajectory.
+The historical curve shown in the HTML is specifically the **earlier surviving
+two-arm TD study** (approximately 58.75% peak and 58.66% final), evaluated on
+the public 16,632-question panel. It is not the later selected β₂=0.999 run.
+The selected β₂ run is the formal replication target and reported 59.9627%
+best / 59.9387% final on the public 16,632-question BF16 legacy evaluator.
+Neither older series may be numerically spliced into the current 16,159-question
+FP32 HF series.
 
 ## 8. Failures encountered and resolved
 
@@ -218,12 +281,21 @@ Open the final artifact visibly in Firefox:
 
 ## 11. Remaining scientific work
 
-No required work remains for this matched GreekMMLU trajectory experiment. Optional follow-ons are:
+The training and matched 16,159-question cross-scale analysis are complete,
+but the historical-replication evaluation is not. Required work is:
 
-1. evaluate update 0 on the same 16,159-question panel;
-2. repeat one or both scales with another data-order seed;
-3. evaluate selected peak and final checkpoints on the frozen native-Greek suite;
-4. investigate why 1.5B NLL improves while argmax accuracy falls, using per-question transition and calibration analysis;
-5. repeat only if a concrete new hypothesis justifies the GPU cost.
+1. score the full 16,632-question public panel for the new checkpoints, using
+   the existing exports and the common evaluator, and treat it as the corrected
+   primary trajectory;
+2. run the pinned legacy BF16 evaluator on the new 8B decision-bearing
+   checkpoints—at minimum update 2,618 (current subset peak) and update 3,694
+   (final), with update 3,218 included for endpoint-aligned comparison;
+3. compare those like-for-like public scores with the selected β₂ target:
+   `9973/16632` best and `9969/16632` final;
+4. revise the HTML headline and historical-comparison section after those
+   results exist, while retaining the 16,159-question curves as a labeled
+   secondary sensitivity analysis.
 
-These are new experiments or analyses, not blockers for this handoff.
+Optional follow-ons remain update-0 evaluation, another source-order seed,
+native-Greek-suite scoring at selected checkpoints, and calibration analysis
+of the 1.5B NLL/accuracy divergence.
