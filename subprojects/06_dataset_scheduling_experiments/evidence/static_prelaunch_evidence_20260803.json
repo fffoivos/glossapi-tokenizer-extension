@@ -1,0 +1,45 @@
+{
+  "schema_version": "apertus_mini_static_prelaunch_evidence_summary_v1",
+  "status": "passed",
+  "captured_at": "2026-08-03",
+  "slurm": {
+    "job_id": "2989033",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:04:04",
+    "nodes": 1
+  },
+  "scientific_bundle": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T064000Z-scientific-bundle-v48",
+    "tree_sha256": "f78a1819795f4ae2a4fe295878d5efbed7ded867b650bd01af5ecca408ea53e9"
+  },
+  "root": "/capstor/scratch/cscs/fffoivos/cpt_runs/dataset-scheduling-0p5b/20260803T064000Z-static-prelaunch-v2",
+  "receipt": {
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_runs/dataset-scheduling-0p5b/20260803T064000Z-static-prelaunch-v2/static_prelaunch_evidence_receipt.json",
+    "sha256": "f6806221d51bf523fe17be61929ab170e77575a2741b569be9c1036d68bdc4e6"
+  },
+  "schedule_only_factor": {
+    "status": "passed",
+    "same_exact_sequence_and_active_token_inventory": true,
+    "same_replay_sequence_ids_at_same_positions": true,
+    "five_distinct_modern_greek_order_trajectories": true,
+    "common_inventory_sha256": "48d285b4aa9626b2e7f01e1e19a9b0123ed827b4e510cfcf42036eddf9f9a49f",
+    "artifact_sha256": "3ea7bfd6c9901be5ca6ced6a1883fd9023c0ee73239e9ae8c6f17a9d3503365c"
+  },
+  "goldfish_uniformity": {
+    "status": "passed",
+    "added_token_ids": 17920,
+    "complete_residue_drop_rate": 0.01990094029717911,
+    "all_added_ids_share_exact_drop_count": true,
+    "artifact_sha256": "adccda8ae5e489f64a43d7b5385c6969e23a9aa8834a3ad42cda823322206766"
+  },
+  "greekmmlu_clean_subset": {
+    "status": "frozen",
+    "full_examples": 16632,
+    "contaminated_examples": 473,
+    "clean_examples": 16159,
+    "manifest_sha256": "61ed4ac9d203d471c3b90463e893ed868f43a145b1bb1a7b0d5c753723dda310",
+    "clean_ids_sha256": "d97360da36cd158102af70d821916821b472ef538a667c8c81f7a56cdc2f208f"
+  },
+  "launch_authorized": false
+}

@@ -1,0 +1,139 @@
+{
+  "deleted_old_aliases": [],
+  "final_refs": {
+    "00-step400-tokens2B": "cc0c360dd021fd2edb5b4b20654fe37351387ee3",
+    "01-step1192-tokens5B": "0974a50ad7725ebfd9deb0968c374a11f48ee697",
+    "02-step2384-tokens10B": "41ef2beaa37189550f5cb93fd928f93ab1410b40",
+    "03-step3576-tokens15B": "314de71ba2d8508a2bb5c178750b8caf329c9b82",
+    "04-step4768-tokens20B": "fbfc15b8606024c410950d31e74523d7320e8d33",
+    "05-step5960-tokens25B": "ee01263c568d6a02084d259bc5e189ee3eca3957",
+    "06-step7152-tokens30B": "4b1efb01abea5bb9bd7f992412353ff13564a234",
+    "07-step8344-tokens35B": "59d168bfc147afdb166fdf35a3df0c0e9d256538",
+    "08-step9536-tokens40B": "7ff8886af8a209020466b88665577994b49b419d",
+    "09-step10728-tokens45B": "52593e607906f6bd5118b49188078dd50110e5f0",
+    "10-step11920-tokens50B": "1033982fb507eee97ec2f78d8b39ad652224f878",
+    "11-step13112-tokens55B": "f30deb434ca148518921b09fe19d4abe244133b7",
+    "12-step14304-tokens60B": "4525c6fd609facb5a588f04d9f6ab1a4149db86a",
+    "13-step14627-tokens61B": "38acc24a94310bf211a5481047ce14065fd6ee5a",
+    "14-step15496-tokens65B": "b6a6c64bdbd9e106f004c089ee47309e44191462",
+    "15-step16688-tokens70B": "959693710f756dc14ac607a6e7ff5292038923c9",
+    "16-step17880-tokens75B": "dcaa54fa7eb374dd32891f6bccf91d1afaeccb8c",
+    "17-step18284-tokens77B": "48e82425691e46a14902241aabe8623b9bf1aa46",
+    "main": "48e82425691e46a14902241aabe8623b9bf1aa46"
+  },
+  "index_sha256": "5aa27ab8b001a21594bbcdbe0982f499edf78edb148d57beac98aac45cddf0dc",
+  "remaining_old_aliases": [],
+  "repo": "fffoivos/apertus-8b-greek-cpt",
+  "schema_version": "apertus_ordered_hf_checkpoint_metadata_recovery_v1",
+  "status": "completed",
+  "verified": [
+    {
+      "commit": "cc0c360dd021fd2edb5b4b20654fe37351387ee3",
+      "new": "00-step400-tokens2B",
+      "old": "step400-tokens2B",
+      "readme_sha256": "bb35613965d9e2994e1f0b8e32864a1c2cdb7312de961d2fa051976fadaf7d66"
+    },
+    {
+      "commit": "0974a50ad7725ebfd9deb0968c374a11f48ee697",
+      "new": "01-step1192-tokens5B",
+      "old": "step1192-tokens5B",
+      "readme_sha256": "5445fa0c17e47053b541536b17309f4428d18a2aae2eb1eb8a5f367746b4c38d"
+    },
+    {
+      "commit": "41ef2beaa37189550f5cb93fd928f93ab1410b40",
+      "new": "02-step2384-tokens10B",
+      "old": "step2384-tokens10B",
+      "readme_sha256": "4b426666d11688bf65935b39dfc1274be593619d4fe0b3398729bb6cd39b39d5"
+    },
+    {
+      "commit": "314de71ba2d8508a2bb5c178750b8caf329c9b82",
+      "new": "03-step3576-tokens15B",
+      "old": "step3576-tokens15B",
+      "readme_sha256": "2df40ba477a06b6a61d4be573a1d60142c3a657672ee19d990e61ee9d28db88a"
+    },
+    {
+      "commit": "fbfc15b8606024c410950d31e74523d7320e8d33",
+      "new": "04-step4768-tokens20B",
+      "old": "step4768-tokens20B",
+      "readme_sha256": "0b24f17cce568294641d0b1868866e491f6f4fad54f441c966c02fe42d949f51"
+    },
+    {
+      "commit": "ee01263c568d6a02084d259bc5e189ee3eca3957",
+      "new": "05-step5960-tokens25B",
+      "old": "step5960-tokens25B",
+      "readme_sha256": "db6f6443b744592135e3a6b96156006b215e272288e0cb76beac779f1f97fe2b"
+    },
+    {
+      "commit": "4b1efb01abea5bb9bd7f992412353ff13564a234",
+      "new": "06-step7152-tokens30B",
+      "old": "step7152-tokens30B",
+      "readme_sha256": "0c9c1903cf630a7797d6806bd48ba376aae49d3b915e9f3e8c0228add371af16"
+    },
+    {
+      "commit": "59d168bfc147afdb166fdf35a3df0c0e9d256538",
+      "new": "07-step8344-tokens35B",
+      "old": "step8344-tokens35B",
+      "readme_sha256": "266565565c2f4d7a5db85bafbaa1340aa1fdd12da23c4b3d45b93664ed7aab12"
+    },
+    {
+      "commit": "7ff8886af8a209020466b88665577994b49b419d",
+      "new": "08-step9536-tokens40B",
+      "old": "step9536-tokens40B",
+      "readme_sha256": "47d5847974d6f67be9cca04cba2d22d6a793d2695ba4b1c5ce81daf56f2d7085"
+    },
+    {
+      "commit": "52593e607906f6bd5118b49188078dd50110e5f0",
+      "new": "09-step10728-tokens45B",
+      "old": "step10728-tokens45B",
+      "readme_sha256": "6500c478b86113ae345b0c0f6221f1a542a4226c423497e064ca884b609de08b"
+    },
+    {
+      "commit": "1033982fb507eee97ec2f78d8b39ad652224f878",
+      "new": "10-step11920-tokens50B",
+      "old": "step11920-tokens50B",
+      "readme_sha256": "f86f2d1a0acb3fde5a7d3d1fb0d52807339d1bc5a021929c8649edef455ae24b"
+    },
+    {
+      "commit": "f30deb434ca148518921b09fe19d4abe244133b7",
+      "new": "11-step13112-tokens55B",
+      "old": "step13112-tokens55B",
+      "readme_sha256": "dc1ccef035eb438e6c0751c07717d60e9b6c9ee037aea1ca8d6d67a42cf06c58"
+    },
+    {
+      "commit": "4525c6fd609facb5a588f04d9f6ab1a4149db86a",
+      "new": "12-step14304-tokens60B",
+      "old": "step14304-tokens60B",
+      "readme_sha256": "3cc3a9676e858e1092848bae5538476d726316345aebaa513f807413baad2744"
+    },
+    {
+      "commit": "38acc24a94310bf211a5481047ce14065fd6ee5a",
+      "new": "13-step14627-tokens61B",
+      "old": "step14627-tokens61B",
+      "readme_sha256": "f40122a494ee1524e9bd9ac402a7599cd6ace0e6920f01a1aedb7c27849503d8"
+    },
+    {
+      "commit": "b6a6c64bdbd9e106f004c089ee47309e44191462",
+      "new": "14-step15496-tokens65B",
+      "old": "step15496-tokens65B",
+      "readme_sha256": "aff13e55a255cefc6f49d137a400079a525627d801d8c624b3be4bebe430016d"
+    },
+    {
+      "commit": "959693710f756dc14ac607a6e7ff5292038923c9",
+      "new": "15-step16688-tokens70B",
+      "old": "step16688-tokens70B",
+      "readme_sha256": "b693fb88e41da540e3e47d452bcd91950a418f9e9f7b7ad2bbb2c15e27c861ef"
+    },
+    {
+      "commit": "dcaa54fa7eb374dd32891f6bccf91d1afaeccb8c",
+      "new": "16-step17880-tokens75B",
+      "old": "step17880-tokens75B",
+      "readme_sha256": "29e16c01eabf6d1aa5f3ec657a9e62dca517e9641fbd4c4e326088bb9d31887f"
+    },
+    {
+      "commit": "48e82425691e46a14902241aabe8623b9bf1aa46",
+      "new": "17-step18284-tokens77B",
+      "old": "main",
+      "readme_sha256": "5a70bbabce6416812521b5aa317d109f77a62a58ce8beeed0ed810dce1152272"
+    }
+  ]
+}

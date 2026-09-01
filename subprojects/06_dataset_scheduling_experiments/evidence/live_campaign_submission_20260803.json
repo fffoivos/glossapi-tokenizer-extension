@@ -1,0 +1,61 @@
+{
+  "schema_version": "apertus_mini_live_campaign_submission_summary_v1",
+  "status": "initial_validation_passed_training_queued",
+  "submitted_at": "2026-08-03T07:48:55.470786+00:00",
+  "run_tag": "mini_cpt5_20260803T074854Z",
+  "run_root": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z",
+  "campaign_manifest": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T074000Z-final-prelaunch-closure-v2/campaign_manifest.json",
+    "sha256": "85311d99f0f8a0b901d6c0895cdd00f7696ab5af8cf10e3fda2dd5b657f8cc02"
+  },
+  "jobs": {
+    "initial_validation": "2989297",
+    "train0": "2989298",
+    "watch0": "2989299",
+    "supervisor0": "2989300"
+  },
+  "dependencies": {
+    "train0": "afterok:2989297",
+    "watch0": "after:2989298",
+    "supervisor0": "after:2989298"
+  },
+  "initial_validation_result": {
+    "job_id": "2989297",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "started_at_cscs_local": "2026-08-03T09:48:55",
+    "completed_at_cscs_local": "2026-08-03T10:08:15",
+    "elapsed": "00:19:20",
+    "receipt": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/initial_validation/initial_validation_receipt.json",
+    "receipt_status": "completed",
+    "panel_count": 13,
+    "shared_by_all_five_arms": true
+  },
+  "initial_validation_audit": {
+    "observed_at": "2026-08-03T08:13:22Z",
+    "campaign_hash_matches": true,
+    "exact_panel_order_matches": true,
+    "panel_count": 13,
+    "nonfinite_metrics": [],
+    "zero_stratified_counts": [],
+    "lm_loss_range": [
+      1.003567,
+      6.24874
+    ],
+    "bpb_range": [
+      0.4017147565750656,
+      1.7159265457793529
+    ]
+  },
+  "training_queue_observation": {
+    "observed_at": "2026-08-03T08:08:40Z",
+    "job_id": "2989298",
+    "state": "PENDING",
+    "reason": "Priority",
+    "dependency": null,
+    "forecast_start_cscs_local": "2026-08-03T11:38:23",
+    "nodes": 20,
+    "gpus": 80
+  },
+  "remote_submission_receipt": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/submission_receipt.json"
+}

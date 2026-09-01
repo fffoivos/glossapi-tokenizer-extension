@@ -1,0 +1,54 @@
+{
+  "checkpoints": [
+    {
+      "full_metrics_sha256": "b8801e54be18d7d1b4731abc10bf01dadb644d85e9e762ea1c35e5b9c064d9c3",
+      "model": "d0_iter_0000000",
+      "rows_filtered": 73894,
+      "rows_full": 83970,
+      "source_receipt_sha256": "3689e4acf24018af03f9c178650e278bd393502e7cf41f658f5c2f217c974723",
+      "strict_filtered_metrics_sha256": "953a32b47a462134072a4b06c26a2b259c9c0cda80a937cc49cf0f4572ef4f86"
+    },
+    {
+      "full_metrics_sha256": "ff7a68f20a96cd663ca7c2f1c09894f973ad93685e192cd51de0c11f023b41da",
+      "model": "d0_iter_0018944",
+      "rows_filtered": 73894,
+      "rows_full": 83970,
+      "source_receipt_sha256": "72402190af5388ae91a0ef00986d2c98a3ff28e727930f1a83efbfa31b3a2fe3",
+      "strict_filtered_metrics_sha256": "29762bd9827164684aa3fd8f832a7f92c26df102ca9274ca5037ad31f56e5813"
+    },
+    {
+      "full_metrics_sha256": "996b7130a41a87f03ff6b3c1b9615de2ebe0e35553f0eed9589b30a2909fba0f",
+      "model": "d0_iter_0038496",
+      "rows_filtered": 73894,
+      "rows_full": 83970,
+      "source_receipt_sha256": "674d4f8f804002d5ce11a8a23a17d34813d1a6746f9b3d4e22acb7a810a602a5",
+      "strict_filtered_metrics_sha256": "d085d1d79302243eb920f2dfcd60960f2aa2261d5d4ec2d9c8ad5c742e5291d5"
+    }
+  ],
+  "comparison": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/evals/d0_0p5b_native_greek_3cp_20260814/contamination_filtered/full_vs_strict_filtered.csv",
+    "sha256": "36e1a923d2419d7c24e005fd03467f5fe70fd224e09aa8c069ce4ad10611e14f"
+  },
+  "exclusions": {
+    "counts_by_benchmark": {
+      "asep_mcqa": 20,
+      "demosqa": 1,
+      "gpcr": 14,
+      "medical_mcqa": 13,
+      "oyxoy_metaphor": 973,
+      "oyxoy_nli": 42,
+      "oyxoy_wic": 4614,
+      "oyxoy_wsd_definition": 4399
+    },
+    "path": "/capstor/scratch/cscs/fffoivos/benchmark_contamination_audits/runs/20260812T171530Z-native-greek-v1/publish_payload/recommended_excluded_example_ids.jsonl",
+    "rows": 10076,
+    "sha256": "7a8559461b15a308f599faf0ff25cd16c07be0a597078864f779af7f2f1fdd32"
+  },
+  "matrix_receipt": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/evals/d0_0p5b_native_greek_3cp_20260814/matrix_receipt.json",
+    "sha256": "86eecdefdcbb32717773a096f0afffb27ad907129f7e88e70afd09dda17c6849"
+  },
+  "policy": "exclude only evaluation identities with a strong two-surface corpus match",
+  "schema_version": "apertus_full8_contamination_filtered_rescore_v1",
+  "status": "passed"
+}

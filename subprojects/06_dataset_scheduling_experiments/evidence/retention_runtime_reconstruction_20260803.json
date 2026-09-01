@@ -1,0 +1,42 @@
+{
+  "schema_version": "apertus_mini_retention_runtime_reconstruction_summary_v1",
+  "status": "passed",
+  "captured_at": "2026-08-03",
+  "comparability": {
+    "within_new_five_arm_round": "byte_exact_same_runtime_for_all_endpoints",
+    "against_old_reported_values": "evaluator_reconstructed_not_byte_identical",
+    "reason": "the prior 0.4.11.dev0 target directory had lost its source and dependency payloads"
+  },
+  "slurm": {
+    "job_id": "2989039",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:03:34",
+    "nodes": 1
+  },
+  "scientific_bundle": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T065500Z-scientific-bundle-v49",
+    "tree_sha256": "8919ef40130a7641b9916973332b92d7a2241d4be5edfec14d033259339ae6a2"
+  },
+  "runtime": {
+    "root": "/iopsstor/scratch/cscs/fffoivos/python_envs/lm_eval_0p4p11_20260803T065500Z",
+    "disk_usage": "343M",
+    "lm_eval_version": "0.4.11",
+    "accelerate_version": "1.13.0",
+    "uenv_image": "pytorch/v2.9.1:v2",
+    "registered_tasks": 14070,
+    "file_count": 24891,
+    "tree_manifest_sha256": "ed8b2db5942112ef4a96efeff6251622888ca58b56d3db6d4a4c970fcd72a9e6"
+  },
+  "receipt": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T062000Z-final-prelaunch-prep-v1/lm_eval_runtime_v3.receipt.json",
+    "bytes": 4879062,
+    "sha256": "cbbdce50f3ee03fd012b7626aefd0011b498434aca83c9b3a18ba8f33d2c90f2"
+  },
+  "global_mmlu_alias": {
+    "reason": "official 0.4.11 has no top-level global_mmlu alias",
+    "language_groups": 15,
+    "sha256": "127f42f249d31b70015c3f7b2ee816fd1546a466c0e36161395bf7d06140488a"
+  },
+  "launch_authorized": false
+}

@@ -41,6 +41,19 @@ The parent subprojects themselves are:
   2026-06-02 scope is the CPU-only 5B-pool benchmark-decontamination
   pilot. TD layer tests and TD launch wrappers are parked planning
   material until the TD track is explicitly resumed.
+- **`06_dataset_scheduling_experiments/`** — completed five-arm 0.5B
+  data-order study comparing stationary, hard-transition and gradual-transition
+  schedules with the optimizer, tokenizer, replay and token budget fixed.
+- **`07_full_8b_cpt/`** — execution authority for the completed sanitized
+  Apertus-8B D0/WSD-10 CPT run: dataset receipts, tokenizer and Token
+  Distillation bindings, Slurm orchestration, checkpoints and raw evaluations.
+- **`08_targeted_8b_cpt_experiments/`** — follow-up design workspace for
+  controlled replication, targeted data mixtures and cross-scale predictivity.
+  It does not contain results from the completed full run.
+- **`09_full_8b_cpt_results_analysis/`** — compact results authority for the
+  completed 8B run, organized around adaptation versus retention, checkpoint
+  capability timing, and comparison with the five 0.5B scheduling arms. It
+  also owns the native-Greek benchmark expansion plan.
 
 ---
 
@@ -324,3 +337,27 @@ indistinguishable from non-Greek-origin baselines (+0.04).
   embedding extension + CPT (not yet started; next after tokenizer
   handoff — cutoff is frozen at 17,408)
 ```
+
+---
+
+## `06_dataset_scheduling_experiments/`
+
+Completed five-arm Apertus-v1.1-0.5B factorial study over the exact same
+80.729939067B active-token corpus per arm. D0 stationary mixing, hard HPLT to
+GlossAPI, hard reverse, and the two gradual mirror schedules were trained with
+one WSD-10 optimizer trajectory and no checkpoint averaging. The subproject
+contains frozen schedules, production/recovery orchestration, source-panel and
+native GreekMMLU trajectories, and the single-page results report. D0 is the
+accepted point-estimate selector for the 8B CPT; the per-document uncertainty
+limitation remains explicitly recorded.
+
+## `07_full_8b_cpt/`
+
+Receipt-gated production orchestration for one full Apertus-8B D0 CPT pass:
+the public dataset v2 including `libduth`, 79/20/1 Greek/foreign/Old-Greek
+mix, 148,992-token Modern+Polytonic tokenizer, verified untied layer-11 Token
+Distillation initialization, corrected RoPE, AdEMAMix and WSD-10. It includes
+matched DP32/DP64 benchmarking, automatic fallback, 12-hour segment recovery,
+source validation every 25 updates, 20 native GreekMMLU checkpoints, 39
+per-document validation panels, and separate training/evidence completion
+receipts. Checkpoint averaging is excluded.

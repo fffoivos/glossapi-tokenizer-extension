@@ -1,0 +1,54 @@
+{
+  "schema_version": "apertus_mini_checkpoint_plan_rebind_receipt_v1",
+  "status": "resolved",
+  "resolved_at": "2026-08-02",
+  "scientific_cadence_changed": false,
+  "checkpoint_plan": {
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T104539Z-mini-schedule-v1/checkpoint_evaluation_plan_v7.json",
+    "bytes": 59399,
+    "sha256": "c27cceae2bced40d87afcc821dd5e4f29909c38160d4a960f3c9a2417c6f668f",
+    "status": "frozen",
+    "optimizer_steps": 38496,
+    "checkpoints_per_arm": 83,
+    "native_greekmmlu_evaluations_total": 415
+  },
+  "bound_inputs": {
+    "experiment_matrix": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T030000Z-scientific-bundle-v29/configs/experiment_matrix.json",
+      "bytes": 31344,
+      "sha256": "4db2596abda874b504e75174c7507784159f7b7bee92d04698ebf55176fc24e5"
+    },
+    "schedule_manifest": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T104539Z-mini-schedule-v1/schedules_source_local_v2/schedule_manifest.json",
+      "bytes": 558073,
+      "sha256": "ffeaa69492b0a30768efb5c34a942e1b7d11ca5df0d962d001ae6387d6f20955"
+    }
+  },
+  "greekmmlu_dataset": {
+    "repo_id": "dascim/GreekMMLU",
+    "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+    "config": "All",
+    "split": "test",
+    "origin": "natively_authored_greek"
+  },
+  "hard_transitions": {
+    "D1_hard_h_to_g": {
+      "checkpoint_immediately_before": 26583,
+      "checkpoint_after_first_complete_transition_update": 26584,
+      "first_destination_sequence_slot": 13610873
+    },
+    "D2_hard_g_to_h": {
+      "checkpoint_immediately_before": 11911,
+      "checkpoint_after_first_complete_transition_update": 11912,
+      "first_destination_sequence_slot": 6098820
+    }
+  },
+  "verification": [
+    "semantic verifier accepted every required checkpoint row",
+    "D1 and D2 hard-transition checkpoints were derived from the frozen schedule arrays",
+    "the plan binds exact paths, byte sizes and SHA-256 hashes for both scientific inputs",
+    "the bound experiment matrix includes the fail-closed tied-FVT macro-BPB non-regression gate",
+    "the launch-gate chain must bind this exact regenerated plan"
+  ],
+  "launch_authorized": false
+}

@@ -59,6 +59,11 @@ This means:
 - same-source overlap between GlossAPI and HPLT should be reduced before final freeze
 - `openarchives.gr` rows with `needs_ocr == true` must remain excluded from the CPT-ready dataset used for tokenizer work
 
+  This is scoped to the C3/tokenizer-work dataset. The 2026-08-05 full-8B CPT
+  freeze uses the separately authorized complete public v2 dataset, including
+  its small `needs_ocr == true` OpenArchives subset, and must disclose that
+  difference rather than inheriting this exclusion claim.
+
 ## Dedup Repair Constraint
 
 - the dedup implementation may be changed for efficiency, storage layout, resumability, and parallelism

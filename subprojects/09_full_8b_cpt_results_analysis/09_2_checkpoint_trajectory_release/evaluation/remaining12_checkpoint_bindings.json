@@ -1,0 +1,29 @@
+{
+  "schema_version": "apertus_full8_native_greek_remaining12_bindings_v1",
+  "status": "frozen",
+  "tokens_per_update": 4194304,
+  "source_clean_subset": {
+    "training_dataset": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+    "training_dataset_revision": "987b8955fcd395c6219e39df9e64715457f69065",
+    "rebind_receipt": "/iopsstor/scratch/cscs/fffoivos/evals/full8_native_greek_peak_window_20260817/clean_assets_v5/rebind_receipt.json",
+    "audit_receipt_sha256": "78273fcc9e45e2e8d54c72d4b765fe9d43af2b29a5602c59b1aab8cee4849feb",
+    "exclusions_sha256": "7a8559461b15a308f599faf0ff25cd16c07be0a597078864f779af7f2f1fdd32",
+    "source_scored_examples": 83970,
+    "excluded_examples": 10076,
+    "retained_examples": 73894
+  },
+  "checkpoints_to_evaluate": [
+    {"label": "iter_0000400", "iteration": 400, "token_slots": 1677721600, "attempt": 0},
+    {"label": "iter_0001192", "iteration": 1192, "token_slots": 4999610368, "attempt": 0},
+    {"label": "iter_0002384", "iteration": 2384, "token_slots": 9999220736, "attempt": 0},
+    {"label": "iter_0003576", "iteration": 3576, "token_slots": 14998831104, "attempt": 0},
+    {"label": "iter_0004768", "iteration": 4768, "token_slots": 19998441472, "attempt": 0},
+    {"label": "iter_0005960", "iteration": 5960, "token_slots": 24998051840, "attempt": 0},
+    {"label": "iter_0013112", "iteration": 13112, "token_slots": 54995714048, "attempt": 0},
+    {"label": "iter_0014304", "iteration": 14304, "token_slots": 59995324416, "attempt": 0},
+    {"label": "iter_0014627", "iteration": 14627, "token_slots": 61350084608, "attempt": 0},
+    {"label": "iter_0015496", "iteration": 15496, "token_slots": 64994934784, "attempt": 1},
+    {"label": "iter_0016688", "iteration": 16688, "token_slots": 69994545152, "attempt": 0},
+    {"label": "iter_0017880", "iteration": 17880, "token_slots": 74994155520, "attempt": 0}
+  ]
+}

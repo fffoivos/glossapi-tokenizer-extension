@@ -1,0 +1,1196 @@
+{
+  "benchmarks": [
+    {
+      "benchmark": "greekmmlu",
+      "choice_nll_best_checkpoint_match": false,
+      "choice_nll_phase_direction_match": [
+        true,
+        false
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.07209604554737303,
+          0.0030942508818614933
+        ],
+        "values": [
+          0.3461229036450275,
+          0.41821894919240055,
+          0.42131320007426204
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.25428797265295344,
+          -0.013332967782077043
+        ],
+        "values": [
+          1.5545291603268085,
+          1.300241187673855,
+          1.286908219891778
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.43283133606556146,
+          -0.004745980038477787
+        ],
+        "values": [
+          0.6257468365612343,
+          0.19291550049567288,
+          0.1881695204571951
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.21030000000000004,
+          -0.019600000000000062
+        ],
+        "values": [
+          0.3578,
+          0.5681,
+          0.5485
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.38459999999999983,
+          0.04810000000000003
+        ],
+        "values": [
+          1.4586,
+          1.074,
+          1.1221
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.49439999999999995,
+          0.022499999999999992
+        ],
+        "values": [
+          0.6645,
+          0.1701,
+          0.1926
+        ]
+      },
+      "label": "GreekMMLU",
+      "n": 16159
+    },
+    {
+      "benchmark": "asep_mcqa",
+      "choice_nll_best_checkpoint_match": false,
+      "choice_nll_phase_direction_match": [
+        true,
+        false
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.06949152542372877,
+          0.0
+        ],
+        "values": [
+          0.26949152542372884,
+          0.3389830508474576,
+          0.3389830508474576
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.13737513532767331,
+          -0.0019857930346425245
+        ],
+        "values": [
+          1.4918282893858346,
+          1.3544531540581612,
+          1.3524673610235187
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.4668984137880374,
+          0.015173100598885575
+        ],
+        "values": [
+          0.5521960666132174,
+          0.08529765282518001,
+          0.10047075342406558
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.26355932203389826,
+          0.0025423728813559476
+        ],
+        "values": [
+          0.2847457627118644,
+          0.5483050847457627,
+          0.5508474576271186
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.22591389840001042,
+          0.00567200383804245
+        ],
+        "values": [
+          1.4806877262964455,
+          1.254773827896435,
+          1.2604458317344776
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.4540581521669676,
+          2.528856668379542e-05
+        ],
+        "values": [
+          0.5102430437082943,
+          0.05618489154132674,
+          0.056210180108010536
+        ]
+      },
+      "label": "ASEP MCQA",
+      "n": 1180
+    },
+    {
+      "benchmark": "demosqa",
+      "choice_nll_best_checkpoint_match": false,
+      "choice_nll_phase_direction_match": [
+        true,
+        false
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.1519198664440734,
+          -0.0033388981636059967
+        ],
+        "values": [
+          0.2988313856427379,
+          0.4507512520868113,
+          0.44741235392320533
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.12479331056621534,
+          0.0016342511349221045
+        ],
+        "values": [
+          1.4067228742205964,
+          1.281929563654381,
+          1.2835638147893031
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.3647441644600282,
+          3.0009426584293175e-05
+        ],
+        "values": [
+          0.38725664371652213,
+          0.02251247925649389,
+          0.022542488683078184
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.13355592654424037,
+          0.0016694490818030538
+        ],
+        "values": [
+          0.330550918196995,
+          0.46410684474123537,
+          0.4657762938230384
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.0833159206843066,
+          -9.280328345995237e-05
+        ],
+        "values": [
+          1.368819509274996,
+          1.2855035885906894,
+          1.2854107853072294
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.4311238805423548,
+          -7.14359778649018e-05
+        ],
+        "values": [
+          0.45097865829061334,
+          0.019854777748258574,
+          0.019783341770393672
+        ]
+      },
+      "label": "DemosQA",
+      "n": 599
+    },
+    {
+      "benchmark": "gpcr",
+      "choice_nll_best_checkpoint_match": true,
+      "choice_nll_phase_direction_match": [
+        true,
+        true
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.046391752577319645,
+          0.005154639175257714
+        ],
+        "values": [
+          0.5360824742268041,
+          0.5824742268041238,
+          0.5876288659793815
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.041144997324772725,
+          0.004761904761904745
+        ],
+        "values": [
+          0.5388978063135366,
+          0.5800428036383093,
+          0.584804708400214
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.05455750330839082,
+          -0.003666273601776293
+        ],
+        "values": [
+          0.7513668715510483,
+          0.6968093682426575,
+          0.6931430946408812
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.3639300218339751,
+          -0.003895292008913198
+        ],
+        "values": [
+          0.5043839188063084,
+          0.1404538969723333,
+          0.1365586049634201
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.08247422680412375,
+          0.015463917525773141
+        ],
+        "values": [
+          0.5309278350515464,
+          0.6134020618556701,
+          0.6288659793814433
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.07961476725521677,
+          0.01942215088282495
+        ],
+        "values": [
+          0.5384162653825575,
+          0.6180310326377743,
+          0.6374531835205992
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.08431156629915759,
+          -0.0020210131963172007
+        ],
+        "values": [
+          0.7540758325275844,
+          0.6697642662284268,
+          0.6677432530321096
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.42037422943155756,
+          0.014125022562609446
+        ],
+        "values": [
+          0.5551842877031848,
+          0.13481005827162731,
+          0.14893508083423676
+        ]
+      },
+      "label": "GPCR",
+      "n": 194
+    },
+    {
+      "benchmark": "medical_mcqa",
+      "choice_nll_best_checkpoint_match": true,
+      "choice_nll_phase_direction_match": [
+        true,
+        true
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.01670644391408116,
+          -0.026252983293556104
+        ],
+        "values": [
+          0.2458233890214797,
+          0.26252983293556087,
+          0.23627684964200477
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.1642033311763864,
+          0.002997978519720057
+        ],
+        "values": [
+          1.7656774782463902,
+          1.6014741470700038,
+          1.6044721255897239
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.4518196667439685,
+          0.011290696527071487
+        ],
+        "values": [
+          0.6307649631297039,
+          0.17894529638573536,
+          0.19023599291280685
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.16229116945107397,
+          -0.023866348448687347
+        ],
+        "values": [
+          0.2458233890214797,
+          0.4081145584725537,
+          0.38424821002386633
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.21619724096158688,
+          0.0026488342737174264
+        ],
+        "values": [
+          1.71924209843433,
+          1.503044857472743,
+          1.5056936917464605
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.5822414857460424,
+          0.0049650197300138005
+        ],
+        "values": [
+          0.6930756881874887,
+          0.11083420244144623,
+          0.11579922217146003
+        ]
+      },
+      "label": "Medical MCQA",
+      "n": 419
+    },
+    {
+      "benchmark": "oyxoy_metaphor",
+      "choice_nll_best_checkpoint_match": false,
+      "choice_nll_phase_direction_match": [
+        false,
+        false
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.002448579823702224,
+          0.04162585700293825
+        ],
+        "values": [
+          0.341332027424094,
+          0.3388834476003918,
+          0.38050930460333005
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.001317704988225199,
+          -0.02944444444444444
+        ],
+        "values": [
+          0.4986822950117748,
+          0.5,
+          0.47055555555555556
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.030949066869605413,
+          -0.11575582467380041
+        ],
+        "values": [
+          0.8697579426159499,
+          0.8388088757463444,
+          0.723053051072544
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -1.3015447142350798,
+          -0.04783540684168153
+        ],
+        "values": [
+          1.9868793472642357,
+          0.685334633029156,
+          0.6374992261874745
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.29480901077375116,
+          -0.01567091087169442
+        ],
+        "values": [
+          0.6493633692458374,
+          0.3545543584720862,
+          0.3388834476003918
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.012363519588953098,
+          -0.011851851851851891
+        ],
+        "values": [
+          0.524215371440805,
+          0.5118518518518519,
+          0.5
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          0.19757506371431732,
+          0.35877726099128937
+        ],
+        "values": [
+          0.6444468298056306,
+          0.8420218935199479,
+          1.2007991545112373
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.3673443202227382,
+          0.3585801258846113
+        ],
+        "values": [
+          1.4812591850900427,
+          1.1139148648673045,
+          1.4724949907519158
+        ]
+      },
+      "label": "OYXOY metaphor",
+      "n": 2042
+    },
+    {
+      "benchmark": "oyxoy_nli",
+      "choice_nll_best_checkpoint_match": false,
+      "choice_nll_phase_direction_match": [
+        false,
+        true
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.07704042715484366,
+          0.0003813882532417989
+        ],
+        "values": [
+          0.4368802440884821,
+          0.3598398169336384,
+          0.3602212051868802
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.030252958732768453,
+          0.000529380624669118
+        ],
+        "values": [
+          0.5297235781080993,
+          0.4994706193753309,
+          0.5
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          0.07211212583963633,
+          0.03146748461105375
+        ],
+        "values": [
+          0.7606707268796635,
+          0.8327828527192999,
+          0.8642503373303536
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -1.4235140538612563,
+          -0.130518968676946
+        ],
+        "values": [
+          2.2019781808646295,
+          0.7784641270033732,
+          0.6479451583264272
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.11060259344012202,
+          -0.23493516399694891
+        ],
+        "values": [
+          0.511632341723875,
+          0.622234935163997,
+          0.38729977116704806
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.056713784961014424,
+          -0.056844276101581104
+        ],
+        "values": [
+          0.49538531572307787,
+          0.5520991006840923,
+          0.4952548245825112
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.06250609326117329,
+          0.0976673686088374
+        ],
+        "values": [
+          0.728797865448988,
+          0.6662917721878147,
+          0.7639591407966521
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.5617979224284516,
+          0.16711500842605498
+        ],
+        "values": [
+          1.5305005302542691,
+          0.9687026078258175,
+          1.1358176162518725
+        ]
+      },
+      "label": "OYXOY NLI binary",
+      "n": 5244
+    },
+    {
+      "benchmark": "oyxoy_wic",
+      "choice_nll_best_checkpoint_match": false,
+      "choice_nll_phase_direction_match": [
+        false,
+        false
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.10913551100208424,
+          0.07010716196027078
+        ],
+        "values": [
+          0.3619528930040393,
+          0.2528173820019551,
+          0.32292454396222586
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.0463696227914967,
+          -0.004194375011954632
+        ],
+        "values": [
+          0.5379536601387891,
+          0.4915840373472924,
+          0.48738966233533776
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.005398579039449736,
+          -0.02855072560840688
+        ],
+        "values": [
+          0.775781912808708,
+          0.7703833337692583,
+          0.7418326081608514
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -1.2165210187988873,
+          -0.08746698918006679
+        ],
+        "values": [
+          2.0354964243806255,
+          0.8189754055817382,
+          0.7315084164016714
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.3682793219838795,
+          -0.056753416824981084
+        ],
+        "values": [
+          0.7613848055038087,
+          0.3931054835199292,
+          0.3363520666949481
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.02608266819912458,
+          -0.02040594122714845
+        ],
+        "values": [
+          0.4983294473348459,
+          0.5244121155339705,
+          0.504006174306822
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          0.17705853794110782,
+          0.021507992918820107
+        ],
+        "values": [
+          0.5673288240014721,
+          0.7443873619425799,
+          0.7658953548614
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.24452397691021366,
+          0.263991027978286
+        ],
+        "values": [
+          1.291161174424364,
+          1.0466371975141504,
+          1.3106282254924364
+        ]
+      },
+      "label": "OYXOY WiC",
+      "n": 54217
+    },
+    {
+      "benchmark": "oyxoy_wsd_definition",
+      "choice_nll_best_checkpoint_match": false,
+      "choice_nll_phase_direction_match": [
+        true,
+        false
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          0.01630163016301628,
+          0.007600760076007629
+        ],
+        "values": [
+          0.35333533353335334,
+          0.3696369636963696,
+          0.37723772377237724
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.14644379690723097,
+          -0.005277549749373112
+        ],
+        "values": [
+          1.4546619145164903,
+          1.3082181176092593,
+          1.3029405678598862
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": "final",
+        "phase_deltas": [
+          -0.39078099527764587,
+          -0.008987911829675982
+        ],
+        "values": [
+          0.5279484199195351,
+          0.13716742464188922,
+          0.12817951281221324
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.028002800280027995,
+          -0.006100610061006095
+        ],
+        "values": [
+          0.35873587358735876,
+          0.38673867386738675,
+          0.38063806380638066
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.1506410923307424,
+          0.034519679016717486
+        ],
+        "values": [
+          1.4480152082682554,
+          1.297374115937513,
+          1.3318937949542304
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          -0.4473116608032251,
+          0.01573015895562907
+        ],
+        "values": [
+          0.5668102831980684,
+          0.11949862239484327,
+          0.13522878135047234
+        ]
+      },
+      "label": "OYXOY WSD",
+      "n": 9999
+    },
+    {
+      "benchmark": "oyxoy_nli_exact_set",
+      "choice_nll_best_checkpoint_match": null,
+      "choice_nll_phase_direction_match": [
+        null,
+        null
+      ],
+      "d0_accuracy": {
+        "best_checkpoint": "initial",
+        "phase_deltas": [
+          -0.04919908466819222,
+          0.0
+        ],
+        "values": [
+          0.04977116704805492,
+          0.0005720823798627002,
+          0.0005720823798627002
+        ]
+      },
+      "d0_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "d0_choice_nll": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "d0_correct_answer_bpb": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "full8_accuracy": {
+        "best_checkpoint": "mid",
+        "phase_deltas": [
+          0.07951945080091533,
+          -0.16590389016018306
+        ],
+        "values": [
+          0.10354691075514874,
+          0.18306636155606407,
+          0.017162471395881007
+        ]
+      },
+      "full8_balanced_accuracy": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "full8_choice_nll": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "full8_correct_answer_bpb": {
+        "best_checkpoint": null,
+        "phase_deltas": [
+          null,
+          null
+        ],
+        "values": [
+          null,
+          null,
+          null
+        ]
+      },
+      "label": "OYXOY NLI exact set",
+      "n": 1748
+    }
+  ],
+  "checkpoints": {
+    "d0_0p5b": [
+      {
+        "id": "d0_iter_0000000",
+        "label": "0B",
+        "token_slots_b": 0.0
+      },
+      {
+        "id": "d0_iter_0018944",
+        "label": "39.728B",
+        "token_slots_b": 39.728447488
+      },
+      {
+        "id": "d0_iter_0038496",
+        "label": "80.732B",
+        "token_slots_b": 80.731963392
+      }
+    ],
+    "full8": [
+      {
+        "id": "iter_0000000",
+        "label": "0B",
+        "token_slots_b": 0.0
+      },
+      {
+        "id": "iter_0009536",
+        "label": "39.997B",
+        "token_slots_b": 39.996882944
+      },
+      {
+        "id": "iter_0018284",
+        "label": "76.689B",
+        "token_slots_b": 76.688654336
+      }
+    ]
+  },
+  "comparison_policy": {
+    "checkpoint_alignment": "initial, nearest saved checkpoint to 40B token slots, final",
+    "primary_metric": "strict-filtered choice NLL; decontaminated choice NLL for GreekMMLU",
+    "replication_test": "exact agreement of improvement/worsening direction in each interval and exact best-checkpoint identity; no uncertainty threshold is imposed"
+  },
+  "data_and_model_differences": {
+    "d0_0p5b": {
+      "data": "pre-sanitation 80.730B-active-token schedule",
+      "embedding_initialization": "tied layer-7 Token Distillation with MSE plus auto-weighted CE",
+      "geometry": "20 layers, hidden 1024, 16 attention heads, 4 KV heads",
+      "peak_lr": 0.00015,
+      "rope": "theta 500000, no scaling"
+    },
+    "d0_0p5b_active_tokens": 80729939067,
+    "full8": {
+      "data": "PII-masked and globally exact post-mask-deduplicated 76.685B-active-token schedule",
+      "embedding_initialization": "untied layer-11 Token Distillation plus polytonic output calibration",
+      "geometry": "32 layers, hidden 4096, 32 attention heads, 8 query groups",
+      "peak_lr": 5.5e-05,
+      "rope": "theta 500000, scaling factor 8"
+    },
+    "full8_active_tokens": 76685490476,
+    "full8_fewer_active_tokens": 4044448591,
+    "full8_masked_documents": 2515489,
+    "full8_postmask_dedup_dropped_documents": 2386676
+  },
+  "evidence": [
+    {
+      "bytes": 2411,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/d0_filtered/contamination_filtered_receipt.json",
+      "sha256": "6e8b3b07ad4c450685cf3c30d4f9562acc4307ded55d14779d2522571126b2af"
+    },
+    {
+      "bytes": 5244,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/d0_filtered/d0_iter_0000000/strict_filtered_metrics.csv",
+      "sha256": "953a32b47a462134072a4b06c26a2b259c9c0cda80a937cc49cf0f4572ef4f86"
+    },
+    {
+      "bytes": 5305,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/d0_filtered/d0_iter_0018944/strict_filtered_metrics.csv",
+      "sha256": "29762bd9827164684aa3fd8f832a7f92c26df102ca9274ca5037ad31f56e5813"
+    },
+    {
+      "bytes": 5277,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/d0_filtered/d0_iter_0038496/strict_filtered_metrics.csv",
+      "sha256": "d085d1d79302243eb920f2dfcd60960f2aa2261d5d4ec2d9c8ad5c742e5291d5"
+    },
+    {
+      "bytes": 1101,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/d0_filtered/matrix_receipt.json",
+      "sha256": "86eecdefdcbb32717773a096f0afffb27ad907129f7e88e70afd09dda17c6849"
+    },
+    {
+      "bytes": 2725,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/d0_filtered/rebind_receipt.json",
+      "sha256": "635a1d3229c2c86d49f763be6379e9dba0a89c2b5b7603b8f5953f8c516de09c"
+    },
+    {
+      "bytes": 3385,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/d0_greekmmlu/iteration_0000000_receipt.json",
+      "sha256": "6b3af15a1e1997a4262e83d64d8835e97ba7fdf694d96213b4f36ed6d8b34542"
+    },
+    {
+      "bytes": 3406,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/d0_greekmmlu/iteration_0018944_receipt.json",
+      "sha256": "282a42ba7d7a649f8aaac4a1e299de473019d79e803e092c7506083b13dcb535"
+    },
+    {
+      "bytes": 3407,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/d0_greekmmlu/iteration_0038496_receipt.json",
+      "sha256": "d09b8b7e678d01cebd4ee21bd1a5753d7fd87f7d014771194acb67e0bc11d626"
+    },
+    {
+      "bytes": 5307,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/full8_filtered/iter_0000000/strict_filtered_metrics.csv",
+      "sha256": "dcb37736580929cc95620c254cea77e8b1a1ab62349d54340fd4aca4444856fc"
+    },
+    {
+      "bytes": 5370,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/full8_filtered/iter_0009536/strict_filtered_metrics.csv",
+      "sha256": "cbefc4d9d98639ba98057d90cf323febb9df2af20f9165b3164989daf7c68b2f"
+    },
+    {
+      "bytes": 5247,
+      "path": "evidence/d0_0p5b_vs_full8_native_greek_3cp_20260814/full8_filtered/iter_0018284/strict_filtered_metrics.csv",
+      "sha256": "e4d89c0b9fc734b81c34cc8eb5aa4a503c7fb7171adace1127fccdd0bac0ea74"
+    }
+  ],
+  "schema_version": "apertus_d0_0p5b_vs_full8_native_greek_3cp_v1",
+  "status": "completed",
+  "summary": {
+    "choice_nll_best_checkpoint_agreement": "2/9",
+    "choice_nll_initial_to_mid_direction_agreement": "6/9",
+    "choice_nll_mid_to_final_direction_agreement": "3/9",
+    "interpretation": "early mainstream-task learning partially replicates, but late checkpoint shape does not"
+  }
+}

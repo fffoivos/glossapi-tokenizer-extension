@@ -1,0 +1,19 @@
+{
+  "schema_version": "token_distillation_upstream_snapshot_v1",
+  "captured_at": "2026-08-01",
+  "repo": "https://github.com/konstantinjdobler/token-distillation",
+  "pinned_commit": "35702b5809599ecd68b7845eca27a0d7b7cec0da",
+  "upstream_main_commit_at_capture": "35702b5809599ecd68b7845eca27a0d7b7cec0da",
+  "vendored_pointer": "../../03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/token_distillation/external/token-distillation/PINNED_UPSTREAM.md",
+  "byte_exact_file_checks": {
+    "token_distillation/tokdist.py": "f50da603674bfa51527f905be577f30ec8487e75414ea03880914e73b384fef2",
+    "token_distillation/train_loop.py": "aa7128f8025ddde091460bdda2b65e927c98d5683b29d5bb2c573c7717263430",
+    "token_distillation/utils.py": "82f96caa6e2e527e7d3881ee72e65c13a257e42b6a20fdc67d673dab06641672"
+  },
+  "checks": {
+    "vendored_files_equal_pinned_upstream": true,
+    "canonical_tied_path_calls_tie_weights": true,
+    "canonical_training_loop_supports_ce_auto_weighted": true,
+    "local_adapter_uses_lower_level_train_embeddings_for_fixed_bpe_ids": true
+  }
+}

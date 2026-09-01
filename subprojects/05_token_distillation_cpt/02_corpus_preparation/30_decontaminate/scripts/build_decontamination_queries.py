@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
-"""Build canonical benchmark query surfaces for the 5B decontamination scan."""
+"""Build canonical native-Greek benchmark queries for contamination scans.
+
+The registry path preserves the historical MCQ workflow.  The frozen-examples
+path is the production interface for multi-benchmark audits: it consumes the
+exact examples used by evaluation and removes evaluator-authored scaffolding
+from OYXOY before constructing the matching surfaces.
+"""
 
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -31,6 +38,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
     parser.add_argument("--eval-dir", type=Path, default=DEFAULT_EVAL_DIR)
     parser.add_argument("--benchmarks", default=",".join(MCQ_BENCHMARKS))
+    parser.add_argument(
+        "--frozen-examples-jsonl",
+        type=Path,
+        help="Use the exact frozen evaluation rows instead of loading the legacy registry.",
+    )
     parser.add_argument("--output-jsonl", type=Path, required=True)
     parser.add_argument("--summary-json", type=Path, required=True)
     return parser.parse_args()
@@ -41,6 +53,13 @@ def sha256_json(value: Any) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def atomic_write_text(path: Path, payload: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + f".tmp.{os.getpid()}")
+    temporary.write_text(payload, encoding="utf-8")
+    os.replace(temporary, path)
+
+
 def load_eval_helpers(eval_dir: Path):
     sys.path.insert(0, str(eval_dir))
     import run_native_greek_mcq_eval as native_mcq  # type: ignore
@@ -48,8 +67,152 @@ def load_eval_helpers(eval_dir: Path):
     return native_mcq
 
 
+def _between(text: str, start: str, end: str | None = None) -> str:
+    if start not in text:
+        raise ValueError(f"missing expected prompt marker: {start!r}")
+    value = text.split(start, 1)[1]
+    if end is not None:
+        if end not in value:
+            raise ValueError(f"missing expected prompt marker: {end!r}")
+        value = value.split(end, 1)[0]
+    return value.strip()
+
+
+def query_from_frozen_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Map an evaluation row to human-authored contamination surfaces.
+
+    OYXOY questions contain Greek evaluator instructions that never appeared in
+    the upstream lexical/NLI resource.  Matching those instructions would be a
+    false-negative-prone test of our own prompt template.  Instead we match the
+    source premise/hypothesis, usage examples and definitions.  Every strong
+    rule still requires two nearby surfaces.
+    """
+    benchmark = str(row["benchmark"])
+    question = str(row["question"])
+    choices = [str(value) for value in row["choices"]]
+    answer_index = int(row["answer_index"])
+    example_id = str(row["example_id"])
+    group_id = row.get("group_id")
+    metadata = dict(row.get("metadata") or {})
+    query_kind = "mcq_question_correct_answer"
+    evaluation_unit_id = example_id
+    discount_example_ids = [example_id]
+
+    if benchmark == "oyxoy_nli":
+        premise = _between(question, "Πρόταση αναφοράς:\n", "\n\nΥπόθεση:\n")
+        hypothesis = _between(question, "\n\nΥπόθεση:\n", "\n\nΙσχύει η σχέση")
+        question, choices, answer_index = premise, [hypothesis], 0
+        query_kind = "nli_premise_hypothesis"
+        evaluation_unit_id = str(group_id)
+        discount_example_ids = [
+            f"{group_id}:Unknown",
+            f"{group_id}:Entailment",
+            f"{group_id}:Contradiction",
+        ]
+    elif benchmark == "oyxoy_wsd_definition":
+        usage = _between(question, "\nΧρήση: ", "\nΠοιος ορισμός")
+        question = usage
+        query_kind = "lexical_usage_correct_definition"
+    elif benchmark == "oyxoy_wic":
+        usage1 = _between(question, "\nΧρήση 1: ", "\nΧρήση 2: ")
+        usage2 = _between(question, "\nΧρήση 2: ", "\nΧρησιμοποιείται η λέξη")
+        question, choices, answer_index = usage1, [usage2], 0
+        query_kind = "lexical_usage_pair"
+    elif benchmark == "oyxoy_metaphor":
+        usage = _between(question, "\nΧρήση: ", "\nΕίναι μεταφορική")
+        definition = str(metadata.get("definition") or "").strip()
+        if not definition:
+            raise ValueError(f"missing OYXOY definition for {example_id}")
+        question, choices, answer_index = usage, [definition], 0
+        query_kind = "lexical_usage_definition"
+
+    answer_text = choices[answer_index]
+    return {
+        "schema": "greek-benchmark-decontam-query-v2",
+        "benchmark": benchmark,
+        "example_id": example_id,
+        "evaluation_unit_id": evaluation_unit_id,
+        "discount_example_ids": discount_example_ids,
+        "source_group_id": None if group_id is None else str(group_id),
+        "query_kind": query_kind,
+        "subject": row.get("subject"),
+        "question": question,
+        "choices": choices,
+        "answer_index": answer_index,
+        "answer_text": answer_text,
+        "metadata": metadata,
+        "raw_row_sha256": sha256_json(row),
+        "surfaces": {
+            "question": question,
+            "question_all_choices": f"{question}\n" + "\n".join(choices),
+            "question_correct_answer": f"{question}\n{answer_text}",
+        },
+    }
+
+
+def build_from_frozen(args: argparse.Namespace) -> dict[str, Any]:
+    wanted = {item.strip() for item in args.benchmarks.split(",") if item.strip()}
+    select_all = not wanted or wanted == {"all"}
+    rows: list[dict[str, Any]] = []
+    with args.frozen_examples_jsonl.open(encoding="utf-8") as handle:
+        for line_no, line in enumerate(handle, 1):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise RuntimeError(f"{args.frozen_examples_jsonl}:{line_no}: {exc}") from exc
+            if select_all or row.get("benchmark") in wanted:
+                rows.append(row)
+    present = {str(row["benchmark"]) for row in rows}
+    if not select_all and (wanted - present):
+        raise SystemExit(f"missing frozen benchmark rows: {', '.join(sorted(wanted - present))}")
+
+    # OYXOY NLI has three evaluator decisions for one source pair.  Emit one
+    # source-overlap query and map it back to all three scored decisions.
+    queries: list[dict[str, Any]] = []
+    seen_units: set[tuple[str, str]] = set()
+    counts: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        query = query_from_frozen_row(row)
+        key = (query["benchmark"], query["evaluation_unit_id"])
+        if key in seen_units:
+            continue
+        seen_units.add(key)
+        queries.append(query)
+        block = counts.setdefault(query["benchmark"], {"items": 0, "scored_examples": 0, "query_kinds": {}})
+        block["items"] += 1
+        block["scored_examples"] += len(query["discount_example_ids"])
+        kind = query["query_kind"]
+        block["query_kinds"][kind] = block["query_kinds"].get(kind, 0) + 1
+
+    atomic_write_text(
+        args.output_jsonl,
+        "".join(json.dumps(query, ensure_ascii=False, sort_keys=True) + "\n" for query in queries),
+    )
+    return {
+        "schema": "greek-benchmark-decontam-query-summary-v2",
+        "input_mode": "frozen_examples",
+        "frozen_examples_jsonl": str(args.frozen_examples_jsonl),
+        "frozen_examples_sha256": hashlib.sha256(args.frozen_examples_jsonl.read_bytes()).hexdigest(),
+        "benchmarks": counts,
+        "total_items": len(queries),
+        "total_scored_examples": sum(len(query["discount_example_ids"]) for query in queries),
+        "output_jsonl": str(args.output_jsonl),
+        "output_sha256": hashlib.sha256(args.output_jsonl.read_bytes()).hexdigest(),
+    }
+
+
 def main() -> None:
     args = parse_args()
+    if args.frozen_examples_jsonl is not None:
+        summary = build_from_frozen(args)
+        atomic_write_text(
+            args.summary_json,
+            json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        )
+        print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
+        return
     native_mcq = load_eval_helpers(args.eval_dir)
     registry = native_mcq.load_registry(args.registry)
     wanted = {item.strip() for item in args.benchmarks.split(",") if item.strip()}

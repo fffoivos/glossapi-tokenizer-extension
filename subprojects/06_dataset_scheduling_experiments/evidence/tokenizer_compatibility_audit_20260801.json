@@ -1,0 +1,60 @@
+{
+  "schema_version": "apertus_mini_vs_greek_tokenizer_compatibility_audit_v1",
+  "captured_at": "2026-08-01",
+  "status": "requires_mini_base_overlay",
+  "mini_model": {
+    "repo_id": "swiss-ai/Apertus-v1.1-0.5B",
+    "revision": "1b7276176e564fc0cc7d7c3b991a8d653c8b8792",
+    "tokenizer_json_sha256": "be12f4375d655cc740864e3a9041bcddd8477942f209d9e7f27f6c8767162638",
+    "vocab_size": 131072,
+    "merge_count": 269443
+  },
+  "production_greek_tokenizer": {
+    "repo_id": "fffoivos/apertus-tokenizer-extension",
+    "revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+    "subfolder": "greek-modern-polytonic-tokenizer",
+    "tokenizer_json_sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+    "vocab_size": 148992,
+    "merge_count": 287363
+  },
+  "checks": {
+    "base_merge_prefix_exact": true,
+    "appended_merge_count": 17920,
+    "appended_merges_dependency_safe_and_id_sequential": true,
+    "new_vocab_has_no_padding_or_orphans": true,
+    "target_vocab_divisible_by_256_without_padding": true,
+    "base_vocab_ids_exact": false,
+    "base_front_end_exact": false
+  },
+  "mini_pad_metadata_audit": {
+    "model_config_pad_token_id": 3,
+    "token_at_id_3": "[INST]",
+    "existing_pad_token": "<pad>",
+    "existing_pad_token_id": 10,
+    "tokenizer_sidecars_declare_pad_token": false,
+    "resolution": "declare_existing_id_10_as_pad_in_overlay_sidecars_and_retok_model_config",
+    "changes_token_ids_or_merges": false
+  },
+  "base_id_mismatches": [
+    {"token_id": 3, "mini": "[INST]", "production_base": "<pad>"},
+    {"token_id": 10, "mini": "<pad>", "production_base": "<SPECIAL_10>"},
+    {"token_id": 61, "mini": "<SPECIAL_61>", "production_base": "<|system_start|>"},
+    {"token_id": 62, "mini": "<SPECIAL_62>", "production_base": "<|system_end|>"},
+    {"token_id": 63, "mini": "<SPECIAL_63>", "production_base": "<|developer_start|>"},
+    {"token_id": 64, "mini": "<SPECIAL_64>", "production_base": "<|developer_end|>"},
+    {"token_id": 65, "mini": "<SPECIAL_65>", "production_base": "<|user_start|>"},
+    {"token_id": 66, "mini": "<SPECIAL_66>", "production_base": "<|user_end|>"},
+    {"token_id": 67, "mini": "<SPECIAL_67>", "production_base": "<|assistant_start|>"},
+    {"token_id": 68, "mini": "<SPECIAL_68>", "production_base": "<|assistant_end|>"},
+    {"token_id": 69, "mini": "<SPECIAL_69>", "production_base": "<|inner_prefix|>"},
+    {"token_id": 70, "mini": "<SPECIAL_70>", "production_base": "<|inner_suffix|>"},
+    {"token_id": 71, "mini": "<SPECIAL_71>", "production_base": "<|tools_prefix|>"},
+    {"token_id": 72, "mini": "<SPECIAL_72>", "production_base": "<|tools_suffix|>"}
+  ],
+  "resolution": {
+    "policy": "preserve_all_mini_ids_0_through_131071_append_the_exact_production_ids_131072_through_148991_and_reconcile_pad_metadata_to_existing_id_10",
+    "builder": "../initialization/build_mini_tokenizer_overlay.py",
+    "requires_fresh_token_count": true,
+    "requires_runtime_roundtrip_and_normal_text_equivalence_receipt": true
+  }
+}

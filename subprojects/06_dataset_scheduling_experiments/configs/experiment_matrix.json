@@ -1,0 +1,764 @@
+{
+  "schema_version": "greek_data_order_screen_v1",
+  "experiment_id": "apertus_v1_1_0_5b_five_data_order_screen_v1",
+  "status": "data_schedules_and_dp16_systems_geometry_frozen_scientific_gates_pending_not_launch_authorized",
+  "launch_authorized": false,
+  "seed": 20260801,
+  "objective": "Compare five quota-preserving HPLT/GlossAPI temporal orders under one fixed WSD-10 learning-rate schedule while holding identities, token totals, replay and all non-factor controls fixed.",
+  "model": {
+    "repo_id": "swiss-ai/Apertus-v1.1-0.5B",
+    "revision": "1b7276176e564fc0cc7d7c3b991a8d653c8b8792",
+    "checkpoint_type": "base_not_instruct",
+    "required_weight_receipt": true,
+    "expected_native_geometry": {
+      "architecture": "ApertusForCausalLM",
+      "hidden_size": 1024,
+      "intermediate_size": 6144,
+      "num_hidden_layers": 20,
+      "num_attention_heads": 16,
+      "num_key_value_heads": 4,
+      "hidden_activation": "xielu",
+      "qk_norm": true,
+      "post_norm": false,
+      "rms_norm_eps": 1e-5,
+      "attention_bias": false,
+      "mlp_bias": false,
+      "attention_dropout": 0.0,
+      "hidden_dropout": 0.0,
+      "initializer_range": 0.02,
+      "tie_word_embeddings": true
+    }
+  },
+  "dataset": {
+    "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+    "revision": "3f97cec48af502f4996cf8ff20b02660e2dd3d31",
+    "document_identity": [
+      "source_dataset",
+      "source_doc_id"
+    ],
+    "required_columns": [
+      "text",
+      "source_dataset",
+      "source_doc_id"
+    ],
+    "coverage_contract": "every_post_exclusion_eligible_greek_identity_exactly_once",
+    "deduplication_contract": {
+      "modern_greek": "global_exact_content_uniqueness_required_and_receipted_over_text_sha256",
+      "replay": "preserve_original_training_source_records_and_audit_exact_content_duplicates_without_removing_them",
+      "record_identity": "source_document_cluster_id_plus_text_sha256",
+      "source_document_cluster_ids_may_name_multiple_distinct_text_records": true
+    },
+    "heldouts_excluded_before_schedule": true,
+    "greekmmlu_decontamination_before_schedule": true,
+    "selectors": {
+      "all_eligible_greek": {
+        "column": "source_dataset",
+        "operation": "non_empty"
+      },
+      "hplt": {
+        "column": "source_dataset",
+        "operation": "regex",
+        "value": "^HPLT/"
+      },
+      "glossapi_non_hplt": {
+        "column": "source_dataset",
+        "operation": "not_regex",
+        "value": "^HPLT/",
+        "semantic_definition": "all eligible non-HPLT rows in the integrated v2 corpus"
+      }
+    },
+    "planning_counts_before_final_exclusions": {
+      "tokenizer": "fffoivos/apertus-tokenizer-extension@fcd33ec09fb7d86bc072b3a4b3e890efa6473b66/greek-modern-polytonic-tokenizer",
+      "all_greek_tokens": 63822761532,
+      "hplt_tokens": 44054228362,
+      "glossapi_non_hplt_tokens": 19768533170,
+      "source_recipe": "../05_token_distillation_cpt/06_25b_midtraining_probe/configs/recipe_25b_midtraining.json",
+      "planning_only": true
+    },
+    "frozen_post_exclusion_counts": {
+      "pool_corpus_receipt": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T104539Z-mini-schedule-v1/pool_corpus_receipt.json",
+      "pool_corpus_receipt_sha256": "76658cc8495b58a3a3dadc8aca6d16c7fed627ef8bced89d17a877f9f9125014",
+      "hplt_tokens": 44042201419,
+      "glossapi_non_hplt_tokens": 19734450444,
+      "all_modern_greek_tokens": 63776651863,
+      "foreign_replay_tokens": 16145987813,
+      "old_greek_replay_tokens": 807299391,
+      "all_active_tokens": 80729939067,
+      "operative_for_schedule_geometry": true
+    },
+    "modern_greek_quota_geometry": {
+      "hplt_fraction": "0.69056935622158406500167203673891613239954192231252972258274974976479975332944047",
+      "glossapi_non_hplt_fraction": "0.30943064377841593499832796326108386760045807768747027741725025023520024667055953",
+      "gradual_curve_exponent": "2.2317419754848279473071907955685254348398210708238357063012623307079510787313414",
+      "gradual_window_count": 128,
+      "window_coordinate": "equal_total_loss_active_token_windows",
+      "window_quota_method": "integrate_curve_over_each_window_then_integer_largest_remainder_with_final_exact_pool_exhaustion",
+      "fixed_pool_permutations_across_arms": true,
+      "pool_permutation": "one_deterministic_splitmix64_permutation_of_immutable_packed_sequence_ids_per_top_level_pool",
+      "packing_io_order": "selected_seeded_prefix_document_set_reordered_only_by_source_task_and_document_index_before_packing",
+      "packing_io_order_is_not_scientific_schedule_order": true,
+      "glossapi_internal_curriculum": false,
+      "source_dataset_used_as_order_key_inside_glossapi": false
+    }
+  },
+  "tokenizer_and_initialization": {
+    "status": "selected_requires_artifact_receipts_before_launch",
+    "tokenizer": {
+      "policy": "preserve_mini_base_ids_and_append_exact_production_greek_merge_chain",
+      "base_repo_id": "swiss-ai/Apertus-v1.1-0.5B",
+      "base_revision": "1b7276176e564fc0cc7d7c3b991a8d653c8b8792",
+      "base_tokenizer_json_sha256": "be12f4375d655cc740864e3a9041bcddd8477942f209d9e7f27f6c8767162638",
+      "extension_repo_id": "fffoivos/apertus-tokenizer-extension",
+      "extension_revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+      "extension_subfolder": "greek-modern-polytonic-tokenizer",
+      "extension_tokenizer_json_sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+      "base_vocab_size": 131072,
+      "added_token_count": 17920,
+      "target_vocab_size": 148992,
+      "alignment_divisor": 256,
+      "padding_tokens": 0,
+      "pad_metadata_reconciliation": {
+        "source_model_config_pad_token_id": 3,
+        "source_token_at_id_3": "[INST]",
+        "existing_pad_token_id": 10,
+        "output_model_and_tokenizer_pad_token_id": 10,
+        "changes_token_ids_or_merges": false
+      },
+      "builder": "../initialization/build_mini_tokenizer_overlay.py",
+      "compatibility_audit": "../evidence/tokenizer_compatibility_audit_20260801.json",
+      "requires_overlay_manifest": true,
+      "requires_fresh_corpus_token_count": true
+    },
+    "initialization": {
+      "policy": "mini_specific_tied_token_distillation",
+      "canonical_repo": "https://github.com/konstantinjdobler/token-distillation",
+      "canonical_commit": "35702b5809599ecd68b7845eca27a0d7b7cec0da",
+      "canonical_code_receipt": "../evidence/token_distillation_upstream_snapshot_20260801.json",
+      "pre_initialization": "canonical_fvt_subtoken_mean",
+      "tie_word_embeddings": true,
+      "shared_table_shape": [
+        148992,
+        1024
+      ],
+      "learn_output_with_separate_ce": false,
+      "common_pilot_settings": {
+        "shared_stratified_token_count": 1024,
+        "shared_token_ids_across_all_cells": true,
+        "learning_rate": "1e-4",
+        "optimizer": "AdamW",
+        "weight_decay": 0.0,
+        "schedule": "constant",
+        "epochs": 1,
+        "snippets_per_token": 25,
+        "batch_size": 16,
+        "trainable_rows": "selected_added_rows_only",
+        "minimum_trained_token_fraction": "1.0"
+      },
+      "pilot_candidates": [
+        {
+          "pilot_id": "layer7_mse",
+          "target_layer": 7,
+          "loss_methods": [
+            "MSE-on-hiddens"
+          ]
+        },
+        {
+          "pilot_id": "layer7_mse_ce_auto",
+          "target_layer": 7,
+          "loss_methods": [
+            "MSE-on-hiddens",
+            "CE-auto-weighted"
+          ]
+        },
+        {
+          "pilot_id": "last_mse",
+          "target_layer": -1,
+          "loss_methods": [
+            "MSE-on-hiddens"
+          ]
+        },
+        {
+          "pilot_id": "last_mse_ce_auto",
+          "target_layer": -1,
+          "loss_methods": [
+            "MSE-on-hiddens",
+            "CE-auto-weighted"
+          ]
+        }
+      ],
+      "full_initialization_after_pilot": {
+        "run_count": 1,
+        "use_selected_layer_and_loss_profile": true,
+        "requested_rows": "complete_ordered_range_131072..148991",
+        "minimum_accepted_snippets_per_trained_token": 25,
+        "minimum_trained_token_fraction": "0.90",
+        "low_coverage_fallback": "retain_exact_fvt_subtoken_mean_row"
+      },
+      "selection_gates": [
+        "all_non_new_rows_bitwise_preserved",
+        "input_and_output_weights_share_storage",
+        "all_embedding_values_finite",
+        "max_new_row_norm_over_base_p999_at_most_4",
+        "no_new_token_argmax_or_generation_collapse",
+        "best_joint_heldout_bpb_on_hplt_non_hplt_and_polytonic_slices",
+        "selected_macro_bpb_not_worse_than_frozen_tied_fvt_baseline"
+      ],
+      "selected_pilot_artifact_status": "pending_gpu_pilot",
+      "retok_builder": "../initialization/build_tied_retok_init.py",
+      "coverage_geometry_normalizer": "../initialization/normalize_td_coverage_geometry.py",
+      "td_trainer": "../initialization/train_tied_token_distillation.py",
+      "artifact_verifier": "../initialization/verify_tied_initialization.py",
+      "forbid_reusing_apertus_8b_embedding_rows": true
+    }
+  },
+  "replay_control": {
+    "status": "selected_and_frozen_by_experiment_design",
+    "same_identity_manifest_across_arms": true,
+    "same_cumulative_token_positions_across_arms": true,
+    "same_sequence_ids_and_positions_across_arms": true,
+    "stationary_across_schedule_phases": true,
+    "enforcement": "deterministic_small_window_quota_not_unconstrained_sampling",
+    "selected_without_replacement": true,
+    "original_content_multiplicity_preserved": true,
+    "duplicate_content_rate_measured_and_receipted": true,
+    "selected_mix": {
+      "new_greek": "0.79",
+      "foreign_replay": "0.20",
+      "old_greek_replay": "0.01"
+    }
+  },
+  "training_control": {
+    "sequence_length": 4096,
+    "global_batch_sequences": 512,
+    "global_batch_tokens": 2097152,
+    "precision": "bf16",
+    "fp32_master_gradients": true,
+    "rope_theta": 500000,
+    "rope_type": "default",
+    "rope_scaling": {
+      "rope_type": "default"
+    },
+    "rope_scaling_effect": "none",
+    "max_position_embeddings": 4096,
+    "optimizer": "AdEMAMix",
+    "optimizer_parameters": {
+      "beta1": 0.9,
+      "beta2": 0.999,
+      "beta3": 0.999,
+      "alpha": 4.0,
+      "weight_decay": 0.1,
+      "gradient_clip_norm": 0.1,
+      "warm_beta3_and_alpha_over_full_run": true
+    },
+    "schedule": "fixed_wsd10_across_five_data_orders",
+    "learning_rate": {
+      "transfer_policy": "preserve_cpt_to_pretraining_peak_lr_ratio_across_model_scales",
+      "mini_pretraining_peak_lr": "6e-4",
+      "apertus_8b_cpt_to_pretraining_ratio": "0.5",
+      "recommended_mini_cpt_peak_lr": "3e-4",
+      "initial_lr_ratio_to_selected_peak": "0.10",
+      "warmup_steps": 800,
+      "warmup_tokens": 1677721600,
+      "tail_fraction": "0.20",
+      "selected_treatment": {
+        "lr_id": "L0_wsd10",
+        "schedule": "wsd",
+        "tail_start_lr_ratio_to_peak": "1.0",
+        "tail_end_lr_ratio_to_peak": "0.10",
+        "tail_shape": "one_minus_sqrt"
+      },
+      "selected_schedule_applies_identically_to_all_five_data_orders": true,
+      "later_lr_floor_study_out_of_scope": [
+        "L1_wsd20",
+        "L2_wsd30"
+      ],
+      "common_stability_smoke_fallback_peak_lr": "1.5e-4",
+      "common_stability_smoke": {
+        "candidate_peak_lr": "3e-4",
+        "steps": 1024,
+        "tokens": 2147483648,
+        "warmup_steps": 800,
+        "stable_peak_steps_observed": 224,
+        "data": "fixed_balanced_hplt_non_hplt_plus_stationary_replay_diagnostic_manifest",
+        "restart_full_arms_from_frozen_td_initialization": true,
+        "fallback_policy": "only_if_candidate_fails_then_repeat_same_smoke_at_1.5e-4",
+        "must_not_select_schedule_arm": true
+      },
+      "status": "recommended_pending_common_stability_smoke"
+    },
+    "lr_branching": {
+      "enabled": false,
+      "reason": "primary_round_has_one_fixed_lr_schedule_and_exactly_five_training_trajectories"
+    },
+    "checkpoint_averaging": {
+      "enabled": false,
+      "endpoint_variants": [
+        "raw_final"
+      ],
+      "decision": "use_only_the_raw_final_checkpoint_for_each_optimization_trajectory",
+      "sma_enabled": false,
+      "ema_enabled": false
+    },
+    "loss_objective": "goldfish_k50_h50",
+    "goldfish_control": {
+      "k": 50,
+      "h": 50,
+      "hash_table_size": 1000003,
+      "hash_seed": 2971215073,
+      "mask_is_function_of_frozen_sequence_labels": true,
+      "require_identical_per_sequence_mask_hash_across_all_arms": true,
+      "require_added_token_hash_uniformity_gate": true,
+      "forbid_repacking_or_context_change_after_sequence_manifest_freeze": true
+    },
+    "document_boundary_policy": {
+      "cross_document_attention_masking": true,
+      "eod_loss_masking": true,
+      "reset_position_ids_at_document_boundary": true
+    },
+    "parallelism": {
+      "tensor_parallel": 1,
+      "pipeline_parallel": 1,
+      "data_parallel_selection": "benchmark_then_freeze_one_value_for_all_five_arms",
+      "candidate_data_parallel": [
+        16,
+        32,
+        64,
+        128
+      ],
+      "candidate_nodes_per_arm": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "selected_data_parallel": 16,
+      "selected_nodes_per_arm": 4,
+      "selected_training_nodes_total": 20,
+      "selection_receipt": "apertus-cscs-efficiency/evidence/mini_b2_five_arm_contention_20260802.json",
+      "selected_projected_end_to_end_training_hours": 19.9979,
+      "selected_normal_partition_segment_count": 2,
+      "selected_normal_partition_segment_boundary_iterations": [
+        19456
+      ],
+      "selected_segment_boundary_is_regular_512_step_checkpoint": true,
+      "full_campaign_candidate_nodes": {
+        "dp16": 20,
+        "dp32": 40,
+        "dp64": 80,
+        "dp128": 160
+      },
+      "full_run_layout": "one_aggregate_allocation_with_five_disjoint_equal_size_data_parallel_groups",
+      "full_run_fallback_layout": "five_equal_independent_allocations_at_the_same_selected_data_parallel_size",
+      "td_pilot_node_layout": "four_independent_single_gpu_processes_one_per_candidate",
+      "one_training_process_per_physical_gpu": true,
+      "resource_isolation": "disjoint_gpu_sets_no_shared_gpu",
+      "implementation_policy": "upstream_or_existing_project_runtime_paths_only",
+      "wall_clock_target_hours_for_all_five_arms": 36,
+      "preferred_wall_clock_budget_hours_for_training": 24,
+      "preferred_single_normal_partition_segment_hours": 12,
+      "minimum_per_arm_active_tokens_per_second_for_36_hours": 622916,
+      "preferred_per_arm_active_tokens_per_second_for_24_hours": 934374,
+      "preferred_per_arm_active_tokens_per_second_for_12_hours": 1868749,
+      "strong_scaling_benchmark_data_parallel": [
+        16,
+        32,
+        64,
+        128
+      ],
+      "strong_scaling_acceptance_gate": "select_the_fastest_stable_dp_whose_full_node_count_is_schedulable_preferring_a_single_sub_12_hour_training_segment_and_requiring_end_to_end_round_below_36_hours",
+      "micro_batch_candidates_by_data_parallel": {
+        "16": [
+          32,
+          16,
+          8,
+          4
+        ],
+        "32": [
+          16,
+          8,
+          4
+        ],
+        "64": [
+          8,
+          4
+        ],
+        "128": [
+          4
+        ]
+      },
+      "require_exact_global_batch_sequences": 512,
+      "same_runtime_layout_across_schedule_arms": true,
+      "allowed_standard_optimizations": [
+        "bf16",
+        "native_apertus_fused_kernels",
+        "cross_entropy_loss_fusion",
+        "distributed_optimizer_with_overlap_grad_reduce_and_param_gather",
+        "disable_activation_recomputation_when_memory_safe",
+        "selective_activation_recomputation_only_if_required",
+        "fixed_length_sequence_packing",
+        "pinned_memory_and_asynchronous_prefetch",
+        "standard_nccl_data_parallelism",
+        "torch_dist_async_checkpoint_save",
+        "fully_parallel_distributed_checkpoint_load"
+      ],
+      "forbidden_experimental_optimizations": [
+        "multiple_training_models_per_physical_gpu",
+        "cuda_mps_model_colocation",
+        "vmap_or_stacked_parameter_population_training",
+        "custom_grouped_gemm_multi_model_runtime",
+        "new_custom_cuda_or_triton_kernels",
+        "cross_model_shared_forward_or_optimizer_state"
+      ]
+    },
+    "checkpoint_cadence_steps": 512,
+    "checkpoint_cadence_tokens": 1073741824,
+    "checkpoint_policy": {
+      "full_state_saves_are_async": true,
+      "fast_validation_does_not_require_a_full_checkpoint": true,
+      "greekmmlu_requires_exact_checkpoint_state": true,
+      "greekmmlu_checkpoint_evaluation_path": {
+        "source_checkpoint_format": "torch_dist",
+        "intermediate_conversion": "SwissAI_Megatron_scripts/conversion/torchdist_2_torch.py",
+        "hf_conversion": "SwissAI_Megatron_tools/checkpoint/convert.py_loader_core_saver_swissai_hf",
+        "hf_tokenizer_is_frozen_extended_tokenizer": true,
+        "require_iteration_and_source_checkpoint_hash_binding": true,
+        "require_conversion_receipt": true,
+        "require_logit_equivalence_smoke_before_campaign": true,
+        "evaluate_only_exact_converted_checkpoint": true,
+        "conversion_and_evaluation_run_asynchronously_on_separate_nodes": true
+      },
+      "prune_nonboundary_payload_only_after_all_evaluation_receipts_are_frozen": true,
+      "mandatory_full_state_points": [
+        "every_512_steps_for_native_greekmmlu",
+        "after_warmup",
+        "each_12_hour_segment_boundary",
+        "immediately_before_and_after_each_hard_data_transition",
+        "matched_token_points_for_non_hard_arms",
+        "cooldown_start",
+        "final_endpoint"
+      ]
+    },
+    "fast_heldout_eval_cadence_steps": 512,
+    "fast_heldout_eval_cadence_tokens": 1073741824,
+    "same_nonfactor_optimizer_controls_across_all_cells": true,
+    "resume_global_iteration_across_data_boundaries": true,
+    "reset_optimizer_at_data_boundary": false,
+    "reset_scheduler_at_data_boundary": false
+  },
+  "data_order_common_contract": {
+    "coverage_contract": "every_post_exclusion_eligible_greek_identity_exactly_once",
+    "same_document_and_loss_active_token_multiset_across_arms": true,
+    "modern_greek_share_at_every_window": "0.79",
+    "foreign_replay_share_at_every_window": "0.20",
+    "old_greek_replay_share_at_every_window": "0.01",
+    "same_replay_sequence_ids_at_same_global_positions": true,
+    "same_fixed_top_level_pool_permutations_across_arms": true,
+    "glossapi_pool_is_aggregate_randomized_without_internal_curriculum": true,
+    "top_level_pools_packed_independently_before_scheduling": true,
+    "source_local_document_order_is_io_only": true,
+    "same_seeded_prefix_document_set_before_io_reordering": true,
+    "frozen_randomized_packed_sequence_catalog_is_scientific_pool_order": true,
+    "immutable_sequence_payloads_and_ids_across_arms": true,
+    "schedule_operates_only_on_sequence_ids": true,
+    "repacking_after_schedule_interleave": false,
+    "same_goldfish_mask_bitmap_for_each_sequence_id_across_arms": true,
+    "quota_correction": "correct_integer_window_rounding_in_late_windows_and_exhaust_each_pool_exactly_once"
+  },
+  "arms": [
+    {
+      "arm_id": "D0_mixed",
+      "schedule_type": "stationary_quota_mixture",
+      "common_contract_ref": "data_order_common_contract",
+      "replay_control_ref": "replay_control",
+      "glossapi_fraction_within_modern_curve": "q_G",
+      "hplt_fraction_within_modern_curve": "q_H",
+      "window_count": 128
+    },
+    {
+      "arm_id": "D1_hard_h_to_g",
+      "schedule_type": "hard_two_phase",
+      "common_contract_ref": "data_order_common_contract",
+      "replay_control_ref": "replay_control",
+      "hard_transition_after_total_progress_fraction": "0.69056935622158406500167203673891613239954192231252972258274974976479975332944047",
+      "phases": [
+        {
+          "phase_id": "hplt_first",
+          "modern_greek_pool": "hplt",
+          "modern_greek_local_share": "0.79"
+        },
+        {
+          "phase_id": "glossapi_second",
+          "modern_greek_pool": "glossapi_non_hplt",
+          "modern_greek_local_share": "0.79"
+        }
+      ]
+    },
+    {
+      "arm_id": "D2_hard_g_to_h",
+      "schedule_type": "hard_two_phase",
+      "common_contract_ref": "data_order_common_contract",
+      "replay_control_ref": "replay_control",
+      "hard_transition_after_total_progress_fraction": "0.30943064377841593499832796326108386760045807768747027741725025023520024667055953",
+      "phases": [
+        {
+          "phase_id": "glossapi_first",
+          "modern_greek_pool": "glossapi_non_hplt",
+          "modern_greek_local_share": "0.79"
+        },
+        {
+          "phase_id": "hplt_second",
+          "modern_greek_pool": "hplt",
+          "modern_greek_local_share": "0.79"
+        }
+      ]
+    },
+    {
+      "arm_id": "D3_gradual_h_to_g",
+      "schedule_type": "integrated_power_curve_windows",
+      "common_contract_ref": "data_order_common_contract",
+      "replay_control_ref": "replay_control",
+      "glossapi_fraction_within_modern_curve": "g(u)=u^a",
+      "curve_exponent_ref": "dataset.modern_greek_quota_geometry.gradual_curve_exponent",
+      "window_count": 128,
+      "window_quota_formula": "G_j=M_j*W*(((j+1)/W)^(a+1)-(j/W)^(a+1))/(a+1)",
+      "integral_glossapi_fraction": "q_G"
+    },
+    {
+      "arm_id": "D4_gradual_g_to_h",
+      "schedule_type": "integrated_power_curve_windows",
+      "common_contract_ref": "data_order_common_contract",
+      "replay_control_ref": "replay_control",
+      "glossapi_fraction_within_modern_curve": "g(u)=(1-u)^a",
+      "curve_exponent_ref": "dataset.modern_greek_quota_geometry.gradual_curve_exponent",
+      "window_count": 128,
+      "window_quota_formula": "D3_window_quota_reversed",
+      "integral_glossapi_fraction": "q_G"
+    }
+  ],
+  "experiment_design": {
+    "data_order_ids": [
+      "D0_mixed",
+      "D1_hard_h_to_g",
+      "D2_hard_g_to_h",
+      "D3_gradual_h_to_g",
+      "D4_gradual_g_to_h"
+    ],
+    "fixed_lr_id": "L0_wsd10",
+    "endpoint_variant_ids": [
+      "raw_final"
+    ],
+    "primary_round": {
+      "optimization_trajectories": 5,
+      "evaluated_endpoint_artifacts": 5,
+      "full_run_equivalents": "5.0",
+      "aggregate_training_tokens_planning_value": 403941528685,
+      "aggregate_training_tokens_frozen_post_exclusion_value": 403649695335
+    },
+    "lr_floor_experiment": "out_of_scope_for_primary_round",
+    "checkpoint_averaging": "disabled",
+    "additional_seed_policy": "after_primary_seed_repeat_D0_and_best_one_or_two_curricula_at_the_selected_lr_with_two_additional_source_order_seeds_if_effects_are_not_larger_than_confidence_intervals"
+  },
+  "comparison_contract": {
+    "only_optimization_factors": [
+      "modern_greek_temporal_order"
+    ],
+    "post_training_factor": "none_raw_final_only",
+    "must_match": [
+      "base_checkpoint_hash",
+      "tokenizer_hash",
+      "initialization_hash",
+      "eligible_greek_identity_set",
+      "eligible_greek_loss_active_token_multiset",
+      "fixed_hplt_pool_permutation",
+      "fixed_glossapi_pool_permutation",
+      "replay_identity_set",
+      "replay_sequence_ids_and_global_positions",
+      "total_new_greek_tokens",
+      "total_replay_tokens",
+      "packing_and_document_masks",
+      "global_batch_tokens",
+      "optimizer_and_learning_rate_schedule",
+      "selected_runtime_geometry",
+      "loss_objective",
+      "evaluation_inputs",
+      "evaluation_code_revision"
+    ],
+    "matched_token_checkpoints_for_hard_boundaries_in_all_arms": true
+  },
+  "evaluation": {
+    "split_contract": {
+      "split_before_packing": true,
+      "document_cluster_level": true,
+      "global_near_dedup_across_train_and_validation": true,
+      "cluster_examples_that_must_not_split": [
+        "pages_of_one_work",
+        "repository_mirrors",
+        "html_and_pdf_versions",
+        "cross_pool_duplicates",
+        "revised_editions_with_extensive_shared_text"
+      ]
+    },
+    "validation_panels": [
+      "hplt_heldout",
+      "glossapi_aggregate_heldout",
+      "glossapi_per_source_or_predeclared_family_heldouts",
+      "neutral_external_modern_greek",
+      "foreign_replay_per_language_heldouts",
+      "old_greek_heldout",
+      "added_token_stratified_heldout"
+    ],
+    "starting_size_targets_loss_active_tokens": {
+      "fast_each_top_level_panel": [
+        1000000,
+        2000000
+      ],
+      "full_each_top_level_panel": [
+        10000000,
+        20000000
+      ],
+      "each_glossapi_family_where_available": [
+        1000000,
+        5000000
+      ],
+      "final_size_rule": "increase_until_document_cluster_bootstrap_ci_is_smaller_than_target_pairwise_bpb_effect"
+    },
+    "required_training_points": [
+      "initial_checkpoint",
+      "after_warmup",
+      "every_512_steps_approximately_1.074b_tokens",
+      "immediately_before_each_hard_transition",
+      "after_first_complete_optimizer_update_after_each_hard_transition",
+      "matched_token_points_for_non_hard_arms",
+      "cooldown_start",
+      "raw_final_endpoint"
+    ],
+    "loss_metrics": [
+      "token_nll_common_extended_tokenizer",
+      "bits_per_utf8_byte",
+      "new_token_target_nll_and_bpb",
+      "base_token_target_nll_and_bpb"
+    ],
+    "aggregates": {
+      "natural_modern_greek_loss": "q_H*L_H+q_G*L_G",
+      "balanced_modern_greek_loss": "0.5*L_H+0.5*macro_mean_glossapi_family_loss",
+      "relative_improvement_per_source": "(L_source_base-L_source_model)/L_source_base",
+      "forgetting_per_source": "L_source_final-min_over_training(L_source)"
+    },
+    "greekmmlu": {
+      "dataset_repo_id": "dascim/GreekMMLU",
+      "dataset_revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+      "dataset_config": "All",
+      "dataset_split": "test",
+      "benchmark_origin": "natively_authored_greek",
+      "checkpoint_evaluation_is_mandatory": true,
+      "primary_for_0_5b_selection": false,
+      "zero_shot_primary": true,
+      "five_shot_scope": "finalists_only",
+      "evaluation_scope": "every_required_training_point_for_every_arm_not_endpoint_only",
+      "required_training_points_ref": "evaluation.required_training_points",
+      "same_question_ids_prompt_answer_order_and_scoring_code_across_all_checkpoints": true,
+      "exact_checkpoint_conversion_contract_ref": "training_control.checkpoint_policy.greekmmlu_checkpoint_evaluation_path",
+      "metrics": [
+        "official_zero_shot_accuracy",
+        "multiple_choice_cross_entropy_from_frozen_normalized_choice_scores",
+        "correct_answer_continuation_bpb"
+      ],
+      "report_slices": [
+        "stem",
+        "humanities",
+        "social_science",
+        "other",
+        "greek_specific_subjects",
+        "educational_level"
+      ],
+      "report_full_and_decontaminated_public_sets": true,
+      "freeze_complete_evaluator_contract": true
+    },
+    "proxy_greek_benchmarks": [
+      "greekmmlu",
+      "greek_belebele",
+      "demosqa_secondary"
+    ],
+    "general_retention_benchmarks": [
+      "mmlu",
+      "arc_easy",
+      "arc_challenge",
+      "commonsenseqa",
+      "piqa",
+      "belebele_greek_and_representative_replay_languages",
+      "foreign_replay_per_language_bpb"
+    ],
+    "uncertainty": [
+      "document_cluster_bootstrap_for_validation_bpb",
+      "paired_question_bootstrap_for_benchmark_nll",
+      "paired_bootstrap_or_mcnemar_for_accuracy"
+    ],
+    "winner_rule": [
+      "apply_predeclared_foreign_old_greek_and_general_retention_noninferiority_margins",
+      "among_passers_minimize_neutral_external_greek_bpb",
+      "then_maximize_balanced_hplt_glossapi_relative_gain",
+      "then_maximize_macro_glossapi_family_result",
+      "use_greekmmlu_belebele_and_demosqa_as_confirmation"
+    ]
+  },
+  "planning_estimate": {
+    "basis": "pre_exclusion_production_tokenizer_counts_and_provisional_79_20_1_mix_only",
+    "new_greek_fraction": "0.79",
+    "new_greek_tokens": 63822761532,
+    "hplt_tokens": 44054228362,
+    "glossapi_non_hplt_tokens": 19768533170,
+    "hplt_fraction_within_new_greek": "0.69025888733930316702360643945568845273825968048054",
+    "glossapi_fraction_within_new_greek": "0.30974111266069683297639356054431154726174031951946",
+    "gradual_curve_exponent": "2.2285026401885537570211133677147782027370319049322",
+    "foreign_replay_tokens_rounded": 16157661147,
+    "old_greek_replay_tokens_rounded": 807883057,
+    "all_replay_tokens_rounded_once": 16965544205,
+    "total_tokens_rounded": 80788305737,
+    "global_batch_tokens": 2097152,
+    "iterations_ceiling": 38523,
+    "hard_hplt_phase_tokens_fractional": "55764846027.84810126582278481",
+    "hard_glossapi_phase_tokens_fractional": "25023459708.86075949367088608",
+    "primary_round_optimization_trajectories": 5,
+    "primary_round_evaluated_endpoint_artifacts": 5,
+    "primary_round_full_run_equivalents": "5.0",
+    "primary_round_aggregate_tokens_rounded": 403941528685,
+    "not_valid_for_launch": true
+  },
+  "frozen_execution_token_geometry": {
+    "basis": "post_exclusion_pool_corpus_receipt_76658cc8495b58a3a3dadc8aca6d16c7fed627ef8bced89d17a877f9f9125014",
+    "modern_greek_tokens": 63776651863,
+    "hplt_tokens": 44042201419,
+    "glossapi_non_hplt_tokens": 19734450444,
+    "foreign_replay_tokens": 16145987813,
+    "old_greek_replay_tokens": 807299391,
+    "total_active_tokens": 80729939067,
+    "five_arm_aggregate_active_tokens": 403649695335,
+    "packed_corpus_receipt_sha256": "4c3ae0a49f6733c32525b921d33fd97338bf7d09f00f1227d4cbaab0e24dfd2f",
+    "schedule_manifest_sha256": "ffeaa69492b0a30768efb5c34a942e1b7d11ca5df0d962d001ae6387d6f20955",
+    "real_packed_sequences_per_arm": 19709692,
+    "loss_inactive_global_batch_filler_sequences_per_arm": 260,
+    "scheduled_sequences_per_arm": 19709952,
+    "scheduled_token_slots_per_arm": 80731963392,
+    "packing_and_global_batch_filler_token_slots": 2024325,
+    "optimizer_updates_per_arm": 38496,
+    "exact_optimizer_updates_frozen_from_packed_sequence_and_global_batch_padding_receipt": true
+  },
+  "launch_gates": [
+    "mini_compatible_tokenizer_overlay_build_and_roundtrip_receipts_pass",
+    "one_tied_token_distillation_pilot_selected_and_receipted",
+    "post_exclusion_complete_eligible_identity_manifest_frozen",
+    "fresh_exact_token_counts_under_selected_tokenizer",
+    "replay_mix_and_identical_replay_identity_manifest_frozen",
+    "common_cpt_lr_and_optimizer_trajectory_frozen_after_stability_smoke",
+    "all_five_schedule_manifests_prove_exact_once_greek_and_replay_coverage",
+    "immutable_sequence_payloads_have_identical_goldfish_mask_hashes_across_arms",
+    "goldfish_hash_uniformity_on_all_added_tokens_passes",
+    "difference_audit_proves_only_declared_data_order_factor_changed",
+    "validation_splits_are_cluster_level_globally_deduplicated_and_frozen",
+    "native_greekmmlu_evaluator_frozen_and_smoked_for_every_required_checkpoint_cadence",
+    "real_scheduled_data_dp16_b1_and_five_arm_dp16_b2_receipted",
+    "five_arm_concurrency_benchmark_receipted_at_selected_geometry",
+    "selected_geometry_forecasts_training_below_24_hours_and_end_to_end_round_below_36_hours",
+    "checkpoint_load_boundary_resume_and_evaluation_smokes_pass"
+  ]
+}

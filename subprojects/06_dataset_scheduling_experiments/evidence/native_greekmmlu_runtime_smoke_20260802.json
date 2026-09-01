@@ -1,0 +1,46 @@
+{
+  "schema_version": "native_greekmmlu_runtime_smoke_v1",
+  "captured_at": "2026-08-02",
+  "purpose": "runtime_and_metric_path_smoke_only_not_a_scientific_training_result",
+  "slurm": {
+    "job_id": "2981227",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed_seconds_including_environment_install": 240,
+    "nodes": 1,
+    "node": "nid006628"
+  },
+  "model": {
+    "label": "Mini-FVT",
+    "path": "/iopsstor/scratch/cscs/fffoivos/models/Apertus-v1.1-0.5B-greek-overlay-fvt/fcd33ec",
+    "note": "FVT initialization is used only to smoke the evaluator; tied Token-Distillation selection remains a scientific launch gate"
+  },
+  "benchmark": {
+    "origin": "natively_authored_greek",
+    "repo_id": "dascim/GreekMMLU",
+    "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+    "config": "All",
+    "split": "test",
+    "questions": 16632,
+    "metrics": [
+      "official_zero_shot_accuracy_from_average_answer_token_logprob",
+      "multiple_choice_cross_entropy_from_normalized_average_answer_token_logprob",
+      "correct_answer_continuation_bits_per_utf8_byte_from_sum_logprob"
+    ]
+  },
+  "smoke_result": {
+    "accuracy": 0.3702501202501203,
+    "choice_nll": 1.5028485453931233,
+    "correct_answer_bpb": 0.6948593453972918,
+    "note": "These scores are not used to choose an experiment; they prove that all three frozen metric paths execute over the full benchmark"
+  },
+  "remote_artifacts": {
+    "root": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/eval_runtime/20260802T113800Z-fvt-greekmmlu",
+    "aggregate_sha256": "09d271aadb461dc5f57245343cce3b6a2d8acde5601ccb185a8681d2546edf6e",
+    "headline_sha256": "e62c25529f67ab247b934eb36da485544933604f19178676982bb2d6a0ad17e6",
+    "predictions_rows": 16632,
+    "predictions_sha256": "1a778318304faa5027d7a74800b8caae532d35e3170158dfc2583423da4280a0",
+    "run_metadata_sha256": "acbb6b287ab4f43b2ddf42aab8b01922023192048e93cfa570c0628993246488"
+  },
+  "remaining_checkpoint_gate": "prove_and_time_canonical_SwissAI_Megatron_torch_dist_to_HF_conversion_then_evaluate_the_exact_converted_checkpoint"
+}

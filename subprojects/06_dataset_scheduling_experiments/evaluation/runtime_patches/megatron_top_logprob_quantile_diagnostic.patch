@@ -1,0 +1,41 @@
+diff --git a/tools/checkpoint/saver_swissai_hf.py b/tools/checkpoint/saver_swissai_hf.py
+--- a/tools/checkpoint/saver_swissai_hf.py
++++ b/tools/checkpoint/saver_swissai_hf.py
+@@ -420,6 +420,7 @@ def save_checkpoint(queue: mp.Queue, args):
+         kl_sum = tv_sum = top_logprob_abs_sum = 0.0
+         kl_max = tv_max = top_logprob_abs_max = 0.0
+         row_count = ref_rows.size(0)
++        top_logprob_abs_values = []
+         for start in range(0, row_count, 64):
+             stop = min(start + 64, row_count)
+             ref_log_probs = torch.log_softmax(ref_rows[start:stop], dim=-1)
+@@ -436,6 +437,7 @@ def save_checkpoint(queue: mp.Queue, args):
+             kl_sum += kl.double().sum().item()
+             tv_sum += tv.double().sum().item()
+             top_logprob_abs_sum += top_logprob_abs.double().sum().item()
++            top_logprob_abs_values.append(top_logprob_abs.detach().float().cpu())
+             kl_max = max(kl_max, kl.max().item())
+             tv_max = max(tv_max, tv.max().item())
+             top_logprob_abs_max = max(
+@@ -443,4 +445,7 @@ def save_checkpoint(queue: mp.Queue, args):
+             )
++        top_logprob_abs_all = torch.cat(top_logprob_abs_values)
++        top_logprob_abs_p99 = torch.quantile(top_logprob_abs_all, 0.99).item()
++        top_logprob_abs_p999 = torch.quantile(top_logprob_abs_all, 0.999).item()
+         print(f"Converted mean KL divergence: {kl_sum / row_count:.12e}")
+         print(f"Converted max KL divergence: {kl_max:.12e}")
+         print(f"Converted mean total variation: {tv_sum / row_count:.12e}")
+@@ -450,5 +455,13 @@ def save_checkpoint(queue: mp.Queue, args):
+             f"{top_logprob_abs_sum / row_count:.12e}"
+         )
++        print(
++            "Converted p99 top-token log-prob absolute difference: "
++            f"{top_logprob_abs_p99:.12e}"
++        )
++        print(
++            "Converted p99.9 top-token log-prob absolute difference: "
++            f"{top_logprob_abs_p999:.12e}"
++        )
+         print(f"Converted max top-token log-prob absolute difference: {top_logprob_abs_max:.12e}")
+ 
+         # Check two: atol and rtol on all logits.
