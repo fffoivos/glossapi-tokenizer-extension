@@ -1,0 +1,195 @@
+{
+  "schema_version": "apertus_full8_early_cooldown_contract_v4",
+  "status": "owner_authorized",
+  "experiment_id": "C_iter9536_direct_sandwich_early_wsd10_v4",
+  "question": "Does immediate LR cooldown preserve GreekMMLU when updates 9537 through 13193 consume the exact same D0 sequence stream as the parent run?",
+  "single_variable_intervention": {
+    "changed": "learning_rate_schedule_only",
+    "unchanged": [
+      "model_and_tokenizer",
+      "optimizer_state",
+      "AdEMAMix_alpha_schedule",
+      "AdEMAMix_beta3_schedule",
+      "weight_decay_and_gradient_clip",
+      "global_batch_and_parallelism",
+      "parent_D0_sequence_ids_and_order",
+      "packing_and_document_masks",
+      "Goldfish_loss",
+      "RNG_and_sample_cursor"
+    ]
+  },
+  "parent": {
+    "run_root": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12",
+    "checkpoint_iteration": 9536,
+    "checkpoint_token_slots": 39996882944,
+    "checkpoint_receipt": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0009536/attempt_0/export/source_checkpoint_receipt.json",
+      "sha256": "d18c006b47c7dfdf2a5013169856c8cda7be9e72e0cd92055d9a5e0747320030"
+    },
+    "checkpoint_metadata_sha256": "0b0820699a1fd1bf34bcade155a801a93a7aa6ac74be439301addef321726489",
+    "checkpoint_receipt_covers_every_payload_file": true,
+    "checkpoint_state_inventory": {
+      "state_dict_keys": 230,
+      "storage_entries": 18798,
+      "optimizer_keys": 52,
+      "rng_keys": 2,
+      "rerun_state_machine_keys": 2
+    },
+    "recipe": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260808T064500Z-d0-v4-v45bridge/contracts/rebind_v3/recipe_8b_full_mixed.sanitized.json",
+      "sha256": "d469a65bfa601c28052552683337bde2e72ff2a0df38dbd19680b5a5693690a8"
+    },
+    "training_log": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/segments/segment_2/attempt_0_updates_8000_12000/training.log",
+      "sha256": "4d677ac76e4c1a658b8e6747b3bd45e69e12adc906f1d7023290653088d745db"
+    },
+    "greekmmlu_baseline": {
+      "path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0009536/attempt_0/exact_checkpoint_native_greekmmlu_receipt.json",
+      "sha256": "678ab9f8d28a3f216b00dd3c6df6758f218dc950fbf4eadad268a10d3b418a84",
+      "clean_accuracy": 0.5681044619097716,
+      "clean_choice_nll": 1.073988068378452
+    },
+    "per_document_baseline_root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/targeted8b/experiment_b/20260812T010000Z-prep-v4/prelaunch/initial/per_document",
+    "initial_validation_receipt": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/targeted8b/experiment_b/20260812T010000Z-prep-v4/prelaunch/initial/initial_validation_receipt.json",
+      "sha256": "cca2735303b35d863ec683300768963412bc0459fce0b88e4e56ff291994dcda"
+    }
+  },
+  "data": {
+    "stage_root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260808T064500Z-d0-v4-v45bridge",
+    "schedule_manifest": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260807T063000Z-d0-v3/schedules/schedule_manifest.json",
+      "sha256": "d19d012e44804069138e11f369c6bad0d96ea3f86763fa7f4f1d3ac5c3431564"
+    },
+    "validation_manifest": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260808T064500Z-d0-v4-v45bridge/validation/validation_manifest.json",
+      "sha256": "a4b1d696adf83b2c691a99565075ba0a70db4074f7fe91fe6fdbab094303c1d9"
+    },
+    "arm": "D0_mixed",
+    "sequence_ids": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260807T063000Z-d0-v3/schedules/D0_mixed.sequence_ids.u64",
+      "bytes": 149782528,
+      "sha256": "e816cca1a98d5ca7bcd3097cf67e4bd19bbaf2fdb4eac938485cbf30c56fca8b"
+    },
+    "active_tokens": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260807T063000Z-d0-v3/schedules/D0_mixed.active_tokens.u16",
+      "bytes": 37445632,
+      "sha256": "adf4910b317e33ae9cca3f1eb7a269eafde7d8e845c0545cae02ade8dacc067b"
+    },
+    "reuse_policy": "read the parent schedule in prefix mode; never copy, repack, reshuffle, rededuplicate, reanonymize, decontaminate or retokenize"
+  },
+  "training": {
+    "start_iteration": 9536,
+    "intervention_iteration": 9536,
+    "end_iteration": 13193,
+    "branch_updates": 3657,
+    "total_executed_scientific_updates": 3657,
+    "global_batch_sequences": 1024,
+    "global_batch_tokens": 4194304,
+    "train_samples": 13509632,
+    "branch_token_slots": 15338569728,
+    "end_token_slots": 55335452672,
+    "learning_rate": {
+      "style": "WSD",
+      "cooldown_shape": "1-sqrt",
+      "peak": 0.000055,
+      "floor": 0.0000055,
+      "decay_samples": 3744768,
+      "decay_updates": 3657,
+      "decay_starts_at_iteration": 9536
+    },
+    "ademamix": {
+      "alpha_terminal": 4.0,
+      "alpha_warmup_updates": 18284,
+      "beta3_terminal": 0.999,
+      "beta3_warmup_updates": 18284,
+      "beta2": 0.999
+    },
+    "parallelism": {
+      "nodes": 16,
+      "gpus_per_node": 4,
+      "tensor_parallel": 2,
+      "pipeline_parallel": 1,
+      "context_parallel": 1,
+      "data_parallel": 32,
+      "micro_batch_sequences": 2,
+      "gradient_accumulation_steps": 16,
+      "single_leaf_switch": true,
+      "leaf_switch": "group36",
+      "placement_enforcement": "hard_exclude_all_other_leaves",
+      "wall_limit": "12:00:00"
+    }
+  },
+  "sandwich_same_allocation_gate": {
+    "source_iteration": 9536,
+    "comparison_iteration": 9537,
+    "same_nodes_and_allocation": true,
+    "control_schedule": "parent_peak_lr",
+    "intervention_schedule": "early_wsd10_cooldown",
+    "control_order": ["parent_peak_before", "intervention", "parent_peak_after"],
+    "control_probes_save_checkpoint": false,
+    "intervention_probe_saves_checkpoint": true,
+    "intervention_probe_checkpoint_becomes_branch_state": true,
+    "exact_fields": [
+      "consumed samples",
+      "consumed tokens",
+      "global batch size",
+      "lm loss",
+      "base-token target loss",
+      "base-token target count",
+      "base-token target bytes",
+      "added-token target loss",
+      "added-token target count",
+      "added-token target bytes",
+      "params norm",
+      "loss scale",
+      "number of skipped iterations",
+      "number of nan iterations"
+    ],
+    "reproducibility_field": "grad norm",
+    "gradient_display_precision_decimals": 3,
+    "maximum_parent_control_display_spread": 0.001,
+    "intervention_gradient_must_be_inside_parent_control_envelope": true,
+    "control_learning_rate": 0.000055,
+    "intervention_learning_rate_must_be_below_peak": true,
+    "historical_absolute_gradient_is_not_an_acceptance_criterion": true
+  },
+  "rejected_attempts": [
+    {
+      "run_root": "/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/20260812T231500Z-causal-wsd10-v1",
+      "reason": "direct reload matched target counts, bytes, losses and parameter norm but historical gradient norm was not reproducible across allocations"
+    },
+    {
+      "run_root": "/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/20260813T082200Z-causal-wsd10-replay-v2",
+      "reason": "peak-LR replay was exact at its first update but BF16 cross-allocation trajectory drift accumulated from its second update; endpoint historical-gradient equality is not a valid restart invariant"
+    },
+    {
+      "run_root": "/capstor/scratch/cscs/fffoivos/runs/10_early_cooldown/20260813T145000Z-causal-wsd10-direct-v3",
+      "reason": "the exact paired same-allocation gate rejected update 9537 because the displayed gradient norm differed by one reporting quantum (2.011 versus 2.010); all losses, target counts and bytes, parameter norm, cursor values, and NaN/skip fields matched exactly; the intervention checkpoint is rejected and must not be resumed"
+    }
+  ],
+  "evaluation": {
+    "milestone_iterations": [10728, 11920, 13112, 13193],
+    "source_validation_interval_updates": 238,
+    "at_every_milestone": ["GreekMMLU", "all_13_per_document_learning_and_forgetting_panels"],
+    "endpoint_native_greek": ["DemosQA", "Medical_MCQA", "ASEP_MCQA", "GPCR", "OYXOY"],
+    "protipa": "blocked_by_manual_Hugging_Face_access_and_non_blocking",
+    "checkpoint_averaging": false,
+    "parent_control_clean_greekmmlu": {
+      "10728": {"accuracy": 0.56593849, "choice_nll": 1.084576},
+      "11920": {"accuracy": 0.55925490, "choice_nll": 1.103691},
+      "13112": {"accuracy": 0.54341234, "choice_nll": 1.141104}
+    }
+  },
+  "allocation_policy": {
+    "normal_allocations": 1,
+    "normal_nodes": 16,
+    "debug_nodes_for_metadata_and_orchestration": true,
+    "separate_parity_allocation": false,
+    "branch_allocation_wall_limit": "12:00:00",
+    "branch_conservative_runtime_seconds": 41400,
+    "branch_reserve_seconds": 1800,
+    "expected_training_wall_hours": [10.0, 11.5],
+    "expected_evidence_hours_after_start": [13.0, 17.0]
+  }
+}

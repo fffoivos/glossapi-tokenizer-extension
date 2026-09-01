@@ -361,3 +361,18 @@ matched DP32/DP64 benchmarking, automatic fallback, 12-hour segment recovery,
 source validation every 25 updates, 20 native GreekMMLU checkpoints, 39
 per-document validation panels, and separate training/evidence completion
 receipts. Checkpoint averaging is excluded.
+
+## `09_full_8b_cpt_results_analysis/`
+
+Compact evidence layer for the completed sanitized 8B D0 run: checkpoint-level
+GreekMMLU drift and source exposure, the native-Greek three-checkpoint benchmark
+matrix, post-hoc benchmark contamination decisions, and academic HTML reports.
+
+## `10_early_cooldown_causal_experiment/`
+
+Single-variable causal branch from update 9,536. It reuses the exact parent D0
+sequence stream while moving the existing 3,657-update WSD-10 cooldown to the
+40B checkpoint. A same-allocation one-update control gates training; four
+milestones receive GreekMMLU and all 13 per-document panels, and the endpoint
+receives the frozen native-Greek suite. No data preparation or checkpoint
+averaging is performed.

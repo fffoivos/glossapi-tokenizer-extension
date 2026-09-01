@@ -19,7 +19,13 @@ def parse_iterations(raw: str) -> tuple[int, ...]:
 
 def install_from_environment() -> tuple[int, ...]:
     iterations = parse_iterations(os.environ.get("MINI_SCHEDULE_SAVE_ITERATIONS", ""))
-    if not iterations:
+    no_save_exit_raw = os.environ.get("MINI_SCHEDULE_NO_SAVE_EXIT_ITERATION", "").strip()
+    no_save_exit = int(no_save_exit_raw) if no_save_exit_raw else None
+    if no_save_exit is not None and no_save_exit <= 0:
+        raise ValueError("no-save exit iteration must be a positive integer")
+    if no_save_exit is not None and no_save_exit in iterations:
+        raise ValueError("one iteration cannot be both an exact save and a no-save exit")
+    if not iterations and no_save_exit is None:
         return iterations
 
     from megatron.training import get_args
@@ -39,6 +45,12 @@ def install_from_environment() -> tuple[int, ...]:
         checkpointing_context,
         train_data_iterator,
     ):
+        # A one-update, same-allocation causal-control gate needs to stop after
+        # the first post-checkpoint update without spending several minutes or
+        # hundreds of GB on a throwaway checkpoint.  This is deliberately
+        # environment-gated and mutually exclusive with an exact save above.
+        if no_save_exit is not None and int(iteration) == no_save_exit:
+            return True
         if int(iteration) in iterations:
             args = get_args()
             if not args.save:
