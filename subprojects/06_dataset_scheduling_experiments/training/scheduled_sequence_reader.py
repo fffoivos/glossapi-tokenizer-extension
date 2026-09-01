@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read immutable packed rows through a D0-D4 sequence-ID schedule.
+"""Read immutable packed rows through a receipt-bound sequence-ID schedule.
 
 The schedule changes only the order in which stable sequence payloads are
 visited.  It never reconstructs or repacks text, which keeps document masks,
@@ -115,30 +115,55 @@ class ScheduledSequenceReader:
     def __init__(self, schedule_manifest: Path, arm_id: str):
         schedule_manifest = schedule_manifest.resolve()
         schedule = read_json(schedule_manifest)
-        if (
-            schedule.get("schema_version")
-            not in {
-                "apertus_mini_five_data_order_schedules_v1",
-                "apertus_data_order_schedules_v1",
-            }
-            or schedule.get("status") != "completed"
-            or schedule.get("common_contract", {}).get("same_exact_sequence_multiset")
-            is not True
-            or schedule.get("common_contract", {}).get(
-                "same_replay_sequence_ids_at_same_global_positions"
-            )
-            is not True
-        ):
-            raise ValueError("schedule manifest is not a completed five-arm receipt")
-        arms = {row["arm_id"]: row for row in schedule["arms"]}
-        if arm_id not in arms:
-            raise KeyError(f"unknown schedule arm: {arm_id}")
-        arm = arms[arm_id]
-        ids_path = checked_file(arm["sequence_ids"])
-        active_path = checked_file(arm["active_tokens"])
+        schema = schedule.get("schema_version")
+        legacy_schemas = {
+            "apertus_mini_five_data_order_schedules_v1",
+            "apertus_data_order_schedules_v1",
+        }
+        if schema in legacy_schemas:
+            if (
+                schedule.get("status") != "completed"
+                or schedule.get("common_contract", {}).get("same_exact_sequence_multiset")
+                is not True
+                or schedule.get("common_contract", {}).get(
+                    "same_replay_sequence_ids_at_same_global_positions"
+                )
+                is not True
+            ):
+                raise ValueError("schedule manifest is not a completed five-arm receipt")
+            arms = {row["arm_id"]: row for row in schedule["arms"]}
+            if arm_id not in arms:
+                raise KeyError(f"unknown schedule arm: {arm_id}")
+            arm = arms[arm_id]
+            ids_receipt = arm["sequence_ids"]
+            active_receipt = arm["active_tokens"]
+            length = int(arm["training_slots"])
+            packed_receipts = [schedule["packed_corpus_receipt"]]
+        elif schema == "apertus_cpt_stationary_replay_schedule_v1":
+            if (
+                schedule.get("status") != "completed"
+                or schedule.get("checks", {}).get("every_selected_sequence_scheduled_once")
+                is not True
+                or schedule.get("checks", {}).get("payload_not_rewritten") is not True
+            ):
+                raise ValueError("stationary schedule is not a completed immutable receipt")
+            schedule_id = schedule.get("schedule_id")
+            if arm_id != schedule_id:
+                raise KeyError(f"unknown schedule arm: {arm_id}")
+            ids_receipt = schedule["sequence_ids"]
+            active_receipt = schedule["active_tokens_per_sequence"]
+            length = int(schedule["sequence_count"])
+            packed_receipts = schedule.get("packed_corpus_receipts")
+            if not isinstance(packed_receipts, list) or not packed_receipts:
+                raise ValueError("stationary schedule omits packed corpus receipts")
+        else:
+            raise ValueError(f"unsupported schedule schema: {schema}")
+
+        ids_path = checked_file(ids_receipt)
+        active_path = checked_file(active_receipt)
         self.arm_id = arm_id
         self.schedule_manifest = schedule_manifest
-        self.length = int(arm["training_slots"])
+        self.length = length
         if ids_path.stat().st_size != self.length * 8:
             raise ValueError("sequence-ID schedule byte geometry drift")
         if active_path.stat().st_size != self.length * 2:
@@ -150,29 +175,33 @@ class ScheduledSequenceReader:
             active_path, mode="r", dtype=np.uint16, shape=(self.length,)
         )
 
-        packed_receipt_info = schedule["packed_corpus_receipt"]
-        packed_path = Path(packed_receipt_info["path"]).resolve()
-        if sha256_file(packed_path) != packed_receipt_info["sha256"]:
-            raise ValueError("packed corpus receipt drift")
-        packed = read_json(packed_path)
-        if (
-            packed.get("schema_version")
-            not in {
-                "apertus_mini_packed_sequence_corpus_v1",
-                "apertus_packed_sequence_corpus_v1",
-            }
-            or packed.get("status") != "completed"
-        ):
-            raise ValueError("packed corpus is not completed")
         self.buckets: dict[tuple[int, int], _PackedBucket] = {}
         pad_ids = set()
-        for row in packed["packing_task_manifests"]:
-            bucket = _PackedBucket(Path(row["manifest_path"]).resolve())
-            key = (bucket.pool_code, bucket.bucket)
-            if key in self.buckets:
-                raise ValueError(f"duplicate packed bucket: {key}")
-            self.buckets[key] = bucket
-            pad_ids.add(bucket.pad_token_id)
+        for packed_receipt_info in packed_receipts:
+            packed_path = Path(packed_receipt_info["path"]).resolve()
+            if sha256_file(packed_path) != packed_receipt_info["sha256"]:
+                raise ValueError("packed corpus receipt drift")
+            packed = read_json(packed_path)
+            if (
+                packed.get("schema_version")
+                not in {
+                    "apertus_mini_packed_sequence_corpus_v1",
+                    "apertus_packed_sequence_corpus_v1",
+                }
+                or packed.get("status") != "completed"
+            ):
+                raise ValueError("packed corpus is not completed")
+            for row in packed["packing_task_manifests"]:
+                manifest_path = Path(row["manifest_path"]).resolve()
+                expected_manifest_sha = row.get("manifest_sha256")
+                if expected_manifest_sha and sha256_file(manifest_path) != expected_manifest_sha:
+                    raise ValueError(f"packed bucket manifest drift: {manifest_path}")
+                bucket = _PackedBucket(manifest_path)
+                key = (bucket.pool_code, bucket.bucket)
+                if key in self.buckets:
+                    raise ValueError(f"duplicate packed bucket: {key}")
+                self.buckets[key] = bucket
+                pad_ids.add(bucket.pad_token_id)
         if len(pad_ids) != 1:
             raise ValueError(f"packed pad-token drift: {sorted(pad_ids)}")
         self.pad_token_id = next(iter(pad_ids))
@@ -209,14 +238,14 @@ class ScheduledSequenceReader:
         if source is None:
             raise KeyError(f"schedule points to missing packed bucket: {(pool, bucket)}")
         tokens, packed_active = source.get(row)
-        if packed_active != scheduled_active:
+        if scheduled_active <= 0 or scheduled_active > packed_active:
             raise ValueError(
-                f"scheduled/packed active-token drift for {sequence_id}: "
-                f"{scheduled_active} != {packed_active}"
+                f"invalid scheduled active-token cap for {sequence_id}: "
+                f"{scheduled_active} not in [1, {packed_active}]"
             )
         return SequencePayload(
             sequence_id=sequence_id,
             tokens=tokens,
-            active_tokens=packed_active,
+            active_tokens=scheduled_active,
             filler=False,
         )
