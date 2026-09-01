@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# The direct salloc was requested with one GPU per outer task.  The canonical
+# torchrun launcher uses one controller task per node, so explicitly assign
+# all four node GPUs and disable per-task rebinding.  A live allocation probe
+# verified CUDA_VISIBLE_DEVICES=0,1,2,3 on both nodes with these exact flags.
+exec /usr/bin/srun --gpus-per-node=4 --gpu-bind=none "$@"

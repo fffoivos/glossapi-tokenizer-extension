@@ -1,0 +1,657 @@
+{
+  "schema_version": "apertus_hard_h_to_g_replication_v2",
+  "contract_revision": "r2_review_fixed_20260814",
+  "status": "implementation_incomplete_not_launch_authorized",
+  "goals": {
+    "A": "benchmark-clean near-replication of the historical 8B hard HPLT-to-OpenArchives trajectory",
+    "B": "test whether a matched Apertus 1.5B trajectory mirrors the 8B trajectory",
+    "C": "continue the OpenArchives phase through two additional 998244352-token-slot intervals"
+  },
+  "historical_target": {
+    "run_tag": "curr_td_b20p999_b3p999_13b_20260616T093527Z",
+    "run_metadata": "/capstor/scratch/cscs/fffoivos/runs/curriculum_v2/curr_td_b20p999_b3p999_13b_20260616T093527Z/run_metadata.json",
+    "training_code_revision": "c92402e39ef3c8e69ea378a59e79059dc14541f4",
+    "data_seed": 20260609,
+    "curriculum_order_mode": "randomized",
+    "megatron_gpt_dataset_no_shuffle": 0,
+    "historical_payload_survives": false,
+    "historical_stage_expected_empty": true,
+    "historical_selected_parquet_survives": false,
+    "historical_greekmmlu_query_jsonl_survives": false,
+    "historical_cluster_tokenizer_directory_is_empty": true
+  },
+  "models": {
+    "8b": {
+      "repo_id": "swiss-ai/Apertus-8B-2509",
+      "revision": "3162c99675aa588097cecd4a24b9aa1f712af477",
+      "hidden_size": 4096,
+      "num_hidden_layers": 32,
+      "num_attention_heads": 32,
+      "num_key_value_heads": 8,
+      "target_layer": 11,
+      "tie_word_embeddings": false
+    },
+    "1p5b": {
+      "repo_id": "swiss-ai/Apertus-v1.1-1.5B",
+      "revision": "dbe8919b2f0389888bada6b3a19e81e0ef4286c1",
+      "hidden_size": 2048,
+      "num_hidden_layers": 16,
+      "num_attention_heads": 32,
+      "num_key_value_heads": 8,
+      "target_layer": 6,
+      "target_layer_hidden_state_index": 6,
+      "tie_word_embeddings": false
+    }
+  },
+  "tokenizer": {
+    "policy": "historical_modern_greek_148480_required_for_goal_A",
+    "repo_id": "fffoivos/apertus-tokenizer-extension",
+    "revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+    "local_authority": "subprojects/03_apertus_extension_and_embedding_adaptation/03_3_cscs_experiments_kickoff/ship/apertus_greek_modern_only_148480",
+    "tokenizer_json_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+    "vocab_size": 148480,
+    "make_vocab_size_divisible_by": 256,
+    "padding_tokens": 0,
+    "fallback_vocab_size": 148992,
+    "fallback_changes_goal_A_to_not_testable": true
+  },
+  "initialization": {
+    "8b_hf_authority": {
+      "repo_id": "fffoivos/apertus-tokenizer-extension",
+      "revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+      "subfolder": "experiment-checkpoints/TokenDistil-Init",
+      "expected_safetensor_files": 4,
+      "expected_safetensor_bytes": 16391939480,
+      "target_layer": 11
+    },
+    "token_distillation": {
+      "epochs": 1,
+      "snippets_per_token": 25,
+      "batch_size": 8,
+      "learning_rate": 0.0001,
+      "seed": 20260523,
+      "dtype": "bfloat16",
+      "input_loss": "hidden_state_mse",
+      "learn_output_with_ce": true,
+      "minimum_trained_token_fraction": 0.99,
+      "preserve_base_rows_exact": true
+    },
+    "coverage_prepass": {
+      "target_extended_tokens": 2000000000,
+      "candidate_snippets_per_token": 100,
+      "snippet_token_radius": 50,
+      "seed": 20260523,
+      "regenerated_text_is_named_difference": true
+    },
+    "row_norm_gate": {
+      "source": "verified_8b_td_artifact_only",
+      "lower_percentile": 0.5,
+      "upper_percentile": 99.5,
+      "outward_padding_fraction": 0.2,
+      "outward_padding_definition": "let_width_equal_p99p5_minus_p0p5_then_lower_equal_p0p5_minus_0p2_width_and_upper_equal_p99p5_plus_0p2_width",
+      "minimum_fraction_inside": 0.99,
+      "median_ratio_lower_multiplier": 0.8,
+      "median_ratio_upper_multiplier": 1.2,
+      "freeze_before_1p5b_td": true
+    }
+  },
+  "data": {
+    "source_dataset": {
+      "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+      "revision": "987b8955fcd395c6219e39df9e64715457f69065",
+      "expected_rows": 51839746,
+      "already_anonymized": true,
+      "additional_global_deduplication_allowed": false
+    },
+    "source_views": {
+      "hplt_source_dataset_exact": "HPLT/ell_Grek_ge8_no_mt_clean60",
+      "openarchives_source_dataset_regex": "^openarchives\\.gr",
+      "observed_labels_and_counts_receipt_required": true,
+      "quality_filter_policy": "require_release_label_to_encode_historical_clean60_contract_do_not_invent_new_filter",
+      "population_change_from_historical_stream_is_named_reconstruction_difference": true,
+      "active_views_must_anti_join_greek_replay_natural_keys": true
+    },
+    "native_suite_overlap": {
+      "revision": "b28806da9b9bc5a569acbf923a378c967b1c1752",
+      "match_table": "benchmark_contamination/native_greek_suite_v1/qa_document_line_matches.parquet",
+      "match_table_sha256": "1b23a9dc14a6175c18e0530210cc47795e24e3841bb1b3229c666877ac4b4b19",
+      "query_sha256": "ef9d601b8f91c6845818b9584c6634a13337c77b07e3f101f755a4884634c0eb",
+      "score_exclusion_sha256": "7a8559461b15a308f599faf0ff25cd16c07be0a597078864f779af7f2f1fdd32",
+      "application": "direct_exact_join_on_pristine_v2_rows_no_cluster_expansion",
+      "row_text_hash_field": "document_text_sha256",
+      "row_text_hash_semantics": "sha256_raw_utf8_before_e001",
+      "hash_mismatch_action": "fail_build",
+      "query_items": 80446,
+      "query_scored_examples": 83970,
+      "frozen_examples_sha256": "51e1dc1565e44d891173a50b787bbe0a90916cf6e8d36c53b9c61106f65604df",
+      "external_replay_post_filter_zero_scan_required": true
+    },
+    "greekmmlu": {
+      "repo_id": "dascim/GreekMMLU",
+      "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+      "clean_count": 16159,
+      "public_count": 16632,
+      "exclusion_authority": "fresh_scan_of_every_rebuilt_training_stream",
+      "query_source": "regenerated_from_frozen_dataset_revision",
+      "k": 8,
+      "primary_rule": "correct_only",
+      "max_gap_tokens": 50,
+      "max_gap_tokens_short": 5,
+      "direction": "after"
+    },
+    "replay_benchmark_scan": {
+      "all_selected_foreign_and_old_greek_rows_require_content_scan": true,
+      "source_level_disjointness_escape_allowed": false,
+      "scanner_adapter_role": "heterogeneous_replay_native_suite_and_greekmmlu_scanner",
+      "run_on_partition": "debug",
+      "native_suite_scanner_revision": "2a7eb9d8de342129f379575ec031f631cde304bc",
+      "post_stage_b_zero_scans_required": true
+    },
+    "cleaning_and_anonymization": {
+      "e001_implementation_sha256": "1997aa7a1248f9b946681e32bdcc98f33efc476fa28b53cc9bd8db5a3d883f63",
+      "stage_b_masker_sha256": "8f489a175aeb47f2c0996431a9d1c6f93ec03d4f52d9ea33621b76facfc0e83c",
+      "stage_b_upstream_commit": "8af990b9401101cf95acd02b066ed0c449789126",
+      "v2_greek_stream_policy": "assert_byte_preserving_noop_after_e001",
+      "external_replay_policy": "apply_then_verify_idempotent",
+      "one_pass_e001_plus_greekmmlu_composition_allowed": true,
+      "one_pass_requires_exact_frozen_functions_and_equivalence_test": true
+    },
+    "protipa": {
+      "access_status": "unavailable",
+      "experiment_decision": "excluded_from_training_union_and_evaluation_before_manifest_freeze",
+      "post_training_addition_allowed": false
+    },
+    "historical_clean_document_counts_for_provenance_only": {
+      "hplt": 9535742,
+      "openarchives": 77136,
+      "replay_before_split": 5031733
+    },
+    "historical_replay_split_rows": {
+      "foreign": 3808235,
+      "old_greek": 1223498
+    },
+    "replay_reconstruction": {
+      "acquisition_receipt_sha256": "9ea630cba9d70e60ad73626ee7d0671b9eb14d6a214be91efee5f4226437f6ba",
+      "acquisition_policy": "all_matching_or_domain_separated_sha256_ranked_capacity_sample_v1",
+      "acquisition_seed": 20260609,
+      "selected_files": 355,
+      "selected_remote_bytes": 250673537368,
+      "preserve_historical_source_weights": true,
+      "historical_document_identity_claimed": false,
+      "named_reconstruction_difference": "the deleted historical 13.5B replay parquet selection is replaced by the exact receipt-bound 2026-07-31 deterministic acquisition"
+    },
+    "replay_mix_builder": {
+      "target_tokens": 5000000000,
+      "source_shard_count": 16,
+      "target_tokens_per_shard": 312500000,
+      "seed": 20260611,
+      "source_shard_rule": "eligible_source_row_index_modulo_16",
+      "concatenation_order": "source_shard_index_ascending",
+      "historical_algorithm_reproduced": true,
+      "historical_document_identity_claimed": false
+    },
+    "modern_mix_builder": {
+      "hplt_target_tokens": 8500000000,
+      "openarchives_target_tokens": 3700000000,
+      "source_shard_count": 16,
+      "hplt_target_tokens_per_shard": 531250000,
+      "openarchives_target_tokens_per_shard": 231250000,
+      "seed": 20260611,
+      "source_shard_rule": "eligible_source_row_index_modulo_16",
+      "concatenation_order": "source_shard_index_ascending",
+      "historical_algorithm_reproduced": true,
+      "lineage_extension_changes_selection": false,
+      "selection_occurs_after_named_native_suite_validation_and_greek_replay_exclusions": true,
+      "historical_document_identity_claimed": false,
+      "named_reconstruction_difference": "the historical 8.5B HPLT and 3.7B OpenArchives mix-builder geometry is rerun over the pinned v2 benchmark-clean source views because the historical selected Parquets were deleted"
+    },
+    "tokenization": {
+      "schema": "apertus_hard_h_to_g_tokenized_stream_v1",
+      "tokenizer_json_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+      "megatron_commit": "c92402e39ef3c8e69ea378a59e79059dc14541f4",
+      "tokenizer_type": "HuggingFaceTokenizer",
+      "append_eod": true,
+      "json_keys": ["text"],
+      "workers": 64,
+      "one_indexed_document_per_input_row": true,
+      "streams": {
+        "hplt": "hplt_only_ext_text_document",
+        "openarchives": "glossapi_only_ext_text_document",
+        "foreign": "foreign_replay_only_ext_text_document",
+        "old_greek": "old_greek_replay_only_ext_text_document"
+      }
+    },
+    "blend_weights": {
+      "active_modern": "1.0",
+      "foreign_replay": "0.253164557",
+      "old_greek_replay": "0.012658228"
+    },
+    "pipeline": [
+      "freeze_corrected_full8_validation_panels_and_exact_text_exclusions",
+      "inventory_exact_source_labels_and_freeze_pristine_selected_rows",
+      "apply_published_native_suite_exclusions_with_raw_text_hash_verification",
+      "apply_reused_validation_panel_exact_text_exclusions_to_every_training_stream",
+      "historical_8p5b_hplt_and_3p7b_openarchives_mix_selection_over_benchmark_clean_views",
+      "historical_5b_replay_mix_selection_over_validation_clean_source_recipes",
+      "e001_character_clean_on_selected_greek_streams",
+      "regenerate_greekmmlu_queries_and_filter_selected_greek_streams",
+      "normalize_selected_replay_then_filter_native_suite_then_filter_greekmmlu",
+      "verify_v2_anonymization_is_stage_b_noop_and_apply_stage_b_only_to_twice_filtered_replay",
+      "audit_exact_replay_stage_b_bytes_for_zero_greekmmlu_and_native_suite_matches",
+      "split_final_replay_into_foreign_and_old_greek",
+      "tokenize_four_stage_b_streams_with_receipt_bound_historical_148480_megatron_preprocessing",
+      "freeze_phase_1_and_phase_2_weighted_blends_and_gptdataset_index_caches",
+      "enumerate_phase_2_realized_document_ids",
+      "build_separate_phase_3_unseen_blend_and_index_cache"
+    ],
+    "trainer_stack": "historical_megatron_weighted_blend",
+    "explicit_schedule_reader_allowed": false
+  },
+  "training": {
+    "sequence_length": 4096,
+    "global_batch_sequences": 1024,
+    "global_batch_token_slots": 4194304,
+    "microbatch_8b": 2,
+    "precision": "bf16",
+    "main_gradients_dtype": "fp32",
+    "optimizer": "AdEMAMix",
+    "beta1": "0.9",
+    "beta2": "0.999",
+    "beta3": "0.999",
+    "alpha": "4.0",
+    "weight_decay": "0.1",
+    "gradient_clip": "0.1",
+    "loss": "goldfish",
+    "goldfish_k": 50,
+    "goldfish_h": 50,
+    "warmup_updates": 400,
+    "warmup_initial_lr_ratio": "0.1",
+    "lr_schedule": "WSD_1_minus_sqrt",
+    "scheduler_nominal_tokens": 13500000000,
+    "scheduler_train_samples": 3295898,
+    "scheduler_decay_samples": 659179,
+    "extension_train_samples": 3782656,
+    "extension_lr_schedule": "constant",
+    "extension_lr_equals_nominal_min_lr": true,
+    "extension_lr_warmup_samples": 0,
+    "extension_alpha_warmup_updates": 3218,
+    "extension_beta3_warmup_updates": 3218,
+    "extension_override_opt_param_scheduler_expected": true,
+    "peak_lr_8b": "5.5e-5",
+    "peak_lr_by_scale": {
+      "8b": "5.5e-5",
+      "1p5b": "5.5e-5"
+    },
+    "terminal_lr_ratio": "0.1",
+    "rope_theta": 500000,
+    "rope_scaling_factor": 8.0,
+    "rope_use_scaling": true,
+    "max_position_embeddings": 4096,
+    "cross_document_attention": false,
+    "attention_mask_reset_at_document_boundary": true,
+    "eod_loss_masking": true,
+    "position_reset_at_document_boundary": true,
+    "checkpoint_averaging": false,
+    "runtime": {
+      "megatron_upstream_commit": "c92402e39ef3c8e69ea378a59e79059dc14541f4",
+      "named_extra_validation_patch_sha256": "2e6810fa8b6c25597ccb3bcb9dc1ff5bf843ead2337e3edde0344605a23ec4c6",
+      "exact_eval_iteration_patch_applied": false,
+      "trainer_scale_geometry_patch_required": true,
+      "trainer_and_runtime_guard_frozen_in_code_bundle": true,
+      "phase_cache_receipt_schema": "apertus_hard_h_to_g_phase_blend_cache_v1",
+      "phase_data_path_schema": "apertus_hard_h_to_g_phase_data_path_v1",
+      "explicit_data_cache_path_required": true,
+      "strict_phase_local_guard": "scripts/phase_local_data_index_guard.py",
+      "training_run_permit_schema": "apertus_hard_h_to_g_training_run_permit_v1",
+      "checkpoint_permit_schema": "apertus_hard_h_to_g_checkpoint_permit_v2"
+    }
+  },
+  "schedule": {
+    "phase_1": {
+      "pool": "hplt",
+      "checkpoint_start": 0,
+      "optimizer_update_start": 1,
+      "optimizer_update_end": 2261
+    },
+    "phase_2": {
+      "pool": "openarchives",
+      "checkpoint_start": 2261,
+      "optimizer_update_start": 2262,
+      "optimizer_update_end": 3218,
+      "reset_data_index_on_entry": true
+    },
+    "extension": {
+      "pool": "phase_3_unseen_openarchives_and_unseen_replay",
+      "construction": "separate_frozen_weighted_blend_consumed_from_cursor_zero",
+      "checkpoint_start": 3218,
+      "optimizer_update_start": 3219,
+      "optimizer_update_end": 3694,
+      "constant_terminal_lr": true,
+      "alpha_beta3_fixed": true,
+      "reset_data_index_on_entry": true,
+      "phase_local_cursor_at_3218": 0,
+      "phase_local_cursor_at_3456": 243712,
+      "phase_local_cursor_at_3694": 487424,
+      "gptdataset_requested_samples": 487424,
+      "component_requested_samples_with_1p005_margin": {
+        "openarchives": 386991,
+        "foreign_replay": 97973,
+        "old_greek_replay": 4899
+      },
+      "capacity_rule": "each_phase3_component_has_at_least_requested_samples_times_4096_plus_one_token_in_one_epoch",
+      "scheduler_train_samples_remains": 3782656,
+      "main_trajectory_realized_documents_are_forbidden": true,
+      "within_phase_3_document_repetition_is_forbidden": true,
+      "exact_segment_exit_updates": [3456, 3694]
+    },
+    "checkpoint_updates": [
+      0, 238, 476, 714, 952, 1190, 1428, 1666, 1904, 2142, 2261, 2380,
+      2618, 2856, 3094, 3218, 3456, 3694
+    ]
+  },
+  "learning_rate_1p5b": {
+    "mode": "fixed_matched_8b_recipe",
+    "peak_lr": "5.5e-5",
+    "floor_lr": "5.5e-6",
+    "terminal_lr_ratio": "0.1",
+    "source": "same_approved_scientific_recipe_as_8b",
+    "lr_pilot_runs": 0,
+    "benchmark_values_used_for_selection": false
+  },
+  "profile_selection": {
+    "minimum_updates": 256,
+    "discard_warmup_updates": 32,
+    "eligible_only_if_all_scientific_parity_checks_pass": true,
+    "primary_metric": "tokens_per_gpu_hour",
+    "near_tie_relative_fraction": 0.02,
+    "near_tie_break": "lower_p90_step_seconds_then_fewer_nodes",
+    "minimum_candidates": 2,
+    "minimum_passing_candidates": 2,
+    "all_three_candidates_preferred": true,
+    "parity_thresholds": {
+      "trajectory_loss_rmse_max": 0.05,
+      "trajectory_loss_signed_mean_abs_max": 0.02,
+      "trajectory_gradient_relative_median_max": 0.02,
+      "restart_loss_abs_max": 1e-6,
+      "restart_parameter_norm_abs_max": 1e-6,
+      "restart_gradient_norm_atol": 0.001,
+      "restart_gradient_norm_rtol": 0.02
+    }
+  },
+  "profile_qualification_1p5b": {
+    "mode": "first_production_allocation_qualify_and_continue",
+    "fixed_candidate_profile_id": "1p5b_tp1_1node",
+    "candidate_comparison_runs": 0,
+    "minimum_updates": 256,
+    "discard_warmup_updates": 32,
+    "production_continues_only_if_all_scientific_parity_checks_pass": true,
+    "qualification_reuses_first_production_allocation": true,
+    "parity_thresholds": {
+      "trajectory_loss_rmse_max": 0.05,
+      "trajectory_loss_signed_mean_abs_max": 0.02,
+      "trajectory_gradient_relative_median_max": 0.02,
+      "restart_loss_abs_max": 1e-6,
+      "restart_parameter_norm_abs_max": 1e-6,
+      "restart_gradient_norm_atol": 0.001,
+      "restart_gradient_norm_rtol": 0.02
+    }
+  },
+  "evaluation": {
+    "offline_panel_authority": {
+      "manifest": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260807T063000Z-d0-v3/validation/validation_manifest.json",
+      "manifest_sha256": "a4b1d696adf83b2c691a99565075ba0a70db4074f7fe91fe6fdbab094303c1d9",
+      "panel_count": 13,
+      "reuse_reason": "same_corrected_panels_for_cross_scale_and_full8_comparability",
+      "training_exclusion_semantics": "sha256_of_exact_stored_utf8_text",
+      "historical_h_to_g_loss_replication_claim_allowed": false
+    },
+    "native_suite_code_authority": {
+      "local_worktree": "/Users/foivoskarounos-zamparloukos/Projects/.codex-worktrees/train-apertus-full8-results",
+      "branch": "agent/full8-results-analysis",
+      "revision": "2a7eb9d8de342129f379575ec031f631cde304bc",
+      "subdirectory": "subprojects/09_full_8b_cpt_results_analysis/evaluation"
+    },
+    "historical_online_panels": [
+      "hplt", "openarchives", "greek_phd", "english", "de", "ru", "zh", "code", "old_greek"
+    ],
+    "historical_online_interval_updates": 25,
+    "offline_panels_required": [
+      "hplt", "openarchives_aggregate", "openarchives_source_families",
+      "foreign_replay_language_families", "old_greek",
+      "neutral_external_modern_greek", "base_vs_added_token_targets"
+    ],
+    "offline_panel_checkpoint_updates": [
+      0, 238, 476, 714, 952, 1190, 1428, 1666, 1904, 2142, 2261, 2380,
+      2618, 2856, 3094, 3218, 3456, 3694
+    ],
+    "selection_requires_selection_authorized_true": true,
+    "greekmmlu_sentinel": {
+      "sizes": [4096, 8192],
+      "salt": "greekmmlu-sentinel-v1",
+      "early_calibration_updates": [0, 238, 476, 714],
+      "late_resolution_updates": [2618, 2856, 3094, 3218],
+      "bootstrap_replicates": 10000,
+      "bootstrap_seed": 20260814,
+      "confidence_level": 0.95,
+      "candidate_batch_size": 1,
+      "candidate_batch_evidence": "existing_fp32_1_vs_4_receipt_preserved_predictions_but_failed_raw_score_tolerance_so_batch_1_is_required",
+      "choice_score": "mean_continuation_log_probability",
+      "choice_nll": "negative_log_softmax_probability_of_correct_choice",
+      "early_resolution_target": "0.5 * median(abs(adjacent_full_choice_nll_delta_at_0_238_476_714))",
+      "late_resolution_target": "0.5 * median(abs(adjacent_full_choice_nll_delta_at_2618_2856_3094_3218))",
+      "authorization_requires_both_early_and_late_tests": true,
+      "cross_scale_comparison_panel": "largest_sentinel_passing_both_scales_else_full_clean_for_both",
+      "plateau_confirmation_trigger": "run_full_panel_at_earliest_plateau_member_if_plateau_is_not_exactly_singleton_3218",
+      "failure_state": "full_panel_required"
+    },
+    "greekmmlu_full_clean_required_updates": [0, 238, 476, 714, 2618, 2856, 3094, 3218, 3694],
+    "legacy_public_evaluator": {
+      "model_scale": "8b",
+      "update": 3218,
+      "code_revision": "cfdd0e7b00761a736be660867bf3d09733e24a92",
+      "questions": 16632,
+      "dtype": "bfloat16",
+      "historical_final_correct": 9969,
+      "historical_best_correct": 9973
+      ,"dataset_revision_was_not_pinned_by_historical_code": true,
+      "frozen_snapshot_revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+      "execution_mode": "revision_aware_materialized_snapshot_with_legacy_scoring_arithmetic",
+      "fallback_148992_policy": "skip_legacy_score_or_publish_only_as_not_comparable"
+    },
+    "native_suite_updates": [0, 2261, 2618, 3218, 3456, 3694],
+    "protipa_policy": "permanently_excluded_for_this_experiment_before_training_manifest_freeze"
+  },
+  "statistics": {
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": 20260814,
+    "replication_accuracy_margin": 0.015,
+    "replication_interval": "wilson_90_percent",
+    "trajectory_correlation": "spearman_on_adjacent_first_differences",
+    "bootstrap_scope": "evaluation_panel_sampling_uncertainty_conditional_on_one_realized_training_run_per_scale",
+    "trajectory_calibration_reference": "0p5b_same_scale_sibling_arm_first_difference_accuracy_spearman_minimum_0.5341",
+    "trajectory_point_threshold": 0.45,
+    "trajectory_lower_confidence_threshold": 0.0,
+    "trajectory_fail_upper_confidence_threshold": 0.0,
+    "pre_switch_updates": [0, 238, 476, 714, 952, 1190, 1428, 1666, 1904, 2142, 2261],
+    "post_switch_updates": [2261, 2380, 2618, 2856, 3094, 3218],
+    "extension_updates": [3218, 3456, 3694],
+    "immediate_switch_pair": [2261, 2380],
+    "immediate_switch_metrics": [
+      "greekmmlu_choice_nll",
+      "balanced_greek_bpb",
+      "hplt_bpb",
+      "openarchives_macro_bpb",
+      "foreign_replay_macro_bpb",
+      "old_greek_bpb"
+    ],
+    "slope_metrics": [
+      "greekmmlu_choice_nll",
+      "balanced_greek_bpb",
+      "hplt_bpb",
+      "openarchives_macro_bpb",
+      "foreign_replay_macro_bpb",
+      "old_greek_bpb"
+    ],
+    "resampling_units": {
+      "greekmmlu_choice_nll": "paired_question",
+      "all_bpb_metrics": "paired_document_cluster"
+    },
+    "source_panel_aggregation": {
+      "hplt_bpb": [
+        "hplt"
+      ],
+      "openarchives_macro_bpb": [
+        "openarchives",
+        "greek_phd",
+        "historical_polytonic"
+      ],
+      "foreign_replay_macro_bpb": [
+        "english",
+        "de",
+        "ru",
+        "zh",
+        "code",
+        "math"
+      ],
+      "old_greek_bpb": [
+        "old_greek"
+      ],
+      "neutral_external_modern_greek_bpb": [
+        "neutral_external_modern_greek"
+      ],
+      "family_combination": "unweighted_arithmetic_mean_of_family_bpb",
+      "balanced_greek_bpb": "0.5_hplt_bpb_plus_0.5_openarchives_macro_bpb",
+      "non_hplt_policy": "publish_aggregate_panel_but_do_not_double_count_it_as_a_source_family"
+    },
+    "forgetting": {
+      "panels": ["hplt", "foreign_replay_macro", "old_greek"],
+      "calibration_updates": [0, 238, 476, 714],
+      "margin_formula_per_panel": "2 * median(document_bootstrap_standard_error_at_calibration_updates)",
+      "minimum_is_recomputed_inside_every_bootstrap_replicate": true,
+      "cross_scale_pass": "same_non_inconclusive_class_for_every_panel",
+      "cross_scale_fail": "at_least_one_panel_has_opposite_material_vs_no_material_classes",
+      "cross_scale_otherwise": "inconclusive"
+    },
+    "plateau_overlap": {
+      "pass": "nonempty_intersection",
+      "fail": "empty_intersection",
+      "inconclusive": "only_if_required_full_panel_scores_are_missing_or_invalid"
+    },
+    "goal_b_aggregation": {
+      "primary": ["all_pre_post_slope_direction_tests", "all_immediate_switch_tests", "plateau_overlap", "retention_class_vector"],
+      "secondary": ["greekmmlu_first_difference_spearman", "balanced_greek_bpb_first_difference_spearman"],
+      "pass": "all_primary_pass_and_at_least_one_secondary_pass_and_no_secondary_fail",
+      "fail": "any_primary_fail_or_both_secondary_fail",
+      "otherwise": "inconclusive",
+      "extension_intervals_use_goal_c_tests_not_spearman"
+        : true
+    },
+    "goal_c": {
+      "margin_calibration_updates": [2618, 2856, 3094, 3218],
+      "openarchives_improvement_positive_direction": "bpb_start_minus_bpb_end",
+      "retention_regression_positive_direction": "bpb_end_minus_bpb_start",
+      "margin_formula_per_panel": "2 * median(document_bootstrap_standard_error_at_margin_calibration_updates)",
+      "same_margin_for_each_interval_and_cumulative": true,
+      "retention_panels": ["hplt", "foreign_replay_macro", "old_greek", "neutral_external_modern_greek"],
+      "pass": "openarchives_improvement_lower_bound_exceeds_margin_and_every_retention_regression_upper_bound_is_at_most_its_margin",
+      "fail": "openarchives_improvement_upper_bound_is_at_most_margin_or_any_retention_regression_lower_bound_exceeds_its_margin",
+      "otherwise": "inconclusive",
+      "saturation": "first_interval_pass_and_second_interval_openarchives_improvement_fail_with_retention_noninferior",
+      "inconclusive_second_interval_does_not_establish_saturation": true
+    },
+    "decision_states": ["pass", "fail", "inconclusive", "not_testable"]
+  },
+  "launch": {
+    "implementation_authorized": true,
+    "production_launch_authorized": false,
+    "production_launch_authorized_by_scale": {
+      "8b": false,
+      "1p5b": false
+    },
+    "all_receipt_backed_gates_required": true,
+    "no_gate_may_be_true_by_construction": true,
+    "pre_main_launch_scope": "independent_per_scale",
+    "required_pre_main_shared_artifacts": [
+      "historical_asset_inventory",
+      "benchmark_union_and_exclusions",
+      "dataset_rebuild_and_lineage",
+      "heldout_overlap_audit",
+      "replay_split",
+      "weighted_blend_and_index_caches",
+      "training_megatron_runtime",
+      "tokenizer_148480",
+      "offline_validation_panels",
+      "historical_online_validation_binaries",
+      "sentinel_freeze",
+      "evaluation_code_bundle",
+      "legacy_public_evaluator_contract",
+      "statistical_decision_contract"
+    ],
+    "required_pre_main_artifacts_by_scale": {
+      "8b": [
+        "8b_init_roundtrip",
+        "8b_restart_parity",
+        "8b_training_run_permit"
+      ],
+      "1p5b": [
+        "1p5b_td_init",
+        "1p5b_init_roundtrip",
+        "1p5b_profile_candidate",
+        "1p5b_lr_selection",
+        "1p5b_training_run_permit"
+      ]
+    },
+    "required_pre_main_terminal_artifacts": [
+      "production_timing",
+      "allocation_schedule",
+      "owner_production_authorization"
+    ],
+    "required_pre_main_launch_artifacts": [
+      "historical_asset_inventory",
+      "benchmark_union_and_exclusions",
+      "dataset_rebuild_and_lineage",
+      "heldout_overlap_audit",
+      "replay_split",
+      "weighted_blend_and_index_caches",
+      "training_megatron_runtime",
+      "tokenizer_148480",
+      "offline_validation_panels",
+      "historical_online_validation_binaries",
+      "sentinel_freeze",
+      "evaluation_code_bundle",
+      "legacy_public_evaluator_contract",
+      "statistical_decision_contract",
+      "8b_init_roundtrip",
+      "8b_restart_parity",
+      "8b_training_run_permit",
+      "1p5b_td_init",
+      "1p5b_init_roundtrip",
+      "1p5b_profile_candidate",
+      "1p5b_lr_selection",
+      "1p5b_training_run_permit",
+      "production_timing",
+      "allocation_schedule",
+      "owner_production_authorization"
+    ],
+    "required_pre_extension_artifacts": [
+      "main_8b_update_3218_checkpoint_permit",
+      "main_1p5b_update_3218_checkpoint_permit",
+      "cross_scale_realized_sample_ledger_match_through_3218",
+      "phase_3_unseen_blend_and_capacity_receipt",
+      "phase_local_cursor_guard_receipt",
+      "constant_floor_scheduler_resume_receipt",
+      "owner_extension_authorization"
+    ],
+    "required_pre_second_extension_segment_artifacts": [
+      "both_update_3456_checkpoint_permits",
+      "phase_3_3456_to_3457_resume_receipts"
+    ],
+    "required_pre_finalization_artifacts": [
+      "same_stack_sentinel_calibration_state",
+      "all_required_source_panel_receipts",
+      "all_required_greekmmlu_receipts",
+      "all_required_native_suite_receipts",
+      "selection_authorization_receipt"
+    ]
+  }
+}

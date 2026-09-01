@@ -711,11 +711,15 @@ def role_semantics_match(
             and invariants.get("phase_2_cache_has_global_historical_horizon") is True
         )
     if role == "cross_scale_realized_sample_ledger_match_through_3218":
+        invariants = receipt.get("invariants", {})
         return (
             receipt.get("matched_through_update") == 3218
             and receipt.get("global_consumed_samples") == 3_295_232
             and receipt.get("phase_2_local_consumed_samples") == 979_968
-            and all(receipt.get("invariants", {}).values())
+            and invariants.get("both_checkpoint_audits_restore_the_same_phase_local_cursor") is True
+            and invariants.get("both_scales_bind_canonical_or_proven_hardlink_superset_phase_caches") is True
+            and invariants.get("both_scales_bind_the_same_exact_index_derived_trajectory") is True
+            and invariants.get("quota_inference_used") is False
         )
     if role == "same_stack_sentinel_calibration_state":
         calibrations = receipt.get("calibrations", {})
