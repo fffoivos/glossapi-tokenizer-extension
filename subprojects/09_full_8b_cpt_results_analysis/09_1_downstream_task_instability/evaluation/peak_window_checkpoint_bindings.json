@@ -1,0 +1,73 @@
+{
+  "schema_version": "apertus_full8_native_greek_peak_window_bindings_v1",
+  "status": "frozen",
+  "tokens_per_update": 4194304,
+  "best_checkpoint": {
+    "label": "iter_0009536",
+    "iteration": 9536,
+    "token_slots": 39996882944,
+    "policy": "reuse_authoritative_existing_evaluation"
+  },
+  "contamination_subset": {
+    "policy": "exclude_only_evaluation_identities_with_a_strong_two_surface_corpus_match",
+    "training_dataset": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+    "training_dataset_revision": "987b8955fcd395c6219e39df9e64715457f69065",
+    "audit_receipt": "/capstor/scratch/cscs/fffoivos/benchmark_contamination_audits/runs/20260812T171530Z-native-greek-v1/publish_payload/audit_receipt.json",
+    "audit_receipt_sha256": "78273fcc9e45e2e8d54c72d4b765fe9d43af2b29a5602c59b1aab8cee4849feb",
+    "exclusions": "/capstor/scratch/cscs/fffoivos/benchmark_contamination_audits/runs/20260812T171530Z-native-greek-v1/publish_payload/recommended_excluded_example_ids.jsonl",
+    "exclusions_sha256": "7a8559461b15a308f599faf0ff25cd16c07be0a597078864f779af7f2f1fdd32",
+    "source_scored_examples": 83970,
+    "excluded_examples": 10076,
+    "retained_examples": 73894,
+    "excluded_by_benchmark": {
+      "asep_mcqa": 20,
+      "demosqa": 1,
+      "gpcr": 14,
+      "medical_mcqa": 13,
+      "oyxoy_metaphor": 973,
+      "oyxoy_nli": 42,
+      "oyxoy_wic": 4614,
+      "oyxoy_wsd_definition": 4399
+    },
+    "retained_by_benchmark": {
+      "asep_mcqa": 1180,
+      "demosqa": 599,
+      "gpcr": 194,
+      "medical_mcqa": 419,
+      "oyxoy_metaphor": 2042,
+      "oyxoy_nli": 5244,
+      "oyxoy_wic": 54217,
+      "oyxoy_wsd_definition": 9999
+    }
+  },
+  "checkpoints_to_evaluate": [
+    {
+      "label": "iter_0007152",
+      "iteration": 7152,
+      "token_slots": 29997662208,
+      "model_path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0007152/attempt_0/export/hf",
+      "export_receipt": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0007152/attempt_0/export/checkpoint_eval_export_receipt.json"
+    },
+    {
+      "label": "iter_0008344",
+      "iteration": 8344,
+      "token_slots": 34997272576,
+      "model_path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0008344/attempt_0/export/hf",
+      "export_receipt": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0008344/attempt_0/export/checkpoint_eval_export_receipt.json"
+    },
+    {
+      "label": "iter_0010728",
+      "iteration": 10728,
+      "token_slots": 44996493312,
+      "model_path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0010728/attempt_0/export/hf",
+      "export_receipt": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0010728/attempt_0/export/checkpoint_eval_export_receipt.json"
+    },
+    {
+      "label": "iter_0011920",
+      "iteration": 11920,
+      "token_slots": 49996103680,
+      "model_path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0011920/attempt_0/export/hf",
+      "export_receipt": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0011920/attempt_0/export/checkpoint_eval_export_receipt.json"
+    }
+  ]
+}

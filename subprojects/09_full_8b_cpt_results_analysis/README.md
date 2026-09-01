@@ -41,6 +41,7 @@ in subproject 07.
 | Checkpoint behavior and source exposure | [`CHECKPOINT_BEHAVIOR.html`](presentations/CHECKPOINT_BEHAVIOR.html) | [`CHECKPOINT_BEHAVIOR.data.json`](presentations/CHECKPOINT_BEHAVIOR.data.json) |
 | Native-Greek three-checkpoint benchmark screen | [`NATIVE_GREEK_3CP_BENCHMARKS.html`](presentations/NATIVE_GREEK_3CP_BENCHMARKS.html) | [`NATIVE_GREEK_3CP_BENCHMARKS.data.json`](presentations/NATIVE_GREEK_3CP_BENCHMARKS.data.json) |
 | Token-aligned 0.5B versus 8B checkpoint performance | [`D0_0P5B_VS_FULL8_CHECKPOINTS.html`](presentations/D0_0P5B_VS_FULL8_CHECKPOINTS.html) | [`D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.data.json`](D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.data.json) |
+| Added-token adaptation across the trajectory | [`09_3/RESULTS.md`](09_3_added_token_adaptation_audit/RESULTS.md) | [`ADDED_TOKEN_ADAPTATION.data.json`](09_3_added_token_adaptation_audit/presentations/ADDED_TOKEN_ADAPTATION.data.json) |
 
 The token-aligned D0 0.5B replication of the native-Greek screen is reported
 in [`D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md`](D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md),
@@ -69,3 +70,18 @@ The completed full-versus-filtered results are recorded in
 [`NATIVE_GREEK_3CP_RESULTS_20260812.md`](NATIVE_GREEK_3CP_RESULTS_20260812.md),
 and the exact evidence rule and 10,076 scored-example exclusions are frozen in
 [`evaluation/CONTAMINATION_DROP_DECISION_20260812.md`](evaluation/CONTAMINATION_DROP_DECISION_20260812.md).
+
+## Research extensions
+
+- [`09_1_downstream_task_instability/`](09_1_downstream_task_instability/README.md)
+  implements the mean total variation and output-instability expressions from
+  Nishida, Isonuma, and Oda ([arXiv:2510.04848](https://arxiv.org/abs/2510.04848))
+  for aligned checkpoint prediction artifacts. Checkpoint integration methods
+  are intentionally deferred to a later stage.
+
+- [`09_3_added_token_adaptation_audit/`](09_3_added_token_adaptation_audit/README.md)
+  measures whether the 17,920 added vocabulary entries adapted, using per-token
+  merged-vs-split likelihood, hidden-state agreement at the Token-Distillation
+  layer, and an echo probe, on held-out text. It finds that adaptation is
+  monotone through update 18,284 and therefore **does not** explain the GreekMMLU
+  peak at 9,536; see its [`RESULTS.md`](09_3_added_token_adaptation_audit/RESULTS.md).

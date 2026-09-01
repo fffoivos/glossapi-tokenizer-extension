@@ -1,0 +1,94 @@
+{
+ "blockers": [
+  {
+   "actor": "agent",
+   "details": {},
+   "event_id": "6bb577bc2a422b00585138c28a614f94802c16915e2792aa0a25360b036edd1d",
+   "event_type": "blocker_reported",
+   "experiment_id": "newtok-adaptation-audit-20260823",
+   "intake_sha256": "6383df94c4ccdbc546d8b2fc42d1b5ae579c61e562f52ca2f9dd3814b6dae09f",
+   "occurred_at": "2026-08-23T13:23:03Z",
+   "schema_version": "apertus_launch_event_v1"
+  },
+  {
+   "actor": "agent",
+   "details": {},
+   "event_id": "203c96a2d2b80032f0f1d5d8a4965f58ab7376bfb31a90950bd4e49538ad70c7",
+   "event_type": "blocker_reported",
+   "experiment_id": "newtok-adaptation-audit-20260823",
+   "intake_sha256": "6383df94c4ccdbc546d8b2fc42d1b5ae579c61e562f52ca2f9dd3814b6dae09f",
+   "occurred_at": "2026-08-23T13:25:38Z",
+   "schema_version": "apertus_launch_event_v1"
+  },
+  {
+   "actor": "agent",
+   "details": {},
+   "event_id": "ad0c90722abc984eb1a5191805bb71fcfc3a531086065d2e898ff062ccd6a5ac",
+   "event_type": "blocker_reported",
+   "experiment_id": "newtok-adaptation-audit-20260823",
+   "intake_sha256": "6383df94c4ccdbc546d8b2fc42d1b5ae579c61e562f52ca2f9dd3814b6dae09f",
+   "occurred_at": "2026-08-23T13:36:00Z",
+   "schema_version": "apertus_launch_event_v1"
+  }
+ ],
+ "clocks_seconds": {
+  "request_to_first_debug_submission": 2360.0,
+  "request_to_first_remote": 1205.0,
+  "request_to_production_submission": 3535.0,
+  "scheduler_queue": 1730.0
+ },
+ "event_count": 8,
+ "milestones": {
+  "first_debug_submitted": {
+   "actor": "agent",
+   "details": {},
+   "event_id": "5015ccde7b966d811e4c1b0119de8762b067d90d5ee4a3b725131779a2d8be7b",
+   "event_type": "first_debug_submitted",
+   "experiment_id": "newtok-adaptation-audit-20260823",
+   "intake_sha256": "6383df94c4ccdbc546d8b2fc42d1b5ae579c61e562f52ca2f9dd3814b6dae09f",
+   "occurred_at": "2026-08-23T13:06:20Z",
+   "schema_version": "apertus_launch_event_v1"
+  },
+  "first_remote_check_started": {
+   "actor": "agent",
+   "details": {},
+   "event_id": "4ccf359b2bd1187e5267dadb9007af2e6493085d096cb6e6c933880dce00c458",
+   "event_type": "first_remote_check_started",
+   "experiment_id": "newtok-adaptation-audit-20260823",
+   "intake_sha256": "6383df94c4ccdbc546d8b2fc42d1b5ae579c61e562f52ca2f9dd3814b6dae09f",
+   "occurred_at": "2026-08-23T12:47:05Z",
+   "schema_version": "apertus_launch_event_v1"
+  },
+  "production_started": {
+   "actor": "slurm",
+   "details": {},
+   "event_id": "b035959d81523b05941e2259a799bf57321ada3f48651d8cc80e7ec7a61c631a",
+   "event_type": "production_started",
+   "experiment_id": "newtok-adaptation-audit-20260823",
+   "intake_sha256": "6383df94c4ccdbc546d8b2fc42d1b5ae579c61e562f52ca2f9dd3814b6dae09f",
+   "occurred_at": "2026-08-23T13:54:45Z",
+   "schema_version": "apertus_launch_event_v1"
+  },
+  "production_submitted": {
+   "actor": "agent",
+   "details": {},
+   "event_id": "0a71f4b67295b88aaa5b2bdd7372c2720dc79141958e8d0bc99fd6a523ff685f",
+   "event_type": "production_submitted",
+   "experiment_id": "newtok-adaptation-audit-20260823",
+   "intake_sha256": "6383df94c4ccdbc546d8b2fc42d1b5ae579c61e562f52ca2f9dd3814b6dae09f",
+   "occurred_at": "2026-08-23T13:25:55Z",
+   "schema_version": "apertus_launch_event_v1"
+  },
+  "request_received": {
+   "actor": "user",
+   "details": {},
+   "event_id": "aa6236b4b913245f50714b5844816e53e5ed9452a543d0cfd21a8a964b7baadf",
+   "event_type": "request_received",
+   "experiment_id": "newtok-adaptation-audit-20260823",
+   "intake_sha256": "6383df94c4ccdbc546d8b2fc42d1b5ae579c61e562f52ca2f9dd3814b6dae09f",
+   "occurred_at": "2026-08-23T12:27:00Z",
+   "schema_version": "apertus_launch_event_v1"
+  }
+ },
+ "schema_version": "apertus_launch_timeline_v1"
+}

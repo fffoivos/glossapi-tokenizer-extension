@@ -1,0 +1,68 @@
+{
+ "schema_version": "added_token_adaptation_artifact_manifest_v1",
+ "source_subproject": "09_3_added_token_adaptation_audit",
+ "completed_run_root": "/iopsstor/scratch/cscs/fffoivos/newtok_audit_20260823",
+ "copied_at": "2026-08-23T14:05:00Z",
+ "artifacts": [
+  {
+   "path": "presentations/ADDED_TOKEN_ADAPTATION.data.json",
+   "bytes": 11936,
+   "sha256": "34a04ece64787cec43b3cd7ec2e6958cc1d30805f31c6d42ecf779f79dc3e968",
+   "role": "canonical_added_token_result_payload"
+  },
+  {
+   "path": "evidence/coverage.json",
+   "bytes": 763,
+   "sha256": "b503444bdb06bd6a134013df24bb62f163bc6602d5d940e72053ac51c4787cb4",
+   "role": "corpus_coverage_receipt"
+  },
+  {
+   "path": "evidence/heldout_reader_smoke.json",
+   "bytes": 1474,
+   "sha256": "376c7a073c4b31a9202b74612a7fa436d3bdfc753991cefd82e2fc99f2c97a18",
+   "role": "dataset_reader_smoke_receipt"
+  },
+  {
+   "path": "evidence/throughput_evidence.json",
+   "bytes": 1764,
+   "sha256": "298b4bad683664ff782ba549901fbca08c04efe63396b7c704f06fbf85b76755",
+   "role": "measured_throughput_and_walltime_basis"
+  },
+  {
+   "path": "evidence/debug_smoke.json",
+   "bytes": 981,
+   "sha256": "4402d00a57c60a25a63611c81712dfc206b8c1c239f7edce95a390032bc4173b",
+   "role": "pipeline_validation_receipt"
+  },
+  {
+   "path": "evidence/tokenizer_attestation.json",
+   "bytes": 899,
+   "sha256": "a753bab267bdeb84c9eaef6e31a2ae1930d8c287e628176e2f5bdd48f7956551",
+   "role": "extended_vs_base_tokenizer_attestation"
+  },
+  {
+   "path": "evidence/readiness_plan.json",
+   "bytes": 7710,
+   "sha256": "1668f0187b800bc1128171a3397e4beb410c74d10684f8a331c9051bafae8e83",
+   "role": "readiness_plan_at_submission"
+  },
+  {
+   "path": "evidence/deviations.json",
+   "bytes": 4548,
+   "sha256": "eed931d9406000610008213a28b5cb3f30cc52d6fb9b51e0a6147c44372ea7ed",
+   "role": "recorded_deviations_and_blocker_disposition"
+  },
+  {
+   "path": "evidence/launch_timeline.json",
+   "bytes": 3640,
+   "sha256": "52d72fc9e4c502ea30b34af93e77f792e516f0d7be607a3608860a31b53e1c2d",
+   "role": "separated_launch_clocks"
+  },
+  {
+   "path": "evidence/runner_role_exemption.json",
+   "bytes": 2209,
+   "sha256": "a4c066af848cc71ebe13a2b36a14b27d2425a52d950aedd7cd6383bf1a8cf7d6",
+   "role": "canonical_runner_role_exemption"
+  }
+ ]
+}

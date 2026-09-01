@@ -1,0 +1,186 @@
+{
+  "approval": {
+    "allow_debug_submission": true,
+    "allow_preparation_submission": true,
+    "allow_production_submission": true,
+    "approved_at": "2026-08-23T12:54:00Z",
+    "approved_by": "user",
+    "expected_scope_sha256": "a6bf7aa1969577c99d27bdb4e2ffb12e92101d9343027e15821ffc9b95c84d7e",
+    "publish_on_green": false,
+    "scope_matches": true,
+    "scope_sha256": "a6bf7aa1969577c99d27bdb4e2ffb12e92101d9343027e15821ffc9b95c84d7e"
+  },
+  "blockers": [
+    "canonical campaign runner reuse is not enabled"
+  ],
+  "canonical_probe_ready": true,
+  "canonical_runner_root": "/Users/foivoskarounos-zamparloukos/Projects/apertus-cscs-efficiency",
+  "experiment_id": "newtok-adaptation-audit-20260823",
+  "first_debug_task": null,
+  "intake": {
+    "bytes": 7364,
+    "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/intake.json",
+    "sha256": "6383df94c4ccdbc546d8b2fc42d1b5ae579c61e562f52ca2f9dd3814b6dae09f"
+  },
+  "missing_production_requirements": [],
+  "owning_repo": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823",
+  "pending_tasks": [],
+  "planning_critical_path_seconds": 0,
+  "planning_only": true,
+  "preparation_request_authorized": true,
+  "production_request_authorized": true,
+  "production_request_ready": false,
+  "production_requirements": [
+    "artifact:audit_code_bundle",
+    "artifact:checkpoint_update_18284",
+    "artifact:checkpoint_update_400",
+    "artifact:checkpoint_update_9536",
+    "artifact:tokenizer_pair",
+    "check:pipeline_debug_smoke",
+    "contract:campaign",
+    "contract:evaluation",
+    "contract:runtime",
+    "dataset:cpt25b_heldout_greek:inventory",
+    "dataset:cpt25b_heldout_greek:reader_smoke"
+  ],
+  "ready_nodes": [
+    {
+      "binding": {
+        "bytes": 805,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/receipts/code_bundle.json",
+        "schema_version": "newtok_audit_code_bundle_v1",
+        "sha256": "6234729b15a88952f6800ecc8419120a9eac399f134fe9c83d7d76954d8b94d4",
+        "status": "completed"
+      },
+      "id": "artifact:audit_code_bundle",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 669,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/receipts/checkpoint_main_provenance.json",
+        "schema_version": "apertus_model_checkpoint_release_provenance_v1",
+        "sha256": "0714ef54536f01143bacf61b521a2e2ccb052cfd2ee760c28188d6e2aa88c1a3",
+        "status": "passed"
+      },
+      "id": "artifact:checkpoint_update_18284",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 669,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/receipts/checkpoint_step400-tokens2B_provenance.json",
+        "schema_version": "apertus_model_checkpoint_release_provenance_v1",
+        "sha256": "6f82d1a036952eda0420723ac3621080569334cf82e6aa94e3a25ff610f58b1d",
+        "status": "passed"
+      },
+      "id": "artifact:checkpoint_update_400",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 669,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/receipts/checkpoint_step9536-tokens40B_provenance.json",
+        "schema_version": "apertus_model_checkpoint_release_provenance_v1",
+        "sha256": "fd1d2bcf7bec52cc9a362d4263550aaa7a666045d605f6af55638259b3c8ec05",
+        "status": "passed"
+      },
+      "id": "artifact:checkpoint_update_9536",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 899,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/receipts/tokenizer_attestation.json",
+        "schema_version": "newtok_audit_tokenizer_attestation_v1",
+        "sha256": "a753bab267bdeb84c9eaef6e31a2ae1930d8c287e628176e2f5bdd48f7956551",
+        "status": "proven"
+      },
+      "id": "artifact:tokenizer_pair",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 981,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/receipts/debug_smoke.json",
+        "schema_version": "newtok_audit_debug_smoke_v1",
+        "sha256": "4402d00a57c60a25a63611c81712dfc206b8c1c239f7edce95a390032bc4173b",
+        "status": "passed"
+      },
+      "id": "check:pipeline_debug_smoke",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 807,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/contracts/campaign.json",
+        "sha256": "75d8b199c672fee73c5ab99907711a5aa93869b1b56113ed886dc63606468514"
+      },
+      "id": "contract:campaign",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 1418,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/contracts/evaluation.json",
+        "sha256": "20a059d51ad624cb3e210f3deea278a01149d4d78293a0f5e8eaf7eba62174f5"
+      },
+      "id": "contract:evaluation",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 808,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/contracts/runtime.json",
+        "sha256": "b46862e671c35a585e7824907c512bf4e0403298de92c54a61b104d491366059"
+      },
+      "id": "contract:runtime",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 577832,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/receipts/cpt25b_heldout_manifest.json",
+        "schema_version": "full_cpt_training_heldouts_v1",
+        "sha256": "45c362dffd6bd571510edea6a7ca5015d7a1f34f8ebe8a873a5670b6faa3c0c0",
+        "status": "completed"
+      },
+      "id": "dataset:cpt25b_heldout_greek:inventory",
+      "status": "ready"
+    },
+    {
+      "binding": {
+        "bytes": 1474,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/receipts/heldout_reader_smoke.json",
+        "schema_version": "newtok_audit_coverage_v1",
+        "sha256": "376c7a073c4b31a9202b74612a7fa436d3bdfc753991cefd82e2fc99f2c97a18",
+        "status": "completed"
+      },
+      "id": "dataset:cpt25b_heldout_greek:reader_smoke",
+      "status": "ready"
+    }
+  ],
+  "schema_version": "apertus_experiment_readiness_plan_v2",
+  "stage_exemptions": [
+    {
+      "binding": {
+        "bytes": 3340123,
+        "path": "/Users/foivoskarounos-zamparloukos/Projects/newtok-adaptation-audit-20260823/receipts/cpt25b_input_receipt.json",
+        "schema_version": "full_cpt_training_bridge_input_receipt_v1",
+        "sha256": "f94bfa4742d6431802f0fbf6b5ec32a93dea793096c7db2ab4194d80f704d0b5",
+        "status": "frozen"
+      },
+      "node": "dataset:cpt25b_heldout_greek:decontaminated",
+      "reason": "GreekMMLU decontamination was applied and frozen upstream by the CPT data bridge before this held-out set was cut.",
+      "state": "proven_upstream"
+    },
+    {
+      "node": "dataset:cpt25b_heldout_greek:sanitized",
+      "reason": "The input is a frozen held-out set produced by the CPT data bridge and excluded from training; this experiment applies no sanitisation transform, retains no corpus text in any published artifact, and emits only per-vocabulary-entry statistics. NOTE: no standalone PII-masking receipt for the executed dataset could be located under the run root; the evidence is prose in 09/DATA_AND_LIMITATIONS.md plus observable <NAME> masks in the held-out text. Reported as a canonical-repository issue.",
+      "state": "not_applicable"
+    }
+  ],
+  "status": "blocked",
+  "technical_readiness_complete": false,
+  "waves": []
+}

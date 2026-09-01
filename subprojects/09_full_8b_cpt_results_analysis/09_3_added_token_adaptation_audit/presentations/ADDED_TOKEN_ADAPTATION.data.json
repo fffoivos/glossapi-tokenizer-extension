@@ -1,0 +1,450 @@
+{
+ "schema_version": "added_token_adaptation_v1",
+ "meta": {
+  "question": "Did the 17,920 added Greek vocabulary entries adapt in the full-8B CPT trajectory, and does that adaptation explain the GreekMMLU peak at update 9,536?",
+  "base_vocab": 131072,
+  "added_modern": 17408,
+  "added_polytonic": 512,
+  "vocab_size": 148992,
+  "checkpoints": [
+   {
+    "update": 400,
+    "staged_as": "step400-tokens2B"
+   },
+   {
+    "update": 9536,
+    "staged_as": "step9536-tokens40B"
+   },
+   {
+    "update": 18284,
+    "staged_as": "main"
+   }
+  ],
+  "occurrences_scored_per_checkpoint": 2348881,
+  "documents_scored": 9558,
+  "unaligned_occurrences": 0,
+  "probe_layers": {
+   "token_distillation_layer": 11,
+   "late_layer": 30
+  },
+  "corpus": "cpt25b held-out sets (excluded from training, GreekMMLU-decontaminated, PII-masked): val_historical_polytonic, val_forget_old_greek, val_greek_phd, val_openarchives, val_non_hplt, val_hplt",
+  "design_note": "Both arms score identical text under the same model, so the comparison is paired; the corpus is additionally held out, so it is also clean."
+ },
+ "coverage": {
+  "floor": 16,
+  "n_docs_kept": 9559,
+  "n_added_tokens": 17920,
+  "n_below_floor": 670,
+  "n_zero": 39,
+  "modern_below_floor": 505,
+  "polytonic_below_floor": 165,
+  "count_percentiles": {
+   "0": 0.0,
+   "1": 4.0,
+   "5": 18.950000000000045,
+   "25": 57.0,
+   "50": 99.0,
+   "75": 181.0,
+   "95": 482.0,
+   "100": 10377.0
+  },
+  "elapsed_s": 10.623637676239014
+ },
+ "trajectory": {
+  "modern": [
+   {
+    "update": 400,
+    "n_scored_tokens": 17171,
+    "delta_logp": {
+     "p5": 1.55368800540435,
+     "p50": 4.2942398878890025,
+     "p95": 10.28169541225152
+    },
+    "frac_tokens_nonpositive": 0.004600780385533749,
+    "frac_occurrences_positive_p50": 0.975,
+    "hidden_cos_layer11": {
+     "p5": 0.9147682510227826,
+     "p50": 0.9659669159389124
+    },
+    "hidden_cos_layer30": {
+     "p5": 0.8727307608676336,
+     "p50": 0.9773273944854737,
+     "p95": 0.9920386277339093
+    },
+    "echo_top1_rate": 0.44342204880321473,
+    "echo_top10_rate": 0.883058645390484
+   },
+   {
+    "update": 9536,
+    "n_scored_tokens": 17171,
+    "delta_logp": {
+     "p5": 5.393163781414429,
+     "p50": 9.069777701269178,
+     "p95": 20.44873771716299
+    },
+    "frac_tokens_nonpositive": 0.0,
+    "frac_occurrences_positive_p50": 1.0,
+    "hidden_cos_layer11": {
+     "p5": 0.9238050309481987,
+     "p50": 0.9739091113556263
+    },
+    "hidden_cos_layer30": {
+     "p5": 0.8514759435124474,
+     "p50": 0.973573323753145,
+     "p95": 0.9887203029444758
+    },
+    "echo_top1_rate": 0.7097431716265797,
+    "echo_top10_rate": 0.9543998602294567
+   },
+   {
+    "update": 18284,
+    "n_scored_tokens": 17171,
+    "delta_logp": {
+     "p5": 5.815763501556445,
+     "p50": 9.586481351757312,
+     "p95": 21.685515137642973
+    },
+    "frac_tokens_nonpositive": 0.0,
+    "frac_occurrences_positive_p50": 1.0,
+    "hidden_cos_layer11": {
+     "p5": 0.9209717087335811,
+     "p50": 0.973481568850969
+    },
+    "hidden_cos_layer30": {
+     "p5": 0.82419833190216,
+     "p50": 0.9653882726294095,
+     "p95": 0.9837316360765247
+    },
+    "echo_top1_rate": 0.8526585522101218,
+    "echo_top10_rate": 0.9814221652786675
+   }
+  ],
+  "polytonic": [
+   {
+    "update": 400,
+    "n_scored_tokens": 439,
+    "delta_logp": {
+     "p5": -0.0011994358551289208,
+     "p50": 5.406489012071065,
+     "p95": 12.545214490886202
+    },
+    "frac_tokens_nonpositive": 0.05239179954441914,
+    "frac_occurrences_positive_p50": 1.0,
+    "hidden_cos_layer11": {
+     "p5": 0.894840921163559,
+     "p50": 0.9400586812726913
+    },
+    "hidden_cos_layer30": {
+     "p5": 0.8360017009079457,
+     "p50": 0.9411434630552927,
+     "p95": 0.966257020341877
+    },
+    "echo_top1_rate": 0.0683371298405467,
+    "echo_top10_rate": 0.5671981776765376
+   },
+   {
+    "update": 9536,
+    "n_scored_tokens": 439,
+    "delta_logp": {
+     "p5": 2.0255507619732196,
+     "p50": 6.763827506934704,
+     "p95": 18.212091123556185
+    },
+    "frac_tokens_nonpositive": 0.0,
+    "frac_occurrences_positive_p50": 1.0,
+    "hidden_cos_layer11": {
+     "p5": 0.9243484573066235,
+     "p50": 0.9598363637924194
+    },
+    "hidden_cos_layer30": {
+     "p5": 0.8692843818664551,
+     "p50": 0.9360417566801372,
+     "p95": 0.9641137544314067
+    },
+    "echo_top1_rate": 0.6059225512528473,
+    "echo_top10_rate": 0.9271070615034168
+   },
+   {
+    "update": 18284,
+    "n_scored_tokens": 439,
+    "delta_logp": {
+     "p5": 2.630414210305834,
+     "p50": 8.13792203191238,
+     "p95": 21.059893888664806
+    },
+    "frac_tokens_nonpositive": 0.0,
+    "frac_occurrences_positive_p50": 1.0,
+    "hidden_cos_layer11": {
+     "p5": 0.9186033529894693,
+     "p50": 0.9613512873649597
+    },
+    "hidden_cos_layer30": {
+     "p5": 0.8591390312612057,
+     "p50": 0.9288702661340887,
+     "p95": 0.9571133840829134
+    },
+    "echo_top1_rate": 0.7585421412300684,
+    "echo_top10_rate": 0.9635535307517085
+   }
+  ]
+ },
+ "peak_to_terminal": {
+  "modern": {
+   "n_shared_tokens": 17171,
+   "frac_improved": 0.7983227534797042,
+   "frac_regressed": 0.20167724652029584,
+   "mean_change_nats": 0.640128108542256,
+   "change_p5": -0.751818919826666,
+   "change_p95": 2.2089576165637697,
+   "largest_regressions": [
+    {
+     "surface_readable": " ΕΠΙΤΡΟ",
+     "delta_at_9536": 47.72070794533129,
+     "delta_at_18284": 39.64778998281473,
+     "change": -8.072917962516563,
+     "n_occ": 191
+    },
+    {
+     "surface_readable": " δημοσιεύει",
+     "delta_at_9536": 39.94813767020184,
+     "delta_at_18284": 32.77829142217407,
+     "change": -7.169846248027767,
+     "n_occ": 77
+    },
+    {
+     "surface_readable": " ΣΥΝΟΛΟ",
+     "delta_at_9536": 42.26920408786616,
+     "delta_at_18284": 35.21297077454256,
+     "change": -7.056233313323595,
+     "n_occ": 43
+    },
+    {
+     "surface_readable": " αυτονόητο",
+     "delta_at_9536": 37.69327076316075,
+     "delta_at_18284": 31.225107737758083,
+     "change": -6.468163025402664,
+     "n_occ": 48
+    },
+    {
+     "surface_readable": "ΩΣΗΣ",
+     "delta_at_9536": 33.34664048011534,
+     "delta_at_18284": 27.490946289520497,
+     "change": -5.855694190594843,
+     "n_occ": 190
+    },
+    {
+     "surface_readable": " Εφημερ",
+     "delta_at_9536": 38.06106477927811,
+     "delta_at_18284": 32.53483404389805,
+     "change": -5.526230735380061,
+     "n_occ": 28
+    },
+    {
+     "surface_readable": "τοιχεία",
+     "delta_at_9536": 21.983759795184604,
+     "delta_at_18284": 16.857256919780582,
+     "change": -5.126502875404022,
+     "n_occ": 103
+    },
+    {
+     "surface_readable": "ΕΠΙΣΤΗΜ",
+     "delta_at_9536": 25.239970901436266,
+     "delta_at_18284": 20.216629032337398,
+     "change": -5.023341869098868,
+     "n_occ": 82
+    },
+    {
+     "surface_readable": "Συνο",
+     "delta_at_9536": 28.542750136840926,
+     "delta_at_18284": 24.078056770099668,
+     "change": -4.464693366741258,
+     "n_occ": 145
+    },
+    {
+     "surface_readable": " ΠΡΟ",
+     "delta_at_9536": 29.012800574398955,
+     "delta_at_18284": 24.584751998387766,
+     "change": -4.428048576011189,
+     "n_occ": 524
+    }
+   ]
+  },
+  "polytonic": {
+   "n_shared_tokens": 439,
+   "frac_improved": 0.8815489749430524,
+   "frac_regressed": 0.11845102505694761,
+   "mean_change_nats": 1.5613697846459058,
+   "change_p5": -0.6187555858421835,
+   "change_p95": 4.348817933950338,
+   "largest_regressions": [
+    {
+     "surface_readable": " τοιοῦ",
+     "delta_at_9536": 7.012326687574387,
+     "delta_at_18284": 4.116442680358887,
+     "change": -2.8958840072155,
+     "n_occ": 8
+    },
+    {
+     "surface_readable": "ιοῦ",
+     "delta_at_9536": 8.921099252998829,
+     "delta_at_18284": 6.501810311805457,
+     "change": -2.419288941193372,
+     "n_occ": 4
+    },
+    {
+     "surface_readable": "ροῦ",
+     "delta_at_9536": 8.999535768792834,
+     "delta_at_18284": 6.970443036655734,
+     "change": -2.0290927321370997,
+     "n_occ": 39
+    },
+    {
+     "surface_readable": " ταῦτα",
+     "delta_at_9536": 10.342384638256123,
+     "delta_at_18284": 8.799073928953353,
+     "change": -1.5433107093027694,
+     "n_occ": 37
+    },
+    {
+     "surface_readable": " εὔ",
+     "delta_at_9536": 5.345055745995563,
+     "delta_at_18284": 3.8404954166516014,
+     "change": -1.504560329343962,
+     "n_occ": 23
+    },
+    {
+     "surface_readable": " αὐτοὺς",
+     "delta_at_9536": 8.277279314562499,
+     "delta_at_18284": 6.862226916052731,
+     "change": -1.4150523985097676,
+     "n_occ": 31
+    },
+    {
+     "surface_readable": "ῦς",
+     "delta_at_9536": 6.434588094391594,
+     "delta_at_18284": 5.143808086611638,
+     "change": -1.290780007779956,
+     "n_occ": 21
+    },
+    {
+     "surface_readable": " οὐδ",
+     "delta_at_9536": 4.276340794563294,
+     "delta_at_18284": 3.038300561904907,
+     "change": -1.2380402326583866,
+     "n_occ": 10
+    },
+    {
+     "surface_readable": "λοῦ",
+     "delta_at_9536": 8.742563195295588,
+     "delta_at_18284": 7.584775162504229,
+     "change": -1.157788032791359,
+     "n_occ": 32
+    },
+    {
+     "surface_readable": " οὐχ",
+     "delta_at_9536": 7.021588506168753,
+     "delta_at_18284": 5.92169062490575,
+     "change": -1.0998978812630025,
+     "n_occ": 21
+    }
+   ]
+  }
+ },
+ "delta_logp_by_base_piece_count": [
+  {
+   "base_pieces": 2,
+   "n_tokens": 8158,
+   "delta_logp_p50": 8.121175375634547
+  },
+  {
+   "base_pieces": 3,
+   "n_tokens": 5351,
+   "delta_logp_p50": 10.479889026502283
+  },
+  {
+   "base_pieces": 4,
+   "n_tokens": 2569,
+   "delta_logp_p50": 16.02036085683003
+  },
+  {
+   "base_pieces": 5,
+   "n_tokens": 853,
+   "delta_logp_p50": 19.46570358325755
+  },
+  {
+   "base_pieces": 6,
+   "n_tokens": 200,
+   "delta_logp_p50": 23.83030903164198
+  },
+  {
+   "base_pieces": 7,
+   "n_tokens": 26,
+   "delta_logp_p50": 26.841160260562646
+  }
+ ],
+ "peak_to_terminal_change_by_occurrence_band": [
+  {
+   "occurrence_band": "4-19",
+   "n_tokens": 882,
+   "mean_change_nats": 0.8096684207864212,
+   "frac_regressed": 0.19727891156462585
+  },
+  {
+   "occurrence_band": "20-99",
+   "n_tokens": 8967,
+   "mean_change_nats": 0.6827486187957099,
+   "frac_regressed": 0.19092227054756328
+  },
+  {
+   "occurrence_band": "100-499",
+   "n_tokens": 6763,
+   "mean_change_nats": 0.5875975996237464,
+   "frac_regressed": 0.2041993198284785
+  },
+  {
+   "occurrence_band": "500+",
+   "n_tokens": 559,
+   "mean_change_nats": 0.32447723371900916,
+   "frac_regressed": 0.35062611806797855
+  }
+ ],
+ "unmeasurable_tokens": {
+  "total_added": 17920,
+  "zero_scored_occurrences": 152,
+  "absent_from_corpus": 39,
+  "present_but_single_base_piece": 113,
+  "note": "A single-character added token whose base decomposition is one token has no merged-vs-split contrast; the test is inapplicable to it, not failed."
+ },
+ "raw_payload_pointers": [
+  {
+   "name": "audit_step400-tokens2B.json",
+   "update": 400,
+   "cscs_path": "/iopsstor/scratch/cscs/fffoivos/newtok_audit_20260823/out/audit_step400-tokens2B.json",
+   "bytes": 16078501,
+   "sha256": "f9e00c1f58d1eb3e35aa87d6ff7aae57fade9e43c1edb538478c11eddd324d24"
+  },
+  {
+   "name": "audit_step9536-tokens40B.json",
+   "update": 9536,
+   "cscs_path": "/iopsstor/scratch/cscs/fffoivos/newtok_audit_20260823/out/audit_step9536-tokens40B.json",
+   "bytes": 15662536,
+   "sha256": "aa8c7934dfb0579e96bf10477b82c4efa19dfb08063ee30a6d32304f4959b2a8"
+  },
+  {
+   "name": "audit_main.json",
+   "update": 18284,
+   "cscs_path": "/iopsstor/scratch/cscs/fffoivos/newtok_audit_20260823/out/audit_main.json",
+   "bytes": 15649494,
+   "sha256": "f9f456da9638a62c444e2a9fc4ea3330cc3ba37c8d6f690ede11cbdcf163a8e5"
+  }
+ ],
+ "provenance": {
+  "corpus_build_job": 3162848,
+  "pipeline_smoke_job": 3162819,
+  "throughput_probe_job": 3162887,
+  "audit_job": 3162910,
+  "audit_elapsed": "00:38:31",
+  "audit_partition": "normal",
+  "audit_walltime_granted": "02:00:00"
+ }
+}

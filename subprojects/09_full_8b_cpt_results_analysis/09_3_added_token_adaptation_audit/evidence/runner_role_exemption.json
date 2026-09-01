@@ -1,0 +1,36 @@
+{
+ "schema_version": "newtok_audit_runner_role_exemption_v1",
+ "experiment_id": "newtok-adaptation-audit-20260823",
+ "audited_origin_main": "22c4561050cba36f34b8480e1373788e139aaf3c",
+ "audited_at": "2026-08-23T13:47:00Z",
+ "audit_method": "git fetch origin; read docs/REPOSITORY_SCOPE.md and docs/CANONICAL_CAMPAIGN_RUNNER.md and src/apertus_cscs_campaign/cli.py at current origin/main (not from the experiment tree)",
+ "missing_canonical_role": "post-hoc read-only evaluation of released checkpoints outside any campaign",
+ "verbs_searched": [
+  "run-evaluation-in-allocation",
+  "probe --role evaluation",
+  "launch-qualified",
+  "qualify-runtime",
+  "qualify-and-continue",
+  "run-in-allocation",
+  "run-holder-in-allocation",
+  "compile",
+  "permit",
+  "supervise",
+  "finalize",
+  "status"
+ ],
+ "why_none_fit": "Every evaluation verb is campaign-bound. run-evaluation-in-allocation and probe --role evaluation both require --manifest (a compiled apertus_campaign_v3 manifest), --run-root (a campaign run root) and a declared evaluator milestone --iteration. This experiment has no campaign: it scores three already-frozen, released checkpoints of a completed trajectory. No additive flag on an existing verb expresses 'no manifest, no run root, no milestone'.",
+ "experiment_owned_instead": {
+  "files": [
+   "scripts/new_token_behavioral_audit.py",
+   "scripts/build_coverage_corpus.py",
+   "scripts/stageA_build_corpus.sbatch",
+   "scripts/stageB_audit.sbatch",
+   "scripts/probe_throughput.sbatch"
+  ],
+  "justification": "These are scientific evaluation transformations, which docs/REPOSITORY_SCOPE.md explicitly leaves with the owning experiment ('evaluation-set selection and winner criteria'). None carries a submit_/supervise_/finalize_/watch_/freeze_ prefix and none performs a holder, permit, adoption, or receipt-state-machine role."
+ },
+ "canonical_bytes_changed": "none",
+ "issue": "https://github.com/fffoivos/apertus-cscs-efficiency/issues/153",
+ "note": "The experiment checkout used for this audit was 12 commits behind origin/main; the audit was re-run against origin/main and the conclusion is unchanged (readiness.py reuse blocker identical; no new evaluation or diagnostic verb)."
+}
