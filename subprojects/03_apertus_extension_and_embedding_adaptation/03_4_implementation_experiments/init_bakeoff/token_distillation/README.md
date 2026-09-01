@@ -1,152 +1,53 @@
-# Token Distillation Prep
+# token_distillation — the fourth arm
 
-This folder holds the bounded ReTok + Token Distillation challenger work. It is
-not part of the default production path unless its gates beat the current
-Vanilla decision state.
+> **In one line:** the only non-closed-form arm — instead of a formula, the new rows are *learned* by distilling the base model's hidden states over real corpus snippets containing each new token; it ran as a four-gate ladder in a single day and produced `td_full25_layer11`, the challenger that beat ReTok and Centroid and then nearly beat Vanilla.
+> **Period:** 2026-05-22 (plan) → 2026-05-23 (all gates passed). **Status:** completed; the arm was trained and evaluated by [`../bakeoff_training/`](../bakeoff_training/README.md) and [`../eval/`](../eval/README.md).
+> **Led to:** [`../../../../05_token_distillation_cpt/`](../../../../05_token_distillation_cpt/), which took TD forward, and the 2026-07-29 production init pipeline in [`../../polytonic_cutoff_probe/`](../../polytonic_cutoff_probe/README.md).
 
-## First gate: CPU coverage prepass
+## Why this existed
 
-Run this on Clariden `xfer`, not on a GPU partition:
+cpt_plan v0.7 §13 had bracketed distillation as too risky. [`../../../TOKEN_DISTILLATION_PLAN.md`](../../../TOKEN_DISTILLATION_PLAN.md) (2026-05-22) argued the bracketing was based on a tied-vs-untied embedding worry that the official implementation already handles, and that the real risk is integration: Apertus has untied `E`/`U`, our tokenizer is merge-extended with fixed production IDs (not `add_tokens(...)`), and the result must survive the same R17 roundtrip gate as every other arm. The plan set explicit start conditions — do not interrupt the running bakeoff; run only if ReTok has healthy new-token behaviour but still trails Vanilla.
 
-```bash
-cd /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/token_distillation
-sbatch td_coverage_prepass_xfer.sbatch
-```
+## History — the four gates, all on 2026-05-23
 
-The prepass scans the mixed JSONL stream in order and stops after the first
-2,000,000,000 extended-token emissions by default. A firing only counts when the
-extended tokenizer actually emits a new token ID in `[131072, 148480)`.
-Substring matches and BPE merge ancestry do not count.
+**Gate 1 — CPU coverage prepass.** Scan the mixed JSONL in order until 2 B extended-token emissions and count, per new token ID in `[131072, 148480)`, how many usable snippets exist. Eleven jobs were burned discovering that `xfer` compute nodes are x86_64, expose no `uenv`, and ship Python 3.6 — resolved by an xfer-built Python 3.11 venv with `tokenizers==0.22.1`. A twelfth (`2349342`) scanned the full 2 B and then **refused to emit**, because 9 documents were not NFC; a CPU-only JSONL normaliser was added and the prepass rerun on `bulk_mix.nfc.jsonl`.
 
-Runtime note: `xfer` nodes are x86_64 and do not expose the `uenv` CLI used on
-GH200/normal nodes. The sbatch therefore uses a tiny xfer-built Python 3.11 venv
-at `/iopsstor/scratch/cscs/fffoivos/python_envs/td_coverage_py311_xfer` with
-`tokenizers==0.22.1`.
+Result (job `2351374`, 4h09m): 2,000,000,000 tokens scanned over 1,645,852 docs, `non_nfc_docs = 0`, **17,377 of 17,408 tokens (99.82 %) had ≥100 usable snippets**, 15 more had ≥25, and only 5 fell below 20. Gate decision `run_full_td_100`.
 
-Expected outputs:
+**Gate 2 — bounded smoke.** A small token subset at `target_layer=-1`, 25 snippets, verifying that every base row and every unselected new row stays gradient-zeroed and exact-checked by the vendored training loop.
 
-- `td_coverage_prepass.jsonl` - one row per new token
-- `td_coverage_summary.json` - aggregate thresholds and recommendation
-- `td_snippet_index/snippets.jsonl` - sampled snippet references/text
+**Gate 3 — packed layer pilot.** The upstream README suggests target layers around one-third depth can beat the paper-default last layer; for Apertus-8B's 32 layers that is layer 11. Both candidates were packed into one 4-GPU allocation rather than launched separately.
 
-Decision rule:
+| Arm | BPB | Δ vs ReTok | D1 mean rank | D1 top-1 |
+|---|---:|---:|---:|---:|
+| ReTok | 2.9503 | 0.0000 | 3868.27 | 0.0065 |
+| TD last (-1) | 2.7830 | −0.1673 | 3294.05 | 0.0146 |
+| **TD layer 11** | **2.7753** | **−0.1750** | **3263.69** | **0.0148** |
 
-- `>= 90%` of new tokens with 100 usable snippets: run full TD at 100 snippets.
-- `>= 90%` with 25 usable snippets: run the paper-fast TD setting and flag the
-  tail.
-- otherwise: do not launch full TD; inspect coverage/tokenizer mismatch first.
+**layer 11 selected.** The pilot also produced the budget calibration that set the production setting: a 100-snippet all-token run would take 18–19 GPU-hours, past `normal`'s 12 h cap, so the full run used the paper-fast **25-snippet** setting.
 
-This prepass is intentionally CPU-only. Any dataset or snippet-building rerun
-belongs on `xfer`.
+**Gate 4 — full-token TD + preservation + R17.** `retok_td_full25_layers_20260523T092602Z/layer11` completed in 16,254.8 s over 54,303 dataloader steps: **17,377 tokens trained, 15 skipped**, `target_layer=11`, `snippets_per_token=25`, batch 8. A preservation verifier confirmed every pre-existing row was untouched, and the R17 roundtrip gate passed as job `2357565`.
 
-After the prepass finishes, select bounded smoke and layer-pilot token sets:
+## Outcome
 
-```bash
-python3 select_td_pilot_tokens.py \
-  --coverage-jsonl "$OUTPUT_DIR/td_coverage_prepass.jsonl" \
-  --summary-json "$OUTPUT_DIR/td_coverage_summary.json" \
-  --output-dir "$OUTPUT_DIR/pilot_selection"
-```
+- **`td_full25_layer11`** — the challenger checkpoint, R17-preserved and Megatron-loadable.
+- **At its 2 B checkpoint (iter 476)** it beat ReTok on heldout BPB (0.5311 vs 0.5739) and Centroid (0.8994), and on new-target top-1/top-10 (0.3864/0.6191 vs ReTok's 0.3497/0.5772). ReTok kept a higher five-prompt greedy new-token utilization (0.3580 vs 0.2080) — flagged in the log as a weak diagnostic. All three extended arms preserved the Greek compression gain: 3.973 chars/token and 1.735 tokens/word vs Vanilla's 2.557 and 2.693.
+- **It did not beat Vanilla at 2 B** on the aggregate Greek/preservation criteria, which is why the production decision stayed Vanilla — and then the 3.5 B/5 B continuations partially reversed that, and the native-Greek suite reversed it back. See [`../eval/README.md`](../eval/README.md).
+- **Integration rule that carried forward:** never call the package's high-level `TokenDistillation.run(...)`, because it appends tokens with `add_tokens(...)`; call the lower-level training loop with an explicit `base_phrase_ids → new_token_id` mapping. Subproject 05's production init pipeline follows exactly this.
 
-This writes:
+## Where things are
 
-- `td_pilot_token_selection.json`
-- `smoke_token_ids.txt`
-- `layer_pilot_token_ids.txt`
+| What | Where |
+|---|---|
+| Coverage gate | [`td_coverage_prepass.py`](td_coverage_prepass.py) + `td_coverage_prepass_xfer.sbatch`, [`summarize_td_coverage.py`](summarize_td_coverage.py), `td_coverage_postprocess_xfer.sbatch` |
+| Token selection | [`select_td_pilot_tokens.py`](select_td_pilot_tokens.py) |
+| Training | [`train_retok_td.py`](train_retok_td.py), [`train_retok_td.sbatch`](train_retok_td.sbatch), [`train_retok_td_layer_pilot_packed.sbatch`](train_retok_td_layer_pilot_packed.sbatch) |
+| Preservation check | [`verify_td_preservation.py`](verify_td_preservation.py) + xfer sbatch |
+| Pinned upstream | [`external/token-distillation/`](external/token-distillation/PINNED_UPSTREAM.md) — `konstantinjdobler/token-distillation` at `35702b5809599ecd68b7845eca27a0d7b7cec0da` |
+| Plan | [`../../../TOKEN_DISTILLATION_PLAN.md`](../../../TOKEN_DISTILLATION_PLAN.md) |
+| Artifacts | Clariden `/iopsstor/scratch/cscs/fffoivos/token_distillation/` (~125 GB) |
 
-Also render a reviewer-readable coverage report:
+## Working documents
 
-```bash
-python3 summarize_td_coverage.py \
-  --coverage-jsonl "$OUTPUT_DIR/td_coverage_prepass.jsonl" \
-  --summary-json "$OUTPUT_DIR/td_coverage_summary.json" \
-  --output-md "$OUTPUT_DIR/TD_COVERAGE_SUMMARY.md"
-```
-
-For unattended babysitting, submit the postprocess job with a dependency on the
-coverage prepass. It is CPU-only and does not launch TD training:
-
-```bash
-sbatch --dependency=afterok:<coverage_job_id> --export=ALL,\
-COVERAGE_DIR="$OUTPUT_DIR" \
-td_coverage_postprocess_xfer.sbatch
-```
-
-It writes:
-
-- `TD_COVERAGE_SUMMARY.md`
-- `TD_GATE_DECISION.json`
-- `pilot_selection/` only when the coverage gate recommends TD
-
-## Second gate: TD smoke, only if coverage passes
-
-Do not submit this until `td_coverage_summary.json` recommends either
-`run_full_td_100` or `run_td_25_with_flagged_tail`.
-
-Example smoke launch:
-
-```bash
-cd /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/token_distillation
-OUTPUT_DIR=/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_smoke_last_layer_$(date -u +%Y%m%dT%H%M%SZ)
-COVERAGE_DIR=/iopsstor/scratch/cscs/fffoivos/token_distillation/coverage_2b_modern_20260523T012000Z_r2
-sbatch --export=ALL,\
-COVERAGE_JSONL="$COVERAGE_DIR/td_coverage_prepass.jsonl",\
-SNIPPETS_JSONL="$COVERAGE_DIR/td_snippet_index/snippets.jsonl",\
-TOKEN_IDS_FILE="$COVERAGE_DIR/pilot_selection/smoke_token_ids.txt",\
-OUTPUT_DIR="$OUTPUT_DIR",\
-TARGET_LAYER=-1,\
-SNIPPETS_PER_TOKEN=25 \
-train_retok_td.sbatch
-```
-
-The wrapper trains only selected new input/output rows. Every base row and every
-unselected new row is gradient-zeroed and exact-checked by the vendored training
-loop.
-
-## Third gate: packed layer pilot
-
-Clariden `normal` allocates a full four-GPU node even for the one-GPU smoke
-request. For layer choice, pack the candidates into one allocation instead of
-launching separate single-process jobs.
-
-The package does not ship a separate layer-suggestion tool. The only upstream
-layer guidance in the vendored README is that target layers around the
-one-third mark can outperform the last layer. For Apertus-8B's 32 transformer
-layers, compare:
-
-- `target_layer=-1` - paper-default last layer
-- `target_layer=11` - one-third-depth README suggestion
-
-Example launch:
-
-```bash
-cd /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/token_distillation
-COVERAGE_DIR=/iopsstor/scratch/cscs/fffoivos/token_distillation/coverage_2b_modern_20260523T032424Z_nfc
-OUTPUT_ROOT=/iopsstor/scratch/cscs/fffoivos/token_distillation/retok_td_layer_pilot_$(date -u +%Y%m%dT%H%M%SZ)
-sbatch --export=ALL,\
-COVERAGE_JSONL="$COVERAGE_DIR/td_coverage_prepass.jsonl",\
-SNIPPETS_JSONL="$COVERAGE_DIR/td_snippet_index/snippets.jsonl",\
-TOKEN_IDS_FILE="$COVERAGE_DIR/pilot_selection/layer_pilot_token_ids.txt",\
-OUTPUT_ROOT="$OUTPUT_ROOT",\
-TARGET_LAYERS="-1 11",\
-MAX_SELECTED_TOKENS=1024,\
-SNIPPETS_PER_TOKEN=50 \
-train_retok_td_layer_pilot_packed.sbatch
-```
-
-This writes one HF checkpoint per layer candidate plus
-`layer_pilot_manifest.json` under `OUTPUT_ROOT`.
-
-## Pinned Token Distillation code
-
-The official implementation is vendored under
-`external/token-distillation/` at upstream commit
-`35702b5809599ecd68b7845eca27a0d7b7cec0da`; see
-`external/token-distillation/PINNED_UPSTREAM.md`.
-
-For Apertus, do not call the package's high-level
-`TokenDistillation.run(...)` path because it appends tokens with
-`add_tokens(...)`. Our ReTok tokenizer is already merge-extended with fixed
-IDs. The Apertus adapter should load the exact student tokenizer/checkpoint and
-call the lower-level training loop with an explicit
-`base_phrase_ids -> new_token_id` mapping.
+- [`RUN_LOG_20260523.md`](RUN_LOG_20260523.md) — 90 KB append-only log covering the whole day plus the 2 B arm's per-checkpoint evals through 2026-05-24. It is the primary evidence for every number above, and also the best record of the `xfer` environment failures. Its early entries say `BPC` where current docs say `BPB`; the header explains the alias.
+- [`full_td_20260523T092602Z/`](full_td_20260523T092602Z/README.md) — per-run audit copy for the full-token training job.

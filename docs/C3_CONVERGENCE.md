@@ -1,5 +1,7 @@
 # C3 Convergence
 
+> **Historical decision record (2026-05-11).** The C3 arm was subsequently shipped at cutoff 17,408 (vocab 148,480) and later extended with +512 polytonic merges (vocab 148,992, 2026-07-29). See [../subprojects/02_1_tokenizer_experiments/README.md](../subprojects/02_1_tokenizer_experiments/README.md) for the full tokenizer history.
+
 Date converged: **2026-05-11**.
 
 ## Decision

@@ -1,111 +1,43 @@
-# Full 8B checkpoint trajectory release
+# 09.2 — Checkpoint trajectory release
 
-This experiment-owned adapter completes the clean native-Greek benchmark
-matrix for the twelve full-8B CPT exports that were not previously scored.
-It reuses the frozen FP32 legacy scorer, the exact post-hoc strict
-contamination subset, and the receipt format from the completed three-point
-and peak-window evaluations.
+> **In one line:** scored the twelve saved 8B exports that had never been evaluated, closing the matrix at 19/19 checkpoints, and staged the whole trajectory as private, receipt-bound Hugging Face branches with two frozen companion datasets.
+> **Period:** 2026-08-17 → 2026-08-20 (`894fca3f` … `ae2acd30`; the 08-20 averaged-branch publication is recorded in [`../09_1_downstream_task_instability/CHECKPOINT_AVERAGE_RESULTS_20260819.md`](../09_1_downstream_task_instability/CHECKPOINT_AVERAGE_RESULTS_20260819.md), not here). **Status:** completed; repository remained **private**.
+> **Came from / led to:** the three-checkpoint screen and peak-window scoring → this → the complete 19-checkpoint report in [`../presentations/`](../presentations/).
 
-It owns only the selected checkpoint list, result joining and Hugging Face
-release metadata. It does not change model weights, prompts, benchmark rows,
-the scorer, the training corpus, or the existing six checkpoint results.
+## Why this existed
 
-## Checkpoint scope
+After the three-point screen (2026-08-12) and the four-point peak window (2026-08-17), six of the run's checkpoints had native-Greek scores and twelve did not. Without them, any statement about *when* a capability peaks rested on six samples of an 18,284-update trajectory. This adapter owned exactly three things — the checkpoint list, the result joining, and the Hugging Face release metadata. It changed no weights, prompts, benchmark rows, scorer or corpus, and did not touch the six existing results.
 
-The six already evaluated CPT checkpoints are 30B, 35B, 40B, 45B, 50B and
-76.689B token slots. This directory evaluates the remaining twelve exports:
-1.678B, 5.000B, 9.999B, 14.999B, 19.998B, 24.998B, 54.996B, 59.995B,
-61.350B, 64.995B, 69.995B and 74.994B.
+## History
 
-GreekMMLU is not rerun: every saved checkpoint already has its frozen clean
-GreekMMLU accuracy and choice-NLL receipt. Greek Protipa is intentionally out
-of scope because its manual dataset access gate remains unapproved.
+**2026-08-17 (`894fca3f`)** — the twelve missing exports were bound (1.678, 5.000, 9.999, 14.999, 19.998, 24.998, 54.996, 59.995, 61.350, 64.995, 69.995, 74.994 B token slots) to the exact strict population already published with `glossapi-greek-nanochat-pretraining-dataset-v2` at revision `987b8955…`: 83,970 source rows, 10,076 strong-match exclusions, **73,894 retained**. GreekMMLU was deliberately not rerun — every saved checkpoint already had a frozen clean GreekMMLU receipt — and Protipa stayed out of scope behind its unapproved access gate.
 
-## Evaluation population
+**2026-08-17 → 08-18 — four rewrites of the allocation shape, no change to the science.** The plan moved from a two-node debug profile, to a held `salloc --no-shell` captured visibly and attached with `srun` (`d411cb01`, `bdb9fc5a` — explicitly to avoid another queued batch wrapper and keep the allocation available for retry), to a one-node four-GPU 80-minute profile in eighteen receipt-bound segments (`9b17b6c5`), to allowing an explicit `normal` partition (`73f527d9`). `test_remaining12_resource_profile.py` exists to guard that these are resource changes only. Two commits (`c171b891`, `3933e2f6`) were spent keeping scheduler logs out of the frozen evaluation bundle so its hash stayed meaningful.
 
-Every native-suite score uses the exact strict post-hoc subset already
-published with `fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2` at
-revision `987b8955fcd395c6219e39df9e64715457f69065`:
+**2026-08-18 — the publication adapters** (`779ca47d` and the eight commits after it). Weight uploads were decoupled from the evaluation: checkpoints were repaired first as **private** immutable branches on `fffoivos/apertus-8b-greek-cpt`, each card carrying only its already-frozen GreekMMLU point and saying that the native matrix was pending. Two frozen datasets were staged over an Xfer allocation: a **public** `…-modern-greek-train` reconstructed from the revision-pinned upstream Parquet plus per-document content hashes and the already-approved PII masker — no extra policy, dedup or retokenization pass (`def7a027`) — and a **private** `…-d0-full-mix` holding the exact packed 79/20/1 D0 payload, kept private because replay-source redistribution was never authorized. The Xfer Python environment took three commits to pin (`b41b0903`, `29a1d304`, `2f4f4ed7`) and is built on the Xfer node itself, never copied from the Mac or a GPU uenv.
 
-| View | Source score rows | Strong-match exclusions | Retained rows |
-| --- | ---: | ---: | ---: |
-| ASEP MCQA | 1,200 | 20 | 1,180 |
-| DemosQA | 600 | 1 | 599 |
-| GPCR | 208 | 14 | 194 |
-| Medical MCQA | 432 | 13 | 419 |
-| OYXOY metaphor | 3,015 | 973 | 2,042 |
-| OYXOY NLI | 5,286 | 42 | 5,244 |
-| OYXOY WiC | 58,831 | 4,614 | 54,217 |
-| OYXOY WSD definition | 14,398 | 4,399 | 9,999 |
-| **Total** | **83,970** | **10,076** | **73,894** |
+**2026-08-19 (`b18930bf`)** — a nested `srun` attach step exposed a single CPU to the frozen segment wrapper, making a normal-allocation resume impossible. Rather than edit the frozen wrapper, `workaround_resume_remaining12_normal.py` was written as an experiment-owned recovery *driver*: it relaunches the already-frozen per-shard command, skips completed receipts and runs the existing aggregate verifier. The matrix completed and was independently verified at **252/252 shards** (21 shards × 12 checkpoints).
 
-The exclusion policy removes only an evaluation identity with a strong
-two-surface corpus match. The published audit contains the excluded IDs and
-the document/line evidence; question-only candidates are not removed.
+**2026-08-19 (`ae2acd30`)** — with the matrix closed, the metadata-only release ran. Eighteen ordered branch aliases `00-step400-tokens2B` … `17-step18284-tokens77B` were created over the existing private commits, the model-file inventory was verified unchanged, and only then were the old unprefixed aliases removed. Receipts for the dry run, the recovery dry run and the completed pass are in [`publication/receipts/`](publication/receipts/); the completed one records `status: "completed"` with the final ref → commit map and `index_sha256 5aa27ab8…`. The published index status is `complete_private_metadata_release`.
 
-## Execution boundary
+## Outcome
 
-The preflight is a one-node `debug` job. The scorer uses a one-node,
-four-GPU, 80-minute debug profile in eighteen receipt-bound segments of
-fourteen independent one-GPU shards. It preserves the same shard assignment,
-FP32 scorer, prompts, examples and contamination subset as the earlier
-two-node profile; Slurm simply schedules four workers concurrently rather
-than eight. The completed two-node segment measured 9,946 total shard-seconds,
-which implies about 41 minutes of scorer work on four GPUs before bounded
-startup allowance. No `normal` allocation is used. The adapter must pass an
-`sbatch --test-only` probe before its first debug submission.
+- **All 19 saved checkpoints scored on one strict 73,894-example population** — the basis of [`../presentations/FULL8_ALL_CHECKPOINT_NATIVE_BENCHMARKS_20260819.html`](../presentations/FULL8_ALL_CHECKPOINT_NATIVE_BENCHMARKS_20260819.html).
+- **18 ordered private model branches plus `main`** on `fffoivos/apertus-8b-greek-cpt`, with per-branch provenance bound to the two frozen companion datasets.
+- **Two companion datasets frozen**: the public exact Modern-Greek training text, and the private full D0 mixture.
+- The repository was **never made public**; the release code says explicitly that only a separate, explicit decision could do that. On 2026-08-20 two checkpoint-average branches (`18-…`, `19-…`) were added by the 09_1 work and `default_revision` moved to `18-avg-uniform5-tokens30B-50B`.
+- Left open at the end: public release of the model repository, and Protipa.
 
-After the one-time `sbatch --test-only` probe has passed, capture each
-one-node debug segment visibly with `salloc`, audit the granted allocation,
-then run the frozen segment via `srun` inside it. This avoids another queued
-batch wrapper and leaves the allocation available for an immediate retry if a
-step fails. Do not use an `sbatch` dependency graph for the suffix.
+## Where things are
 
-```bash
-salloc --no-shell -A a0140 -p debug -N1 -n4 --ntasks-per-node=4 --gpus-per-node=4 \
-  --gpus-per-task=1 --cpus-per-task=54 --mem=640G -t 01:20:00
-# record the allocation id and verify its nodes with scontrol, then attach:
-srun --overlap --nodes=1 --ntasks=1 --cpus-per-task=1 \
-  env REMAINING12_WRAPPER_ROOT=... REMAINING12_ASSETS_ROOT=... \
-  REMAINING12_OUTPUT_ROOT=... REMAINING12_SEGMENT_INDEX=N \
-  REMAINING12_EXPECTED_NNODES=1 bash \
-  .../evaluation/run_remaining12_native_segment.sbatch
-```
-
-## Publication sequence
-
-Checkpoint *weight uploads* no longer wait for the final native-suite matrix.
-They are repaired first as **private** immutable branches on
-[`fffoivos/apertus-8b-greek-cpt`](https://huggingface.co/fffoivos/apertus-8b-greek-cpt),
-using the canonical v1 checkpoint publisher plus an experiment-owned complete
-Hub-inventory verifier. Each private card presents only its already-frozen
-GreekMMLU point and explicitly says that the complete native-Greek matrix is
-pending. No model branch is made public in this step.
-
-The same Xfer-only release job stages two frozen training-data artifacts:
-
-1. **Public:**
-   [`fffoivos/apertus-8b-greek-cpt-modern-greek-train`](https://huggingface.co/datasets/fffoivos/apertus-8b-greek-cpt-modern-greek-train)
-   contains only the exact selected Modern-Greek documents. It is reconstructed
-   from the revision-pinned upstream v2 Parquet source, the selected training
-   catalogs, and per-document content hashes. It preserves the source schema
-   and non-text metadata, while reproducing `text` with the exact
-   already-approved Apertus-parity PII masker used before training. It performs
-   no additional policy, deduplication, or retokenization pass.
-2. **Private:** `fffoivos/apertus-8b-greek-cpt-d0-full-mix` contains the exact
-   portable packed 79/20/1 D0 payload, schedule, reader inputs, and provenance.
-   It remains private because the replay-source redistribution matrix is not a
-   public-release authorization.
-
-The final metadata pass remains blocked on the complete 18-row native matrix.
-Only it can replace the staging cards with the complete score table and only a
-separate explicit decision can make the model repository public.
-
-All preparation, hash sweeping, Parquet reconstruction, and Hugging Face
-transfers run on a captured **Xfer** allocation. The normal checkpoint-
-evaluation allocation is not used for release preparation.
-
-The Xfer Python environment is an immutable x86 virtual environment whose
-receipt binds the canonical replay/HF dependency lock plus the pinned Parquet
-writer. It is created and verified on the captured Xfer node, never copied
-from the Mac or a GPU UENV.
+| What | Path |
+| --- | --- |
+| The twelve checkpoints and their bindings | [`evaluation/remaining12_checkpoint_bindings.json`](evaluation/remaining12_checkpoint_bindings.json) |
+| Rebind the clean population onto them | [`evaluation/rebind_remaining12_native_suite.py`](evaluation/rebind_remaining12_native_suite.py) |
+| The frozen scorer segment / preflight | [`evaluation/run_remaining12_native_segment.sbatch`](evaluation/run_remaining12_native_segment.sbatch), [`evaluation/freeze_and_preflight_remaining12.sbatch`](evaluation/freeze_and_preflight_remaining12.sbatch) |
+| The allocation-recovery driver | [`evaluation/workaround_resume_remaining12_normal.py`](evaluation/workaround_resume_remaining12_normal.py) |
+| Release metadata assembly | [`evaluation/assemble_trajectory_release_metadata.py`](evaluation/assemble_trajectory_release_metadata.py), [`publication/update_ordered_hf_checkpoint_metadata.py`](publication/update_ordered_hf_checkpoint_metadata.py) |
+| What actually got published | [`publication/receipts/ordered_hf_checkpoint_metadata_20260819.completed.json`](publication/receipts/ordered_hf_checkpoint_metadata_20260819.completed.json) |
+| Dataset staging and upload | [`publication/export_public_modern_greek_train.py`](publication/export_public_modern_greek_train.py), [`publication/prepare_full8_d0_private_stage.py`](publication/prepare_full8_d0_private_stage.py), [`publication/upload_frozen_dataset.py`](publication/upload_frozen_dataset.py) |
+| Pinned Xfer runtime | [`publication/xfer_requirements.txt`](publication/xfer_requirements.txt) |
+| Tests | [`evaluation/test_*.py`](evaluation/), [`publication/test_publication_adapters.py`](publication/test_publication_adapters.py) |

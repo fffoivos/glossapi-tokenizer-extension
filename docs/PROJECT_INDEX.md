@@ -1,98 +1,51 @@
-# Project Index
+# Index of `docs/`
 
-This repo is intentionally split into smaller subprojects.
+The program's history is told per subproject in `subprojects/*/README.md` and
+summarized in the [root README](../README.md). This file only says what each
+document in `docs/` is, when it was written, and whether it still governs
+anything. Dates are first/last commit dates on the consolidated history.
 
-## Current Stage
+## Still in force
 
-**C3 cutoff decision.** Tokenizer arm is converged
-(`C3_wave2_broad_glossapi_plus_hplt_50_50`). The only open
-tokenizer-side decision is which cutoff to ship from the frozen grid
-`{10240, 15360, 20480, 25600}`. See
-[C3_CONVERGENCE.md](C3_CONVERGENCE.md).
+| Document | Dates | What it is |
+|---|---|---|
+| [LOSS_MEASUREMENT_POLICY.md](LOSS_MEASUREMENT_POLICY.md) | 2026-06-11 | Repo-wide rule: never compare arms with different tokenizers on raw Megatron `lm loss`; use held-out tokenizer-fair BPB and downstream benchmarks. Applied from the 03 bakeoff onward. |
+| [GLOBAL_DECISIONS.md](GLOBAL_DECISIONS.md) | 2026-04-10 → 2026-08-05 | The hard constraints of the extension (preserve Apertus ids/special tokens/regex, vocab divisible by 128, untied embeddings) and the goal statement. Its "tokenizer arm" section is a May 2026 decision record (C3 at 25,600 added units, cutoff still open); the shipped cutoff and later polytonic extension are in `subprojects/02_1_tokenizer_experiments/README.md`. |
+| [../subprojects/CURRENT_HYPERPARAMETERS.md](../subprojects/CURRENT_HYPERPARAMETERS.md) | 2026-07-11 (+ 2026-08-06 RoPE-geometry correction) | The frozen Apertus-8B CPT training configuration (AdEMAMix, WSD, geometry) that the 8B runs used. Lives under `subprojects/`, listed here because it is the one config document that outlived its subproject. |
 
-Read order for a fresh agent:
-1. [C3_CONVERGENCE.md](C3_CONVERGENCE.md)
-2. [GLOBAL_DECISIONS.md](GLOBAL_DECISIONS.md)
-3. [CURRENT_STATUS.md](CURRENT_STATUS.md)
-4. [ACTIVE_BACKLOG.md](ACTIVE_BACKLOG.md) — §Tokenizer Critical Path
-5. [LOSS_MEASUREMENT_POLICY.md](LOSS_MEASUREMENT_POLICY.md) — how to read
-   BPB/BPC, dense training BPB, and raw Megatron `lm loss`
+## Decision records and reports (historical, correct as of their date)
 
-The subprojects below are listed in the order they are traversed; most
-of the earlier ones are settled and the live work is in `02_1` (cutoff
-sweep) → `02_2` (merge-rule extension) → `03` (embedding adaptation).
+| Document | Dates | What it is |
+|---|---|---|
+| [C3_CONVERGENCE.md](C3_CONVERGENCE.md) | 2026-05-11 (committed 05-14) | Why the tokenizer track converged on the C3 arm (continuous BPE, GlossAPI+HPLT 50/50) and closed the F1/F2/C1/C2 exploration. |
+| [C3_CUTOFF_REPORT.md](C3_CUTOFF_REPORT.md) | 2026-05-14 | The 1k–25k cutoff sweep (fertility, chars/token, added-vocab utilization) with the plots in `figures/`; built by `_scripts/build_c3_cutoff_report.py`. Outcome: 17,408 added units (vocab 148,480). |
+| [C3_TRAINING_DATASETS.md](C3_TRAINING_DATASETS.md) | 2026-05-14 → 06-11 | Inventory of the datasets the C3 tokenizer was trained on, with source links. |
+| [APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md](APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md) | 2026-05-14 | Reconstruction of how much Greek Apertus saw in pretraining; background for the replay decisions in 03–07. |
+| [APERTUS_ARCHITECTURE_FOR_EMBEDDING_NORM_ANALYSIS.md](APERTUS_ARCHITECTURE_FOR_EMBEDDING_NORM_ANALYSIS.md) | 2026-05-14 | Architecture facts (untied embeddings, xIELU, QK-norm) relevant to the 03_1 embedding diagnostic. |
+| [APERTUS_GREEK_BEHAVIORAL_NLL_PHASE_B.md](APERTUS_GREEK_BEHAVIORAL_NLL_PHASE_B.md) | 2026-05-14 | Phase-B behavioral NLL study of Greek tokens in Apertus (input to the init-method choice in 03_4). |
+| [EMBEDDING_DIAGNOSTIC_PLAN_V2.md](EMBEDDING_DIAGNOSTIC_PLAN_V2.md) | 2026-05-14 | The plan the 03_1 diagnostic executed. |
+| [APERTUS_EXTENSION_ARTIFACT_MAP_20260525.md](APERTUS_EXTENSION_ARTIFACT_MAP_20260525.md), [..._RELEASE_REORGANIZATION_PLAN_20260525.md](APERTUS_EXTENSION_RELEASE_REORGANIZATION_PLAN_20260525.md), [..._RELEASE_RENAMING_PLAN_20260525.md](APERTUS_EXTENSION_RELEASE_RENAMING_PLAN_20260525.md), [..._RELEASE_FOUR_ACTOR_LAYOUT_20260525.md](APERTUS_EXTENSION_RELEASE_FOUR_ACTOR_LAYOUT_20260525.md), [APERTUS_RELEASE_UPLOAD_VERIFICATION_20260525.md](APERTUS_RELEASE_UPLOAD_VERIFICATION_20260525.md) | 2026-05-25 → 06-11 | How the bakeoff checkpoints, tokenizer and evals were laid out and published to Hugging Face (`fffoivos/apertus-tokenizer-extension`); the local mirror is `../release/`. |
+| [AGENT1_POST_NANOCHAT_DATA_REVIEW_AND_DEDUP_STATUS_2026-07-18.md](AGENT1_POST_NANOCHAT_DATA_REVIEW_AND_DEDUP_STATUS_2026-07-18.md), [AGENT1_V5_DATASET_AND_HF_READINESS_AUDIT_2026-07-18.md](AGENT1_V5_DATASET_AND_HF_READINESS_AUDIT_2026-07-18.md), [AGENT1_V5_CSCS_DEDUP_ACCELERATION_PLAN_2026-07-18.md](AGENT1_V5_CSCS_DEDUP_ACCELERATION_PLAN_2026-07-18.md), [AGENT1_V5_DEDUP_ACCELERATION_IMPLEMENTATION_STATUS_2026-07-18.md](AGENT1_V5_DEDUP_ACCELERATION_IMPLEMENTATION_STATUS_2026-07-18.md), [AGENT1_V5_LSH_OVERSIZED_DIAGNOSIS_2026-07-21.md](AGENT1_V5_LSH_OVERSIZED_DIAGNOSIS_2026-07-21.md) | 2026-07-18 → 07-22 | The "Agent 1" v5 corpus build: post-NanoChat data review, HF readiness audit, the CSCS dedup acceleration plan, and the oversized-LSH-group diagnosis that unblocked the final dedup. Companion snapshot: [hf/agent1_v5_pre_dedup_audit_snapshot/](hf/agent1_v5_pre_dedup_audit_snapshot/README.md). The full corpus story is in `subprojects/05_token_distillation_cpt/04_full_corpus_preparation/README.md`. |
 
-## Subprojects
+## Status snapshots (historical; do not act on them)
 
-### Live
+| Document | Dates | What it was |
+|---|---|---|
+| [CURRENT_STATUS.md](CURRENT_STATUS.md) | 2026-04-10 → 2026-08-05 | The "current phase" note of the tokenizer track; last substantively updated for the C3 cutoff phase (May 2026). |
+| [ACTIVE_BACKLOG.md](ACTIVE_BACKLOG.md) | 2026-04-10 → 05-14 | The C3 cutoff-decision work list. |
+| [FUNCTIONAL_ISSUES_TODO.md](FUNCTIONAL_ISSUES_TODO.md) | 2026-04-14 | Pipeline defects found during the April corpus-cleaning phase (dedup admission gate etc.). |
+| [../subprojects/SUBPROJECTS_OVERVIEW.md](../subprojects/SUBPROJECTS_OVERVIEW.md) | 2026-05-18 | One paragraph per sub-subproject of 02–05 as of mid-May; superseded by the per-subproject READMEs. |
 
-1. [02_apertus_tokenizer_spec](../subprojects/02_apertus_tokenizer_spec/README.md) — pinning checklist still to lock
-2. [02_1_tokenizer_experiments](../subprojects/02_1_tokenizer_experiments/README.md) — **active** (C3 cutoff sweep)
-3. [02_2_tokenizer_implementation](../subprojects/02_2_tokenizer_implementation/README.md) — gated on cutoff
-4. [03_apertus_extension_and_embedding_adaptation](../subprojects/03_apertus_extension_and_embedding_adaptation/README.md) — gated on tokenizer freeze
-   - [03_1_greek_embedding_diagnostic](../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/README.md) — pre-extension diagnostic of how Apertus represents Greek (E/U geometry, hull occupancy, binary classifier, cross-language clusters)
-   - [LOSS_MEASUREMENT_POLICY.md](LOSS_MEASUREMENT_POLICY.md) — repo-wide loss-reading rule for model-adaptation runs: heldout BPB/downstream evals are cross-tokenizer evidence; raw Megatron `lm loss` is health telemetry only
+## `_archive/` — the April 2026 corpus-pipeline phase
 
-### Archived (DONE for the C3 shipping path)
+[_archive/README.md](_archive/README.md) indexes the pre-C3 planning docs
+(pipeline recovery and scale plan, E2E verification, near-dedup redesign, the
+2026-04-15 worker run report, the embedding-init test plan v4, the 2026-05-11
+external feedback on the extension doc). They document the work archived under
+`subprojects/_archive/01_*`.
 
-See [../subprojects/_archive/README.md](../subprojects/_archive/README.md).
+## Non-document entries
 
-- `01_hplt_filtering` — HPLT clean60 slice
-- `01_1_corpus_dedup` — dedup contract + repair
-- `01_2_training_dataset_mix` — mix.parquet builder + splitter
-- `01_0_cleaning_iteration_and_thresholds` — wave-2 broad cleaner (parallel `cleaner/per-line-badness-20260504` branch decoupled from C3)
-
-## Canonical Sources Of Truth
-
-### Live
-
-- **C3 convergence** (read first):
-  - [C3_CONVERGENCE.md](C3_CONVERGENCE.md)
-- **C3 cutoff sweep results** (1k–25k, plots + tables):
-  - [C3_CUTOFF_REPORT.md](C3_CUTOFF_REPORT.md)
-- **C3 training datasets** (inventory + source links):
-  - [C3_TRAINING_DATASETS.md](C3_TRAINING_DATASETS.md)
-- global decisions:
-  - [GLOBAL_DECISIONS.md](GLOBAL_DECISIONS.md)
-- current status:
-  - [CURRENT_STATUS.md](CURRENT_STATUS.md)
-- active backlog:
-  - [ACTIVE_BACKLOG.md](ACTIVE_BACKLOG.md)
-- Apertus pretraining data inventory + plan for estimating Greek share:
-  - [APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md](APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md)
-- Apertus architecture choices that force cross-language embedding-norm convergence (reconciles Phase-A norm parity with the 0.023 % Greek data share):
-  - [APERTUS_ARCHITECTURE_FOR_EMBEDDING_NORM_ANALYSIS.md](APERTUS_ARCHITECTURE_FOR_EMBEDDING_NORM_ANALYSIS.md)
-- **Embedding diagnostic plan v2** (Greek vs ¬Greek, hull occupancy, infiltrators, clustering, analogies — the live diagnostic):
-  - plan: [EMBEDDING_DIAGNOSTIC_PLAN_V2.md](EMBEDDING_DIAGNOSTIC_PLAN_V2.md)
-  - sub-subproject (scripts + artifacts + reports): [../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/README.md](../subprojects/03_apertus_extension_and_embedding_adaptation/03_1_greek_embedding_diagnostic/README.md)
-- **Vocab-language attribution** (1,933 canonical langs × 131,072 Apertus vocab entries; sub-subproject under 02_2):
-  - report (with run status + scripts + artifact spec): [../subprojects/02_2_tokenizer_implementation/02_2_2_vocab_lang_attribution/RUN_REPORT.md](../subprojects/02_2_tokenizer_implementation/02_2_2_vocab_lang_attribution/RUN_REPORT.md)
-- functional issues TODO:
-  - [FUNCTIONAL_ISSUES_TODO.md](FUNCTIONAL_ISSUES_TODO.md)
-- model-adaptation loss policy:
-  - [LOSS_MEASUREMENT_POLICY.md](LOSS_MEASUREMENT_POLICY.md)
-- machine-readable config:
-  - [apertus_greek_extension.yaml](../config/apertus_greek_extension.yaml)
-
-### Archived (settled pre-C3-convergence work — read only for historical reconstruction)
-
-- [_archive/README.md](_archive/README.md) — index of archived docs
-- pre-convergence pipeline / dedup planning (E2E, near-dedup, HF dedup,
-  builder/tokenizer efficiency, stage-verification checklist) all live
-  under [_archive/](_archive/)
-
-### Other
-
-- legacy material (add-tokens baseline, exploratory HPLT):
-  - [legacy/README.md](../legacy/README.md)
-
-## Current Status
-
-- C3 (`C3_wave2_broad_glossapi_plus_hplt_50_50`) is the converged
-  tokenizer arm; see [C3_CONVERGENCE.md](C3_CONVERGENCE.md)
-- the filtered HPLT slice and the four-arm exploration are settled
-- the open tokenizer-side decision is C3's cutoff from the frozen grid
-  `{10240, 15360, 20480, 25600}`
-- no merge-rule Apertus extension has been built yet (gated on cutoff)
-- the HF upload is an operational sidetrack, decoupled from the
-  tokenizer critical path
+- `figures/` — the six C3 cutoff plots referenced by `C3_CUTOFF_REPORT.md`.
+- `_scripts/build_c3_cutoff_report.py` — regenerates that report from the sweep outputs.
+- `hf/agent1_v5_pre_dedup_audit_snapshot/` — README + provenance JSON of the v5 pre-dedup dataset build as uploaded to Hugging Face.

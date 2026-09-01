@@ -40,7 +40,7 @@ If these docs are ever revived, fix these first:
    131,072 ≈ 5.04 %, against the *pre*-extension vocab denominator).
 
 These errors don't affect the active evidence corpus
-([`../01_explicit_goals.md`](../01_explicit_goals.md) and downstream)
+([`../01_explicit_goals.md`](../../01_explicit_goals.md) and downstream)
 because the synthesis is set aside. If the synthesis is revisited,
 the Operationalisation 2 math error materially undermines the
 +5,120 recommendation — reconsider the recommendation from scratch

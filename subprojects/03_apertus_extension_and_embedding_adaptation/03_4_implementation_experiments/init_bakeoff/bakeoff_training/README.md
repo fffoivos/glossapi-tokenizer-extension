@@ -1,146 +1,51 @@
-# Bakeoff training — Megatron-LM-Swiss-AI sbatch templates
+# bakeoff_training — the trainer
 
-The three arms (Vanilla / ReTok / Centroid) train under **identical** conditions
-on Clariden (one node, 4× GH200, partition `normal`, 12 h cap). They differ
-only in which init checkpoint they load.
+> **In one line:** one parameterised Megatron-LM-Swiss-AI sbatch that trained all four arms under identical settings, plus the chained submitters that worked around Clariden's 12 h walltime cap; it outlived the bakeoff and became the trainer for subprojects 05–08.
+> **Period:** 2026-05-21 → 2026-08-21 (`7dce0efb`). Bakeoff runs: 2026-05-22 → 2026-05-26. **Status:** bakeoff completed; the sbatch is still live shared infrastructure.
+> **Reads:** [`../arms/`](../arms/README.md) + [`../megatron_patches/`](../megatron_patches/README.md) + [`../corpus_build/`](../corpus_build/README.md). **Feeds:** [`../eval/`](../eval/README.md).
 
-The training engine is **Megatron-LM-Swiss-AI** (Apertus's pretraining fork),
-not HuggingFace Trainer — for Apertus-fidelity reasons documented in
-[`../../../TRAINING_RECIPE.md`](../../../TRAINING_RECIPE.md).
+## Why this existed
 
-## How to read loss
+For the comparison to isolate initialisation, everything else has to be byte-identical across arms: optimizer, schedule, sequence length, batch shape, dataloader seed, document stream. One config file (`_train_config_common.env`) and one sbatch make that auditable; the per-arm switch chooses only the init checkpoint, the tokenizer, and the matching Megatron data prefix.
 
-Megatron's raw `lm loss` is per-target-token cross entropy in nats. It is dense
-and valuable for health checks, but it is not a cross-tokenizer score across
-Vanilla and the 148,480-vocab arms. Selection uses heldout BPB from
-[`../eval/compute_tokenizer_fair_metrics.py`](../eval/compute_tokenizer_fair_metrics.py)
-and downstream evals. Older reports may call that BPB column `BPC` or
-`bpc_bits_per_byte`; this is a legacy bits-per-byte alias.
+## What was held constant
 
-When the Megatron logging patch is active, stdout may also include `bpb`,
-`bpt`, `base_loss`, `new_loss`, and `n_new`. These fields are measurement-only
-and must be computed over the same loss-mask positions as optimizer `lm loss`;
-they do not change the objective.
+AdEMAMix at Apertus's pretraining β1/β2/β3/α and weight decay 0.1; gradient clip 0.1 global-norm; sequence length 4,096; global batch ~4.19 M tokens; bf16 with fp32 master grads; cross-document attention mask ON; EoD loss mask ON; xIELU + QK-Norm inherited from the R17-patched checkpoints; NTP loss (Goldfish deferred to production); shared dataloader seed. The three deliberate divergences from Apertus pretraining were peak LR **1.5e-5** (≈14 % of pretrain's 1.1e-4, standard for CPT), AdEMAMix α/β3 warmup **238 steps** (50 % of the 477-step bakeoff, because Apertus's 2.8 %-of-run policy collapses to ~14 steps at this scale), and NTP instead of Goldfish. Two further deviations were forced by hardware: microbatch 2 (not 4, GH200 memory, global-batch tokens preserved) and a fixed global batch with no ramp. Apertus's own optimizer state was **not** loaded — the first 1–2 % of each run acts as optimizer-state warmup. Full table in [`../../../CPT_MASTER_20260526.md`](../../../CPT_MASTER_20260526.md) §3.
 
-## Files
+## History
 
-| File | Purpose |
+| Date | Run | What happened | Evidence |
+|---|---|---|---|
+| 2026-05-21 | — | Q D1 resolved: `swiss-ai/Megatron-LM` pinned at `c92402e3`; sbatch flag names corrected against `submit_apertus_8b.sh` (`--xielu`, `--ademamix-beta3-warmup`, `--ademamix-alpha-warmup`) | `_archive/2026-05-24_2B_bakeoff_review/AUDIT_FINDINGS.md` §A |
+| 2026-05-22 | `bakeoff_1node_chain_20260522_005620` | Vanilla / ReTok / Centroid to iter 476 (~2.0 B tokens), one node × 4 GH200, `normal`, chained across walltime boundaries; `torch_dist` resume-metadata fallback fixed mid-run (`56c594f6`) | `9cc53d2a`, `4941a983`, `b572f90f` |
+| 2026-05-23 | `smoke_td_layer11_2357596` | Bounded load/train smoke on the TD layer-11 R17-patched checkpoint — **passed** | [`smoke_td_layer11_2357596/`](smoke_td_layer11_2357596/README.md) |
+| 2026-05-23 | `smoke_td_layer11_2node_2357684` | Two-node efficiency smoke — **failed before iteration 1** with NCCL/OFI `NO_SPACE`. The one-node path was kept for everything afterwards, including the production launcher | [`smoke_td_layer11_2node_2357684/`](smoke_td_layer11_2node_2357684/README.md) |
+| 2026-05-23 → 05-24 | `td_full25_layer11_2b_20260523T165038Z` | The TD arm's own 2 B chained run to iter 476 | `5d5c4613`, `6c95ff1a` |
+| 2026-05-24 → 05-25 | `continuation_3p5b_20260524T143012Z` | Three arms × three chained segments (476→585→715→834, ~3.5 B), dry-run-first with an explicit `CONFIRM_3P5B_LAUNCH` cost gate, eval sidecars submitted as dependencies of each checkpoint-producing segment | [`dryrun_3p5b_continuation_20260524T020000Z/`](dryrun_3p5b_continuation_20260524T020000Z/README.md), `f1f1bf3c`, `c2db4e5b` |
+| 2026-05-25 → 05-26 | `continuation_5b_td_vs_vanilla_20260525T142522Z` | Vanilla + TD only, 834 → 1013 → 1192 (~5.0 B). Jobs `2382982`–`2382985`. Babysat by a systemd monitor on 600 s polls plus a finalizer that collected iter-1192 artifacts and regenerated the summary; **no restart or manual intervention was needed** | [`RUN_LOG_5B_TD_VS_VANILLA_20260525.md`](RUN_LOG_5B_TD_VS_VANILLA_20260525.md), `e320d8d0`, `bae88b55` |
+| 2026-06-10 → 2026-08-21 | — | The sbatch keeps being extended for other subprojects: Clariden CXI force-flush launch path (`102ac8a6`), physical-order curriculum (`d06b1ac4`), curriculum sweeps v2 (`cfdd0e7b`), receipt-bound full-corpus pipeline (`76a44479`, `3d063bfd`), receipt-gated two-phase preparation (`8dbb6d25`), torchrun agent count in nested allocations (`f85599b0`), preserved srun uenv launch path (`7dce0efb`) | commit log |
+
+## Outcome
+
+- 21 training jobs across the 2 B / 3.5 B / 5 B stages, with all Megatron stdout preserved under `../eval/trajectory_analysis_20260524/per_iter_results/training_logs/`.
+- **V3 confirmed**: dataloader state survived every resume; both continuations picked up cleanly.
+- One-node is the proven path; the two-node route was never made to work here.
+- The chained-submission pattern (dry-run first, explicit launch confirmation, `afterok` dependencies, more chain jobs than expected runtime) became the house style for every later CPT run.
+
+## Where things are
+
+| What | Where |
 |---|---|
-| [`README.md`](README.md) | this file |
-| [`_train_config_common.env`](_train_config_common.env) | sourced by all sbatch jobs — AdEMAMix hyperparams, fidelity flags, Megatron CLI args |
-| [`preprocess_data.sbatch`](preprocess_data.sbatch) | one-time CPU job (`xfer` partition) — `tools/preprocess_data.py` JSONL → Megatron `.bin/.idx` |
-| [`bakeoff_train.sbatch`](bakeoff_train.sbatch) | parameterized training job, takes `ARM` + `INIT_CKPT` + `OUTPUT_DIR` |
-| [`submit_all_arms.sh`](submit_all_arms.sh) | thin wrapper: submits all three arms in parallel with a shared seed |
-| [`submit_td_layer11_smoke.sh`](submit_td_layer11_smoke.sh) | bounded load/train smoke for the selected TD layer11 R17-patched checkpoint |
-| [`submit_td_layer11_2b_chain.sh`](submit_td_layer11_2b_chain.sh) | one-arm chained 2B TD layer11 training run; uses a resume job because `normal` is capped at 12h |
-| [`submit_3p5b_continuation_chain.sh`](submit_3p5b_continuation_chain.sh) | dry-run-first Vanilla/ReTok/TD continuation from iter 476 to iter 834, with sidecar eval dependencies |
+| The constants | [`_train_config_common.env`](_train_config_common.env) |
+| The trainer | [`bakeoff_train.sbatch`](bakeoff_train.sbatch) — takes `ARM` + `INIT_CKPT` + `OUTPUT_DIR` |
+| Submitters | [`submit_all_arms.sh`](submit_all_arms.sh), [`submit_td_layer11_2b_chain.sh`](submit_td_layer11_2b_chain.sh), [`submit_3p5b_continuation_chain.sh`](submit_3p5b_continuation_chain.sh), [`submit_5b_td_vs_vanilla_chain.sh`](submit_5b_td_vs_vanilla_chain.sh), smoke wrappers |
+| Data preprocessing job | [`preprocess_data.sbatch`](preprocess_data.sbatch) (CPU, `xfer`; run once per tokenizer family) |
+| Log parsing | [`summarize_training_logs.py`](summarize_training_logs.py), [`monitor_5b_td_vs_vanilla_status.sh`](monitor_5b_td_vs_vanilla_status.sh) |
+| Checkpoints | Clariden `/capstor/scratch/cscs/fffoivos/runs/bakeoff/` (~5.1 TB) |
 
-## End-to-end sequence
+**Loss-reading rule:** raw Megatron `lm loss` is per-token CE and is not comparable across the 131,072-vocab and 148,480-vocab arms. Selection uses heldout BPB — see [`../eval/LOSS_MEASUREMENT_POLICY.md`](../eval/LOSS_MEASUREMENT_POLICY.md).
 
-```
-[twice, before any arm] # one Megatron binary per tokenizer family
-  sbatch --export=ALL,TOKENIZER_DIR=$BASE_TOKENIZER_DIR,OUTPUT_PREFIX=$BASE_DATA_PREFIX \
-      preprocess_data.sbatch           # Vanilla data: base 131,072 tokenizer
-  sbatch --export=ALL,TOKENIZER_DIR=$EXT_TOKENIZER_DIR,OUTPUT_PREFIX=$EXT_DATA_PREFIX \
-      preprocess_data.sbatch           # ReTok/Centroid data: extended 148,480 tokenizer
-                                       # ~2-4 h each on xfer; CPU-only
-                                       # Both binaries from the same bulk_mix.jsonl —
-                                       # only the tokenization differs (reviewer round-2 Blocker 2).
+## Working documents
 
-[once, before any arm]
-  bash ../arms/submit_init_pipeline.sh # CPU-only chain on xfer
-                                       # produces vanilla/  retok/  centroid/  HF-format dirs
-                                       # then converts each to Megatron-LM-Swiss-AI format
-                                       # via tools/checkpoint/convert.py --loader apertus_hf
-
-[the bakeoff]
-  bash submit_all_arms.sh              # submits 3 × sbatch bakeoff_train.sbatch
-                                       # Vanilla loads $BASE_DATA_PREFIX,
-                                       # ReTok/Centroid load $EXT_DATA_PREFIX.
-                                       # each: 1 node, 4 × GH200, ~11 h, 2 B tokens
-```
-
-## 3.5B continuation bakeoff
-
-After the 2B bakeoff, the continuation question is Vanilla vs ReTok vs TD
-layer11 from iter 476 to iter 834 (~3.5B total tokens). The continuation
-submitter is dry-run-first:
-
-```bash
-DRY_RUN=1 RUN_TAG=continuation_3p5b_review bash submit_3p5b_continuation_chain.sh
-```
-
-Live submission requires an explicit cost-event confirmation:
-
-```bash
-DRY_RUN=0 CONFIRM_3P5B_LAUNCH=1 RUN_TAG=continuation_3p5b_<stamp> \
-  bash submit_3p5b_continuation_chain.sh
-```
-
-The script submits three parallel arms and three chained segments per arm:
-
-- iter 476 -> 585 (~2.45B total tokens)
-- iter 585 -> 715 (~3.00B total tokens)
-- iter 715 -> 834 (~3.50B total tokens)
-
-It writes `training_chain.tsv` plus the exact sbatch commands under
-`/capstor/scratch/cscs/fffoivos/runs/bakeoff/${RUN_TAG}_submit_state/`.
-By default it also calls
-[`../eval/submit_3p5b_eval_sidecars.sh`](../eval/submit_3p5b_eval_sidecars.sh),
-which submits conversion, intrinsic, diagnostics, and packed downstream eval
-jobs that depend on the checkpoint-producing training segment. Later training
-segments do not depend on eval jobs.
-
-## What's same across arms (the constants)
-
-Documented authoritatively in `_train_config_common.env`:
-
-- AdEMAMix (β1, β2, β3, α, weight_decay) — Apertus pretraining values
-- Gradient clipping: 0.1 global-norm
-- LR schedule: WSD with re-warmup (~1-2 % of tokens), peak LR (per cpt_plan §3.3), final LR
-- Sequence length: 4,096
-- Global batch: ~4 M tokens (target Apertus pretraining shape)
-- Goldfish loss: **disabled for the bakeoff** (NTP — per v0.7 §10 Q B4)
-- xIELU activation + QK-Norm: same converted-Megatron defaults across arms unless the production R17 patcher is implemented
-- Cross-doc attention mask: ON
-- EoD loss mask: ON
-- Mixed precision: bf16
-- Dataloader seed: shared across arms; text stream is identical, while Vanilla uses base token IDs and ReTok/Centroid use extended token IDs
-
-## What differs across arms
-
-The per-arm switch chooses the init checkpoint, tokenizer, and matching
-Megatron data prefix. Vanilla uses the base 131,072-token tokenizer/data;
-ReTok and Centroid use the extended 148,480-token tokenizer/data. The
-underlying JSONL document stream and seed are shared.
-
-## Q D1 status
-
-Resolved 2026-05-21: swiss-ai/Megatron-LM main HEAD pinned at
-`c92402e39ef3c8e69ea378a59e79059dc14541f4`. See [`../../../TRAINING_RECIPE.md`](../../../TRAINING_RECIPE.md) §1.
-
-## HF → Megatron conversion (the bridge between init checkpoint build and training)
-
-`build_init_checkpoints.py` produces HF-format model checkpoints (one per
-arm). To train them in Megatron-LM, they have to be converted to Megatron
-format. The conversion uses our custom Apertus loader:
-
-```bash
-# Once per Clariden setup, after cloning swiss-ai/Megatron-LM:
-bash ../megatron_patches/install.sh $MEGATRON_LM_DIR
-
-# Per init checkpoint:
-cd $MEGATRON_LM_DIR
-python3 tools/checkpoint/convert.py \
-    --loader apertus_hf \
-    --saver core \
-    --load-dir   /iopsstor/.../init_checkpoints/<arm>/hf \
-    --save-dir   /iopsstor/.../init_checkpoints/<arm>/megatron \
-    --tokenizer-model /iopsstor/.../tokenizers/apertus_greek_modern_only_148480 \
-    --bf16
-```
-
-See [`../megatron_patches/README.md`](../megatron_patches/README.md) for the
-full conversion + roundtrip-validation procedure. The roundtrip on
-unmodified Apertus-8B-2509 should run **before** the first bakeoff sbatch
-submission as a one-time correctness gate on our loader.
+- [`RUN_LOG_5B_TD_VS_VANILLA_20260525.md`](RUN_LOG_5B_TD_VS_VANILLA_20260525.md) — 37 KB of poll-by-poll monitoring of the final continuation. Mostly repeated health checks; read the last section for the finalizer outcome.
+- Per-run audit dirs: [`smoke_td_layer11_2357596/`](smoke_td_layer11_2357596/), [`smoke_td_layer11_2node_2357684/`](smoke_td_layer11_2node_2357684/), [`dryrun_3p5b_continuation_20260524T020000Z/`](dryrun_3p5b_continuation_20260524T020000Z/) — job ids, `sacct` output, checkpoint listings. Historical receipts.

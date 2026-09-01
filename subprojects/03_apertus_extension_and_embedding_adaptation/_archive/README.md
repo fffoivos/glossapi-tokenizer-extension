@@ -1,63 +1,55 @@
-# Archived material — Apertus Greek CPT (03 stage)
+# _archive — superseded material from the 03 stage
 
-Historical and superseded docs from the 03 stage. Nothing here is load-bearing
-for current decisions. Kept for traceability — see `git log --follow` on any
-file for its history before the move.
+> **In one line:** four groups of documents that were load-bearing at some point between 2026-05-20 and 2026-05-26 and then were replaced; nothing here is current, and everything here is kept because the conclusions that replaced it are only legible against what came before.
+> **Period archived:** 2026-06-11 (`a19c136f`, "Checkpoint pending project updates" — the same commit that landed the final results and created [`../CPT_MASTER_20260526.md`](../CPT_MASTER_20260526.md)).
+> **Status:** historical.
 
-Organized by what each group is from / for.
+## Why this exists
 
-## `v0.6_planning/`
+The 03 stage accumulated ten overlapping planning and status documents in six days. On 2026-05-26 they were synthesised into one reference and moved here rather than deleted, so that any claim in the synthesis can be traced to the doc it came from — and so that reversals stay visible.
 
-Pre-v0.7 cpt_plan iteration. Superseded by `../cpt_plan.md` v0.7 and
-`../cpt_plan_v0.7_answers.md`.
+## What is here
 
-- `cpt_plan_v0.6_answers.md` — Q A / B / C / D + V1-V16 answers at v0.6.
-- `cpt_plan_v0.6_delta_vs_prior_planning.md` — v0.6's delta against the v0.12
-  parent plan.
+### `synthesis_sources_20260526/` — the ten docs `CPT_MASTER` replaced
 
-## `2026-05-21_overnight_session/`
+The two governing plans and their satellites:
 
-Operational state and audit trail from one specific CSCS execution night
-(2026-05-20 → 21). The bakeoff fired downstream of this session; all four
-arms reached at least 2 B tokens, with Vanilla + TD continuing to 5 B.
+- `old_experiments_plan.md` — **v0.12** (2026-05-12), the experimental-design parent: six decision nodes, the §4 hard constraints, and the §10 Q8 pre-commit decision rule whose thresholds were never locked.
+- `cpt_plan.md` — **v0.7** (2026-05-20), the CPT-execution successor: recipe, replay design, §5.6 gates, V1–V16 verifications. Adopted as canonical in `01d7befa`.
+- `cpt_plan_v0.7_answers.md`, `cpt_plan_v0.7_status.md` — the Q A/B/C/D decision snapshot and the V1–V16 status at the moment the bakeoff fired.
+- `apertus_fidelity_checklist.md` — the 21 confirmed matches with Apertus pretraining, the three intentional deviations, and the production gates.
+- `PLAN_VS_RESULTS_RECONCILIATION_20260526.md` — the reconciliation whose §10 punch list became `CPT_MASTER` §5's 14-entry discrepancy log.
+- `PRODUCTION_DECISION_STATE.md` — the **2 B-stage** production pick (Vanilla). Carries its own 2026-05-26 banner noting partial supersession by the 5 B continuation; several other docs still link to it as if it were current.
+- `ARTIFACTS_AND_HYDRATION.md` — the git-vs-Clariden ownership policy and the pre-launch hydration check.
+- `CLARIDEN_INVENTORY_20260524.md` — the filesystem map (~6.9 TB of project state), folded into `CPT_MASTER` §7.2.
+- `collegues_Apertus_plan.md` — the project's original Greek-language framing by p-skarvelis: rank GlossAPI sources by perplexity, quality and novelty before selecting CPT subsets. The framing was absorbed; its HF-Trainer scaffold was rejected in favour of Megatron-LM-Swiss-AI.
 
-- `SESSION_LOG_20260521.md` — full audit trail of changes + jobs.
-- `TAKEOVER_LOG_20260521.md` — Codex takeover operational log.
-- `CSCS_OVERNIGHT_STATE.md` — current operating state at the time. Long
-  superseded by `../CLARIDEN_INVENTORY_20260524.md` and
-  `03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/BAKEOFF_FINAL_RESULTS_20260526.md`.
-- `SUGGESTIONS.md` — forward-looking signals from that session. Open items
-  (V1 decontamination, V4 bootstrap CIs, codeparrot-vs-StarCoder, math
-  2 % bucket) are absorbed into `../PLAN_VS_RESULTS_RECONCILIATION_20260526.md`
-  §10 discrepancy log; the SUGGESTIONS doc itself is retained for context.
+### `v0.6_planning/` — the iteration before v0.7
 
-## `synthesis_sources_20260526/`
+`cpt_plan_v0.6_answers.md` and `cpt_plan_v0.6_delta_vs_prior_planning.md`. Superseded within days. Read only to see which positions changed between v0.6 and v0.7 (framework, replay split, vocab scope).
 
-The 10 source docs synthesized into [`../CPT_MASTER_20260526.md`](../CPT_MASTER_20260526.md). Each retains its original content; the master synthesis abridges them into a single reference.
+### `2026-05-21_overnight_session/` — one execution night, ~219 KB
 
-- `old_experiments_plan.md` — v0.12 (2026-05-12). Experimental-design parent plan.
-- `cpt_plan.md` — v0.7 (2026-05-20). CPT-execution successor.
-- `cpt_plan_v0.7_answers.md` — decision snapshot at bakeoff firing.
-- `cpt_plan_v0.7_status.md` — V1-V16 verification status.
-- `apertus_fidelity_checklist.md` — Apertus-pretraining fidelity items + production gates.
-- `PLAN_VS_RESULTS_RECONCILIATION_20260526.md` — plan-vs-results reconciliation + 14-entry discrepancy log.
-- `PRODUCTION_DECISION_STATE.md` — 2 B-stage production decision (carries 2026-05-26 banner about 5 B partial supersession).
-- `ARTIFACTS_AND_HYDRATION.md` — repo ownership policy + hydration check.
-- `CLARIDEN_INVENTORY_20260524.md` — Clariden filesystem map.
-- `collegues_Apertus_plan.md` — original Greek-language project framing by p-skarvelis.
+The corpus build, the first roundtrip and the first V4 baseline, logged in real time across 2026-05-20 → 21, then handed over mid-run to a second agent.
 
-## `2026-05-24_2B_bakeoff_review/`
+- `SESSION_LOG_20260521.md` — the audit trail: every local change and every Clariden job, with a three-track TL;DR.
+- `TAKEOVER_LOG_20260521.md` — the handover log; records the corrections found on takeover (the missing `global_mmlu`, the "identical token streams" wording error, the `70/26/4` metadata that should have been `70/24/4/2`, the `normalize_nfc.sh` gap that would have skipped the final parquet).
+- `CSCS_OVERNIGHT_STATE.md` — operating state at the time; the best single record of the six cancelled mix-builder chains and why each was abandoned.
+- `SUGGESTIONS.md` — the forward-looking list from that night, tagged BLOCKER/PRIMARY/NICE/WATCH. Its open items were absorbed into the reconciliation's discrepancy log.
 
-Reviewer-facing material produced after the 2 B bakeoff completed. Pre-3.5 B
-and pre-5 B continuation; the conclusions in these docs (Vanilla wins as safe
-default) were reversed by the 3.5 B → 5 B trajectory on downstream aggregates.
-Kept for the audit / risk-inventory traceability.
+These are the reason several 2026-05-21 job numbers can be cited precisely; they are also the densest examples of failures being written down rather than smoothed over.
 
-- `REVIEW_HANDOFF_20260524.md` — single-map handoff doc for an external
-  reviewer.
-- `REVIEW_PRESENTATION.md` — narrative entry-point covering recipe + sbatch +
-  eval + risk inventory.
-- `AUDIT_FINDINGS.md` — 2-round source-vs-implementation audit (self-audit
-  + colleague reviewer round-2).
-- `COMPLETENESS_CHECK.md` — completeness inventory against `cpt_plan.md` v0.7
-  at 2026-05-21.
+### `2026-05-24_2B_bakeoff_review/` — reviewer material whose conclusion was overturned
+
+Produced after the 2 B bakeoff and **before** the 3.5 B and 5 B continuations, so its "Vanilla wins as the safe default" framing is pre-reversal.
+
+- `REVIEW_HANDOFF_20260524.md` — single-map handoff for an external reviewer.
+- `REVIEW_PRESENTATION.md` — narrative entry point over recipe, sbatch, eval and risks.
+- `AUDIT_FINDINGS.md` — the two-round source-vs-implementation audit; still the citation for the corrected Megatron flag names (`--xielu`, `--ademamix-beta3-warmup`, `--ademamix-alpha-warmup`) and for §G, which flagged the missing HF→Megatron loader as a pre-submit blocker.
+- `COMPLETENESS_CHECK.md` — inventory against cpt_plan v0.7 at 2026-05-21; honest about the gaps, including that the §5.6 gates existed only as prose and never became a pass/fail script.
+
+## Reading notes
+
+- Numbers in `PRODUCTION_DECISION_STATE.md` and in the 2 B review folder are **2 B-stage** numbers. The 5 B endpoint is in [`../03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/BAKEOFF_FINAL_RESULTS_20260526.md`](../03_4_implementation_experiments/init_bakeoff/eval/trajectory_analysis_20260524/BAKEOFF_FINAL_RESULTS_20260526.md), and the Greek-specific headline is in [`../03_4_implementation_experiments/init_bakeoff/eval/NATIVE_GREEK_SUITE_RESULTS_20260526.md`](../03_4_implementation_experiments/init_bakeoff/eval/NATIVE_GREEK_SUITE_RESULTS_20260526.md).
+- Several docs here contain absolute paths from the original working machine and links that predate the archive move. `git log --follow` on any file recovers its pre-move history.
+- Older artifacts label the tokenizer-fair metric `BPC`; it is bits per UTF-8 **byte**. See [`../03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md`](../03_4_implementation_experiments/init_bakeoff/eval/LOSS_MEASUREMENT_POLICY.md).

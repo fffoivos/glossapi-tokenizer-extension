@@ -1,264 +1,108 @@
-# Full Apertus-8B mixed CPT
+# 07 — Full Apertus-8B mixed CPT
 
-**Status (2026-08-05): owner-authorized and receipt-gated.** D0 selection,
-`libduth` risk acceptance and the production launch are recorded in
-`configs/owner_decisions_20260805.json`. Data freeze, the DP32/DP64 benchmark,
-prelaunch evaluation and production submission still have to pass their live
-receipts; authorization never bypasses those technical gates.
+> **In one line:** the production Greek continued-pretraining run of Apertus-8B — one stationary-mix D0/WSD-10 trajectory that was launched once, stopped after 30B tokens for a missing PII pass, rebuilt on a sanitized corpus, and completed on 2026-08-11 at 76.685B active tokens.
+> **Period:** 2026-08-05 → 2026-08-11 (run); analyses to 2026-08-12; one retrospective plan added 2026-09-01. **Status:** completed — the run finished, its evidence set is closed, and post-hoc conclusions moved to subproject 09.
+> **Came from / led to:** [`06_dataset_scheduling_experiments`](../06_dataset_scheduling_experiments/) (D0 selected) → this → [`09_full_8b_cpt_results_analysis`](../09_full_8b_cpt_results_analysis/) (results authority), [`08_targeted_8b_cpt_experiments`](../08_targeted_8b_cpt_experiments/) (follow-ups) and [`10_early_cooldown_causal_experiment`](../10_early_cooldown_causal_experiment/).
 
-This subproject turns the completed 0.5B scheduling result into one normal
-full-corpus Apertus-8B CPT run. It uses stationary D0 mixing, the complete
-eligible Modern-Greek pass, 20% foreign source-family replay, 1% Greek
-source-family replay (the legacy machine ID is `old_greek_replay`), the production 148,992-token tokenizer, and the verified untied
-layer-11 Token-Distillation initialization. Checkpoint averaging is disabled.
+## Why this existed
 
-Two provenance boundaries are explicit. Replay is source-family replay, not a
-claim that every consumed document is proven to have appeared in Apertus's
-original pretraining stream. Also, `greek_replay_apertus_original` is dominated
-by Modern-Greek HPLT and FineWiki rows; neither its 1% share nor the legacy
-`old_greek` validation ID measures Ancient-Greek capability. The validation ID
-is retained for compatibility but is displayed as **Greek replay retention**.
+Subproject 06 had screened five data orders at 0.5B and produced an observed — not statistically resolved — leader. This subproject spent the 8B allocation on exactly one of them. It owns the recipe, the data sanitization, the Clariden orchestration, the checkpoints and the raw evaluation receipts; it deliberately does **not** own the post-hoc conclusions, which live in subproject 09. Everything here is receipt-gated: the machine authority is [`configs/recipe_8b_full_mixed.json`](configs/recipe_8b_full_mixed.json) (`recipe_id: full8b-mixed-79-20-1-wsd10-v1`) and the owner's own decisions are recorded as data in [`configs/owner_decisions_20260805.json`](configs/owner_decisions_20260805.json).
 
-The public-facing training contract, including the 79/20/1 training mix, is
-merged in [`eellak/greek-apertus` PR #1](https://github.com/eellak/greek-apertus/pull/1)
-at merge commit `c1cb85106d44639a0eb5b2bc659333a5241598a0`. The executable,
-receipt-gated orchestration remains in this repository and pins that public
-contract in the machine-readable recipe.
+## History
 
-The machine authority is
-[`configs/recipe_8b_full_mixed.json`](configs/recipe_8b_full_mixed.json).
-The resource and provenance map remains
-[`CPT_LAUNCH_RESOURCE_SPEC_20260801.md`](../05_token_distillation_cpt/CPT_LAUNCH_RESOURCE_SPEC_20260801.md).
+### 2026-08-05 — the recipe, the owner's decisions, and a day of hardening
 
-## What is frozen in the draft recipe
+The recipe froze the 79/20/1 stream (Modern Greek / foreign source-family replay / Greek "old_greek" replay), the 148,992-token tokenizer, the verified **untied layer-11** Token-Distillation initialization, peak LR `5.5e-5` with a 400-update warmup and a 20% `1-sqrt` cooldown to the WSD-10 floor, AdEMAMix `(0.9, 0.999, 0.999, α=4)`, Goldfish `k=h=50`, TP=2, global batch 1,024 × 4,096, six 3,208-update segments on 16 nodes / 64 GH200 GPUs, 13 validation panels every 25 updates, 20 GreekMMLU checkpoints and per-document validation at three milestones. Planned horizon: 80,729,939,067 active tokens over 19,248 updates.
 
-- 63,776,651,867 production-tokenizer Modern-Greek source tokens before the
-  final global exact-content duplicate exclusion;
-- enough already-vetted binaries for 45,299,005,189 foreign replay tokens and
-  2,666,110,500 Old-Greek replay tokens;
-- an expected 80,729,939,067 active-token 79/20/1 stream, padded only with
-  loss-inactive tail slots to 19,248 updates at 4,194,304 token slots/update;
-- Apertus-8B architecture, corrected main-pretraining RoPE geometry
-  (`4096`, base `500000`, scaling factor `8.0`), TP=2 and untied embeddings;
-- AdEMAMix `(0.9, 0.999, 0.999, 4.0)`, weight decay `0.1`, clip `0.1`, bf16
-  parameters and fp32 main gradients;
-- peak LR `5.5e-5`, 400-update warmup from `5.5e-6`, stable phase, and a final
-  20% `1-sqrt` cooldown to the WSD-10 floor;
-- NaN/Inf checks enabled—the legacy `--no-check-for-nan-in-loss-and-grad`
-  escape hatch is not present in this launcher;
-- Swiss-AI Megatron upstream `c92402e39ef3c8e69ea378a59e79059dc14541f4`
-  plus the hash-pinned extra-validation and exact-evaluation patch set. The
-  former `f8d8a30...` value was a patch-header identifier, not a commit present
-  in the runtime checkout, and is no longer accepted by the recipe validator;
-- the existing patched-runtime receipt at
-  `/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T093500Z-megatron-production-c92402e-v1.receipt.json`
-  (SHA-256 `99b9ecbd...`) is revalidated against the live tree before every
-  training segment;
-- a dependency-closed `sitecustomize.py` restores Megatron's historical
-  `numpy.product` checkpoint-validation alias and preserves its dynamic
-  distributed-checkpoint metadata under PyTorch 2.9.1/NumPy 2; this affects
-  checkpoint format compatibility only, not tensors or optimizer math;
-- six safe 3,208-update Clariden segments on 16 nodes / 64 GH200 GPUs;
-- 13 fixed source-conditioned validation panels every 25 updates;
-- the inherited `old_greek` panel is rejected because 5,784/5,833 documents
-  are exact training-content matches; launch requires a replacement sampled
-  from unconsumed replay documents with zero exact-content overlap against all
-  selected training pools;
-- 20 native GreekMMLU measurements: initialization, post-warmup, about every
-  5B tokens, cooldown start and terminal checkpoint;
-- a 75-minute allocation for every full 8B GreekMMLU job, based on the
-  measured 54m11s initialization baseline (the inherited 30-minute Mini
-  allocation is insufficient for Apertus-8B);
-- an 8B-specific sharded export verifier: the converter's simultaneous
-  Megatron/HF `--test-logits` diagnostic exceeds one 96GB GH200, so the launch
-  gate instead requires all 323 learned source tensors to map bit-exactly into
-  the four HF shards (including the untied output embedding), followed by a
-  successful authoritative float32 native-GreekMMLU run of that export;
-- per-document validation at initialization, cooldown start and final model.
+`configs/owner_decisions_20260805.json` (recorded `11:17:54Z`) is unusually explicit about what was *not* resolved: D0 was accepted on `explicit_point_estimate_acceptance` — before schedule-selection confidence intervals existed; `libduth` was included on `explicit_recorded_risk_acceptance` with `legal_conclusion_claimed: false`, i.e. the conflicting licence evidence was accepted as a risk, not reconciled; checkpoint averaging was excluded by explicit owner exclusion.
 
-WSD-10 is the settled baseline, not a new LR winner claim. The T10/T20/T30
-experiment did not yet produce per-document BPB uncertainty. If that rerun
-selects a different floor, change only the final LR and regenerate the recipe
-ID before launch.
+Nineteen more commits the same day hardened the launcher rather than the science: a validated Clariden memory ceiling (`e25d7bdc`), benchmark restart and Python-runtime hardening (`a313f7a9`), Megatron caches kept in mutable run state (`460d5bfc`), a dependency-closed `sitecustomize.py` restoring the historical `numpy.product` checkpoint alias under NumPy 2 (`300d6244`), a 75-minute GreekMMLU allocation replacing the inherited 30-minute Mini value after a measured 54m11s baseline (`6a54d25a`), and an 8B-specific export verifier (`a0ca3e88`) because the converter's simultaneous Megatron/HF `--test-logits` check exceeds one 96 GB GH200 — the gate instead requires all **323 learned source tensors** to map bit-exactly into the four HF shards. `8e9980b3` closed the prelaunch evidence gaps and made two provenance corrections in the README: the inherited `old_greek` panel was **rejected** because 5,784 of its 5,833 documents are exact training-content matches, and the 1% pool was relabelled *Greek replay retention* because its source is dominated by Modern-Greek HPLT and FineWiki rows and measures no Ancient-Greek capability.
 
-The complete-v2 directive also means this frozen CPT stream includes the small
-`openarchives.gr` subset whose `needs_ocr` flag is true. Earlier exclusion text
-describes the C3 tokenizer mix, where those rows were excluded; it is not a
-truthful description of this full-v2 CPT freeze. Inclusion is recorded as data
-identity, not as an OCR-quality endorsement.
+### 2026-08-05/06 — the first trajectory, and why it was stopped
 
-## Reusing data without re-tokenizing
+Production started on the pre-sanitization corpus and ran through segment 0 (attempt 0), segment 1 (attempt 2) and into segment 2, reaching **update 7,152 = 29,997,662,208 token slots**, 37.2% of the planned horizon. The training text was GreekMMLU-decontaminated but had never received the required Apertus PII anonymization pass, so the run was stopped for that reason. It was written up as an explicitly exploratory control, not a result: [`presentations/FULL8_EXPLORATORY_PREFIX_20260806.html`](presentations/FULL8_EXPLORATORY_PREFIX_20260806.html). Its findings — broad Greek learning including on the neutral panel, small but visible foreign-panel departures from their running minima, and a GreekMMLU curve that improves sharply then oscillates (35.28% at init → 56.58% at update 5,960 → 55.24% at 7,152, full 16,632-question set) — are what set the expectations for the rerun.
 
-`dataset/freeze_source_inventory.py` reads the completed 8B-tokenizer retained
-ledgers in indexed-document order, validates every source manifest, freezes
-stable pool catalogs and excludes repeated Modern-Greek exact content. The
-shared packing code was generalized to take the receipt's pad token (`3` here,
-`10` in the Mini overlay) and global batch (`1024` here, `512` in the Mini
-study). It then emits all five lightweight order schedules; this run consumes
-only `D0_mixed`.
+### 2026-08-06 — nested Slurm, disjoint panels, and an uncomfortable disclosure
 
-The neutral external Greek cluster-heldout is rebuilt with the production
-tokenizer. The other 12 heldouts already exist under the same production
-tokenizer as the training binaries.
+Four commits made nested `sbatch` work under the pinned uenv (`381f4e3c`, `98d3bd27`, `f2f905f8`, `17eaa9dd`). `8deb1976` rebuilt every validation panel to be training-disjoint. `c3c84fdb` restricted segment recovery to verified clean checkpoints. And `14a61ca0` added [`evidence/DP32_RESTART_ACCEPTANCE_DISCLOSURE_20260806.md`](evidence/DP32_RESTART_ACCEPTANCE_DISCLOSURE_20260806.md), which states that the restart gradient-norm tolerances (`0.001` absolute / `0.02` relative) were added in commit `71d1bba2` **after** the DP32 restart result existed, withdraws the earlier "collective reduction order" explanation as unsupported, and downgrades the recovery claim from bitwise-exact to *numerically continuous*.
 
-Dry-run the data graph on Clariden:
+### 2026-08-07 — the sanitized restart
 
-```bash
-export FULL8_CODE_ROOT=/iopsstor/scratch/cscs/fffoivos/orchestration/full8-cpt/<immutable-bundle>
-export FULL8_STAGE_ROOT=/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed/<run-id>
-DRY_RUN=1 "$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/clariden/submit_data_pipeline.sh"
-```
+[`SANITIZED_RESTART_RUNBOOK_20260807.md`](SANITIZED_RESTART_RUNBOOK_20260807.md) and commit `5b6dd260` (plus ~18 follow-ups) rebuilt the data contract: PII masking with the Apertus-parity email/IP masker and a validated country-length IBAN masker; exclusion of exactly 6,648 `openarchives.gr` rows flagged `needs_ocr`; global exact deduplication of the masked text; and recomputation of the whole D0 schedule from the retained mass. The follow-ups read as a list of bugs found and closed:
 
-The real data graph is metadata/packing work only; it does not train a model.
-It still requires an explicit `DRY_RUN=0` invocation after reviewing the paths.
+- dedup keyed by `(doc_id, masked SHA-256)` with row multiplicity preserved, after v7 found 27 repeated IDs spanning 32 extra records in one shard — a set of document IDs would have dropped the wrong text (`317636c2`, `e80ad793`);
+- Old-Greek replay capacity preserved: the original task-index-only ordering rule left only 11,529,074 Old-Greek tokens against a 2,666,110,500-token source and failed the 1% capacity gate (`2bc4cf40`);
+- bridge accounting separated documents from index sentinels — summing index entries inflated the v1 bridge by exactly 1,457, one per task (`20fb7294`, `303ccf67`);
+- replay heldouts reconstructed *through* the same masker before comparing hashes, since comparing raw source text to masked training text fails on any document containing an email, IP or IBAN (`5f4383f3`);
+- retention alerts pre-registered on the seven fixed foreign/code/math/Greek-replay panels: +0.05 nats twice = warning, +0.08 on any panel or +0.05 on the macro = critical, explicitly as reporting constraints and not automatic stop rules (`ca729f0b`).
 
-## Per-document validation rerun
+The same day produced two hard operational reversals. The v35 sanitized benchmark **invalidated the inherited async-save evidence**: two independent DP32 restarts matched each other exactly but both differed from the uninterrupted update-161 gradient norm (3.202 vs 2.210), so that benchmark was quarantined and asynchronous save was forbidden at resumable boundaries pending a synchronous-parity proof (`3d1c015b`). The v36 parity attempt was spread over six leaf switches and showed 8.7–72.0 second updates against the proven ≈8.74 s single-switch trajectory, so multi-node training was pinned to `--switches=1` plus an explicit leaf-group exclusion list (`85f2b755`, `c7652b1e`). Finally `701741f7` added a second, independently fail-closed path to select the already-proven DP32 profile without re-running DP64 at all.
 
-The five completed 0.5B endpoints require 13 panels, about 113.9M validation
-tokens/model and 569.4M tokens in total. The prepared execution shape uses four
-one-node/four-GPU panel groups per model; all five models can therefore run on
-20 nodes concurrently.
+### 2026-08-08 — the run that finished
 
-The current planning estimate is:
+The sanitized recipe derived a new horizon: **76,685,490,476 active tokens → 18,284 optimizer updates**; the runbook records that the earlier 19,248-update / 80.7B figure belongs to a superseded corpus geometry. The v45 scientific bundle was frozen (tree SHA-256 `fe6993bc…`, scientific digest `41998a04…`). DP64 was **rejected on trajectory drift despite being faster**; `dp32_16node` was selected with a 44.13-hour compute-only estimate at a median 8.6892 s/update. Five segments were planned: 0–4,000, 4,000–8,000, 8,000–12,000, 12,000–14,627 and 14,627–18,284. Run root: `/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12`. The launch and operations contract is [`FULL8B_RERUN_LAUNCH_HANDOFF_20260808.md`](FULL8B_RERUN_LAUNCH_HANDOFF_20260808.md).
 
-- remaining one-panel smoke and throughput calibration: 1–3 hours;
-- full five-model execution after allocation: 0.5–1.5 hours;
-- scheduler queue: separate and not promised.
+### 2026-08-09 — running it against the queue
 
-The range is intentionally marked planning-only until the representative HPLT
-smoke supplies measured tokens/s. The scorer emits a numerator and denominator
-for every document, plus base/added-token splits. Neutral external Greek has an
-explicit `cluster_id`; the inherited panels currently have only `doc_id`, so
-their uncertainty must be called a document bootstrap unless a cluster mapping
-is frozen later. See
-[`configs/per_document_validation_estimate.json`](configs/per_document_validation_estimate.json)
-and [`evaluation/score_documents_hf.py`](evaluation/score_documents_hf.py).
-The five terminal HF exports are still present under the authoritative
-`evaluations_fp32_v1/iteration_0038496/attempt_3` tree, so this estimate does
-not require another checkpoint conversion. The complete dry-run-by-default
-graph is `clariden/submit_mini_per_document_rerun.sh`; it freezes the raw-input
-manifest, requires one D0/HPLT throughput smoke, runs the five four-node arrays,
-and produces paired 10,000-sample document/cluster-bootstrap intervals with
-`evaluation/analyze_per_document_endpoints.py`.
+Segment 0 (job `3034915`) completed updates 0–4,000 in `10:02:48`. The rest of the day was allocation engineering, all of it receipt-bound and recorded in the handoff's operational addendum: `debug-qos` allows one running and two submitted jobs per user, so the evaluation chain had to be serial and no debug controller could wait on debug children; at most one audited, delayed, permit-gated successor holder may be prequeued, with the hold derived from the *target* segment's runtime and the trigger from the *source* segment's conservative budget. Supervisor bundles v29 → v30 → v31 each replaced a still-pending predecessor only after auditing the replacement and reconstructing one missing legacy receipt. Segment 1 (holder `3037145`) got its allocation at 06:20 and ran the 4,000–8,000 range at a stabilized median 8.614 s/update and 7,608 tokens/s/GPU with zero skipped or NaN updates. The same day the owner **deferred** review of the post-mask deduplication ([`DEFERRED_POSTMASK_DEDUP_REVIEW_20260809.md`](DEFERRED_POSTMASK_DEDUP_REVIEW_20260809.md)): the second global dedup dropped 2,378,595 exact duplicates plus 8,081 validation collisions and was outside the requested anonymization scope, but nothing about the running job was allowed to change because of it. A mid-run status report was published as [`presentations/FULL8_SANITIZED_RERUN_PROGRESS_20260809.html`](presentations/FULL8_SANITIZED_RERUN_PROGRESS_20260809.html), whose headline was that *learning replicates better than the benchmark*.
 
-## ETA and the Sunday question
+### 2026-08-11 — completion, then the drift analyses
 
-The estimate uses completed 16-node 8B jobs `2972672`, `2972674`, `2975267`,
-`2975269` and `2975271`, not the 0.5B scaling ratio. Their median update time
-was 8.67–8.73 seconds and observed wall time was 10.49–11.05 seconds/update
-with the actual validation/save regime.
+The completion receipt was written at 10:49 Athens time and binds **19 GreekMMLU receipts, 39 document-local receipts, 5 training-attempt audits**, the launch gate, the selected DP32 profile and the terminal HF export. [`presentations/FULL8_SANITIZED_CPT_FINAL_RESULTS_20260811.html`](presentations/FULL8_SANITIZED_CPT_FINAL_RESULTS_20260811.html) is the canonical trajectory report and [`presentations/FULL8_VS_0P5B_FIVE_ARM_COMPARISON_20260811.html`](presentations/FULL8_VS_0P5B_FIVE_ARM_COMPARISON_20260811.html) the cross-scale comparison. Because GreekMMLU peaked mid-run and then fell back, a further investigation ran the same evening and into 08-12: [`analysis/GREEKMMLU_RESPONSE_DISPLACEMENT_BY_CATEGORY_20260811.md`](analysis/GREEKMMLU_RESPONSE_DISPLACEMENT_BY_CATEGORY_20260811.md) plus a family of drift simulations and stress tests in [`presentations/`](presentations/). Its finding: the dominant full-run effect is *early* response reorganization (strongest boundary at updates 3,576→4,768, ≈15–20B tokens, selected by 27 of 31 subject labels), while the post-peak window's strongest boundary is 14,627→15,496 — aligned with the declared cooldown start, but explicitly not proof that LR decay caused it.
 
-From 2026-08-05 11:34 Europe/Athens to Sunday 2026-08-09 23:59, the calibrated
-critical-path forecast is:
+### 2026-09-01 — one plan, not executed
 
-| Clock | Low | Central | Conservative |
-|---|---:|---:|---:|
-| Compute only | 46.7h median | — | 46.7h p90 |
-| Training complete, including data prep, queues, gates and recovery | 62.1h | 75.5h | 107.3h |
-| Evidence complete, including GreekMMLU and final validation | 64.1h | 81.5h | 119.3h |
+[`RETROSPECTIVE_TOKEN_ACCURACY_PLAN_20260901.md`](RETROSPECTIVE_TOKEN_ACCURACY_PLAN_20260901.md) proposes reconstructing document-local top-1 next-token accuracy across all 19 checkpoints (never logged during training), costed at 27.25 node-hours on one debug node at a time. Status: ready to implement, **not submitted**.
 
-The central evidence ETA is Saturday around 21:00 Athens. The conservative
-evidence ETA is Monday around 10:55. Therefore **finishing by Sunday is
-plausible but not safe to promise on the proven 16-node path**. Training alone
-barely fits the conservative bound; complete evidence does not.
+## Outcome
 
-For the central evidence path, the effective latest campaign start is Thursday
-2026-08-06 around 14:30 Athens. The conservative evidence path would already
-have needed to begin before this preparation window. That is why “Sunday is
-plausible” is a capacity-dependent forecast, not a commitment.
+- **The run completed:** 76,685,490,476 active tokens over 18,284 updates — 60.582B Modern Greek, 15.337B foreign replay, 0.767B Greek replay — with zero skipped and zero non-finite updates ([`../09_full_8b_cpt_results_analysis/RESULTS.md`](../09_full_8b_cpt_results_analysis/RESULTS.md), [`DATA_AND_LIMITATIONS.md`](../09_full_8b_cpt_results_analysis/DATA_AND_LIMITATIONS.md)).
+- **Adaptation is broad:** all six Greek learning panels and all 13 exact per-document panels improved from initialization to the terminal checkpoint, and every per-document panel improved during cooldown.
+- **Retention is imperfect:** English, code, math, German, Russian and Chinese all ended above their own earlier best BPB while remaining far better than at initialization.
+- **GreekMMLU separates from loss:** 35.782% at initialization → **56.810% at update 9,536 (39.997B active tokens)** → 54.855% terminal, on the fixed 16,159-question decontaminated subset, while source-conditioned Greek BPB kept improving. The update-9,536 checkpoint was preserved as the observed leader.
+- **Execution facts worth reusing:** DP64 is faster but drifts; async save is unproven at resumable boundaries; single-leaf-switch placement is worth up to an 8× per-update difference; `debug-qos` limits force serial evaluation chains.
+- **Left open:** the deferred post-mask dedup review; the retrospective token-accuracy campaign; the fact that this is one trajectory and cannot isolate sanitation, dedup, replay share, scale, tokenizer, TD or LR shape as causes.
+- **Carried forward:** subproject 09 owns the conclusions; 08 owns the follow-up designs; 10 owns the early-cooldown causal test motivated by the cooldown-aligned displacement boundary.
 
-At 2026-08-05 08:42 UTC, `normal` reported 260 idle nodes. Fresh 16-, 20- and
-32-node `sbatch --test-only` probes predicted starts around 12:55 UTC. Those
-test-only IDs (`3004934`–`3004936`) are predictions, not reservations. A
-32-node TP2/DP64 run is batch-divisible and could create more deadline margin,
-but it is not throughput/restart proven and must not replace the 16-node
-recipe without an exact-shape benchmark and a regenerated forecast.
+## Sub-subprojects
 
-The forecast input is
-[`configs/eta_16node_to_20260809.json`](configs/eta_16node_to_20260809.json).
+| Dir | Role | Period | Status | Result (one line) |
+|---|---|---|---|---|
+| [`configs/`](configs/) | Recipe, execution profiles, owner decisions, ETA | 08-05 → 08-07 | frozen | The machine authority for everything the run did. |
+| [`dataset/`](dataset/) | Inventory freeze, packing reuse, disjoint validation | 08-05 → 08-07 | completed | Reused the 8B binaries without re-tokenizing; rebuilt every leaking panel. |
+| [`dataset/anonymization/`](dataset/anonymization/) | PII masking, OCR exclusion, post-mask dedup, bridge | 08-07 | completed | The sanitized corpus the completed run consumed. |
+| [`train/`](train/) | Checkpoint freezing and training-attempt auditing | 08-05 → 08-07 | completed | Five audited training attempts, all clean. |
+| [`evaluation/`](evaluation/) | 13 panels, GreekMMLU, per-document scoring, exports | 08-05 → 08-09 | completed | 19 GreekMMLU + 39 document-local receipts, bit-exact HF exports. |
+| [`scripts/`](scripts/) | Validators, launch gate, supervisors, campaign status | 08-05 → 08-09 | completed | The fail-closed control plane, including the DP32 selection. |
+| [`clariden/`](clariden/) | 76 Slurm entry points | 08-05 → 08-09 | completed | Ran the data graph, the benchmarks, the five segments and the evidence chain. |
+| [`runtime_compat/`](runtime_compat/) | One `sitecustomize.py` shim | 08-05 | frozen | Restores Megatron's `numpy.product` alias under NumPy 2. |
+| [`evidence/`](evidence/) | One disclosure document | 08-06 | frozen | The post-hoc restart tolerance, disclosed rather than buried. |
+| [`presentations/`](presentations/) | 11 reports + builders + payloads | 08-06 → 08-12 | completed | Exploratory prefix, mid-run progress, final results, cross-scale, drift. |
+| [`analysis/`](analysis/) | GreekMMLU drift and source-exposure analysis | 08-11 → 08-12 | completed | AHWD: early reorganization dominates; post-peak boundary sits at cooldown. |
+| [`tests/`](tests/) | 6 test modules over the orchestration and masking | 08-05 → 08-09 | completed | Every gate above has an executable test. |
 
-## Launch order
+## Where things are
 
-1. Freeze an immutable code bundle and data receipts.
-2. Run `scripts/validate_recipe.py` against the pool and schedule receipts.
-3. Run `clariden/submit_prelaunch_evaluations.sh`: initial 13-panel loss,
-   initial full/clean GreekMMLU, and all 13 initial per-document panels.
-4. Review finite metrics, exact checkpoint conversion and available storage
-   (minimum 6TB for checkpoints plus conversion/evaluation artifacts).
-5. Either run the matched 288-update DP32/DP64 benchmark, or—when DP64 is not
-   being reconsidered—run the exact-recipe DP32 synchronous parity smoke and
-   freeze the explicit DP32 fallback selection. The latter makes no DP64
-   speedup claim and cannot promote DP64.
-6. Run the checkpoint-conversion/native-GreekMMLU smoke, then build the single
-   authoritative launch-gate receipt.
-7. Dry-run `clariden/submit_production.sh`, refresh scheduler/storage evidence,
-   then set `CONFIRM_GPU_LAUNCH=APERTUS8B_FULL_MIXED_CPT` and `DRY_RUN=0`.
+| What | Path |
+|---|---|
+| Machine authority | [`configs/recipe_8b_full_mixed.json`](configs/recipe_8b_full_mixed.json) |
+| Owner decisions | [`configs/owner_decisions_20260805.json`](configs/owner_decisions_20260805.json) |
+| Sanitized data contract | [`SANITIZED_RESTART_RUNBOOK_20260807.md`](SANITIZED_RESTART_RUNBOOK_20260807.md) |
+| Launch + operations contract | [`FULL8B_RERUN_LAUNCH_HANDOFF_20260808.md`](FULL8B_RERUN_LAUNCH_HANDOFF_20260808.md) |
+| Final result | [`presentations/FULL8_SANITIZED_CPT_FINAL_RESULTS_20260811.html`](presentations/FULL8_SANITIZED_CPT_FINAL_RESULTS_20260811.html) |
+| Conclusions | [`../09_full_8b_cpt_results_analysis/RESULTS.md`](../09_full_8b_cpt_results_analysis/RESULTS.md) |
+| Resource/provenance map | [`../05_token_distillation_cpt/CPT_LAUNCH_RESOURCE_SPEC_20260801.md`](../05_token_distillation_cpt/CPT_LAUNCH_RESOURCE_SPEC_20260801.md) |
+| Public training contract | [`eellak/greek-apertus` PR #1](https://github.com/eellak/greek-apertus/pull/1), merge commit `c1cb8510…` |
+| Completed run root (CSCS) | `/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12` |
+| Scientific bundle (CSCS) | `/iopsstor/scratch/cscs/fffoivos/orchestration/full8b-cpt/20260808T023300Z-sanitized-v45`, tree `fe6993bc…` |
 
-During execution, run `scripts/campaign_status.py` after every segment gate,
-failure, or material evaluation-backlog change. It reports the exact completed
-update/token boundary, Slurm states, required/completed GreekMMLU and terminal
-per-document receipts, and a remaining training-core range. That range is not
-an end-to-end ETA; regenerate the three-clock forecast whenever queue or
-recovery assumptions change.
+## Working documents
 
-The selected profile uses either three DP64 segments or the proven six DP32
-segments. Each segment is advanced by an `afterany` supervisor that hashes the
-checkpoint, blocks scientific failures, retries only infrastructure failures
-at most twice and submits the next segment. GreekMMLU is kept off the training
-critical path by a four-pipeline bounded queue. Completion requires separate
-training and evidence receipts: 20 GreekMMLU results, 39 per-document panel
-receipts and the terminal model export.
+- **Contracts, still accurate:** `SANITIZED_RESTART_RUNBOOK_20260807.md`, `FULL8B_RERUN_LAUNCH_HANDOFF_20260808.md` (its own header notes that the 2026-08-09 addendum supersedes the historical "training had not started" paragraph).
+- **Open decisions, deliberately parked:** `DEFERRED_POSTMASK_DEDUP_REVIEW_20260809.md` (deferred by the owner 2026-08-09), `RETROSPECTIVE_TOKEN_ACCURACY_PLAN_20260901.md` (never submitted).
+- **Disclosure:** `evidence/DP32_RESTART_ACCEPTANCE_DISCLOSURE_20260806.md`.
+- **Superseded by the sanitized rerun but kept as evidence:** `presentations/FULL8_EXPLORATORY_PREFIX_20260806.*` (the stopped pre-anonymization trajectory) and `presentations/FULL8_VS_0P5B_FIVE_ARM_COMPARISON_20260810.*` (superseded next day by the `20260811` build).
+- **Exploratory analyses that changed no decision:** the GreekMMLU drift simulations, stress tests, history gallery and wrong-cell displacement bake-off under `presentations/`. Subproject 09 deliberately did not copy these forward.
+- The historical README stated the run as "owner-authorized and receipt-gated" with a "Not yet done" list; that state ended on 2026-08-11. Some of its numbers (19,248 updates, 80.7B tokens, six segments) describe the **pre-sanitization** geometry and are superseded by 18,284 / 76.685B / five segments.
 
-The parallelism gate retains all wall time observed between the first and last
-benchmark updates, including the production validation and checkpoint cadence.
-Only fixed pre-update process/model/dataset startup is amortized over the
-selected profile's real segment length. Dividing that one-time startup by the
-short 288-update benchmark would be a benchmark-length artifact, not the
-production wall-seconds/update quantity used for promotion.
-
-Fallback is fail-closed: DP32 may be selected after a DP64 rejection only if
-the control itself has zero skipped/non-finite updates; every resumable
-checkpoint was saved synchronously; the restart receipt binds the profile,
-scientific digest, iterations 160/161 and exact checkpoint symlink; update-161
-loss and parameter norm reproduce exactly at logged precision; and the
-cross-node gradient norm remains within the frozen 2% relative/0.001 absolute
-tolerance. The sanitized v35 benchmark invalidated the inherited async-save
-evidence: two independent DP32 restarts matched one another exactly but both
-differed from the uninterrupted update-161 gradient norm (3.202 versus 2.210).
-That benchmark is quarantined and cannot select even the DP32 fallback. Async
-save is therefore forbidden at resumable boundaries until separately proven
-safe. A fresh synchronous-save parity smoke and full benchmark must pass; a
-control outside this explicit restart-provenance and numerical-equivalence
-gate fails the whole benchmark rather than becoming the production profile by
-default.
-
-The no-rebenchmark path is independently fail-closed. It is implemented by
-`scripts/finalize_dp32_fallback_selection.py` and accepts only the declared
-`dp32_16node` proven fallback after the exact sanitized recipe has completed a
-single-leaf 162-update control plus two synchronous iteration-160 restarts.
-Every parity check, code-bundle binding, recipe/profile digest, schedule/log
-binding and restart receipt must match. Its receipt records
-`candidate_evaluated: false` and `candidate_promoted: false`; the production
-launch gate validates those semantics rather than treating the file name as a
-benchmark result.
-
-Multi-node training allocations also require `--switches=1`, exclude every
-node outside a predeclared Clariden leaf group, and verify the actual allocation
-against Clariden's live leaf-switch topology before model setup.
-The sanitized v36 parity attempt was spread over six leaf switches and showed
-8.7--72.0 second updates, versus the proven approximately 8.74-second DP32
-single-switch trajectory. The allocation leaf switch and nodelist are recorded
-in every training-job receipt; this is a placement-only efficiency control and
-does not change the scientific recipe.
-
-## Launch handoff
-
-`clariden/finalize_and_submit_production.sbatch` is the fail-closed handoff from
-the conversion/native-GreekMMLU smoke to production. It refreshes the live
-storage and scheduler evidence, builds the sole launch gate from the complete
-receipt set, executes the dry run, and only then calls the real submitter. The
-job requires the explicit `APERTUS8B_FULL_MIXED_CPT` authorization value and
-refuses to overwrite an existing environment receipt, launch gate, or run
-root. Submit it only with an `afterok` dependency on the conversion-smoke gate.
-
-These are launch gates, not hidden assumptions.
+> The owner's main clone also holds copies of several files in this directory — including `configs/recipe_8b_full_mixed.json`, scripts and sbatch wrappers — that differ from the committed versions. They were **not** imported; the committed versions here are authoritative for this history.

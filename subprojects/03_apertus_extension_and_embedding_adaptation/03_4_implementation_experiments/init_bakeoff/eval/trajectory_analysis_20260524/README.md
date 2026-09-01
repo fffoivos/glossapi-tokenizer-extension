@@ -57,7 +57,7 @@ Headline at 5B (Vanilla + TD only; iso-token comparisons at 3.5B / 2.0B in the c
   driven primarily by xquad_el (+7.57 pp).
 - ReTok was stopped at 3.5B (TD-dominated); Centroid at 2B (clearly broken).
 
-See [`PRODUCTION_DECISION_STATE.md`](../../../../PRODUCTION_DECISION_STATE.md)
+See [`PRODUCTION_DECISION_STATE.md`](../../../../_archive/synthesis_sources_20260526/PRODUCTION_DECISION_STATE.md)
 for the older production decision context and
 [`bakeoff_1node_chain_20260522_005620_iter0000476_digest.md`](../live_summaries/bakeoff_1node_chain_20260522_005620_iter0000476_digest.md)
 for the snapshot at iter 476.

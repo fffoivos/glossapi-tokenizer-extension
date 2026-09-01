@@ -1,89 +1,57 @@
-# 03.4 Implementation Experiments
+# 03_4 — Implementation experiments
 
-## Scope
+> **In one line:** where the plans became Slurm jobs — the Clariden reconnaissance, the 4-arm init bakeoff and its whole eval stack, and (much later) the polytonic cutoff probe that picked the production tokenizer.
+> **Period:** 2026-05-20 (`af438d4d`) → 2026-08-21 (`7dce0efb`). The bakeoff itself ran 2026-05-21 → 2026-05-26.
+> **Status:** the bakeoff completed 2026-05-26 and was never resumed; the polytonic decision closed 2026-07-29; the training and eval scripts stayed in service for subprojects 05–08 until 2026-08-21.
+> **Came from / led to:** [`../03_3_cscs_experiments_kickoff/`](../03_3_cscs_experiments_kickoff/README.md) → this → [`../../04_cpt_training_regime_on_vanilla/`](../../04_cpt_training_regime_on_vanilla/) and [`../../05_token_distillation_cpt/`](../../05_token_distillation_cpt/).
 
-The hands-on sub-subproject. Where 03.3 plans, 03.4 runs.
+## Why this existed
 
-This is where actual SLURM jobs get authored, submitted, monitored,
-and analyzed on CSCS Clariden. The earlier sub-subprojects (03.1
-diagnostic / 03.2 dedup audit / 03.3 kickoff planning) feed inputs
-into this one.
+Everything upstream of here is a document. This is where a real cluster, a real 8 B model and a real corpus meet: what partitions exist, how fast a GH200 node is, whether the HF→Megatron conversion is lossless, whether four different ways of initialising 17,408 embedding rows produce measurably different models, and how to measure that fairly when two of the arms use a different tokenizer from the other two.
 
-## Files
+## History
 
-- [`AUTH_AND_NODE_FINDING.md`](AUTH_AND_NODE_FINDING.md) — verified
-  auth state, partition / QoS / queue probe results, expected start
-  times at various job sizes, recommended-shape decision for the
-  first calibration run.
-- [`STORAGE_AND_EXISTING_WORK.md`](STORAGE_AND_EXISTING_WORK.md) —
-  live storage map (iopsstor / capstor / users), CPU-cluster
-  options (xfer partition + the "no Eiger access" finding), and the
-  big finding: **p-skarvelis (in our a0140 project) has been running
-  Apertus-Greek CPT + SFT since 2026-04-17** using HF Trainer +
-  FineWeb-2-HQ. Their runs are tokenizer-incompatible with our C3-17,408
-  ship but their setup is the most-likely scaffold we should adopt.
-- [`ENVIRONMENT_AND_BENCHMARKS.md`](ENVIRONMENT_AND_BENCHMARKS.md) —
-  the full inventory of (a) swiss-ai training/eval/init code repos
-  (`apertus-finetuning-recipes`, `pretrain-code`, `lm-evaluation-harness`,
-  `model-launch`, `perf-check`, `evals`, `token-distillation`, …),
-  (b) Apertus's reported eval set (ARC / HellaSwag / WinoGrande /
-  XNLI / XCOPA / PIQA), (c) the ILSP Greek Evaluation Suite (21+
-  datasets on `ilsp/*` HF, all open), (d) safety benchmarks (ILSP +
-  swiss-ai variants), and (e) the concrete CSCS deployment plan with
-  paths, `huggingface-cli` commands, and login-node-vs-slurm
-  scheduling.
-- [`init_bakeoff/`](init_bakeoff/) — **active**: the three-arm init
-  experiment per `../cpt_plan.md` v0.7 §5. Vanilla / ReTok / Centroid,
-  2 B tokens per arm. **Modern-only (vocab 148,480)** per the
-  2026-05-20 scope decision; composite 153,600 path remains in
-  `build_init_checkpoints.py` behind `--vocab-size 153600` for the
-  future polytonic specialization run. Three subdirectories:
-  - [`arms/`](init_bakeoff/arms/) — the three init Python modules
-    (`vanilla.py`, `retok.py`, `centroid.py`) + production driver
-    (`build_init_checkpoints.py`) + local smoke test
-    (`test_init_logic.py`). Smoke ran green: both extension arms
-    produce norm-matched [17408, 4096] new rows.
-  - [`data/`](init_bakeoff/corpus_build/) — corpus assembly:
-    [`MIX_RECIPE.md`](init_bakeoff/corpus_build/MIX_RECIPE.md) (bucket
-    allocations), `recipes/{bulk,anneal}.json` (31 sources for bulk,
-    14 for anneal; weights sum to 1.0 verified),
-    `mix_builder.py` (streaming interleaver → JSONL),
-    `pull_greek_corpus.sh` + `pull_replay_datasets.sh` (login-node HF
-    downloads). Bulk recipe = 70 % Greek / 26 % replay / 4 % code;
-    anneal recipe = 85 / 12 / 3 (not used in bakeoff).
-  - [`eval/`](init_bakeoff/eval/) — V4 baseline + per-arm eval:
-    [`EVAL_RECIPE.md`](init_bakeoff/eval/EVAL_RECIPE.md) (task
-    lists), `pull_benchmarks.sh` (login-node), `run_eval.sbatch`
-    (parameterized: MODEL_PATH + OUTPUT_DIR + TASK_GROUP),
-    `run_apertus_baseline.sh` (V4 wrapper), `run_bakeoff_arm_eval.sh`
-    (per-arm wrapper), `compute_bootstrap_cis.py` (bootstrap CIs
-    over `--log_samples` per v0.7 §6.1 methodology).
-- (planned) `01_vanilla_calibration_v1/` — first concrete job: 1-node
-  4×GH200 throughput calibration on Apertus-8B-2509 + the modern-only
-  148,480 tokenizer (Vanilla arm; smallest setup-risk).
-- (planned) `02_pilot_runs/` — three parallel arm pilots once
-  calibration reports actual tokens/sec.
-- (planned) `sbatch_templates/` — reusable sbatch wrappers for each
-  partition + size + arm.
-- (planned, accumulating) `job_log.jsonl` — append-only log of every
-  job I submit, per the [CSCS workflow doc](../03_3_cscs_experiments_kickoff/CSCS_AUTH_WORKFLOW.md#cluster-job-log).
+**2026-05-20 — reconnaissance.** Three probe documents were written from live Clariden queries before any job was submitted:
 
-## Reads-from
+- [`AUTH_AND_NODE_FINDING.md`](AUTH_AND_NODE_FINDING.md) — cert validity, partition/QoS probe, expected start times, and the recommended job shape (1 node × 4 GH200, partition `normal`, 12 h cap) that every bakeoff arm then used.
+- [`STORAGE_AND_EXISTING_WORK.md`](STORAGE_AND_EXISTING_WORK.md) — the filesystem map, the "no Eiger access, use `xfer` for CPU work" finding, and the headline discovery that **another member of the same `a0140` project (p-skarvelis) had been running Apertus-Greek CPT + SFT since 2026-04-17** on HF Trainer + FineWeb-2-HQ at seq 2048. Their setup was tokenizer-incompatible and was explicitly **not** adopted as the scaffold, but their measured 6,702 tok/s/GPU calibrated the throughput estimates.
+- [`ENVIRONMENT_AND_BENCHMARKS.md`](ENVIRONMENT_AND_BENCHMARKS.md) — inventory of swiss-ai training/eval repos, Apertus's own reported eval set, the ILSP Greek suite, and the staging plan for getting all of it onto Clariden scratch.
 
-- Authoritative tokenizer ship bundle:
-  [`../03_3_cscs_experiments_kickoff/ship/apertus_greek_extended_153600/`](../03_3_cscs_experiments_kickoff/ship/apertus_greek_extended_153600/)
-  (composite; the 148,480 modern-only base is at
-  [`../../02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded/`](../../02_1_tokenizer_experiments/02_1_7_intrinsic_eval_sweep/variants/c3_added_17408_curated_padded/)).
-- CPT corpus build recipe:
-  [`../03_2_apertus_c3_dedup_audit/CPT_DATASET_BUILD_RUNBOOK.md`](../03_2_apertus_c3_dedup_audit/CPT_DATASET_BUILD_RUNBOOK.md).
-- Curriculum + init-corpus decision:
-  [`../03_3_cscs_experiments_kickoff/CURRICULUM_AND_INIT_CORPUS.md`](../03_3_cscs_experiments_kickoff/CURRICULUM_AND_INIT_CORPUS.md).
-- Three-arm experimental design:
-  [`../experiments_plan.md`](../experiments_plan.md) §5.
+**2026-05-20 → 2026-05-26 — the bakeoff.** [`init_bakeoff/`](init_bakeoff/README.md) is the substance of this directory: init arms, corpus build, Megatron patches, training, eval, TD challenger, production launcher. Its own README carries the run-by-run history.
 
-## Hard preconditions (verified 2026-05-20)
+**2026-06 → 2026-08 — the scripts outlive the experiment.** `init_bakeoff/bakeoff_training/bakeoff_train.sbatch` and `init_bakeoff/eval/run_native_greek_mcq_eval.py` kept being extended by later subprojects (curriculum sweeps, full-8B CPT, targeted experiments) without any new experiment running here.
 
-- CSCS cert at `~/.ssh/cscs-key-cert.pub` valid (`cscs-key list`); refresh via `cscs-key sign --headless --duration 1d`.
-- Project account: `a0140` (live, confirmed via `sacctmgr show user fffoivos -s`).
-- Login node tested: `ssh ela 'hostname'` → `ela5`. `ssh clariden 'hostname'` → `clariden-ln001`.
-- pytorch `uenv` already on Clariden scratch: `pytorch/v2.6.0:v1` (8.2 GB, gh200 arch, pulled 2025-04-04).
+**2026-07-29 — the polytonic cutoff.** [`polytonic_cutoff_probe/`](polytonic_cutoff_probe/README.md) reopened the polytonic question that the bakeoff had dropped, with a pre-committed gate this time, and selected **+512 merges → vocab 148,992**.
+
+## Outcome
+
+- A 4-arm bakeoff run to 5 B tokens, with a full evidence tree (per-iteration lm-eval JSONs, tokenizer-fair intrinsics, new-token diagnostics, training logs, plots) preserved under `init_bakeoff/eval/trajectory_analysis_20260524/`.
+- A reusable Clariden stack: an Apertus HF→Megatron loader with an R17 patcher, a parameterised trainer with chained-job walltime handoff, a checkpoint→HF→eval sidecar bridge, a tokenizer-fair metric computer, and a native-Greek MCQ runner.
+- The production tokenizer (148,992) used by the full-8B run.
+- What did **not** happen here: the 15–20 B production CPT. `init_bakeoff/production_cpt/` is dry-run validated only.
+
+## Sub-subprojects
+
+| Dir | Role | Period | Status | Result |
+|---|---|---|---|---|
+| [`init_bakeoff/`](init_bakeoff/README.md) | The 4-arm init experiment, end to end | 2026-05-20 → 2026-08-21 | experiment completed 2026-05-26; scripts reused after | TD leads downstream at 5 B, Vanilla leads BPB and native Greek MCQ, Apertus-Base leads everything on native Greek |
+| [`polytonic_cutoff_probe/`](polytonic_cutoff_probe/README.md) | Pre-committed choice between +512 and +1,024 polytonic merges | 2026-07-29 (scripts committed 2026-07-31, `f0dc31a0`) | completed | **+512 selected**; vocab 148,992 frozen for the production corpus |
+
+## Where things are
+
+| What | Where |
+|---|---|
+| Job-shape and partition findings | [`AUTH_AND_NODE_FINDING.md`](AUTH_AND_NODE_FINDING.md) |
+| Clariden filesystem map + the p-skarvelis baseline | [`STORAGE_AND_EXISTING_WORK.md`](STORAGE_AND_EXISTING_WORK.md) |
+| Repo/benchmark inventory and staging plan | [`ENVIRONMENT_AND_BENCHMARKS.md`](ENVIRONMENT_AND_BENCHMARKS.md) |
+| CPU-only Slurm guard (keeps dataset work off GPU partitions) | [`init_bakeoff/check_cpu_only_slurm.sh`](init_bakeoff/check_cpu_only_slurm.sh), [`init_bakeoff/slurm_cpu_only_guard.sh`](init_bakeoff/slurm_cpu_only_guard.sh) |
+
+## Working documents
+
+All three top-level docs are 2026-05-20 reconnaissance snapshots and carry "v0.7 supersedes this" banners on framing they got wrong at the time:
+
+- [`STORAGE_AND_EXISTING_WORK.md`](STORAGE_AND_EXISTING_WORK.md) — §3.4's "adopt p-skarvelis's pipeline" recommendation was withdrawn; read §3 as *what they did*, not what was done here.
+- [`ENVIRONMENT_AND_BENCHMARKS.md`](ENVIRONMENT_AND_BENCHMARKS.md) — §1.1 lists `apertus-finetuning-recipes` as the likely trunk; it is not, Megatron-LM-Swiss-AI is. Its tokenizer-staging section names the composite 153,600 bundle, which the bakeoff did not use.
+- [`AUTH_AND_NODE_FINDING.md`](AUTH_AND_NODE_FINDING.md) — the cert window and queue numbers are from 2026-05-20 and have long drifted; the methodology and the chosen job shape are what survived.
+
+The old README's "(planned)" sections — `01_vanilla_calibration_v1/`, `02_pilot_runs/`, `sbatch_templates/`, `job_log.jsonl` — were never created; that work happened inside `init_bakeoff/` instead.

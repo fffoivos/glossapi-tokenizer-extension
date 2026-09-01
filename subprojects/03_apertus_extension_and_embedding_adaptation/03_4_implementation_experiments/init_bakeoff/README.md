@@ -1,114 +1,74 @@
-# Init Bakeoff
+# init_bakeoff — the 4-arm embedding-initialisation experiment
 
-Three closed-form init experiments per [`../../cpt_plan.md`](../../cpt_plan.md) v0.7 §5: **Vanilla / ReTok / Centroid**, 2 B tokens per arm. Modern-only (vocab 148,480) per the 2026-05-20 scope decision. Composite 153,600 path remains available behind a flag for the future polytonic specialization run.
+> **In one line:** four ways of giving Apertus-8B 17,408 new Greek embedding rows (Vanilla = none, ReTok, Centroid, Token-Distillation layer 11), trained on an identical Greek-heavy corpus to 2 B → 3.5 B → 5 B tokens on Clariden, with the whole supporting stack — corpus build, Megatron patches, eval harness — built alongside.
+> **Period:** 2026-05-20 (`af438d4d`, arms + plan) → 2026-05-26 (final results). Scripts kept being patched for other subprojects until 2026-08-21.
+> **Status:** completed. Centroid eliminated, ReTok dominated, **TD vs Vanilla never adjudicated** because the decision thresholds were never pre-committed.
+> **Came from / led to:** [`../../03_3_cscs_experiments_kickoff/`](../../03_3_cscs_experiments_kickoff/README.md) → this → [`../../../04_cpt_training_regime_on_vanilla/`](../../../04_cpt_training_regime_on_vanilla/) (Vanilla) and [`../../../05_token_distillation_cpt/`](../../../05_token_distillation_cpt/) (TD).
 
-See [`BAKEOFF_PLAN.md`](BAKEOFF_PLAN.md) for the setup plan.
+## Why this existed
 
-Loss-reading rule: raw Megatron `lm loss` is per-token CE and is not
-cross-tokenizer fair. Use heldout BPB from
-[`eval/compute_tokenizer_fair_metrics.py`](eval/compute_tokenizer_fair_metrics.py)
-plus downstream evals for Vanilla-vs-extended decisions. Older artifacts may
-call BPB `BPC`; that is a historical bits-per-byte label.
+Vocabulary extension costs 142.6 M extra parameters per matrix pair (17,408 × 4,096 × 2) and only pays off if the new rows learn something the base tokenizer cannot express. The bakeoff was designed as a clean A/B: same corpus, same seed, same schedule, same engine — the only differential is how the new rows start (and, for Vanilla, whether they exist at all). Plan of record: [`BAKEOFF_PLAN.md`](BAKEOFF_PLAN.md).
 
-## Layout
+## History
 
-```
-init_bakeoff/
-├── BAKEOFF_PLAN.md            — overall plan: arms, fidelity constraints, sbatch sizing
-├── README.md                  — this file
-├── arms/                      — the three init methods + production driver + smoke test
-│   ├── _common.py
-│   ├── vanilla.py
-│   ├── retok.py
-│   ├── centroid.py
-│   ├── build_init_checkpoints.py   (Clariden driver: load Apertus, resize, init, save)
-│   ├── test_init_logic.py          (home-side smoke; runs in ~15 s without HF model load)
-│   └── README.md
-├── corpus_build/                      — corpus assembly
-│   ├── MIX_RECIPE.md          — bucket allocations + per-source weights, both phases
-│   ├── recipes/
-│   │   ├── bulk.json          — 70 / 24 / 4 / 2 Greek / replay / code / math; local replay/math + codeparrot fallback for 2026-05-21 CSCS run
-│   │   └── anneal.json        — 85 / 12 / 3; final 10–20 % of production CPT (not bakeoff)
-│   ├── mix_builder.py         — streaming interleaver → JSONL output
-│   ├── pull_greek_corpus.sh   — pull our Greek nanochat + Apertus-overlap-drop overlay
-│   └── pull_replay_datasets.sh — pull FW2 / FW2-HQ / FineWeb-Edu / code replay / FineMath
-└── eval/                      — V4 baseline + per-arm bakeoff eval
-    ├── EVAL_RECIPE.md         — task lists, cadence, statistical methodology
-    ├── LOSS_MEASUREMENT_POLICY.md — raw lm-loss caveat, heldout BPB, dense BPB/base-new logging
-    ├── pull_benchmarks.sh     — pull retention + ILSP Greek + safety benchmarks; clone harness
-    ├── run_eval.sbatch        — parameterized sbatch (MODEL_PATH + OUTPUT_DIR + TASK_GROUP)
-    ├── run_apertus_baseline.sh — thin wrapper: V4 baseline on unmodified Apertus-8B-2509
-    ├── run_bakeoff_arm_eval.sh — thin wrapper: per-arm checkpoint eval
-    └── compute_bootstrap_cis.py — post-process: bootstrap CIs over --log_samples
-```
+### Setup — 2026-05-20 → 2026-05-21
 
-## End-to-end sequence
+The three closed-form arms were written and smoke-tested locally (`af438d4d`), then the corpus and eval tooling followed (`11b5ba00`). The 2026-05-20 scope decision dropped the polytonic layer and pinned the **modern-only 148,480** tokenizer, on the reasoning that polytonic rows would be undertrained at 2 B tokens anyway.
 
-The bakeoff fires once these are complete (most are Clariden-side):
+The 2026-05-21 recipe audit against pinned sources found the blocker that shaped everything after: `swiss-ai/Megatron-LM` has **no HF→Megatron loader for Apertus**. One was written ([`megatron_patches/`](megatron_patches/README.md)), and its first roundtrip (job `2333864`) proved the standard tensors convert bit-exactly but **128 tensors — 32 layers × 4 xIELU params — silently reset to defaults**. That is risk **R17**, and it is not theoretical: an unpatched roundtrip drops `arc_easy` from 0.8363 to 0.2614, i.e. to chance ([`eval/V4_BENCHMARK_COMPARISON.md`](eval/V4_BENCHMARK_COMPARISON.md)). All three arms were re-converted through `patch_apertus_extras.py` and verified at zero drift (jobs `2341182` / `2341239` / `2341241`).
 
-```
-[home]     Done:
-           ✓ ship/apertus_greek_modern_only_148480/   (verified loadable)
-           ✓ arms/test_init_logic.py                  (smoke green)
-           ✓ verify_and_normalize_nfc.py              (V9 enforcer)
+The corpus build took most of the overnight session: prepare-pool → NFC normalise → token-fair mix → concat → Megatron preprocess, with the mix recipe drifting and being steered back to **70 % Greek / 24 % replay / 4 % code / 2 % math** twice. Code fell back to `codeparrot/codeparrot-clean-train` because BigCode's StarCoder sources were gated ([`corpus_build/README.md`](corpus_build/README.md)).
 
-[Clariden login]   bash corpus_build/pull_greek_corpus.sh    # ~30-60 min (now pulls wave2 dedup metadata too)
-                   bash corpus_build/pull_replay_datasets.sh # ~1-3 h depending on bandwidth
-                                                              # (now includes FineMath stage-1 alongside replay/code;
-                                                              # 2026-05-21 run uses codeparrot fallback because BigCode was unavailable)
-                   bash eval/pull_benchmarks.sh              # ~30-60 min
+### The 2 B bakeoff — 2026-05-22
 
-[Clariden xfer]    sbatch corpus_build/prepare_greek_pool.sbatch
-                   sbatch --dependency=afterok:<prepare_job> corpus_build/normalize_nfc.sbatch
-                   sbatch --dependency=afterok:<normalize_job> corpus_build/mix_builder_smoke.sbatch
-                   sbatch --dependency=afterok:<smoke_job> --array=0-6%2 corpus_build/mix_builder_full.sbatch
-                   # Optionally also build anneal_mix.jsonl with recipes/anneal.json (not used in bakeoff)
+`bakeoff_1node_chain_20260522_005620` ran Vanilla / ReTok / Centroid on one node each (4 × GH200, `normal`, 12 h, chained for walltime) to iter 476 ≈ 2.0 B tokens. A checkpoint watcher converted each saved checkpoint to HF and fired packed eval sidecars. Centroid was broken from the first eval (BPB 1.1318 at iter 130 vs 0.5432 for Vanilla) and was never continued.
 
-                   # Then tokenize JSONL → Megatron binary indexed dataset
-                   # via swiss-ai/pretrain-code (Megatron-LM's tools/preprocess_data.py)
-                   # (see ../cpt_plan_v0.7_status.md V12 / V13 for the Megatron config flags)
+Result at iter 476 — **Vanilla wins 3 of 4 metrics**: Greek no-MT 0.4131 / TD 0.4048 / ReTok 0.3906 / Centroid 0.2566; BPB 0.4906 / 0.5311 / 0.5739 / 0.8994.
 
-[Clariden xfer]    bash arms/submit_init_pipeline.sh       # covers V2 + V14 + V15 + V16
+### The fourth arm — 2026-05-23 → 2026-05-24
 
-[Clariden normal] # V4 baselines (gate §5.6 thresholds)
-                   bash eval/run_apertus_baseline.sh      # V4-HF; corrected task list includes global_mmlu
-                   # Also run run_eval.sbatch with MODEL_PATH=/capstor/.../r1_roundtrip_2333864/apertus_hf_roundtrip
-                   # for V4-post-conversion, the apples-to-apples comparator for bakeoff arms.
-                   python3 eval/compute_bootstrap_cis.py /capstor/.../runs/eval/apertus_baseline_v4_*/
+Token Distillation ran its own gated ladder in [`token_distillation/`](token_distillation/README.md) and produced `td_full25_layer11`, which then trained a full 2 B arm. At its own iter 476 it beat ReTok and Centroid on every intrinsic but still lost the aggregate Greek comparison to Vanilla, so `PRODUCTION_DECISION_STATE.md` picked Vanilla.
 
-                  # Bakeoff: three arms in parallel
-                  for arm in vanilla retok centroid; do
-                      sbatch --job-name=bakeoff_$arm \
-                          --export=ARM=$arm,... \
-                          ../bakeoff_training/$arm.sbatch           # 12 h × 1 node, ~2 B tokens each
-                  done
+### The continuations, and the double reversal — 2026-05-24 → 2026-05-26
 
-                  # Per-checkpoint eval during training (every 500 M tokens)
-                  bash eval/run_bakeoff_arm_eval.sh /capstor/.../runs/<arm>/checkpoint-<step>/
-                  python3 eval/compute_bootstrap_cis.py /capstor/.../runs/eval/bakeoff_<arm>_*/
+- **3.5 B** (`continuation_3p5b_20260524T143012Z`, three arms, three chained segments each): at iter 834 TD leads Greek no-MT by +1.40 pp. First reversal.
+- **5 B** (`continuation_5b_td_vs_vanilla_20260525T142522Z`, Vanilla + TD only, jobs `2382982`–`2382985`): at iter 1192 TD leads all three downstream aggregates; Vanilla keeps BPB with the gap narrowed 0.110 → 0.027 and crossover extrapolated to ~6.5–6.8 B tokens.
+- **2026-05-26, the native-Greek suite** ([`eval/NATIVE_GREEK_SUITE_RESULTS_20260526.md`](eval/NATIVE_GREEK_SUITE_RESULTS_20260526.md)): on vetted native Greek MCQ, Vanilla-5B 0.4305 beats TD-5B 0.4109, and **Apertus-Base 0.4817 beats every continued checkpoint**. Second reversal — the Greek headline goes back to Vanilla, and the honest reading becomes "the CPT regime is costing Greek capability".
 
-                  # Selection: windowed average across last 3-5 checkpoints in 80-100% range
-                  # per v0.7 §5.6 hard gates + selection score
-```
+ReTok was stopped at 3.5 B (TD-dominated). The 5 B result was written up in [`eval/trajectory_analysis_20260524/BAKEOFF_FINAL_RESULTS_20260526.md`](eval/trajectory_analysis_20260524/BAKEOFF_FINAL_RESULTS_20260526.md), which explicitly flags that TD's Greek lead is carried by `xquad_el` (+7.57 pp) and disappears without it.
 
-Before any future dataset build or CPU-only conversion submit, run:
+## Outcome
 
-```
-bash check_cpu_only_slurm.sh
-```
+- **Ranking is solid, selection is not.** The 2 B budget was enough to rank the arms (Centroid broken, ReTok dominated) but not to choose between TD and Vanilla; the 3.5 B and 5 B extensions were load-bearing for the reversal and still did not settle it, because no thresholds were locked.
+- **BPB and downstream disagree.** Same arms, opposite winners on different metric axes — a divergence the governing plan did not anticipate (`../../CPT_MASTER_20260526.md` §4.4, discrepancy D4).
+- **New-token rows plateau early.** TD's probability mass on new-token targets is flat at ~0.342 from iter 476 to 1192, so TD's gains past 2 B come from base-vocab adaptation, not further new-row training.
+- **Production never launched from here** — `production_cpt/` is dry-run validated and gated on V1 / V4 / V8.
+- **Known measurement caveat left open:** Vanilla truncates 29.2 % of held-out docs at 4,096 context vs TD's 24.8 %, so part of the 0.027 BPB gap may be methodological.
 
-This audit requires the CPU-only sbatches to use `xfer`, forbids GPU resource
-directives, and requires the runtime `require_cpu_only_slurm` guard. On
-Clariden, `normal`, `debug`, and `low` are GPU-node partitions; dataset
-building/preprocessing belongs on `xfer` unless `ALLOW_GPU_NODE_FOR_CPU=1` is
-set intentionally for a documented exception.
+## Sub-subprojects
 
-The `bakeoff_training/` directory (Megatron-LM-Swiss-AI sbatch templates per arm) is the missing piece between init-checkpoint build and bakeoff submission. It's gated on Q D1 (Apertus's Megatron-LM-Swiss-AI fork branch/commit) being resolved.
+| Dir | Role | Period | Status | Result |
+|---|---|---|---|---|
+| [`arms/`](arms/README.md) | The four init methods + Clariden build/convert pipeline | 2026-05-20 → 05-21 | completed | Three HF checkpoints built and converted; ReTok and Centroid produce near-orthogonal rows (mean cos ≈ 0.03) |
+| [`corpus_build/`](corpus_build/README.md) | The 70/24/4/2 mix, NFC, Megatron preprocessing, token accounting | 2026-05-20 → 05-26 | completed | 5,754,172-row mix; 9.83 B base-tokenized tokens |
+| [`megatron_patches/`](megatron_patches/README.md) | HF→Megatron Apertus loader, R17 patcher, roundtrip verifier | 2026-05-21 → 05-23 | completed | R17 found and fixed; zero-drift roundtrips for all arms |
+| [`bakeoff_training/`](bakeoff_training/README.md) | Trainer, config, chained submitters, run logs | 2026-05-21 → 2026-08-21 | bakeoff done; trainer reused by 05–08 | 21 training jobs across 2 B / 3.5 B / 5 B |
+| [`eval/`](eval/README.md) | V4 baselines, tokenizer-fair metrics, new-token diagnostics, native-Greek suite, trajectory analysis | 2026-05-21 → 2026-08-07 | completed | The evidence base for every claim above |
+| [`token_distillation/`](token_distillation/README.md) | The 4th arm: coverage gate, layer pilot, full TD, preservation | 2026-05-23 | completed | `td_full25_layer11`, layer 11 chosen over the paper default |
+| [`production_cpt/`](production_cpt/README.md) | 15–20 B Vanilla production launcher | 2026-05-24 | prepared, never launched | 14-job dry-run chain validated |
+| `release_upload/` | One script, `upload_release_checkpoints_to_hf_from_clariden.sh` — pushes checkpoints to the HF release repo | 2026-05-25 | utility | no README of its own |
 
-## Reference
+## Where things are
 
-- [`../../cpt_plan.md`](../../cpt_plan.md) v0.7 §5 (init spec), §6 (eval), §10 (open decisions)
-- [`../../apertus_fidelity_checklist.md`](../../apertus_fidelity_checklist.md) (architectural constraints)
-- [`../../cpt_plan_v0.7_status.md`](../../cpt_plan_v0.7_status.md) (V1–V16 verification status)
-- [`../STORAGE_AND_EXISTING_WORK.md`](../STORAGE_AND_EXISTING_WORK.md) (storage paths + measured throughput)
-- [`../AUTH_AND_NODE_FINDING.md`](../AUTH_AND_NODE_FINDING.md) (sbatch sizing)
+| What | Where |
+|---|---|
+| Plan of record | [`BAKEOFF_PLAN.md`](BAKEOFF_PLAN.md) — arms table, fidelity constraints, Slurm shape, pre-Clariden checklist |
+| Canonical result | [`eval/trajectory_analysis_20260524/BAKEOFF_FINAL_RESULTS_20260526.md`](eval/trajectory_analysis_20260524/BAKEOFF_FINAL_RESULTS_20260526.md) |
+| Greek-headline correction | [`eval/NATIVE_GREEK_SUITE_RESULTS_20260526.md`](eval/NATIVE_GREEK_SUITE_RESULTS_20260526.md) |
+| How to read loss | [`eval/LOSS_MEASUREMENT_POLICY.md`](eval/LOSS_MEASUREMENT_POLICY.md) — raw `lm loss` is not cross-tokenizer fair; use heldout BPB; historical `BPC` = BPB |
+| CPU-partition guard | [`check_cpu_only_slurm.sh`](check_cpu_only_slurm.sh) — run before any dataset/conversion submit; forbids GPU directives on `xfer` jobs |
+
+## Working documents
+
+- [`BAKEOFF_PLAN.md`](BAKEOFF_PLAN.md) is a 2026-05-20 plan, not a record: its §6 checklist has open boxes that were later closed, its §7 "forthcoming sbatch templates" were superseded by the single parameterised `bakeoff_train.sbatch`, and its arm table describes three arms because TD did not exist yet.
+- The previous version of this README described the bakeoff as three arms at 2 B tokens and listed `bakeoff_training/` as "the missing piece"; that state is what the history above supersedes.

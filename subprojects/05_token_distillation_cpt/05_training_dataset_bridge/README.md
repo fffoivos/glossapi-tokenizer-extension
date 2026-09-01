@@ -1,160 +1,67 @@
-# Phase 05 — validated release to Megatron training data
+# 05 — Training-dataset bridge (corpus → Megatron binaries)
 
-This directory bridges the validated **private** Phase-04 training release to
-fresh Megatron binaries for the frozen full-corpus Token-Distillation probe. It
-does not reuse deleted curriculum-v2 binaries, publish data, or launch GPUs.
+> **In one line:** built to turn a validated Phase-04 private release into fresh Megatron `.bin`/`.idx` shards for a 25B Token-Distillation probe; that probe was never launched from here, but the bridge's shard builder and receipt library became the shared tokenisation layer for every later CPT subproject.
+> **Period:** 2026-07-12 → 2026-08-07 (commits touching this directory). **Status:** superseded as a launch path by [`../06_25b_midtraining_probe`](../06_25b_midtraining_probe), which calls it "the stale single-blend `05_training_dataset_bridge` launch path"; still live as a code dependency of subprojects [06](../../06_dataset_scheduling_experiments), [07](../../07_full_8b_cpt) and [08](../../08_targeted_8b_cpt_experiments).
+> **Came from / led to:** [`../04_full_corpus_preparation`](../04_full_corpus_preparation) → this → [`../06_25b_midtraining_probe`](../06_25b_midtraining_probe), [`../../07_full_8b_cpt`](../../07_full_8b_cpt), [`../../08_targeted_8b_cpt_experiments`](../../08_targeted_8b_cpt_experiments).
 
-## Frozen recipe
+## Why this existed
 
-- Mix: 79% new Greek, 20% Apertus-family foreign replay, 1% old-Greek replay.
-- Horizon: 25,000,000,000 nominal tokens. Integer batches produce exactly
-  5,960 steps / 24,998,051,840 effective tokens; the floor residual is
-  1,948,160 tokens.
-- Sequence/global batch: 4,096 / 1,024 sequences.
-- Tokenizer/init: ModernGreek-148480, TD layer 11.
-- LR: `5.5e-5` → `5.5e-6`; 400-step warmup; final 20% `1-sqrt` cooldown.
-- AdEMAMix: `0.9/0.999/0.999`, alpha 4; Goldfish 50/50.
+By 2026-07-11 the curriculum-v2 Megatron `.bin`/`.idx` payloads on Clariden were gone — "zero files" ([`../LOG.md`](../LOG.md), 2026-07-11) — so the next run could not reuse them. Something had to stand between a cleaned Parquet corpus and a GPU launch and prove, before any GPU time was spent, that: every document was encoded exactly once, held-out evaluation documents were excluded from training, replay sources were restaged from pinned revisions rather than refetched from a moving `main`, and no pool reached its sample target by repeating rows.
 
-The shares are Megatron `--data-path` sampling weights. Each eligible document
-is encoded once; builders never reach a target by copying rows. Finalization
-discounts exact-content duplicates and requires every pool and weighted foreign
-source to have at least 1.005× unique capacity. Every physical prefix must also
-have `ceil(planned_samples * 1.005) + 1` non-repeating samples; `+1` is the
-sequence-boundary allowance.
+## History
 
-## Identity, heldout, and code contracts
+### 2026-07-12 — built in one pass, then hardened twice
 
-`freeze_inputs.py` accepts only a passed Phase-04 local release. It binds the
-exact private Parquet inventory, replay-restaging receipts, tokenizer tree,
-GreekMMLU decontamination policy, clean repository commit, and complete clean
-Megatron source tree.
+`01cba0ee` created the whole directory (27 files, ~6,050 lines): the frozen recipe [`configs/frozen_25b_td.json`](configs/frozen_25b_td.json), replay restaging [`configs/replay_acquisition.json`](configs/replay_acquisition.json), nine Slurm stages, ten scripts and the launcher. `76a44479` and `3d063bfd` then closed the launch and acquisition contracts, growing `train/full_corpus_25b.env` from 44 to ~226 lines so that every full-run semantic is asserted *after* the shared environments are sourced.
 
-Document IDs use `full-cpt-document-identity-v2`. Shard-local upstream IDs are
-file-scoped. Old Greek is globally identified by
-`(source_dataset, source_doc_id)`; `source_doc_id` alone is forbidden.
+The frozen recipe: 79% new Greek / 20% Apertus-family foreign replay / 1% old-Greek replay; 25,000,000,000 nominal tokens which integer batches make **5,960 steps / 24,998,051,840 effective tokens** (floor residual 1,948,160); sequence 4,096, global batch 1,024; ModernGreek-148480 tokenizer at revision `a4826df7…`; TD layer 11; LR `5.5e-5` → `5.5e-6` with 400-step warmup and a final-20% `1-sqrt` cooldown; AdEMAMix `0.9/0.999/0.999`, alpha 4; Goldfish 50/50.
 
-Nine deterministic LM-loss heldouts are rebuilt: HPLT, OpenArchives, Greek
-PhD, English, German, Russian, Chinese, code, and old Greek. Every required
-exclusion is checksum-bound and mandatory. Finalization proves each selected ID
-was excluded exactly once. Heldout, shard, finalizer, asset, and launch
-programs verify their own bytes against the frozen code receipt.
+Three rules were designed in from the start and never relaxed:
 
-Each binary task atomically writes `.bin`, `.idx`, retained identity/content
-ledger, contamination ledger, and finally its manifest. The manifest binds the
-exact task, input, pool, source, heldout identity, exclusion, tokenizer, code,
-and output prefix. Finalization uses a disk-backed exact uniqueness audit; it
-does not hold corpus identities in RAM.
+- **Encode once.** Mixture shares are Megatron `--data-path` sampling weights, not row multiplicity. Finalisation discounts exact-content duplicates and requires every pool, weighted foreign source and physical prefix to hold `ceil(planned_samples × 1.005) + 1` non-repeating samples. If capacity is short, `finalize_bridge.py` writes `bridge_capacity_failure.json` and stops — the remedy is more data or an explicit recipe review, never silent reuse.
+- **Identity is composite.** `full-cpt-document-identity-v2`: shard-local upstream IDs are file-scoped, and old Greek is keyed by `(source_dataset, source_doc_id)` — `source_doc_id` alone is forbidden.
+- **Nine deterministic heldouts**, rebuilt rather than inherited: `hplt`, `openarchives`, `greek_phd`, `english`, `de`, `ru`, `zh`, `code`, `old_greek`, selected by a domain-separated SHA-256 threshold with a 2 GB character budget per set and a 0.25 pool-fraction cap. Every exclusion is checksum-bound and mandatory; finalisation proves each selected ID was excluded exactly once.
 
-## Receipt-bound replay restaging
+`configs/replay_acquisition.json` recorded the awkward part honestly: the historical FineWeb-Edu, FineWeb-2/HQ, FineMath and StarCoderData commits were recovered from retained acquisition-day cache refs and a completed staging log because the payload copies were gone. Restaging deliberately does **not** expand the pinned FineWeb2-HQ globs to all 5,285 matching shards (5.36 TB); it keeps the full 10BT English sample and old-Greek inputs and uses a seed-20260609 domain-separated SHA-256 file ranking for capacity-sized multilingual and FineMath samples (`62d4aac3`).
 
-Clariden currently has empty replay and Megatron skeletons. Restaging is a
-separate CPU prerequisite configured by `configs/replay_acquisition.json`.
-Nanochat and the Apertus-overlap overlay cross-check the immutable revisions in
-Phase-04 `sources.json`. The historical FineWeb-Edu, FineWeb-2/HQ, FineMath and
-StarCoderData commits are now pinned from retained acquisition-day cache refs,
-the StarCoder snapshot inventory and its completed staging log. The config
-records the exact evidence paths and hashes. The old payload copies are gone,
-so the restaging receipt must still validate every newly acquired byte.
+### 2026-07-12 → 07-31 — the launch never happened here
 
-Replay restaging does not expand the pinned FineWeb2-HQ globs to all 5,285
-matching shards (5.36 TB). It keeps the complete 10BT English sample and old
-Greek inputs, but uses a seed-20260609 domain-separated SHA-256 file ranking for
-capacity-sized multilingual web and FineMath samples. The receipt records the
-complete matched count, selected count, and selected remote paths per source.
-This is only a pre-build bound: the exact post-tokenization unique-capacity
-gate for every weighted source and physical prefix remains authoritative and
-must pass before launch.
+The README written at creation listed the external prerequisites bluntly: Clariden had empty replay and Megatron skeletons, the ModernGreek-148480 tokenizer tree had to be restored, the Swiss-AI Megatron checkout at `c92402e…` had to be restored, the patched TD layer-11 checkpoint directories were "empty skeletons", and a passed Phase-04 private release did not yet exist. It never did in the form this bridge expected — [`../04_full_corpus_preparation`](../04_full_corpus_preparation) shipped its corpus through the Agent 1 v5 lane and Hugging Face, not through the v2 Stage-80 materialisation path that `freeze_inputs.py` demands.
 
-```bash
-cd subprojects/05_token_distillation_cpt/05_training_dataset_bridge/clariden
-export BRIDGE_RUN_ID=full-corpus-25b-v1
+### 2026-07-31 — repurposed as a library
 
-# Preview only.
-DRY_RUN=1 ./submit.sh restage
+`8dbb6d25` created [`../06_25b_midtraining_probe`](../06_25b_midtraining_probe) and, in the same commit, taught this directory's shard builder to serve it:
 
-# HF_TOKEN must be in the submitted environment.
-# Replacement of an unreceipted skeleton is a separate explicit switch.
-DRY_RUN=0 CONFIRM_RESTAGE=PINNED_REPLAY_V1 RESTAGE_REPLACE=1 ./submit.sh restage
-```
+- `build_binary_shard.py` gained an optional **receipt-bound phase partition**. A task may carry `phase_partition` naming a corpus (`new_greek` or `replay`), a phase, a seed and a logical pool; the implementation module is loaded only after its declared SHA-256 matches, and rows outside the selected phase are counted as `phase_excluded_rows` rather than silently dropped. This is what makes the probe's disjoint two-phase document allocation auditable.
+- `build_heldouts.py` gained `selector_not_regex` and applied GreekMMLU decontamination while selecting heldout documents, counting `contaminated_selected_documents_dropped`.
 
-The dependent old-Greek CPU stage reconstructs `greek_replay.parquet` from the
-receipted Nanochat shards and exact overlap overlay. It writes a build receipt
-binding all input hashes, implementation bytes, composite identity policy,
-counts, and output hash.
+`5ede1f62`, `25c6375d` and `62d4aac3` hardened replay staging on the same day: malformed benchmark receipts tolerated, Hugging Face snapshot symlinks resolved before staging, and acquisition bounded to deterministic capacity samples.
 
-## CPU data build on Clariden
+### 2026-08-01 — heldouts may overlap
 
-Use one immutable run ID and the exact completed Phase-04 stage:
+`86c1b8fe` replaced a hard error with a documented policy. Evaluation slices intentionally overlap (a broad HPLT slice and a historical/source-specific slice can select the same document), so the training exclusion is now their **set union**: one identity is retained, every duplicate membership is receipted (`duplicate_memberships`, `overlapping_documents`, `merge_policy: set_union_across_heldout_components_v1`). A repeat *within* a single component is still a hard error.
 
-```bash
-export PHASE04_STAGE=/capstor/scratch/cscs/fffoivos/runs/05_token_distillation_cpt/full_corpus_v2/pipeline_runs/<run>/stages/80-materialize-validate
+### 2026-08-07 — adopted by the full-8B sanitized restart
 
-DRY_RUN=1 ./submit.sh freeze
-DRY_RUN=0 CONFIRM_BUILD=1 ./submit.sh freeze
+`5b6dd260` ("Prepare receipt-gated sanitized full-8B restart") was authored on a branch that did not contain this directory and re-added `bridge_common.py` and `build_binary_shard.py` under this path so the 8B anonymisation pipeline could import them. On the consolidation branch the two lineages converged: today's `build_binary_shard.py` is that version plus the phase-partition hunk, merged on 2026-09-01 (`600148e6`).
 
-# Run after input_receipt.json exists.
-DRY_RUN=1 ./submit.sh after-freeze
-DRY_RUN=0 CONFIRM_BUILD=1 ./submit.sh after-freeze
-```
+## Outcome
 
-The dependency graph builds heldouts, training and heldout binary arrays,
-performs exact accounting/uniqueness/capacity finalization, and finally freezes
-launch assets. Final outputs are `bridge_manifest.json`,
-`training_mix_79_20_1.json`, `training_data.env`, and
-`training_assets_receipt.json`.
+- **The 25B probe was not launched from here.** [`../06_25b_midtraining_probe/README.md`](../06_25b_midtraining_probe/README.md) opens by calling this the "stale single-blend launch path" it replaces, and pins the public HF v2 corpus and a two-phase blend instead of a Phase-04 local release and a single 79/20/1 blend.
+- **The code outlived the launch path.** `scripts/build_binary_shard.py` and `scripts/bridge_common.py` are imported or invoked by: `../06_25b_midtraining_probe/clariden/{build_train_shards,build_heldout_shards}.sbatch` and `dataset/freeze_inputs.py`; `../../06_dataset_scheduling_experiments/clariden/{build_train_shards,build_heldout_shards,pack_catalog_bucket,prepare_data_mixes,validate_partition_group}.sbatch`; `../../07_full_8b_cpt/dataset/anonymization/*`; and `../../08_targeted_8b_cpt_experiments/clariden/*` plus `scripts/run_parallel_task_batch.py`.
+- **Contracts that propagated:** encode-once with a 1.005× unique-capacity floor, checksum-bound heldout exclusion proven at finalisation, composite document identity, and a launcher that re-verifies every `.bin`/`.idx`, the init checkpoint, the Megatron tree and both training environments *twice* — once before submission and again at job start inside the pinned uenv.
+- **Left open:** the replay restaging and old-Greek rebuild described here were prerequisites, not receipts; there is no run record in this tree for `BRIDGE_RUN_ID=full-corpus-25b-v1`.
 
-## Receipt-gated 25B launcher
+## Sub-subprojects
 
-The launcher requires the exact clean repository root and commit frozen by the
-bridge. It re-hashes every `.bin`/`.idx`, the complete TD init checkpoint, the
-semantic layer-11 roundtrip evidence bundle, the top-level and sourced common
-training environments, trainer, runtime wrapper, launcher itself, and the
-complete clean effective Megatron tree. The launch-assets receipt also carries
-the entire tokenizer-tree receipt frozen at bridge input time; both the login
-check and the batch-start check re-enumerate and re-hash that tree and require
-the exact root consumed by the generated data environment. The evidence must name the same patched
-checkpoint, layer 11, parallel geometry, and Megatron commit, with zero
-standard/R17/QK/xIELU tensor and logit drift. The receipt-owned Megatron root is
-exported under the exact variable consumed by the trainer.
+| Dir | Role | Period | Status | Result |
+|---|---|---|---|---|
+| [`scripts/`](scripts) | The ten Python tools: restage, freeze, build heldouts, encode shards, finalise, freeze assets, verify launch | 2026-07-12 → 08-07 | two of ten still in production use | `build_binary_shard.py` + `bridge_common.py` became the shared library |
+| [`clariden/`](clariden) | Nine sbatch stages and the `restage` / `freeze` / `after-freeze` dispatcher | 2026-07-12 | unused as a chain | Dry-run default; `CONFIRM_BUILD=1` / `CONFIRM_RESTAGE=PINNED_REPLAY_V1` to submit |
+| [`configs/`](configs) | The frozen 25B recipe and the replay-acquisition pin set | 2026-07-12 → 07-31 | frozen | 5,960 steps / 24,998,051,840 tokens; nine heldouts; recovered replay revisions |
+| [`train/`](train) | The receipt-gated 25B launcher and its effective-recipe environment | 2026-07-12 | never launched | Superseded by `../06_25b_midtraining_probe/clariden/train_segment.sbatch` |
+| `tests/` | `test_training_bridge.py`, the single suite covering identity, heldouts, capacity, receipts and the launch gate | 2026-07-12 → 08-01 | maintained | Grew from 332 to ~779 lines alongside each hardening pass |
 
-The launcher verifies once before submission and exports the complete verification
-argument set into Slurm. The batch job reruns the same receipt verifier at job
-start, through the pinned uenv/runtime, before sourcing either training
-environment. The full-corpus config refuses to train without this completed
-job-start hook. After sourcing the shared common and receipt-bound data
-environments, it overwrites and asserts the complete effective 25B recipe,
-including mock-data off, exact uenv/TP/PP, optimizer and overlap, warmup start,
-seed/order, loss, geometry/batch, tokenizer/data roots, validation/cadence, and
-resume/exit boundary. Slurm/system and transport variables remain available;
-legacy bakeoff jobs do not opt in and retain their existing path.
+## Working documents
 
-```bash
-export BRIDGE_STAGE_ROOT=/iopsstor/scratch/cscs/fffoivos/cpt_corpus/training_bridge/full-corpus-25b-v1
-DRY_RUN=1 ../train/submit_25b_probe.sh
-DRY_RUN=0 CONFIRM_GPU_LAUNCH=FULL_CORPUS_TD_25B ../train/submit_25b_probe.sh
-```
-
-One invocation submits only one segment. It never assumes that a future
-checkpoint exists merely because a Slurm dependency was registered. After an
-intermediate segment completes, submit the CPU
-`70_freeze_resume_checkpoint.sbatch` stage with `PROBE_OUTPUT_DIR` and
-`COMPLETED_ITERATION`. Then relaunch with the exact
-`START_ITERATION` and `RESUME_CHECKPOINT_RECEIPT`. A missing, altered,
-wrong-iteration, or already-submitted segment fails closed.
-
-## Current external prerequisites
-
-- Run the receipt-bound restaging and old-Greek build on Clariden CPU nodes.
-- Restore the full ModernGreek-148480 tokenizer tree.
-- Restore a clean Swiss-AI Megatron checkout at commit `c92402e...`; the
-  restaging config can replace the current skeleton only through the explicit
-  replacement gate.
-- Restore the complete patched TD layer-11 checkpoint at the exact path named
-  by its tracked roundtrip manifest. The current candidate checkpoint
-  directories are empty skeletons.
-- Produce a passed Phase-04 private release and retain its query/manifests.
-
-If unique capacity is insufficient, finalization writes
-`bridge_capacity_failure.json` and stops. The remedies are more data from the
-same reviewed immutable source or an explicit recipe review—never silent reuse
-or duplication.
+There are no dated plan or status files in this directory — its history lives entirely in commits, in the frozen configs, and in the README states summarised above. The 2026-07-12 "Current external prerequisites" list has been folded into the History section as the reason the launch path went unused.

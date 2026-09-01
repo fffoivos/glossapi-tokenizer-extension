@@ -1,347 +1,79 @@
-# Phase 04 — Full CPT corpus preparation
+# 04 — Full CPT corpus preparation (full-corpus v2)
 
-Source-quality review and license/admission evidence are independent gates.
-See [`docs/source_license_adjudication.md`](docs/source_license_adjudication.md)
-for the checksum-bound local-training versus public-redistribution matrix.
+> **In one line:** the July-2026 push that turned "add the newer GlossAPI datasets" into an actual production Greek CPT corpus — inventory, license adjudication, source review, cleaning, decontamination, deduplication and Hugging Face publication — which shipped through the lean *Agent 1 v5* DataTrove lane (53,046,533 pre-dedup rows → 51,839,746 deduplicated rows) while the elaborate receipt-bound "v2" and "v3" pipelines built alongside it were never executed end to end.
+> **Period:** 2026-07-11 → 2026-07-28 (commits touching this directory), plus consolidation merges on 2026-09-01. **Status:** completed — the published corpus became `fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2` and fed every later training subproject; structural (ToC/bibliography) deletion was deliberately left as a no-op here.
+> **Came from / led to:** [`../03_training_experiments`](../03_training_experiments) → this → [`../05_training_dataset_bridge`](../05_training_dataset_bridge) and [`../06_25b_midtraining_probe`](../06_25b_midtraining_probe), then subprojects [07](../../07_full_8b_cpt) / [08](../../08_targeted_8b_cpt_experiments).
 
-This phase turns the reusable cleaning components in `02_corpus_preparation`
-and the decisions from `03_training_experiments` into one reproducible
-production-corpus build.
+## Why this existed
 
-It deliberately separates two activities:
+The 13.5B two-arm pilot in `../03_training_experiments` had settled the recipe (79/20/1 mix, LR `5.5e-5`, AdEMAMix) but had trained on an ad-hoc corpus artifact. Meanwhile the GlossAPI organisation had published many datasets after the pinned NanoChat release was composed. The question was: *what is actually new, is it legally usable, is it good enough, and how much net token mass survives cleaning and deduplication?* The 2026-07-11 review ([`REVIEW_20260711.md`](REVIEW_20260711.md)) framed the gap as operational rather than scientific — "surviving components and pilot results were not yet assembled into a source-routed, immutable full-corpus build" — and this directory is that assembly.
 
-1. **Script preparation** — code, tests, source registry, cleaning policy and a
-   rendered execution plan. This is safe to do on the development Mac and must
-   not download datasets or submit Slurm jobs.
-2. **Clariden execution** — pinned source acquisition, audit-only passes,
-   policy sign-off, materialization and final token accounting. Runtime data and
-   reports live outside Git.
+## History
 
-No destructive cleaner is enabled merely because it exists. Every cleaner first
-emits a reversible ledger and an exact ModernGreek-148k counterfactual token-loss
-report. A later materializer must consume the approved, run-bound ledgers rather
-than re-running detection implicitly.
+| Date | What happened | Result / decision | Evidence |
+|---|---|---|---|
+| 2026-07-11 | Phase created on `codex/full-corpus-v2-preparation` and merged as PR #4; audit-only skeleton, then two corrections to the NanoChat source inventory. | The lineage anchor is NanoChat's *first data upload* `500b8bf5…` (18 exact `source_dataset` names, 717,265 rows), not its latest packaging commit. The old "21.5M new tokens" answer was retired as a five-entry backlog subtotal. | `cbb19cd4`, `26162a1c`, `02b4cb50`, `cd2f168b`; [`configs/nanochat_initial_roster.json`](configs/nanochat_initial_roster.json) |
+| 2026-07-11 | Complete post-December inventory and an HF metadata-only resolution (no payload downloaded). | 25 repositories created on/after 2026-01-01; 22 absent from the first roster; the 19 registered new-name releases total 16,127,958,471 bytes / 4,267,638 rows / 4,478,171,892 card-reported tokens. Registry resolved 26 entries, 521 files, 168,623,515,496 bytes; 158 GiB already staged on Clariden. Acquisition job `2735391` verified the payload but failed on stale School-books schema expectations, so it was explicitly *not* accepted as a receipt. | [`REVIEW_20260711.md`](REVIEW_20260711.md), [`configs/post_december_inventory.json`](configs/post_december_inventory.json) |
+| 2026-07-11 | Source lineage and review-packet gates added. | `blind_append_allowed=false` for every candidate route; a matching source name is lineage evidence, never proof of snapshot equivalence. | `43fcdde2` |
+| 2026-07-12 | The receipt-bound Clariden CPU DAG was implemented in full: acquire → normalize → lineage → review packet → admission → Stage50 clean → Stage58 structural-last → GreekMMLU freeze/decontaminate → dedup → materialize/validate → gated publish. | Every expensive stage got per-file/shard receipts and a documented resume path; cleaning chains stop *before* Stage58; publication is never part of a chain. | `14d803fb`, `01cba0ee`, `8a9efebd`, `ccd705ff`, `d076a59a`, `0e1c0807`; [`FINALIZATION_PIPELINE.md`](FINALIZATION_PIPELINE.md), [`docs/two_pass_cleaning.md`](docs/two_pass_cleaning.md), [`docs/release_integrity.md`](docs/release_integrity.md) |
+| 2026-07-12 | Mozilla Data Collective route registered as a separate authenticated, checksum-bound path. | Three MDC archives (483,008,450 declared bytes); a registry SHA-256 is mandatory and null checksum exceptions are invalid. | `d8d09d14`, `236ab9a6`, `7fffcbc7`, `649ca483`, `240a1368` |
+| 2026-07-12 | Dataset-quality diagnostics + private review site, then a containment/coverage hardening pass ("quality checkpoint closure"). | Sample statistics are labelled `review_sample` with their denominator and may never be reported corpus-wide; checkpoints are immutable 4,096-document batches opened with `O_NOFOLLOW`; the zero-badness/zero-Greek case is an explicit guard state, not "clean". | `ed552eba`, `72026703`, `a933d984`, `afaaeff4`, `8795e6bf`, `d49ed6b9`, `309d37f3`; [`docs/dataset_quality_review.md`](docs/dataset_quality_review.md) |
+| 2026-07-12 | Source-license adjudication frozen as a default-deny, checksum-bound matrix. | Noncommercial local CPT: 7 source IDs. Public redistribution: only `diavgeia`, `eellak_articles`, `open_council`, `opengov_deliberations_v2`. 16 sources excluded from both tracks with a per-source reason. | [`docs/source_license_adjudication.md`](docs/source_license_adjudication.md), [`configs/source_license_adjudication.json`](configs/source_license_adjudication.json) |
+| 2026-07-13 | An **Agent 1 v3** ordered lane was added — a deliberately separate stage graph (`10-normalize` → `20-lineage` → `30-review-packet` → `35-quality-review-evidence` → `40-admission` → `50-dedup` → `55/60` GreekMMLU → `65-anonymization` → `70/75/78` structural → `80-final-validation`) that refuses to reuse the v2 pipeline identity. | Implemented and unit-tested; no evidence in this tree that a v3 run was executed. | `3a887c36`, `528497f3`, `97506ce1`, `84d6e1d2`, `b52e0227`; [`scripts/agent1_v3_pipeline.py`](scripts/agent1_v3_pipeline.py) |
+| 2026-07-13 → 07-14 | An **Agent 1 v4** raw-review lane reviewed the source text *before* canonicalisation: 18 new-family sources × 20 raw documents, model `gpt-5.6-terra` at low effort, run from the authenticated Mac. Heinrich Böll had only 8 unique documents, so the owner approved reviewing all 8 rather than padding to 20 — 348 documents in total. Getting the Codex sandbox to run at all took six commits. | Reviews completed; a private review site was served over a Slurm loopback bridge because the packet could not leave Clariden. | `bf81861a`, `372a837d`, `023bd1ef`, `ad26c1b4`, `ef80dca6`, `efb5e5e3`, `aad67b30`, `26c8d022`, `051b5e63`, `59584d4f`, `09d26f22`, `b6a644c5`, `f5fe8ecc`, `3f5a1818`; [`configs/agent1_v4_raw_review_policy.json`](configs/agent1_v4_raw_review_policy.json) |
+| 2026-07-14 → 07-15 | VLM-repetition audit and an HTML→GitHub-Flavored-Markdown normalisation prototype over the same 348 documents. | 177 documents changed, 171 byte-identical; 117,875 HTML start tags handled with zero recognised HTML remaining; 1,722 HTML tables converted to GFM pipe tables; 40 runaway-repetition spans removed (168,230 chars); 4,799 generated image artifacts removed while retaining 4,621 `description-of-removed-image` provenance comments; idempotent on all 348 outputs; Luna validated 100/100 critical regions. **Never ported into GlossAPI production.** | `1012b5f7`, `a8b5d06a`, `d7fb2323`, `ae60fb80`, `89c3fbc7`, `a419b620`, `41b0f9cb`, `704e5b77`, `e6c289c4`, `e33b99f1`, `b4ac157c`, `ed6c2e84`, `f26fe1ed`; [`docs/agent1_v4_gfm_normalization.md`](docs/agent1_v4_gfm_normalization.md) |
+| **2026-07-15** | **Pivot.** The **Agent 1 v5** pipeline replaced the v2/v3 DAG as the thing that would actually run: repetition/image cleaning → HTML→GFM → GlossAPI normalisation → NanoChat envelope → private HF snapshot → DataTrove MinHash dedup → second private snapshot. Its production target moved from Eiger to Clariden **`debug`** nodes — an explicit, documented override of this repo's own rule that `debug` is for bounded smokes. | Run `agent1-v5-clariden-debug-20260715T111552Z-30c72e9` started. Pins: GlossAPI `a2aace04`, DataTrove 0.9.0 / `87f7bad5`, NanoChat base `e1d54136`. Dedup frozen at 5-token shingles, 128 permutations, 32×4 bands, seed 1, verified Jaccard ≥ 0.85, NanoChat base protected. | `c144116c`, `33a3be81`, `43451b41`, `b0845e0b`, `02a2bf42`, `03f25ebc`; [`docs/agent1_v5_eiger_pipeline.md`](docs/agent1_v5_eiger_pipeline.md), [`configs/agent1_v5_eiger_pipeline.json`](configs/agent1_v5_eiger_pipeline.json) |
+| 2026-07-15 → 07-17 | Most of a week went into surviving the debug partition: 85-minute walltimes, one running job per user, two submitted. Resumable/bundled DAG controller, submit-quota batching, transform checkpointing across timeouts, blank-text quarantines recorded instead of aborting the merge, HF rate-limit backoff, and MinHash signature shards checkpointed by Parquet row group. | The chain became restartable at every boundary; oversized signature shards could roll in batches. | `6b5dd427`, `d2673a33`, `0b164d15`, `30c72e99`, `ae062cbd`, `883fdd86`, `7300f955`, `f2919166`, `29886479`, `1cbef877`, `942b8d2d`, `44bcca9a`, `db95e4b7`, `ecc8e45c`, `51a54b4a`, `7ec650b6`, `e509b8ae` |
+| 2026-07-18 | Construction, acquisition-integrity and HF-storage audits. | **Passed.** 293/293 acquired files and 153,031,751,003/153,031,751,003 bytes rehashed with every mismatch counter zero (job `2789755`). 3,576,290 candidate inputs − 4,703 transform quarantines − 1 GlossAPI quarantine = 3,571,586 candidate rows; plus 49,474,947 protected NanoChat rows = **53,046,533 rows in 431 ZSTD Parquet shards / 149,746,029,389 bytes**, published private at revision `362d99a7…`. Deferred non-blocking quality flags: 275,816 rows with `greek_badness_score > 60` (270,034 of them Diavgeia). | [`../../../docs/AGENT1_V5_DATASET_AND_HF_READINESS_AUDIT_2026-07-18.md`](../../../docs/AGENT1_V5_DATASET_AND_HF_READINESS_AUDIT_2026-07-18.md), `cad947b4` |
+| 2026-07-18 → 07-20 | Dedup was correct but far too slow: the runner re-validated all 149.7 GB before *every* signature rank, implying ~9.82 days of remaining signature work and 57.8 TB of redundant reads. A receipt-bound acceleration package was built (one full input audit + per-shard validation, a 1→2→4→5 worker benchmark, held-array release, sentinel handoff, bounded downstream runner, node-local pair-merge canary), estimating 42–49 h instead. | Implementation and remote validation completed; the **automatic cutover was blocked by a scheduler-policy mismatch** — the live chain ran with `normal` QoS, so a held `debug-qos` fence could not gate its successor. The scripts hard-fail on that mismatch rather than cancelling a running rank. | `730b6acd`, `2e9150a9`, `f1e7e92b`, `ee1e2743`, `d2fe7703`, `9a103e80`, `edafc327`, `1c5db108`, `82c5e40a`, `9ad9fe30`, `4eeda9dc`, `1769da6d`; [`../../../docs/AGENT1_V5_DEDUP_ACCELERATION_IMPLEMENTATION_STATUS_2026-07-18.md`](../../../docs/AGENT1_V5_DEDUP_ACCELERATION_IMPLEMENTATION_STATUS_2026-07-18.md), [`../../../docs/AGENT1_V5_CSCS_DEDUP_ACCELERATION_PLAN_2026-07-18.md`](../../../docs/AGENT1_V5_CSCS_DEDUP_ACCELERATION_PLAN_2026-07-18.md) |
+| 2026-07-19 | LSH pair-merge fail-closed on 312 groups above the frozen `max_bucket_documents = 5000`. | The chain stopped rather than silently dropping candidate edges. | `ec0ce8c9` |
+| 2026-07-21 | Read-only diagnosis of the 312 oversized groups, reconstructed from the raw bucket files with the merge's own decoder. | Counters reproduced **bit-for-bit** (111,039,644 raw pairs; 312 oversized groups; 3,265,439 oversized docs; 3,265,127 excluded edges) → **no defect**: a mix of genuine near-duplicate families (Diavgeia templated acts, 8,459 image-only `openarchives.gr` records colliding in all 32 bands) and one coincidental single-band HPLT collision that Jaccard verification would reject anyway. Decision: raise **only** `max_bucket_documents` 5,000 → 50,000 through a cluster-side `…resolved.json`; admitting all 312 costs ~+8% verify time. | [`../../../docs/AGENT1_V5_LSH_OVERSIZED_DIAGNOSIS_2026-07-21.md`](../../../docs/AGENT1_V5_LSH_OVERSIZED_DIAGNOSIS_2026-07-21.md) |
+| 2026-07-22 | Worktree consolidation preserved the dataset-review presentation builder and the public-sample fetcher before branches were merged. | `build_dataset_review_presentation.py` and `fetch_public_dataset_review_samples.py` landed on the trunk. | `33653540`, `84b6ab63`, `84f3067f` |
+| 2026-07-28 | The v5 publisher was generalised from private-only to explicitly scoped visibility, and taught to use cached HF credentials. | Receipt schema `agent1_v5_private_hf_publication_receipt_v1` → `agent1_v5_hf_publication_receipt_v2`; a public target additionally requires `publication_ready=true` on the release manifest. This is what allowed the deduplicated corpus to be published publicly. | `e8fbec2c`, `65a49d00` |
+| 2026-09-01 | Consolidation merges folded the bibliography-cleaning production hardening into this tree. | No new corpus work; branch reconciliation only. | `896e5719` |
 
-The final private/public materialization and publication boundary is specified
-in [`docs/release_integrity.md`](docs/release_integrity.md). It binds completed
-stage manifests and content-hashed dedup decisions, proves public/private row
-parity, and permits publication only into a manually gated empty repository.
+## Outcome
 
-## Implementation status
+- **The corpus shipped.** The deduplicated release became `fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2` — 431 Parquet shards and **51,839,746 rows**, verified against the Hub in the later bibliography-cleaning preflight (job `2912077`, Hub commit `c368d37c…`, 141,797,094,485 bytes, zero drift) and quoted as **63,780,757,593 training tokens** including one EOD per document at revision `987b8955…`. Against the audited 53,046,533 pre-dedup rows that is 1,206,787 rows removed by exact + verified-Jaccard near dedup.
+  Sources: [`../02_corpus_preparation/15_clean_academic/BIB_CLEANING_IMPLEMENTATION_20260727.md`](../02_corpus_preparation/15_clean_academic/BIB_CLEANING_IMPLEMENTATION_20260727.md), [`../../08_targeted_8b_cpt_experiments/CPT_EXPERIMENT_AND_RESOURCE_PLAN_20260811.md`](../../08_targeted_8b_cpt_experiments/CPT_EXPERIMENT_AND_RESOURCE_PLAN_20260811.md).
+- **Structural cleaning was deliberately *not* applied.** [`configs/cleaning_policy.json`](configs/cleaning_policy.json) stayed `audit_only` with both materialisation flags false, so Stage58 could only record a deterministic no-op. Promotion would have required a Stage54 receipt plus a manual 100-case false-deletion audit (50 ToC + 50 bibliography) against gates of ≤0.001 prose-deletion, ≥0.999 main-text retention and 0 catastrophic deletions. None of Stage52/53/54 ever ran. Bibliography removal moved instead to [`../02_corpus_preparation/15_clean_academic`](../02_corpus_preparation/15_clean_academic).
+- **License position frozen and machine-enforced**: noncommercial local CPT for 7 sources, public redistribution for 4, 16 excluded with per-source reasons; the matrix is rehashed by both cleaning passes, by materialisation and by publication.
+- **Held-out operating points recorded** for the two-head structural model — bibliography recall 0.824 at prose protection 0.9990 (61/60,814 prose lines removed); ToC recall 0.756 at 0.9997 (9/28,609) — with an explicit instruction not to raise bibliography recall to remove more tokens ([`REVIEW_20260711.md`](REVIEW_20260711.md)).
+- **Never executed, despite being fully implemented:** the numbered v2 Stage 00–99 Clariden DAG (`clariden/*.sbatch`), the v3 ordered lane, the Stage52/53/54 structural production path, the GFM prototype's port into GlossAPI, and the redistributable-delta publication to `fffoivos/glossapi-greek-cpt-redistributable-delta-v2`. Treat those documents as design records, not run records.
+- **Carried forward:** the published v2 dataset is the source authority for [`../06_25b_midtraining_probe`](../06_25b_midtraining_probe), [`../../06_dataset_scheduling_experiments`](../../06_dataset_scheduling_experiments), [`../../07_full_8b_cpt`](../../07_full_8b_cpt) and [`../../08_targeted_8b_cpt_experiments`](../../08_targeted_8b_cpt_experiments), which all pin it by exact revision.
 
-This is an implemented, dry-run-first CPU pipeline, not yet a completed corpus
-build. The evidence, recommendations and sign-off boundary are summarized in
-[`REVIEW_20260711.md`](REVIEW_20260711.md).
+## Sub-subprojects
 
-- Ready: immutable source acquisition and schema verification, scalable
-  normalization, exact source lineage, redacted source review, source admission,
-  Stage50 source/PII cleaning, optional post-clean review, structural-last
-  Stage58 finalization, GreekMMLU freeze/decontamination, content-bound exact and
-  near deduplication, private/public materialization, validation and a standalone
-  manually gated publisher. Per-file/shard receipts and exact inventories make
-  the expensive stages resumable and fail closed on drift.
-- Staged on Clariden: all 26 pinned source directories, occupying 158 GiB under
-  `$DATA_ROOT/hf`, with no `.incomplete` files. Acquisition job `2735391`
-  downloaded and payload-verified the complete 168,623,515,496-byte selection;
-  it failed only because that checkout's School-books schema expectations were
-  stale. It is not a passed acquisition receipt.
-- Next: run one fresh `ACQUISITION_EXISTING_ONLY=1` acquisition from the corrected
-  exact commit. That run creates a new lock, download manifest, schema audit and
-  receipt while refusing to download a missing byte. No downstream stage depends
-  on job `2735391`.
-- Structural application is deliberately a deterministic no-op in this CPT run.
-  The tracked policy is `audit_only` and both materialization flags are false.
-  Existing supervision is LLM silver, never human gold. The exact historical
-  joint ToC+BIB `STRUCT_2K` handoff is now recovered and checksum-verified; it
-  is integrated through a sealed historical split. No import, profile, ladder,
-  classifier-selection or parity job has run. C0 has an existing Rust path;
-  C1/C2/N1 remain Python research models and require a separate Rust port/parity
-  package if selected. No new 2,000-item annotation effort is planned.
+| Dir | Role | Period | Status | Result |
+|---|---|---|---|---|
+| [`clariden/`](clariden) | Dry-run-first Slurm launchers: the v2 numbered DAG plus the v3 and v4 lane submitters | 2026-07-11 → 07-15 | v2/v3 launchers unused; v4 lane ran | 31 sbatch stages + 3 submit wrappers, all gated on `CONFIRM_LAUNCH=1` |
+| [`configs/`](configs) | Frozen registries and policies: sources, backlog, lineage aliases, license matrix, cleaning/review policies, v5 pipeline pins | 2026-07-11 → 07-15 | frozen | 26 acquisition candidates, default-deny license matrix, `audit_only` cleaning policy |
+| [`docs/`](docs) | The six design/contract documents for quality review, licensing, release integrity, two-pass cleaning, GFM and the v5 pipeline | 2026-07-11 → 07-22 | complete | GFM prototype results and the v5 executable handoff live here |
+| [`schemas/`](schemas) | 42 JSON Schemas that make every receipt machine-checkable | 2026-07-11 → 07-22 | complete | Receipts, not prose, are the contract between stages |
+| [`scripts/`](scripts) | 102 CPU tools across four generations (v2 canonical, v3 ordered, v4 review, v5 executed) | 2026-07-11 → 07-28 | v5 subset ran; rest unexecuted | `agent1_v5_*` and `publish_private_agent1_v5.py` produced the shipped corpus |
+| [`slurm/`](slurm) | The v5 dedup-acceleration shell layer (benchmark, held arrays, sentinel cutover, bounded runners) | 2026-07-18 → 07-20 | built; automatic cutover blocked by QoS | 20 scripts; estimated 4–5× speed-up, never auto-activated |
+| [`tests/`](tests) | 53 pytest modules covering contracts, receipts, parity and review flows | 2026-07-11 → 07-28 | maintained | `clariden/prepare.sh` is the local gate that runs them |
 
-## Production DAG
+## Where things are
 
-1. Recover the already staged Clariden payload with a fresh existing-only
-   acquisition receipt, then normalize it to the canonical source-preserving
-   schema.
-2. Apply the Apertus-overlap actions and build exact/work-level source lineage.
-3. Build a redacted review packet for every exact `source_dataset` (at least 100
-   documents per source; the frozen policy uses 200 for named large or
-   heterogeneous sources). Copy only the small packet to the authenticated Mac,
-   review it with Codex `gpt-5.6-luna` at low effort, and aggregate the returned
-   schema-valid responses.
-4. Manually inspect and checksum-confirm source admission.
-5. Stage50 applies source decisions, narrow source-specific cleaning and
-   high-confidence direct-identifier masking. It does not apply ToC or
-   bibliography spans.
-6. If any source is `include_after_cleaning`, build and review a new post-clean
-   packet for those sources and freeze the terminal admission.
-7. Stop before Stage58, then always run it through one separately confirmed
-   finalization path. It either applies promoted structural spans last or, under
-   the current `audit_only` policy, copies Stage50 text unchanged while recording
-   an explicit structural no-op decision. A future application run would require
-   an approved policy frozen before Stage10 and passed Stage54 evidence; policy
-   cannot be changed mid-run.
-8. Freeze the exact GreekMMLU query set, decontaminate, run post-transform exact
-   and near deduplication, and materialize/validate the private training tree and
-   the license-limited public redistribution tree.
-9. Optionally publish only the redistributable delta after a separate manual
-   gate. The default target is
-   `fffoivos/glossapi-greek-cpt-redistributable-delta-v2`; publication is never
-   part of the production chain.
+| Artifact | What it is |
+|---|---|
+| [`REVIEW_20260711.md`](REVIEW_20260711.md) | The decision document: inventory verdict, structural-cleaning recommendation, Diavgeia profile, sign-off boundary |
+| [`RUNBOOK.md`](RUNBOOK.md) | The operator path for the v2 DAG (prepare → publish commit → runtime → acquire → audit → policy gate → run → publish) |
+| [`FINALIZATION_PIPELINE.md`](FINALIZATION_PIPELINE.md) | Exact commands for GreekMMLU freeze, decontamination, dedup, materialisation, validation and gated publication |
+| [`STRUCTURAL_SPAN_PRODUCTION.md`](STRUCTURAL_SPAN_PRODUCTION.md) | The Stage52/53/54 design and the 100-case manual safety gate that would have been required |
+| [`docs/agent1_v5_eiger_pipeline.md`](docs/agent1_v5_eiger_pipeline.md) | The handoff for the lane that actually built the corpus |
+| [`configs/agent1_v5_eiger_pipeline.json`](configs/agent1_v5_eiger_pipeline.json) | The 18 sources, runtime pins and frozen dedup parameters (note: `max_bucket_documents` here is still the pre-resolution 5000) |
+| [`configs/source_license_adjudication.json`](configs/source_license_adjudication.json) | The executable per-source training/redistribution matrix |
+| [`scripts/publish_private_agent1_v5.py`](scripts/publish_private_agent1_v5.py) | The fail-closed Hugging Face publisher for both the pre-dedup and deduplicated releases |
+| `/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/agent1-v5-clariden-debug-20260715T111552Z-30c72e9` | The Clariden run root holding the manifests, receipts and dedup state (outside Git) |
 
-Megatron preprocessing belongs to the later production-training phase, not here.
+## Working documents
 
-## Structural-cleaning routing
+Everything below is historical; nothing was deleted.
 
-The bibliography/ToC classifier is an academic-document model. Routing is an
-allowlist, never a global default. These are research/audit routes; the current
-`audit_only` policy means Stage58 removes no structural text from this CPT run.
-
-- `apply_after_review`: Greek PhD, OpenArchives, Kallipos and Pergamos.
-- `shadow`: Psepheda, E-Locus, LibDUTH, LibIEP and technical/book-like sources.
-- `disabled`: HPLT, Diavgeia, legal corpora, news, blogs, parliament, dialogue,
-  comments and subtitles.
-
-For enabled academic sources, ToC removal is the simpler policy decision.
-Bibliography removal remains conservative (`prose_protection=0.999`) and its
-Greek, Latin and polytonic removed-character mass is reported alongside the
-exact tokenizer delta before approval.
-
-## Diavgeia
-
-Diavgeia does **not** use the academic structural remover. Its profile is:
-
-- remove only the deterministic Ministry of Digital Governance signing footer;
-- report and initially exclude `privateData=true` records;
-- mask validated direct identifiers and quarantine PII-heavy personnel tables;
-- identify stamp-only, OCR-bad and table-loop records;
-- fingerprint templates after variable identifiers are normalized, then cap or
-  deduplicate dominant `(decisionTypeId, organizationId, template)` groups;
-- preserve substantive statutes, legal citations, recitals, agendas and ordinary
-  administrative prose.
-
-`profile_source_quality.py` writes two audit ledgers. The span ledger contains
-only complete Ministry signing blocks and isolated `ΑΔΑ:` watermark lines; the
-document-action ledger records `privateData`, structured-PII, personnel-table and
-correction-version candidates without changing text. Both require review and an
-exact token delta before any rule is enabled.
-
-The current pinned repository has more rows than its dataset card, so counts in
-the card are not accepted as build inputs. The resolved lock and the full audit
-are authoritative.
-
-## Source backlog
-
-`configs/source_backlog.json` records pinned metadata for organization datasets
-that were reviewed but are not acquisition inputs. Every entry is deliberately
-`acquisition_eligible=false`; the validator also rejects any backlog repository
-that appears in `configs/sources.json`. Moving an entry into acquisition requires
-an explicit source-contract review, removal from the backlog, and a separate
-registry change.
-
-The source-lineage anchor is the first commit that actually added corpus data,
-not the latest Nanochat processing commit. `configs/nanochat_initial_roster.json`
-pins commit `500b8bf577e1e70f4902b77edce2cda02a2559cb`, its 18 exact
-`source_dataset` values, 717,265 rows and the SHA-256 of `row_counts.csv`. It
-also records OPUS and HPLT as the only later source-name additions. Current
-repository names are reviewed in `configs/source_lineage_aliases.json` as
-direct, replacement or hybrid lineages. An alias never establishes snapshot
-equivalence: refreshed and successor artifacts still require canonical document
-keys and cross-version content hashes before replacement or addition.
-
-`source_dataset` is a real corpus column, not a filename guess: the Nanochat
-release builder derives `row_counts.csv` from that field. The normalized schema
-therefore freezes its exact value when present (falling back to the pinned HF
-repository ID only when an upstream source field is absent) and stores the
-reviewed `source_family_id` separately. The latest Nanochat roster has 19 names:
-the initial 18 plus OPUS and HPLT, minus the later-removed FinePDFs source.
-
-Repository creation and last-modified timestamps are not source cutoffs. For
-example, the current Greek-PhD and Openbook V2 Parquets were uploaded after the
-first Nanochat data commit, while their source families were already represented
-under `greek_phd` and `openbook_gr`. School-books now also contains multiple
-overlapping editions. Candidate discovery therefore uses the initial names plus
-per-artifact history, not a comparison against Nanochat's latest commit.
-
-The earlier 21.5-million-token figure described only five small backlog entries.
-It was **not** the total published after the Nanochat source roster was composed.
-The complete pinned inventory is in `configs/post_december_inventory.json`:
-
-- 25 current organization repositories were created on or after 2026-01-01;
-- 22 represent names/source families absent from the first Nanochat roster;
-- 16 of those have usable full text on HF and three more are registered through
-  Mozilla Data Collective; together those 19 releases total 16,127,958,471
-  artifact bytes, 4,267,638 raw/reported rows and 4,478,171,892 card-reported
-  tokens;
-- one is metadata-only and two are empty scaffolds;
-- three are same-source replacements already represented in Nanochat; and
-- four older organization repositories have material post-cutoff payload
-  changes, including new School-books editions and reprocessed OpenArchives.
-
-Those token numbers are inventory sizing only. They mix tokenizer scopes and
-include stale Diavgeia and Archetai card counts. They are neither a
-ModernGreek-148k total nor net-additive mass. `configs/sources.json` now tracks
-26 candidates: 19 registered new-name families plus seven replacement/overlap
-routes. The three MDC routes use their own authenticated, checksum-bound
-acquisition path with format-specific nonempty/schema/text/identifier validation.
-A registry SHA-256 is mandatory for every MDC archive; all three current hashes
-are pinned and null checksum exceptions are invalid.
-A separate lightweight `merge-acquisition` job combines passed HF and MDC
-receipts into the sole normalization input; metadata-only, empty and superseded
-repositories remain in the non-acquiring backlog.
-
-An HF metadata-only resolution on 2026-07-11 verified all pinned revisions and
-selected 26 HF registry entries (base, overlap evidence, tokenizer and 23
-candidates), 521 files and 168,623,515,496 bytes. HF candidate payload accounts
-for 30,781,620,482 of those bytes; the three MDC archives add 483,008,450
-declared bytes through the separate authenticated route. No dataset payload was
-downloaded by that check.
-
-The private review presentation and GlossAPI Rust diagnostics are specified in
-[`docs/dataset_quality_review.md`](docs/dataset_quality_review.md). The prompt
-path profiles the exact Stage30 representative sample at
-`35-dataset-quality-sample`; it is never presented as a corpus-wide estimate.
-The optional `15-dataset-quality-full` scan is separately resumable and excludes
-`nanochat_base` unless explicitly requested. Inventory-only MDC, metadata and
-empty repositories retain honest missing-data states until a payload is
-acquired and normalized.
-
-## Logical union and source-aware deduplication
-
-The published Nanochat release remains an immutable physical base. The output
-is a new `full_corpus_v2` release; it is not an in-place Nanochat rewrite and it
-is not a raw concatenation of every current repository.
-
-The first-upload `source_dataset` value is the primary lineage signal. Reviewed
-name aliases identify same-source refreshes, replacements and hybrids, while
-document keys and content hashes decide actual identity. Every normalized row
-must preserve the exact upstream source name, source-family ID, repository,
-revision, artifact path, upstream row/document ID, original hash, stable corpus
-UID and representation generation.
-
-For each source family:
-
-1. Normalize alternate representations without concatenating them; group
-   sectioned sources to comparable work/document granularity.
-2. Match canonical source keys and original/normalized exact hashes.
-3. Retain base-only documents; retain candidate-only documents after policy
-   review; choose the better complete extraction for matched-but-different
-   documents; quarantine ambiguous matches.
-4. Prefer an eligible, decontaminated, PII-safe and higher-quality extraction.
-   The base wins otherwise, including unresolved cross-family ties. Record every
-   loser as a provenance alias with a reason.
-5. After approved source cleaning, GreekMMLU decontamination and PII masking,
-   run exact deduplication and then near deduplication within each family and
-   across the retained base/candidate union. Finish with another exact check.
-
-The final report must show an exact ModernGreek-148k token waterfall per source:
-raw candidate, normalization, source cleaner, GreekMMLU, PII, replacement
-candidate added/base retired/net, exact dedup, near dedup and final retained
-tokens. Until that Clariden CPU audit runs, the gross 4.32B card number must not
-be reported as training contribution.
-
-### Lineage and source-review tooling
-
-`scripts/build_source_lineage.py` turns canonical base/candidate JSONL
-envelopes into three text-free, deterministic artifacts: a route-level registry
-manifest, a row provenance manifest and exact/work relationship memberships.
-Every candidate route has `blind_append_allowed=false`. The row envelope must
-contain `text`, `source_artifact_path`, `source_row_id` and `source_doc_id`;
-candidate rows also contain the registered `source_id`. Preserve an upstream
-`source_dataset` byte-for-byte. When it is absent, and only then, the pinned HF
-repository ID becomes the explicit fallback name. Resegmented sources must
-provide a work-level `work_id` rather than allowing a section ID to masquerade
-as a document identity.
-
-`scripts/build_source_review_packet.py` samples each exact `source_dataset`
-value independently. Every source receives at least 100 unique documents (60
-deterministic-random, 20 high-risk and 20 cluster representatives); the frozen
-policy raises named large/heterogeneous sources to 200 (100/50/50).
-`privateData=true` rows are excluded, direct identifiers are redacted, long
-documents use front/middle/end excerpts, and a deterministic 10% is duplicated
-for independent review. A normalizer may provide `review_cluster_id`,
-`minhash_cluster_id` or `template_cluster_id`; otherwise the exact normalized
-text hash is the conservative fallback. Replacement samples may also carry a
-`base_comparison_text` and `base_comparison_uid` for paired review.
-
-Reviewers return JSON matching
-`schemas/source_review_response.schema.json`. The aggregator rejects missing or
-identity-drifted responses, requires adjudication for low confidence or
-primary/secondary disagreement, and emits `include`,
-`include_after_cleaning`, `quarantine`, `exclude` or
-`pending_adjudication`. A source admitted only after cleaning must receive a new
-post-clean packet; pre-clean reviews cannot be reused as proof of cleaning.
-
-## Exact token-loss contract
-
-Token loss is calculated on complete text variants, not by tokenizing removed
-spans in isolation. For every document the audit records:
-
-- original, bibliography-cleaned, ToC-cleaned and combined-cleaned token counts;
-- exact per-policy deltas and the non-additive interaction term;
-- original/output hashes, characters, bytes and affected lines;
-- span counts, document-loss fraction and whether a document became empty;
-- tokenizer hash, detector policy, source revision and input path.
-
-Aggregates include source totals, affected documents, p50/p90/p99/max loss,
-Greek/Latin/polytonic removed-character mass and top-loss review examples. EOD
-is reported separately; when documents are retained it contributes zero token
-loss.
-
-The pinned tokenizer is `fffoivos/apertus-tokenizer-extension` at revision
-`a4826df7f76b54cdd6dc21d09fe97283c466999b`, with `tokenizer.json` SHA-256
-`358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394`.
-
-## Clariden execution policy
-
-Clariden has no CPU-only production compute partition. `normal` and `debug`
-allocate exclusive 288-core GH200 nodes; `xfer` is transfer-only. The `low`
-partition is visible but is not currently available to project `a0140`'s normal
-QoS.
-
-- Use `xfer` only for `cp`/`mv`/`rsync` between CSCS filesystems. External
-  Hugging Face acquisition runs as a bounded `normal` job.
-- Use `debug` only for genuine short smokes.
-- Use `normal` for production cleaning, request no GPU/GRES, and keep roughly
-  256 CPU cores busy so the exclusive node is not mostly idle.
-- Keep first audits bounded to explicit input shards. Normalization,
-  structural prediction, deduplication and materialization use atomic
-  file/shard checkpoints; retry only through the documented resume path so
-  every reused byte is revalidated.
-
-The thin launchers under `clariden/` default to dry-run. Submission requires
-`CONFIRM_LAUNCH=1`. Production corpus stages also require one operator-chosen
-`PIPELINE_RUN_ID`; it resolves only to
-`$RUN_ROOT/pipeline_runs/$PIPELINE_RUN_ID`. A completed stage has both a
-hash-bound `stage_receipt.json` and `COMPLETED` marker. An incomplete directory
-is never accepted downstream and can only be re-entered with the explicit
-`submit.sh resume <stage>` path.
-
-`chain-to-review` submits normalization, lineage and packet construction with
-`afterok` dependencies, then stops. It does not invoke a reviewer.
-`chain-after-admission` requires the exact SHA-256 of the inspected admission
-file. If any source is `include_after_cleaning`, it runs the reviewed cleaning
-pass, builds a fresh post-clean packet and stops again. Otherwise it stops after
-Stage50. Neither cleaning path submits Stage58. After the structural audit track
-has finished (or the operator intentionally elects not to wait), a separate
-`chain-finalize-noop` or `chain-finalize-promoted` command binds the immutable
-choice and launches Stage58 plus the local downstream release chain. The no-op
-requires `CONFIRM_STRUCTURAL_NOOP=1`; promoted application requires the exact
-manually confirmed Stage54 model-receipt SHA-256 and fails rather than silently
-falling back. The Hugging Face publisher is always standalone and
-requires `CONFIRM_PUBLISH` equal to the target gated repository ID. No token is
-written to a run receipt or printed as a command argument.
-
-## Repository/runtime boundary
-
-Committed:
-
-- scripts, tests and schemas;
-- source registry and frozen cleaning policy;
-- small aggregate reports and provenance locks.
-
-Not committed:
-
-- downloaded datasets, normalized shards and cleaned shards;
-- span ledgers and per-document token ledgers;
-- caches, virtual environments and full review packs.
+- **Plans and contracts (design, not run records):** [`RUNBOOK.md`](RUNBOOK.md), [`FINALIZATION_PIPELINE.md`](FINALIZATION_PIPELINE.md), [`STRUCTURAL_SPAN_PRODUCTION.md`](STRUCTURAL_SPAN_PRODUCTION.md), [`docs/two_pass_cleaning.md`](docs/two_pass_cleaning.md), [`docs/release_integrity.md`](docs/release_integrity.md), [`docs/dataset_quality_review.md`](docs/dataset_quality_review.md).
+- **Reviews and decisions:** [`REVIEW_20260711.md`](REVIEW_20260711.md), [`docs/source_license_adjudication.md`](docs/source_license_adjudication.md).
+- **Prototype results:** [`docs/agent1_v4_gfm_normalization.md`](docs/agent1_v4_gfm_normalization.md) (completed audit of 348 documents; the "porting gate" section was never acted on).
+- **Run-status snapshots** live at repository root, not here: `../../../docs/AGENT1_POST_NANOCHAT_DATA_REVIEW_AND_DEDUP_STATUS_2026-07-18.md`, `../../../docs/AGENT1_V5_DATASET_AND_HF_READINESS_AUDIT_2026-07-18.md`, `../../../docs/AGENT1_V5_DEDUP_ACCELERATION_IMPLEMENTATION_STATUS_2026-07-18.md`, `../../../docs/AGENT1_V5_CSCS_DEDUP_ACCELERATION_PLAN_2026-07-18.md`, `../../../docs/AGENT1_V5_LSH_OVERSIZED_DIAGNOSIS_2026-07-21.md`, `../../../docs/hf/agent1_v5_pre_dedup_audit_snapshot/`.
+- **Requirements pins:** `requirements-runtime.txt`, `requirements-dev.txt`, `requirements-finalization.txt`, `requirements-gfm-prototype.txt`. Direct versions are pinned; the transitive closure is not hash-locked — [`RUNBOOK.md`](RUNBOOK.md) records that limitation explicitly.

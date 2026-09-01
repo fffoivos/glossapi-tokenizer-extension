@@ -1,206 +1,63 @@
-# 02_2_1_char_language_membership
+# 02.2.1 — Char-language membership masks
 
-Sub-subproject of `02_2_tokenizer_implementation`.
+> **In one line:** a strict-rule, CLDR-derived answer to "which scripts, families and languages admit this codepoint?", built for *rejection* rather than classification; it went from 54 language bits to 88 in two days of audit-driven releases and became the reference layer every downstream attribution joined against.
+> **Period:** 2026-05-14 → 2026-05-15 (commits `002bddc5`, `0b20b96d`, `719d3834`, `0bbd93de`). **Status:** completed and consumed; last released version v3.3.3, schema v5, 29 script / 47 family / 88 language bits.
+> **Came from / led to:** this → [`02_2_4`](../02_2_4_language_category_promotion/) PMI promotion (via [`02_2_2`](../02_2_2_vocab_lang_attribution/)) and → [`02_1_4_cutoff_analysis`](../../02_1_tokenizer_experiments/02_1_4_cutoff_analysis/)
 
-## Goal
+## Why this existed
 
-For every Apertus vocab token, emit **three parallel bitmasks** that
-identify which **(script, language-family, language)** triples the
-token's chars are compatible with. Each layer answers the same
-question — *which categories can we rule out for this token?* — at a
-different resolution:
+The Apertus-8B-2509 tokenizer was not trained on Apertus data — it is Mistral-Nemo's `tekken` tokenizer inherited wholesale, and Mistral published only 11 of its "over 100" training languages ([`PLAN.md`](PLAN.md) § "How we approach the missing-tokenizer-training-data problem"). To reason about what the 131,072 base-vocab tokens *are*, the project needed a source-authoritative, dataset-free answer to what characters each language can legitimately produce. The design choice that shaped everything: the artifact never assigns a token to a language, it only says which categories are **excluded with confidence**. Apertus's documented pretrain mix stands in as a proxy for Mistral's unpublished list; the proxy is falsifiable by an audit that checks whether any script with real presence in the vocab is unmodelled.
 
-| layer | bits used | example for bare-ASCII ` the` | example for `ß`-containing token |
-|---|---|---|---|
-| **language** | 88 | all Latin locales (~40, see languages.yaml) | only `de` |
-| **family** | 47 | all Latin families (10, see families.yaml) | only `Germanic-Latn` |
-| **script** | 29 | only `Latn` | only `Latn` |
+## History
 
-A token's chars that are language-discriminating (`ñ`, `ß`, `ł`, `中`,
-Greek polytonic) narrow at every layer simultaneously; chars that
-aren't (bare ASCII, `α` shared between Greek encodings, Han chars
-shared across CJK) narrow only at the coarser layers.
+### 2026-05-14 — v2.2: one layer, strict rules (`002bddc5`, `0b20b96d`)
 
-Built for **rejection**, not classification. We never assign a token
-to a single language; we tell the consumer "every triple not in this
-bitmask is excluded with confidence". Three layers means the
-consumer gets the strongest available rejection at any resolution
-they care about. See `PLAN_v3_HIERARCHICAL.md` for full rationale.
+Created as `char_language_membership/` with a single language layer of 54 (language, script, encoding) triples, four deterministic closures on top of raw CLDR exemplars — script-compatibility filter, case, NFD, script-range fallback, plus a post-fallback NFD pass — and substrate (`N*`/`P*`/`S*`/`Z*`/`Cc`/`Cf`) set to all bits. Cyrillic and Arabic were **deliberately excluded from the script-range fallback** because their blocks carry extensions for out-of-scope languages; those codepoints fall through to zero bits on purpose ([`PLAN.md`](PLAN.md) § "Strict rule").
 
-## Scope semantics — what the bits mean (and don't)
+The same day's hardening commit took the count to 55, added `scripts/_common.py` and `scripts/query_codepoint.py`, and fixed a real consumer trap: the char parquet is **sparse**, so a naive lookup returning 0 for a missing codepoint false-rejects. `query_codepoint.py` reproduces the build-time substrate fallback so consumers get identical semantics. Masks were stored as fixed-width `binary(16)` rather than `uint64` because the audit already foreshadowed growth past 64 bits (`0b20b96d`). `validate.py` gained a phase-2 token audit gate asserting fewer than 50 fall-through tokens per *out-of-scope* script; in-scope gaps are reported but do not fail. Recorded gaps at that point: out-of-scope `Other` = 1, in-scope Cyrl 132, Latn 42, Arab 38 ([`TODO.md`](TODO.md)).
 
-Every bit at every layer means **"some in-scope locale admits this
-char"** — positive CLDR evidence (plus the documented closures: case,
-NFD, script-range fallback, post-fallback NFD, substrate override).
+### 2026-05-15 — v3.0/v3.1: three layers (`719d3834`)
 
-Crucially, the **script layer is not a Unicode-script detector**.
-A Latin codepoint outside every in-scope locale's CLDR — `ō`
-(U+014D, used in Japanese romaji, Latvian, Hawaiian, Māori; none in
-our scope) — gets **zero bits at every level**. Token AND collapses
-to 0, which rejects every in-scope (script, family, language). That
-is the desired strict behaviour. Consumers wanting "what Unicode
-script is this codepoint" should call `unicodedata.name(chr(cp))`
-and look at the prefix — that's a different question with its own
-fast answer; we don't bake it in here.
+Renamed to `02_2_1_char_language_membership/` and rebuilt as the hierarchical design in [`PLAN_v3_HIERARCHICAL.md`](PLAN_v3_HIERARCHICAL.md): script / family / language masks in parallel, shipped as schema v4 with 22 script, 31 family and 55 language bits. The motivating complaint was that a bare-ASCII token like ` the` reported "compatible with 28 specific languages" when the honest statement is "Latin-script: yes, narrower: no signal". Two decisions were resolved and held: single-locale scripts get family bits anyway, for layer symmetry; and the script layer stays a **projection of language evidence, not a Unicode-script detector** — `ō`, admissible in no in-scope locale, correctly gets zero bits at every level. Twelve per-script research notes landed with it ([`notes/`](notes/)), covering Latin, Cyrillic, Greek, Arabic, CJK, Korean, Hebrew, Indic and the smaller scripts.
 
-Rationale (from `PLAN_v3_HIERARCHICAL.md § Why projection-only`):
+### 2026-05-15 — v3.2 → v3.3.3: five releases in one session (`0bbd93de`)
 
-1. The whole artifact is "what we model and can reject." Adding a
-   free Unicode-script-detection axis on top would mix semantics —
-   `script_and` would mean a different kind of thing than
-   `family_and` and `bitmask_and`.
-2. Consumers wanting broad Unicode-script detection can compute it
-   themselves in a few lines. The bitmask's job is to express which
-   in-scope categories admit each char.
-3. It is the conservative extension of v2.2. v2.2 had no script
-   layer; every bit was positive language evidence. v3 adds script
-   and family as projections of that same evidence — no new
-   inclusion rules.
+The PMI promotion consumer filed [`FEEDBACK_FROM_PMI_PROMOTION_CONSUMER_20260515.md`](FEEDBACK_FROM_PMI_PROMOTION_CONSUMER_20260515.md): correctness was "excellent — zero cross-script leakage", but **34 of the 87 well-sampled corpus keys had no char-tool mapping**, and the ISO-639-3 ↔ BCP-47 map was unpublished, forcing a hand-curated 50-entry dict in the consumer that had caused **four silent bugs** (`srp_Cyrl`, `lvs_Latn`, `ekk_Latn`, `cmn_Hani` — macrolanguage-vs-individual code confusion, ~4 B tokens, undetected for two days).
 
-## Inputs
+The response, all on 2026-05-15:
 
-- **Scope** — 88 (language, script, encoding) triples in
-  `languages.yaml`, 47 families in `families.yaml`, 29 scripts in
-  `scripts.yaml` (as of v3.3.3). Bit positions are stable wire
-  identifiers — never reassigned. Derived from Apertus's documented
-  pretrain mix
-  (`docs/APERTUS_PRETRAINING_DATA_AND_GREEK_SHARE.md`) used as a
-  proxy for Mistral-Nemo's unpublished tokenizer-training language
-  list. See `PLAN_v3_HIERARCHICAL.md § Resolved decisions`.
-- **Per-locale character data** — CLDR `characters.json` subsets
-  (`exemplarCharacters`, `index`, `numbers`, `punctuation`) from
-  cldr-json (release pinned in `languages.yaml`). Fetched once,
-  cached under `data/cldr/<release>/`.
+- **v3.2** (schema v5) — 18 new locales, a published `canonical_key_to_char_tool_code` map, `iso_639_3` aliases, and a per-token `category_or` column. The consumer deleted its 50-entry dict.
+- **v3.3** — 7 new-script locales (Amharic, Khmer, Sinhala, Lao, Tibetan, Odia, Dhivehi; [`notes/New-scripts-v3.3.md`](notes/New-scripts-v3.3.md)). **Zero coverage gain**: Apertus byte-fragments all seven scripts, so every token there decodes as `partial_utf8`. Recorded as an Apertus-vocab fact, not a v3.3 defect — and the consumer's own "~2 pp" estimate was retracted as wrong.
+- **v3.3.1** hotfix — closed the two manifest bugs the consumer found (`ell_Grek` missing from the map, so *Greek*, the project's anchor language, silently produced an empty masked set; and `arb_Arab` missing despite `ara_Arab` being present), added Urdu `ں` (U+06BA) via a new `extra_codepoints` field, and added a **build-time self-test** requiring every language's primary `(iso_639_3, script)` pair to resolve — so the silent-bug class cannot recur.
+- **v3.3.2** — "Albanians and Romans": bits 85–87 add `sq`, `gsw` and `la`, resolving `als_Latn` from both its readings and `lat_Latn`. Classical Latin has an empty CLDR exemplar, so it was seeded by hand with A–Z, Æ/æ and macron-bearing forms ([`languages.yaml`](languages.yaml) line ~640).
+- **v3.3.3** — the self-test broadened beyond the primary pair ([`scripts/build_char_language_bitmask.py`](scripts/build_char_language_bitmask.py) ~line 773).
 
-## Outputs (schema v5)
+The full round-trip, including the post-hotfix re-verification, is in [`v3_2_INTEGRATION_REPORT_20260515.md`](v3_2_INTEGRATION_REPORT_20260515.md). Its closing "85 language / 45 family / 29 script" is the v3.3.1 state; the shipped YAMLs end at **88 / 47 / 29**.
 
-`artifacts/char_language_bitmask.parquet` — one row per codepoint:
+## Outcome
 
-| column | type | meaning |
-|---|---|---|
-| `codepoint` | `uint32` | Unicode scalar value |
-| `script_bits` | `binary(16)` | script mask, little-endian; current bits used recorded in `manifest.json` |
-| `family_bits` | `binary(16)` | family mask, little-endian; current bits used recorded in `manifest.json` |
-| `bitmask` | `binary(16)` | language mask, little-endian; current bits used recorded in `manifest.json` |
-| `char` | `string` | the character itself, for inspection |
-| `num_langs` | `uint8` | popcount of `bitmask` |
-| `category` | `string` | Unicode general category |
+- **Coverage of the Apertus vocab by at least one language's PMI-promoted set**, the metric the consumer used to grade each release: 81.18 % (v3.1, 106,404 tokens) → 85.54 % (v3.2, 112,117) → 85.55 % (v3.3.1, 112,131; the +14 is exactly the Urdu fix) → **86.35 % (113,184 of 131,072)** in the committed rebuild ([`v3_2_INTEGRATION_REPORT_20260515.md`](v3_2_INTEGRATION_REPORT_20260515.md); final figure recomputed from [`../02_2_2_vocab_lang_attribution/analysis/main_token_sets_pmi/uncovered_tokens.tsv`](../02_2_2_vocab_lang_attribution/analysis/main_token_sets_pmi/uncovered_tokens.tsv), 17,888 rows).
+- **Unmapped corpus keys**: 34 → 7 after v3.3.1 → **5** in the shipped manifest (`gmh_Latn` and the four `und_*` keys — genuinely out of scope, no CLDR data or no identified language).
+- **The correctness claim held under an independent test.** Across 87 languages the masked sets show exactly one cross-script overlap, `cmn_Hani` ↔ `jpn_Jpan`, which is linguistically correct (shared Han characters). Every other cross-script pair is zero ([`../CHECKPOINT_LANGUAGE_ATTRIBUTION_20260515.md`](../CHECKPOINT_LANGUAGE_ATTRIBUTION_20260515.md) § 5).
+- **Consumed downstream**, and this is the strongest evidence it worked: `02_1_4_cutoff_analysis/scripts/classify_added_tokens.py` reads `artifacts/char_language_bitmask.parquet` + `artifacts/manifest.json` to classify every C3 added token as GREEK / USEFUL_STRUCTURAL / NOISE, feeding [`../../02_1_tokenizer_experiments/02_1_4_cutoff_analysis/REPORT.md`](../../02_1_tokenizer_experiments/02_1_4_cutoff_analysis/REPORT.md) § 4.
+- **The artifacts are not in the repo.** `artifacts/` is gitignored repo-wide (root `.gitignore`: `subprojects/**/artifacts/`, `*.parquet`), so both parquets and both manifests must be rebuilt from the YAMLs before any consumer runs. Only the sources of truth are tracked.
+- **Left open** ([`TODO.md`](TODO.md)): vocabulary version pinning (the apply step hardcodes the Apertus snapshot path); the in-scope Cyrillic/Latin/Arabic fall-through gaps, which are correct-by-design rejections but closeable by adding locales; and a possible Rust port for hot-path lookup, never needed.
 
-`artifacts/token_language_bitmask.parquet` — one row per Apertus
-vocab token (131,072 rows):
+## Where things are
 
-| column | type | meaning |
-|---|---|---|
-| `token_id` | `uint32` | Apertus token id |
-| `token_bytes` | `binary` | decoded raw bytes (post ByteLevel inversion) |
-| `decoded_text` | `string` | UTF-8 decode, or `null` if invalid |
-| `script_and` / `script_or` | `binary(16)` | script-layer AND / OR across token chars |
-| `family_and` / `family_or` | `binary(16)` | family-layer AND / OR |
-| `bitmask_and` / `bitmask_or` | `binary(16)` | language-layer AND / OR |
-| `num_chars` | `uint16` | decoded codepoint count |
-| `status` | `string` | `text` / `text_with_unmodeled_letters` / `no_in_scope_chars` / `partial_utf8` / `byte_unmapped` / `special` |
+| Artifact | Path | Role |
+| --- | --- | --- |
+| Language bit assignments (88) | [`languages.yaml`](languages.yaml) | source of truth; bits are stable wire identifiers, never reassigned |
+| Family / script bit assignments (47 / 29) | [`families.yaml`](families.yaml), [`scripts.yaml`](scripts.yaml) | same |
+| Codepoint build | [`scripts/build_char_language_bitmask.py`](scripts/build_char_language_bitmask.py) | CLDR pull + closures + self-test |
+| Token apply | [`scripts/apply_to_apertus_vocab.py`](scripts/apply_to_apertus_vocab.py) | per-token AND / OR across the 131,072-entry vocab |
+| **Consumer entrypoint** | [`scripts/query_codepoint.py`](scripts/query_codepoint.py) | applies the sparse-table substrate fallback — do not re-implement it |
+| Validation | [`scripts/validate.py`](scripts/validate.py) | phase-1 char checks, phase-2 token wire-format + recompute + out-of-scope audit gate |
+| Built tables (not tracked) | `artifacts/{char,token}_language_bitmask.parquet`, `artifacts/{manifest,token_manifest}.json` | gitignored; rebuild before use |
 
-Manifests:
+## Working documents
 
-- `artifacts/manifest.json` — char-build provenance: bit assignments
-  at all three layers, CLDR release, closures applied, proxy-
-  assumption note. `schema_version: 5`.
-- `artifacts/token_manifest.json` — apply-step provenance: Apertus
-  snapshot path + revision SHA, char-table build timestamp, status
-  counts, per-layer AND-popcount distributions.
-
-All mask columns are uniform `binary(16)` — see
-`PLAN_v3_HIERARCHICAL.md § Storage / schema` for the rationale (one
-decode rule for every column; negligible storage cost vs uneven
-widths; wire-format headroom for future audit-driven additions).
-
-## How the parquets are meant to be read
-
-`char_language_bitmask.parquet` is **sparse with fallback required**.
-It stores every codepoint with positive language evidence plus
-explicitly seeded substrate (ASCII, the small supplementary list,
-`EXTRA_SUBSTRATE_CODEPOINTS`). It does **not** store the vast
-majority of Unicode substrate. For codepoints not in the table the
-consumer must apply the same substrate-aware fallback rule the build
-and apply scripts use:
-
-```python
-# Pseudocode — see scripts/query_codepoint.py for the real thing
-if cp in table:                                       return table[cp]
-if cp in EXTRA_SUBSTRATE_CODEPOINTS:                  return ALL_BITS
-cat = unicodedata.category(chr(cp))
-if cat == "Lm" or cat[0] in "NPSZ" or cat in ("Cc", "Cf"):
-                                                       return ALL_BITS
-return 0   # Letter/mark in a script we don't model — reject all
-```
-
-`scripts/query_codepoint.py` exposes the consumer-facing helpers:
-
-- `load(parquet, languages_yaml)` → `(lang_table, all_lang_bits)`
-  for backwards-compat single-layer usage.
-- `load_all(parquet, languages_yaml, families_yaml, scripts_yaml)` →
-  dict with all three tables and their ALL_BITS values.
-- `codepoint_bits(cp, table, all_bits)` → mask int, applying the
-  fallback above. Use this — don't re-implement.
-- `token_bits_and(text, table, all_bits)` /
-  `token_bits_or(text, table, all_bits)` — single-layer aggregation.
-- `token_bits_and_three(text, loaded)` /
-  `token_bits_or_three(text, loaded)` — three-layer aggregation,
-  returns `(script, family, language)` tuples.
-
-`token_language_bitmask.parquet` has no sparse-table caveat —
-`apply_to_apertus_vocab.py` already applied the substrate fallback
-when computing every row's six mask columns. Read them directly.
-
-## Bitmask decode
-
-Every mask column is little-endian fixed-width binary:
-
-```python
-mask_int = int.from_bytes(row["bitmask"], "little")
-encoded = mask_int.to_bytes(16, "little")
-```
-
-Bit positions are stable wire identifiers — never reused. See
-`scripts.yaml` / `families.yaml` / `languages.yaml` for the
-authoritative bit assignments at each level.
-
-## Files
-
-- `PLAN_v3_HIERARCHICAL.md` — hierarchical schema design. The top
-  banner notes where the live scope has grown since the original v3
-  design moment.
-- `PLAN.md` — preserved v2.2 design (language-layer-only); useful
-  background for the closures and substrate rule that v3 extends.
-- `TODO.md` — open work.
-- `scripts.yaml` — script-level source of truth.
-- `families.yaml` — family-level source of truth.
-- `languages.yaml` — language-level source of truth.
-- `scripts/_common.py` — shared constants and helpers (bitmask
-  encoding, substrate rule, derivation functions).
-- `scripts/build_char_language_bitmask.py` — codepoint-level build.
-- `scripts/apply_to_apertus_vocab.py` — token-level apply.
-- `scripts/validate.py` — phase 1 char checks + derivation
-  consistency, phase 2 token wire-format + recompute gate +
-  out-of-scope audit gate.
-- `scripts/query_codepoint.py` — **consumer-facing entrypoint**.
-- `data/cldr/<release>/` — cached CLDR JSON (gitignored).
-- `artifacts/` — built tables.
-
-## Run
-
-```bash
-PROJECT=/home/foivos/Projects/glossapi-tokenizer-extension
-SNAP=/home/foivos/.cache/huggingface/hub/models--swiss-ai--Apertus-8B-2509/snapshots/3162c99675aa588097cecd4a24b9aa1f712af477
-
-$PROJECT/.venv-hplt-review/bin/python scripts/build_char_language_bitmask.py
-$PROJECT/.venv-hplt-review/bin/python scripts/apply_to_apertus_vocab.py --apertus-snapshot $SNAP
-$PROJECT/.venv-hplt-review/bin/python scripts/validate.py
-```
-
-## Dependencies
-
-- `pyyaml`, `pyarrow` — standard Python tooling.
-- No system deps: per-locale exemplar character sets are fetched
-  from the cldr-json repo over HTTP and parsed in pure Python. The
-  pinned release in `languages.yaml` makes the build reproducible.
+- **Designs (both historical, both still describe live behaviour):** [`PLAN.md`](PLAN.md) — the v2.2 language-only design; the closures and substrate rule it defines are unchanged. [`PLAN_v3_HIERARCHICAL.md`](PLAN_v3_HIERARCHICAL.md) — the three-layer design; its counts (22/31/55) are the v3.0 design moment, superseded by 29/47/88.
+- **Reviews and integration records:** [`FEEDBACK_FROM_PMI_PROMOTION_CONSUMER_20260515.md`](FEEDBACK_FROM_PMI_PROMOTION_CONSUMER_20260515.md) — the consumer's coverage complaint that drove v3.2/v3.3; [`v3_2_INTEGRATION_REPORT_20260515.md`](v3_2_INTEGRATION_REPORT_20260515.md) — verdict on v3.2 plus the post-v3.3.1 verification matrix.
+- **Per-script research notes** ([`notes/`](notes/), 12 files): [`Latin.md`](notes/Latin.md), [`Latin-residue.md`](notes/Latin-residue.md), [`Cyrillic.md`](notes/Cyrillic.md), [`Greek.md`](notes/Greek.md), [`Arabic.md`](notes/Arabic.md), [`Chinese.md`](notes/Chinese.md), [`Japanese.md`](notes/Japanese.md), [`Korean.md`](notes/Korean.md), [`Hebrew.md`](notes/Hebrew.md), [`Indic.md`](notes/Indic.md), [`Smaller-scripts.md`](notes/Smaller-scripts.md), [`New-scripts-v3.3.md`](notes/New-scripts-v3.3.md). Each records sources consulted and whether the locale needed a `languages.yaml` change.
+- **Status snapshot:** [`TODO.md`](TODO.md) — the v2-era done/open list; its "55 triples" reflects the state before the v3 releases.

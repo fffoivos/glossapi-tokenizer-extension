@@ -1,5 +1,7 @@
 # Active Backlog
 
+> **Historical snapshot (May 2026).** This backlog belongs to the C3 cutoff phase (subproject 02_1) and was not maintained afterwards. It is kept as a record of what was planned then; see [../README.md](../README.md) for where the program actually went.
+
 ## Tokenizer Critical Path
 
 Anchor: [C3_CONVERGENCE.md](C3_CONVERGENCE.md). The only open
@@ -97,12 +99,12 @@ referenced docs still describe them in detail.
 
 7. Stage the refreshed `dedup_metadata` bundle on that uploader instance so downstream builder-time dedup works after HF download.
 
-8. Publish from that uploader instance with the official HF large-folder upload path through [publish_hf_release.py](/home/foivos/Projects/glossapi-tokenizer-extension/publish_hf_release.py), keeping this upload track fully independent of the tokenizer worker.
+8. Publish from that uploader instance with the official HF large-folder upload path through [publish_hf_release.py](../publish_hf_release.py), keeping this upload track fully independent of the tokenizer worker.
 
 9. Verify the uploader instance is configured for the best officially recommended HF large-dataset path, including Xet-backed uploads when available, before the next publication run.
 
 10. Keep the downstream builder/tokenizer efficiency work explicit:
-- use [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
+- use [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](_archive/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
 - preserve builder semantics while reducing unnecessary bundle loads
 - benchmark tokenizer throughput on worker hardware before freezing runtime defaults
 

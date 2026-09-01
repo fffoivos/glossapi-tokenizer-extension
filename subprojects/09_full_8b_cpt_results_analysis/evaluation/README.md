@@ -1,59 +1,25 @@
-# Three-checkpoint native-Greek evaluation
+# evaluation/ — the frozen native-Greek scorer and its gates
 
-This directory freezes the requested first/40B/final screen for DemosQA,
-Medical MCQA, ASEP MCQA, GPCR and OYXOY. The first point is the iteration-zero
-model; the other points are update 9,536 (39.997B token slots) and the terminal
-update 18,284 (76.689B token slots).
+> **In one line:** the evaluation harness built in one day on 2026-08-12, hardened by parity gates that rejected every proposed speed-up, and reused unchanged by every later evaluation in subprojects 09 and 10.
+> **Period:** 2026-08-12 → 2026-08-19. **Status:** completed.
 
-The execution shape is four chained 22-minute Clariden debug jobs. Each job
-uses four nodes and up to sixteen independent FP32 evaluator processes, respecting
-the live 90 node-minute-per-job QoS cap. Per checkpoint, DemosQA, the other
-three MCQ suites and OYXOY NLI plus metaphor are separate shards; OYXOY WSD is
-split ten ways and WIC eight ways. Every process is pinned to one GH200. A
-fail-closed aggregator verifies that all sixty-three shards contain every
-frozen example exactly once before it writes checkpoint-level metrics.
+## History
 
-The authoritative scorer is the legacy full-logit implementation in FP32.
-BF16 was tested and rejected by a frozen parity gate because it changed answer
-rankings. An FP32 batch-one versus batch-four test preserved all sampled
-predictions but missed the predeclared raw-score tolerances, so production uses
-candidate batch one. Speed comes only from independent-example and
-independent-checkpoint parallelism; arithmetic within each scored example is
-unchanged. The matrix reads its dtype and batch sizes from an immutable
-execution-profile receipt rather than from free-form overrides.
+**2026-08-12 — the three-checkpoint screen** (`6e876e5a`). The contract [`native_greek_3cp_contract.json`](native_greek_3cp_contract.json) froze the checkpoints (initialization, update 9,536 = 39.997 B token slots, terminal update 18,284 = 76.689 B), the benchmarks (DemosQA, Medical MCQA, ASEP MCQA, GPCR and four OYXOY task views) and the scoring fields. `prepare_frozen_benchmarks.py` materialized 83,970 deterministic, checkpoint-independent examples; `run_checkpoint_suite.py` scores one checkpoint against one frozen file.
 
-OYXOY is reported as four zero-shot base-model tasks: multilabel NLI through
-three independent binary decisions, definition-based WSD, words-in-context and
-metaphor detection. This is a causal-LM checkpoint comparison, not a
-reproduction of OYXOY's supervised encoder training.
+**2026-08-12 — the parity gates.** Three separate accelerations were proposed and gated. BF16 was **rejected** because it changed answer rankings (`compare_dtype_parity.py`, `be1e1be4`). Suffix-only logits had to match the legacy full-logit scorer on a shared sample (`compare_scorer_parity.py`, `688aa43f`, `f118b5b1`). An FP32 candidate batch of four preserved every sampled prediction but missed the predeclared raw-score tolerance, so production stayed at batch one (`compare_batch_parity.py`, `f89d1985`). The authoritative scorer is therefore the legacy full-logit implementation in FP32 at batch one, and the matrix reads dtype and batch from an immutable execution-profile receipt rather than from free-form overrides.
 
-Text-only Protipa remains in the frozen contract but is not in the materialized
-examples while the current Hugging Face token lacks approval for its manual
-gate. It must be appended with the same source revision and scorer after access
-is granted; the other five benchmarks do not wait on it.
+**2026-08-12 — fitting exact FP32 into `debug`** (`606507fe` → `74219b37`). Speed came only from parallelism: 63 independent shards (DemosQA, the other three MCQ suites and OYXOY NLI+metaphor as single shards; WSD split ten ways, WiC eight) across chained 22-minute four-node jobs, each process pinned to one GH200, inside the live 90 node-minute-per-job QoS cap. `aggregate_checkpoint_shards.py` refuses to write checkpoint-level metrics unless all 63 shards contain every frozen example exactly once. `freeze_eval_bundle.py` and `verify_eval_bundle.py` make the executing tree match its receipt or fail.
 
-The completed matrix is summarized in
-[`../NATIVE_GREEK_3CP_RESULTS_20260812.md`](../NATIVE_GREEK_3CP_RESULTS_20260812.md).
-The post-hoc contamination filter, exact immutable ids and decision boundary
-are specified in
-[`CONTAMINATION_DROP_DECISION_20260812.md`](CONTAMINATION_DROP_DECISION_20260812.md).
+**2026-08-12 — contamination** (`efd9eb8a`, `4ad2f763`, `7ca429d8`). `rescore_contamination_filtered.py` recomputes metrics after strict exclusions; [`CONTAMINATION_DROP_DECISION_20260812.md`](CONTAMINATION_DROP_DECISION_20260812.md) is the immutable authority — 10,076 of 83,970 scored examples excluded, 73,894 retained, with published IDs and per-match evidence.
 
-## Token-aligned D0 0.5B replication
+**2026-08-13 → 08-14 — the 0.5 B rebind** (`1cd667cf`, `5adfaff8`, then `b3f26426` … `8dc2e769`). `bind_d0_0p5b_native_suite.py` and [`d0_0p5b_checkpoint_bindings.json`](d0_0p5b_checkpoint_bindings.json) rebound the same frozen examples, scorer, prompts and exclusions to three token-aligned D0 0.5 B exports (init, update 18,944 = 39.728 B, final 38,496 = 80.732 B); only the model contract changed, because the 0.5 B model has tied embeddings and different geometry. `coordinate_d0_0p5b_matrix.sh` waited on the Mac for one of the account's two debug-job slots and cancelled only its own job if it did not start within five minutes, so it could never block the active campaign.
 
-`run_d0_0p5b_three_checkpoint_matrix.sbatch` reuses the same frozen examples,
-FP32 legacy scorer, prompt serialization, metrics and contamination exclusions
-for the stationary-mix D0 0.5B trajectory. Its predeclared checkpoints are
-initialization, update 18,944 (39.728B tokens, the closest saved D0 checkpoint
-to the 8B 39.997B point) and final update 38,496 (80.732B tokens). The model
-contract is rebound explicitly because the 0.5B model has tied embeddings and
-different architecture geometry; benchmark and scoring fields remain
-byte-equivalent JSON values to the 8B source contract. The job uses four debug
-nodes for at most 22.5 minutes and does not share nodes or dependencies with a
-training allocation.
+**2026-08-19 — retention.** [`RETENTION_LM_EVAL_RESULTS_20260819.md`](RETENTION_LM_EVAL_RESULTS_20260819.md) is a different instrument entirely: the Apertus Table-14 lm-eval suite (ARC, HellaSwag, Winogrande, PIQA, MMLU, Global-MMLU, XNLI, XCOPA) on five trajectory points, measuring whether the replay-BPB forgetting is behaviourally visible. It is. The **10 B checkpoint (iter 2,384) is the retention optimum**, matching or beating base Apertus-8B on 5 of 9 tasks; 10 B → terminal costs 4.0 pp MMLU and 5.0 pp ARC-challenge, while Greek (`xnli_el`) is the only slice that rises. Raw per-checkpoint logs are in [`../evidence/retention_lm_eval_20260819/`](../evidence/retention_lm_eval_20260819/). This file was uncommitted working-tree material until `2aec4a66` (2026-09-01) and is marked "not independently reviewed".
 
-When another campaign occupies the account's two submitted debug-job slots,
-`coordinate_d0_0p5b_matrix.sh` waits on the Mac and submits only after one
-slot is released. It additionally requires the active campaign's long-running
-training guard to be pending or to retain at least one hour. If the D0 job
-does not start within five minutes, the coordinator cancels only that D0 job
-so it cannot block the active campaign's next evaluation submission.
+## Outcome
+
+- The scorer, prompts, example set and exclusion subset frozen here were reused **without modification** by the peak-window evaluation ([`../09_1_downstream_task_instability/evaluation/`](../09_1_downstream_task_instability/evaluation/)), the remaining-twelve matrix ([`../09_2_checkpoint_trajectory_release/`](../09_2_checkpoint_trajectory_release/)) and the causal branch in [`10_early_cooldown_causal_experiment`](../../10_early_cooldown_causal_experiment/). That reuse is why all 19 checkpoints are comparable on one population.
+- Results are in [`../NATIVE_GREEK_3CP_RESULTS_20260812.md`](../NATIVE_GREEK_3CP_RESULTS_20260812.md) and [`../D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md`](../D0_0P5B_VS_FULL8_NATIVE_GREEK_3CP_20260814.md).
+- Text-only Greek Protipa stayed contract-pinned and unscored: its authenticated download returned HTTP 403 on 2026-08-12 pending a manual Hugging Face gate, and no Protipa score or contamination claim was ever made.
+- The lm-eval runtime lock referenced by the retention document lives in subproject [`06_dataset_scheduling_experiments/evaluation/lm_eval_runtime_requirements_0_4_11.txt`](../../06_dataset_scheduling_experiments/evaluation/lm_eval_runtime_requirements_0_4_11.txt), not here; the May install it was originally run from was found destroyed on 2026-08-19 and rebuilt.

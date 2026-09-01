@@ -1,195 +1,40 @@
-# 03_1 Greek (and pan-language) embedding diagnostic
+# 03_1 — Greek (and pan-language) embedding diagnostic
 
-## Scope
+> **In one line:** a read-only geometric study of how Apertus-8B-2509 already represents Greek — and 74 other languages — on its input (`E`) and output (`U`) embedding matrices, run before any row was added; it produced the norm targets the ReTok and Centroid init arms used and killed two attractive-but-wrong hypotheses.
+> **Period:** 2026-05-12 → 2026-05-18 (scripts landed in `002bddc5` 2026-05-14 and `7deea009` 2026-05-18; report bodies dated 2026-05-13 → 2026-05-15).
+> **Status:** completed. v2 and v3 series complete; v4 stopped deliberately after step 3.
+> **Came from / led to:** per-token language attribution in [`02_2_tokenizer_implementation/02_2_2_vocab_lang_attribution`](../../02_2_tokenizer_implementation/02_2_2_vocab_lang_attribution/) → this → the init arms in [`../03_4_implementation_experiments/init_bakeoff/arms/`](../03_4_implementation_experiments/init_bakeoff/arms/README.md).
 
-A diagnostic characterisation of how Apertus-8B-2509 represents languages
-on its input (E) and output (U) embedding matrices. Runs entirely on
-existing E and U rows of the base model — no new-token init, no CPT,
-no LOO.
+## Why this existed
 
-This **precedes** the embedding-extension and CPT work that 03 will
-eventually drive. The pipeline went through three iterations:
+Before deciding *how* to initialise 17,408 new embedding rows, it was worth knowing what the existing Greek rows look like: where they sit relative to the global centroid, how many directions they really span, whether Greek tokens cluster morphologically, and whether there is any usable geometric bridge between Greek and English for Greek-origin concepts (which would have justified a translation-mediated init). The design framing is [`docs/EMBEDDING_DIAGNOSTIC_PLAN_V2.md`](../../../docs/EMBEDDING_DIAGNOSTIC_PLAN_V2.md).
 
-- **v2 series** (single-anchor): Greek vs ¬Greek, byte-level classifier
-  groups, hull/infiltrator/family analysis. Headline finding: Greek is a
-  coherent geometric subspace with morphologically meaningful clustering;
-  the Mahalanobis-into-hull "infiltrators" finding is dominated by a
-  projection-asymmetry geometric artefact, not semantic Greek-overlap.
-- **v3 series** (11 PMI-attributed languages): proper per-language token
-  sets from `02_2_tokenizer_implementation/02_2_2_vocab_lang_attribution`.
-  Centroid + spectrum + subspace overlap + shared dimensions + variance
-  capture + L-discriminant directions + pair-specific shared subspaces.
-  **v3-corrected** (2026-05-15) fixes a Marchenko-Pastur edge bug and a
-  truncated-covariance bug in pair-specificity; numbers materially shifted.
-- **v4 series** (all 75 well-sampled languages): same pipeline scaled to
-  the 75 PMI-attributed languages with non-empty masked sets. Drops 12
-  empty-masked-set languages (Amharic, Khmer, Sinhala, Lao, Tibetan,
-  Oriya, Dhivehi — Apertus's tokenizer byte-fragments those scripts —
-  plus Middle High German and 4 undetermined-language sets).
+## History
 
-## Canonical plan
+| Date | What happened | Result / decision | Evidence |
+|---|---|---|---|
+| 2026-05-12 → 05-13 | **v1 → v2.3 series**, single anchor: Greek vs ¬Greek. Centroid/PC geometry, hull occupancy, morphological clustering, families, cross-language semantic clusters | Greek is a coherent geometric subspace; Greek tokens cluster by morphology 5–9× tighter than random; en↔el cosine for Greek-origin concepts averages **+0.05** vs **+0.04** for non-Greek-origin pairs → **no etymology bridge**; Mikolov analogies unusable on byte-level BPE (7/8 candidates skipped) | `scripts/phase0_greek_vs_not_geometry.py` and siblings, landed `002bddc5` |
+| 2026-05-13 | v2.1 / v2.3 self-corrections | The v2 "infiltrators" finding (non-Greek tokens inside the Greek hull) was traced to a projection-asymmetry artefact, not semantic overlap; a truncated-SVD bug that biased ¬Greek's `K_sig` low was fixed by the full d=4,096 eigendecomposition | `phase0_infiltrators_filtered.py`, `phase0_full_negreek_spectrum.py` |
+| 2026-05-14 → 05-15 | **v3 series**, 11 PMI-attributed languages: per-language spectrum, Marchenko-Pastur edge, subspace overlap, shared dimensions, discriminant directions, pair-specific subspaces | Greek centroid displaced **0.676 (E) / 0.733 (U)** from the classified global; ¬Greek sits at 0.008 / 0.009 (it *is* the global by mass) | `scripts/*_v3.py`, landed `7deea009` |
+| 2026-05-15 | **v3-corrected** — two bugs found and fixed in place | The MP edge used `q = min(d,n)/max(d,n)` instead of `c = d/n`: Greek `K_sig` fell **619 → 123** on `E`, Georgian 218 → 0. `var_C(d)` was computed from truncated `K_sig` reconstructions, inflating pair-specificity: counts dropped by orders of magnitude and **reordered** — tight-script cousins (Thai 2.23, Hindi 1.96, Georgian 1.93, Armenian 1.85) replaced the wide-Latin partners, and Greek↔Korean fell to **zero** pair-specific directions | in-place patches in `phase0_perlang_geometry_v3.py` and `phase0_pair_specific_shared_v3.py` |
+| 2026-05-18 | **v4 series**, all 75 well-sampled PMI languages (12 dropped: 7 whose scripts Apertus byte-fragments — Amharic, Khmer, Sinhala, Lao, Tibetan, Oriya, Dhivehi — plus 4 `und_*` and Middle High German) | Steps 1–3 (geometry, subspace overlap, shared dims) run; **steps 4 and 5 deliberately not run at 75-language scale** — they were added during v3 methodological discussion and were not part of the reviewed canonical pipeline when the 75-language run was commissioned | `scripts/*_v4.py`, `build_groups_88lang_v4.py` |
+| — | A Phase-2 leave-one-out benchmark was attempted and **archived as methodologically contaminated** | kept for traceability only, not used downstream | `report_phase2_preliminary.md` (in the gitignored artifacts tree) |
 
-[../../../docs/EMBEDDING_DIAGNOSTIC_PLAN_V2.md](../../../docs/EMBEDDING_DIAGNOSTIC_PLAN_V2.md)
-— the design framing. v3 and v4 implementations followed that plan with
-methodology refinements documented inline in the reports.
+## Outcome
 
-## Results
+- **The two numbers that mattered downstream:** Greek-content token norm medians **E = 5.05, U = 3.80**. Both extension arms norm-match new rows to these; the arms' local smoke test reproduces them to within 1 % (`E[modern].norm.p50 = 5.047`, `U[modern].norm.p50 = 3.797`) — see [`../03_4_implementation_experiments/init_bakeoff/arms/README.md`](../03_4_implementation_experiments/init_bakeoff/arms/README.md).
+- **Negative result that shaped the plan:** there is no Greek↔English etymological bridge in the static embedding view, which supports the v0.12 §4 hard constraint against translation-mediated init methods (WECHSEL / trans-tokenization / OFA).
+- **Two self-corrections are the main methodological lesson:** both the infiltrator finding and the original `K_sig`/pair-specificity numbers were artefacts. Any number quoted from a v3-original artifact is wrong; only v3-corrected values stand.
+- Left open: v4 steps 4–5 at 75-language scale; the 11-language v3 answers remain the only ones for those steps.
 
-- [artifacts/results/report_v2.md](artifacts/results/report_v2.md) —
-  v2 series report (Greek vs ¬Greek). Headline contrast table, binary
-  classifier, hull occupancy, clustering, families, semantic clusters.
-- [artifacts/results/report_v3_subspace_meaning.md](artifacts/results/report_v3_subspace_meaning.md)
-  — v3 series report (11 languages, **v3-corrected**). Generalised
-  eigendecomposition for language-discriminant directions + principal-
-  angle pair-specific shared subspaces with row-based specificity check.
-- [artifacts/results/report_v4_full_panel.md](artifacts/results/report_v4_full_panel.md)
-  — v4 series report (all 75 well-sampled PMI-attributed languages).
-  Covers canonical steps 1–3 (geometry, subspace overlap, shared dims).
-  Steps 4 + 5 not run at this scale (see report §6).
-- [artifacts/results/report_v4_vocab_and_training_inference.md](artifacts/results/report_v4_vocab_and_training_inference.md)
-  — analytical follow-up to the v4 panel. Vocab-allocation distribution,
-  language-family patterns, Heaps-law relative training-mass estimates.
-- [artifacts/results/report_phase2_preliminary.md](artifacts/results/report_phase2_preliminary.md)
-  — **archived** Phase 2 LOO benchmark report; results were
-  methodologically contaminated. Kept for traceability only.
-- [artifacts/results/REVIEW.md](artifacts/results/REVIEW.md) — session
-  review across all phases (what was tried, what was archived, cloud
-  instance history).
+## Where things are
 
-## Scripts
-
-Live scripts at [scripts/](scripts/), organised by series.
-
-### v1-v2 series (single-anchor Greek vs ¬Greek)
-
-| script | purpose |
+| What | Where |
 |---|---|
-| `extract_embeddings.py` | Download `swiss-ai/Apertus-8B-2509`; save E, U as fp32 |
-| `build_token_freq.py` | Tokenise el HPLT + GlossAPI slices; per-id frequency counts |
-| `phase0_centroids_and_pcs.py` | v1 multi-group centroids + top-K SVD per group |
-| `recompute_strict_greek.py` | Replace broad-Greek (1,506) with strict 1,494; refit classifier |
-| `phase0_2_7_10_linear_classifier.py` | v1 7-class linear classifier |
-| `build_groups_greek_vs_not.py` | v2 canonical groups file |
-| `phase0_greek_vs_not_geometry.py` | v2 main pipeline (§3.1–§3.6 + §3.9 + §3.10) |
-| `phase0_full_negreek_spectrum.py` | v2.3 fix — full d=4,096 eigendecomp of ¬Greek covariance |
-| `phase0_binary_classifier.py` | v2.3 binary Greek vs ¬Greek logistic regression |
-| `phase0_direction_cosines.py` | v2.3 per-token unit-direction projected onto top-K PCs |
-| `phase0_greek_clustering.py` | v2 §3.11 k-means k∈{8,16,32} |
-| `phase0_greek_families_and_analogies.py` | v2 §3.12 morphology families + Mikolov analogies |
-| `phase0_infiltrators_filtered.py` | v2.1 floor-filtered infiltrators + quantile hull |
-| `phase0_semantic_cluster_compare.py` | Phase E cross-language semantic cluster cosines |
-| `render_diagnostic_plots_greek.py`, `render_diagnostic_plots_v2_1.py`, `render_diagnostic_plots_v2_3.py` | v2.x figure suites |
+| All scripts, by series (v1–v2.3, v3, v4) | [`scripts/`](scripts/) — `*_v3.py` / `*_v4.py` suffixes mark the series |
+| Design framing | [`docs/EMBEDDING_DIAGNOSTIC_PLAN_V2.md`](../../../docs/EMBEDDING_DIAGNOSTIC_PLAN_V2.md) |
+| Reports, figures, geometry arrays (~4.1 GB) | **Not in this repo** — `artifacts/` was gitignored at project level. `report_v2.md`, `report_v3_subspace_meaning.md`, `report_v4_full_panel.md`, `report_v4_vocab_and_training_inference.md`, `REVIEW.md` and the `E_fp32.npy` / `U_fp32.npy` foundation arrays lived only in the original run directory. Regenerable from `extract_embeddings.py` + the scripts; paths are hard-coded at the top of each script (`ROOT` / `SP`). |
 
-### v3 series (11 PMI-attributed languages)
+## Working documents
 
-| script | purpose |
-|---|---|
-| `build_groups_perlang_v3.py` | 11-language canonical groups file |
-| `phase0_perlang_geometry_v3.py` | per-language centroid + full spectrum + MP edge + K_sig + PR + κ + in-group hull + direction cosines |
-| `phase0_perlang_subspace_overlap_v3.py` | pairwise principal-angle subspace overlap + top-1 PC alignment |
-| `phase0_perlang_shared_dims_v3.py` | excess-shared-dims matrix + variance capture matrix |
-| `phase0_pair_specific_shared_v3.py` | canonical-direction extraction + row-based specificity check |
-| `phase0_perlang_discriminant_v3.py` | generalised eigendecomposition: L-discriminant directions |
-| `render_perlang_plots_v3.py` | figure suite |
-
-**v3-corrected (2026-05-15)** in-place patches in
-`phase0_perlang_geometry_v3.py` (MP edge formula: `c = d/n`, not `min/max`;
-K_floor = 32 for rank-deficient groups) and
-`phase0_pair_specific_shared_v3.py` (`var_C(d)` computed from centred rows
-directly, not from truncated K_sig PC reconstruction).
-
-### v4 series (75 well-sampled PMI-attributed languages)
-
-`*_v4.py` versions of the v3 scripts, paths re-routed to
-`artifacts/geometry/v4_perlang/` and `artifacts/figures/v4_perlang/`.
-Plus:
-
-| script | purpose |
-|---|---|
-| `build_groups_88lang_v4.py` | All 75 well-sampled languages canonical groups file (12 skipped: 7 empty-masked-set scripts + 4 `und_*` + 1 historical) |
-
-## Artifacts
-
-`artifacts/` ≈ 4.1 GB total (geometry NPZ/JSON for v3 + v4 series — the
-v4 75-language per-language artefacts dominate the size — plus figures,
-reports, frequency counts, and the preliminary Phase 2 results).
-Local-only (`.gitignore`'d at the project level); regenerable by
-re-running the scripts.
-
-**NOT mirrored** (~4 GB, regenerable by `extract_embeddings.py`):
-- `arrays/E_fp32.npy`, `U_fp32.npy` — Apertus input + output embeddings, fp32 cast
-- `arrays/{E,U}_norms.npy` — per-row L2 norms
-
-These live in the canonical run-dir (see below).
-
-## Data location
-
-The canonical run-dir is at:
-
-```
-/home/foivos/runs/apertus_embedding_init_test_20260512/
-```
-
-It contains the foundation arrays `arrays/E_fp32.npy`, `U_fp32.npy`,
-plus the v2-series geometry/, figures/, and reports. The v3 and v4
-series write to the sub-subproject's own `artifacts/geometry/` and
-`artifacts/figures/` paths. Scripts hard-code these paths; to relocate,
-edit `ROOT = Path(...)` (run-dir) and `SP = Path(...)` (sub-subproject)
-at the top of each script.
-
-## Methodology evolution
-
-- **v2 → v2.3** (within Greek vs ¬Greek):
-  - v2.1 filter the untrained-floor before computing Mahalanobis-to-Greek hull
-  - v2.3 fix the truncated-SVD bug that biased ¬Greek's K_sig low + top-PC shares high
-  - v2.3 implement binary classifier + direction-cosine artefacts promised by the plan
-- **v3 → v3-corrected** (11 PMI languages):
-  - MP edge formula was using `q = min(d,n)/max(d,n)` (always ≤ 1). Correct
-    aspect ratio is `c = d/n` (can exceed 1 for n < d). This dropped K_sig
-    substantially for rank-deficient languages (Greek E 619 → 123; Georgian
-    218 → 0).
-  - `var_C(d)` was computed from each language's truncated K_sig PC
-    reconstruction, assigning zero variance to anything in C's sub-K_sig
-    tail and inflating pair-specificity scores. Now computed from centred
-    rows directly. Pair-specific direction counts dropped by orders of
-    magnitude and reordered: tight-script cousins now dominate Greek's
-    specificity rankings (Hindi, Armenian, Hebrew, Georgian, Thai), the
-    wide-Latin partners collapse to specificity ≤ 1.5.
-- **v3 → v4** (11 → 75 languages):
-  - Same methodology, scaled to all well-sampled PMI-attributed languages.
-  - Plot strategy adjusts for the 75-row pairwise matrices (small labels,
-    hierarchical-cluster ordering recommended).
-
-## Status
-
-- **v2 series**: complete and live.
-- **v3 series**: complete and live (corrected 2026-05-15). Includes
-  pair-specific shared subspace (step 4) and language-discriminant
-  directions (step 5).
-- **v4 series**: **steps 1–3 complete** (geometry, subspace overlap,
-  shared dims). Steps 4 and 5 deliberately **not run** at 75-lang
-  scale per user scope guidance — they were added during methodological
-  discussion later in v3 and aren't part of the originally-established +
-  reviewed canonical pipeline at the time the 75-language run was
-  requested. v3-11-lang results for steps 4 and 5 remain available in
-  `report_v3_subspace_meaning.md`. See `report_v4_full_panel.md`.
-
-## Key headline numbers (v3-corrected, 11 languages)
-
-- Greek (n=1,479) centroid displaced **0.676 (E)** / **0.733 (U)** from
-  classified-global; ¬Greek (n=126,990) sits at 0.008 / 0.009 (¬Greek
-  IS the global by mass).
-- K_significant (above MP edge): Greek **123 / 83** on E/U (down from
-  v3-original 619 / 608 with the formula fix).
-- Greek's strongest pair-specific direction by specificity score:
-  Thai (2.23), Hindi (1.96), Georgian (1.93), Armenian (1.85). The wide-
-  Latin partners drop to specificity ≤ 1.5 — Greek↔Korean specifically
-  has **zero** pair-specific directions (all candidate-shared directions
-  are also used by at least one other language).
-- Greek tokens cluster by morphology: `μέν*`, `ματ*`, `μεγ-`, `αυτ-`,
-  `συν-` families 5–9× tighter than random.
-- en↔el cosine for Greek-origin concepts (democracy / philosophy /
-  mathematics) averages **+0.05** in the static input-embedding view
-  — no etymology-bridge advantage over non-Greek-origin pairs (+0.04).
-- Mikolov word-level analogies don't work on byte-level BPE (7/8
-  candidates skipped because key Greek words aren't single tokens).
+None left in the directory — this sub-subproject is scripts plus this history. The prose reports it references are the gitignored artifacts above; the numbers quoted here are the ones the previous README carried forward from them.

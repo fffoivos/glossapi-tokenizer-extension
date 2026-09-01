@@ -1,116 +1,52 @@
-# 02_1_5 Added-token curation
+# 02.1.5 — Added-Token Curation
 
-Sub-subproject of `02_1_tokenizer_experiments`. **Stage 5 (terminal,
-post-cutoff):**
+> **In one line:** a per-token keep/remove policy for extraction and encoding artefacts in the added vocab — policy only, no tokenizer edits — whose manifest was later consumed at *build* time so the 69 in-cutoff noise tokens never entered the shipped vocab at all.
+> **Period:** policy dated 2026-05-17; committed 2026-05-18 (`7deea009`). **Status:** completed; the manifest is live input to the production build path.
+> **Came from / led to:** [`../02_1_4_cutoff_analysis/`](../02_1_4_cutoff_analysis/README.md) → this → [`../02_1_7_intrinsic_eval_sweep/`](../02_1_7_intrinsic_eval_sweep/README.md) (consumes the manifest) → [`../../02_2_tokenizer_implementation/`](../../02_2_tokenizer_implementation/README.md)
 
-```
-[02_1_1 tokenizer training]
-[02_1_2 cutoff variant builder]
-[02_1_3 fertility evaluation]
-[02_1_4 cutoff analysis]              → cutoff pick
-       │
-       ▼
-[02_1_5 added-token curation]         → per-token keep/remove decision
-       │
-       ▼ (manifest)
-[02_2_tokenizer_implementation]       → consumes the removal manifest
-```
+## Why this existed
 
-## Goal
+The cutoff decides *how many* added units to keep. It does not decide whether some of them are garbage. C3's cleaner let a small residue of mojibake, PDF font-glyph names, homoglyph substitutions and its own newline placeholders through into the BPE candidate pool. Those tokens are not content the model should learn or be able to emit — a dedicated token for `Tο` (Latin T, Greek ο) lets the model generate text that breaks every downstream Greek-aware system.
 
-After the cutoff is picked (`02_1_4`) but before the merge-rule
-extension is implemented (`02_2`), curate the kept added units: of the
-tokens the cutoff retains, which ones should the implementer **remove**
-(or mask) because they are encoding / extraction artifacts that do not
-represent content the model should learn or emit?
+## History
 
-This stage is **policy-only** — it does not modify any tokenizer file.
-It emits an implementation manifest for the merge-rule implementer to
-consume.
+**2026-05-17 — [`CURATION_REPORT.md`](CURATION_REPORT.md), revised the same day to widen the list after an audit discussion.** Six removal classes, defined as predicates over the glossary category so the rule set is reproducible:
 
-## Inputs
+| class | rule | count at 25,600 |
+|---|---|---:|
+| `latin1_utf8_mojibake` | whole `category = mojibake` (`ÉÉ`, `Ø`, `Ô`…) | 6 |
+| `mixed_script_artifact` | whole `category = mixed_script_token` | 77 |
+| `pdf_postscript_glyph` | whole `category = postscript_glyph` (`/Α`, `/η`, `/pi`…) | 14 |
+| `cleaner_linenewline_placeholder` | whole `category = code_identifier` (`LINENEWLINE`, `NEWLINENEWLINE`) | 2 |
+| `cleaner_linenewline_bpe_fragment` | `latin_acronym` ∈ {`LIN`, `ENEW`, `LINENEW`} | 3 |
+| `cleaner_extraction_tag` | `latin_fragment` ∈ {`-missing`, `-decoded`} | 2 |
+| **total** | | **104** (0.41 %) |
 
-- `02_1_4_cutoff_analysis/artifacts/classified_added_tokens.jsonl` —
-  per-token char-language bucket
-- `~/runs/c2_c3_analysis_20260506/c3_added_tokens_20260507/data/glossary/tokens_glossary.jsonl` —
-  Gemini-pass per-token category / morphology / meaning
+The report flags its own broadest call: class B mixes ~5 true homoglyph artefacts (where the leading `Ω` is U+2126 OHM SIGN, not the Greek letter) with ~72 punctuation+Greek BPE-boundary fragments (`,τι`, `«Η`, `/και`) that *do* occur in real text. The agreed policy removes both on the grounds that each surface form is too infrequent to earn a vocab slot and byte-fallback composition covers it — and the report spells out exactly how to implement the narrower "homoglyphs only" rule instead, using the `lang_bucket` field that already separates them.
 
-## Outputs (`artifacts/`)
+**Scope shift.** The rules were authored against `02_1_4`'s 11,264 anchor, where 39 removals fall in cutoff. The ship cutoff turned out to be 17,408, where **69** fall in cutoff.
 
-- `removal_list.jsonl` — one row per token marked for removal
-  (`id`, `decoded`, `category`, `lang_bucket`, `removal_class`,
-  `meaning_snippet`)
-- `keep_list.jsonl` — one row per kept added token
-- `decision_summary.json` — counts per removal class + per-cutoff
-  impact
+**2026-05-18 — the manifest became structural.** `02_1_7`'s builder walks C3's merge sequence, **skips** the 69 in-cutoff ids and **backfills** with the next valid merges. So the removal is not a runtime mask: the noise tokens are absent from the vocab entirely, vocab size and alignment are preserved, and `03_apertus_extension_and_embedding_adaptation` needs no "skip these 69" branch when initializing embeddings.
 
-## Policy
+## Outcome
 
-The full reasoning lives in [`CURATION_REPORT.md`](CURATION_REPORT.md).
-Quick summary of the six removal classes (widened 2026-05-17 after
-audit discussion):
+- **Shipped**: `manifests/removal_list.jsonl` (one row per removed token with id, decoded string, category, `lang_bucket`, `removal_class`, meaning snippet) and `manifests/decision_summary.json` (class counts, per-cutoff impact, rule predicates). Both git-tracked because a downstream build reads them.
+- **Measured cost of curation: none.** In `02_1_7`'s curated-vs-raw comparison every metric is flat or marginally better after removal ([`../02_1_7_intrinsic_eval_sweep/REPORT.md`](../02_1_7_intrinsic_eval_sweep/REPORT.md) § Curated-arm delta; [`../02_1_7_intrinsic_eval_sweep/CHOSEN_CUTOFF.md`](../02_1_7_intrinsic_eval_sweep/CHOSEN_CUTOFF.md) § Verification).
+- **Explicitly not removable**: ~17 structural byte-fallback / NFD / URL-encoded artefacts inside the cutoff. The report also documents an inconsistency it chose not to paper over — `%CE` is tagged `encoding_artifact` (NOISE) while `%CF` is tagged `url_or_path` (USEFUL) despite being the same UTF-8-prefix family; neither is safely removable.
+- **Forward path recorded, not taken**: every removal entry points at a cleaner pattern that should be fixed upstream so these never become BPE candidates again.
 
-1. **`latin1_utf8_mojibake`** — whole `category = "mojibake"`. Latin-1-
-   as-UTF-8 mojibake (`ÉÉ`, `Ø`, `ØØ`, `ÉÉÉÉ`, `ØØØØ`, `Ô`). **6** at
-   25k.
-2. **`mixed_script_artifact`** — whole `category = "mixed_script_token"`.
-   Greek-Latin lookalike font-sub mojibake (`τo`, `Tο`, `Tα`, `Oι`,
-   `Ωστόσο`) + punct+Greek BPE-boundary fragments (`.Ε`, `,τι`,
-   `/και`, …). **77** at 25k.
-3. **`pdf_postscript_glyph`** — whole `category = "postscript_glyph"`.
-   Slash-prefixed PDF font-glyph names (`/Α`, `/η`, `/pi`, …). **14**
-   at 25k.
-4. **`cleaner_linenewline_placeholder`** — whole `category =
-   "code_identifier"`. Cleaner newline placeholders (`LINENEWLINE`,
-   `NEWLINENEWLINE`). **2** at 25k.
-5. **`cleaner_linenewline_bpe_fragment`** — `category =
-   "latin_acronym"` AND decoded ∈ {`LIN`, `ENEW`, `LINENEW`}. BPE
-   pieces of LINENEWLINE. **3** at 25k. (Genuine acronyms like `EURO`
-   stay.)
-6. **`cleaner_extraction_tag`** — `category = "latin_fragment"` AND
-   decoded ∈ {`-missing`, `-decoded`}. Cleaner extraction-tag
-   fragments. **2** at 25k. (Greek-surname transliteration fragments
-   like `opoulou` stay.)
+## Where things are
 
-**Total: 104 tokens at the full 25,600 vocab; 39 tokens at the
-recommended 11,264 cutoff.**
+| What | Where |
+|---|---|
+| Reasoning, per-class keep/remove justifications | [`CURATION_REPORT.md`](CURATION_REPORT.md) |
+| Machine-readable removal manifest (consumed at build time) | [`manifests/removal_list.jsonl`](manifests/removal_list.jsonl) |
+| Class counts + rule predicates | [`manifests/decision_summary.json`](manifests/decision_summary.json) |
+| Rule engine | `scripts/emit_removal_list.py` (idempotent, deterministic) |
+| The 69 ids that were actually filtered | [`../02_1_7_intrinsic_eval_sweep/manifests/removal_mask_at_17408.jsonl`](../02_1_7_intrinsic_eval_sweep/manifests/removal_mask_at_17408.jsonl) |
 
-The KEEP decisions and reasoning (for `dingbat_or_symbol`, long
-`escaped_character_run`, `url_or_path`, the genuine
-`latin_acronym` / `latin_abbreviation` / `latin_word` rows that
-the narrow LINENEW / extraction-tag filters do **not** strip, all
-`punctuation_run`, and every Greek-payload category —
-`greek_word`, `greek_fragment`, `greek_morpheme`, `proper_noun`,
-`greek_acronym`) are spelled out in CURATION_REPORT.md §
-"KEEP — and why".
+`artifacts/keep_list.jsonl` (~25k rows) is gitignored and regenerable from the glossary.
 
-## Outputs
+## Working documents
 
-- **`manifests/` — git-tracked, consumed by `02_2`:**
-  - `removal_list.jsonl` — one row per token marked for removal
-    (`id`, `decoded`, `category`, `lang_bucket`, `removal_class`,
-    `meaning_snippet`)
-  - `decision_summary.json` — counts per removal class + per-cutoff
-    impact + the rule predicates that were applied
-- **`artifacts/` — gitignored, regenerable:**
-  - `keep_list.jsonl` — one row per kept added token (~25k rows;
-    derivable from the glossary, so it does not need to be in git)
-
-## Scripts
-
-- [`scripts/emit_removal_list.py`](scripts/emit_removal_list.py) —
-  applies the six removal rules to the glossary + classified set
-  and writes the manifest + artifact files above. Idempotent and
-  deterministic.
-
-## What this is not
-
-- It is not an implementation. The actual `tokenizer.json` /
-  `model.merges` edit happens in `02_2_tokenizer_implementation`. See
-  CURATION_REPORT.md § "Implementation handoff" for the two compatible
-  implementation options (embedding-init masking vs build a pruned
-  variant) and which to prefer at the recommended cutoff.
-- It is not a cleaner fix. Every entry in the removal list points at a
-  cleaner pattern that should be addressed in the next training arm so
-  these tokens never become BPE candidates in the first place. See
-  CURATION_REPORT.md § "Forward path — fix the cleaner".
+- [`CURATION_REPORT.md`](CURATION_REPORT.md) — the policy record. Its "Implementation handoff" section offers two options (embedding-init masking vs. a pruned variant); neither was what shipped — `02_1_7` invented a third, skip-and-backfill, after two reviewer rounds rejected the pruned variant for breaking alignment and append-only.

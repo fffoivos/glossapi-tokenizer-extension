@@ -1,5 +1,7 @@
 # Current Status
 
+> **Historical snapshot (May 2026).** This file describes the state of the tokenizer track around the C3 cutoff decision and was not maintained afterwards (one scope clarification about the `needs_ocr` exclusion was added on 2026-08-05 for the full-8B campaign). For the organized history of the whole program see [../README.md](../README.md) and each subproject's README.
+
 ## Active Phase
 
 **C3 cutoff decision.** C3
@@ -76,11 +78,11 @@ different frozen stream.
   - resumability regressions for dedup stage handoff
   - efficiency smoke coverage for streaming mix build and near-candidate execution
 - the detailed per-stage verification state is tracked in:
-  - [STAGE_VERIFICATION_CHECKLIST.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/STAGE_VERIFICATION_CHECKLIST.md)
+  - [STAGE_VERIFICATION_CHECKLIST.md](_archive/STAGE_VERIFICATION_CHECKLIST.md)
 - the plan has now explicitly diverged into an HF/DataTrove comparison for the near-dedup path:
-  - [HF_DEDUP_INVESTIGATION.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/HF_DEDUP_INVESTIGATION.md)
+  - [HF_DEDUP_INVESTIGATION.md](_archive/HF_DEDUP_INVESTIGATION.md)
 - the active memory-footprint reduction checklist for the near-dedup hot path is tracked in:
-  - [NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md)
+  - [NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md](_archive/NEAR_DEDUP_MEMORY_FOOTPRINT_TODO.md)
 - the active GCP tokenizer worker has been rearmed from the repo tree at:
   - `/home/foivos/Projects/glossapi-tokenizer-extension`
 - the repo-backed worker chain currently includes:
@@ -98,8 +100,8 @@ different frozen stream.
   - uploader-ready local stage completed with `/home/foivos/data/glossapi_work/uploader_handoff_20260414/launch_summary.json`
   - the active remaining bottleneck is tokenizer mix build under `/home/foivos/data/glossapi_work/tokenizer_mixes_20260413`
 - the recovery and repair plans are now tracked explicitly in:
-  - [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
-  - [DEDUP_SCRIPT_REPAIR_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/subprojects/_archive/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
+  - [PIPELINE_RECOVERY_AND_SCALE_PLAN.md](_archive/PIPELINE_RECOVERY_AND_SCALE_PLAN.md)
+  - [DEDUP_SCRIPT_REPAIR_PLAN.md](../subprojects/_archive/01_1_corpus_dedup/DEDUP_SCRIPT_REPAIR_PLAN.md)
 - the repair plans now explicitly treat semantic equivalence as the golden rule:
   - same dedup functionality
   - improved efficiency only
@@ -140,19 +142,19 @@ different frozen stream.
   - when `builder_metadata_v2` exports family membership, builder replay no longer loads `near_candidate_pairs.parquet` unnecessarily
   - `near_candidate_pairs.parquet` is still intentionally retained as an evidence/audit artifact in the exported bundle
 - the downstream builder/tokenizer efficiency plan is now tracked explicitly in:
-  - [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
+  - [BUILDER_TOKENIZER_EFFICIENCY_PLAN.md](_archive/BUILDER_TOKENIZER_EFFICIENCY_PLAN.md)
 - the explicit recovery plan for validating the real worker-side chain after dedup is now tracked in:
-  - [PIPELINE_E2E_VERIFICATION_PLAN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_PLAN.md)
-  - [PIPELINE_E2E_VERIFICATION_TODO.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_VERIFICATION_TODO.md)
-  - [PIPELINE_E2E_STAGE_CHAIN.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_STAGE_CHAIN.md)
-  - [PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md)
-  - [PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md)
-  - [PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md)
+  - [PIPELINE_E2E_VERIFICATION_PLAN.md](_archive/PIPELINE_E2E_VERIFICATION_PLAN.md)
+  - [PIPELINE_E2E_VERIFICATION_TODO.md](_archive/PIPELINE_E2E_VERIFICATION_TODO.md)
+  - [PIPELINE_E2E_STAGE_CHAIN.md](_archive/PIPELINE_E2E_STAGE_CHAIN.md)
+  - [PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md](_archive/PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md)
+  - [PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md](_archive/PIPELINE_STAGE_PARALLELISM_REVIEW_20260415.md)
+  - [PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md](_archive/PIPELINE_STAGE_PROGRESS_REVIEW_20260415.md)
 - the repo-owned downstream chain has now been truly exercised on the worker through tokenizer training completion on a bounded real-doc smoke run:
   - smoke root:
     - `/home/foivos/data/glossapi_work/smoke_runs/e2e_verify_20260415T085623Z`
   - report:
-    - [PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md)
+    - [PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md](_archive/PIPELINE_E2E_WORKER_RUN_REPORT_20260415.md)
 - the remaining downstream audit result is now explicit:
   - mix build is the main serial throughput bottleneck
   - tokenizer training is the main progress-transparency gap
@@ -179,12 +181,12 @@ different frozen stream.
 ## Current Trust Boundary
 
 Active planning and execution should use:
-- [GLOBAL_DECISIONS.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/GLOBAL_DECISIONS.md)
-- [ACTIVE_BACKLOG.md](/home/foivos/Projects/glossapi-tokenizer-extension/docs/ACTIVE_BACKLOG.md)
+- [GLOBAL_DECISIONS.md](GLOBAL_DECISIONS.md)
+- [ACTIVE_BACKLOG.md](ACTIVE_BACKLOG.md)
 - the relevant subproject folders
 
 Legacy baseline and exploratory material has been moved under:
-- [legacy/](/home/foivos/Projects/glossapi-tokenizer-extension/legacy/README.md)
+- [legacy/](../legacy/README.md)
 
 Execution note:
 - `home` should not be used as a tokenizer worker

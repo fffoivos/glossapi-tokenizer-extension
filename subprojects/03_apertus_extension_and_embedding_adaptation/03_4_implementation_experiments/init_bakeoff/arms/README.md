@@ -1,82 +1,48 @@
-# `arms/` — init-method implementations
+# arms — the four initialisation methods
 
-Modules:
+> **In one line:** the code that decides what the 17,408 new rows of `E` and `U` contain before training starts, plus the Clariden pipeline that materialises and converts the resulting checkpoints.
+> **Period:** 2026-05-20 (`af438d4d`) → 2026-05-21 (build + convert run). **Status:** completed.
+> **Feeds:** [`../bakeoff_training/`](../bakeoff_training/README.md) via [`../megatron_patches/`](../megatron_patches/README.md).
 
-- `_common.py` — shared helpers (norm-match, Greek-block classification, centroid + std computation).
-- `vanilla.py` — Vanilla arm: no init. Symlinks the base Apertus checkpoint.
-- `retok.py` — ReTok init: per-new-token subpiece-mean + Phase A norm-match.
-- `centroid.py` — Centroid init: per-script centroid of base Greek tokens + Gaussian noise + Phase A norm-match.
-- `build_init_checkpoints.py` — production driver (Clariden-side; loads the full Apertus model and writes resized checkpoints for each arm).
-- `build_init_checkpoints.sbatch` — queueable Clariden job for the HF-format build.
-- `convert_init_checkpoints.sbatch` — queueable Clariden job for HF -> Megatron `torch_dist` conversion.
-- `submit_init_pipeline.sh` — submits build, then conversion with `afterok`.
-- `test_init_logic.py` — home-side smoke test that validates `retok` and `centroid` algorithms against the local E/U matrices without needing a full model load.
+## Why this existed
 
-## Local smoke test (no Clariden, no GPU)
+Apertus has `tie_word_embeddings=false`, so the input embedding `E` and the LM head `U` are independent matrices and each needs its own initialisation for every new token ID. Three closed-form hypotheses were coded so the comparison would have **no gradient descent at init time** — the only variance source is training, not initialisation. (Token Distillation, the fourth arm, breaks that property deliberately and lives in [`../token_distillation/`](../token_distillation/README.md).)
 
-```bash
-cd init_bakeoff/arms
-/home/foivos/.venvs/glossapi-merge-docling/bin/python3 test_init_logic.py
-```
+## The arms
 
-Validates:
-- Greek-block classification (modern + polytonic + both sets) over the base 131,072 vocab
-- ReTok produces norm-matched [200, 4096] new rows on the first 200 new IDs
-- Centroid produces norm-matched [200, 4096] new rows with the polytonic-fallback path (since Apertus base has 0 polytonic tokens)
-- Both methods agree on shape but produce near-orthogonal directions for the same new token (mean cos ≈ 0.03 — confirming they test different hypotheses)
+| Arm | Vocab | Init rule for a new row `T` | Extra params (E + U) |
+|---|---:|---|---:|
+| `vanilla.py` | 131,072 | none — symlinks the base checkpoint | 0 |
+| `retok.py` | 148,480 | `mean(base_E[p] for p in base_tokenizer.encode(decode(T)))`, then norm-match | ~142.6 M (17,408 × 4,096 × 2) |
+| `centroid.py` | 148,480 | per-script centroid of base Greek tokens + Gaussian noise, then norm-match | ~142.6 M |
 
-Expected runtime: ~10–15 s after the E + U matrices are read into RAM (~9 s for 4.3 GB total).
+Both extension arms norm-match to the targets measured in [`../../../03_1_greek_embedding_diagnostic/`](../../../03_1_greek_embedding_diagnostic/README.md): **E = 5.05, U = 3.80**.
 
-## Clariden production build
+## History
 
-```bash
-ssh clariden
+| Date | What happened | Result | Evidence |
+|---|---|---|---|
+| 2026-05-20 | Three arms + shared helpers + local smoke test written | Smoke green: both extension arms produce norm-matched `[200, 4096]` rows in ~10–15 s without loading the full model, reproducing the diagnostic's medians to within 1 % (`E[modern].p50 = 5.047`, `U[modern].p50 = 3.797`). Critically, ReTok and Centroid rows for the same token are **near-orthogonal (mean cos ≈ 0.03)** — confirming the two arms test genuinely different hypotheses | [`test_init_logic.py`](test_init_logic.py), `af438d4d` |
+| 2026-05-21 | Recipe audit patched the arm scripts against pinned primary sources | see `_archive/2026-05-24_2B_bakeoff_review/AUDIT_FINDINGS.md` | `fde4146d` |
+| 2026-05-21 | Clariden build + convert pipeline run | Jobs `2335382` (build, 2m43s) and `2335384` (convert, 1m41s) both `0:0`. Produced `vanilla/` (symlink), `retok/` and `centroid/` (~16 GB each) plus Megatron `release` checkpoints | [`init_modern_only_148480_20260521/`](init_modern_only_148480_20260521/README.md) |
+| 2026-05-21 | Two environment failures fixed along the way | `2335353` failed on Slurm spool-path handling (fixed with `SLURM_SUBMIT_DIR`); `2335371` failed because `pytorch/v2.6.0:v1` ships transformers 4.48.3 without `ApertusForCausalLM` — init jobs moved to `pytorch/v2.9.1:v2` while the training jobs stayed on 2.6.0 | `_archive/2026-05-21_overnight_session/CSCS_OVERNIGHT_STATE.md` |
+| 2026-05-21 | Default init root switched to the modern-only tree | `dfc7320e` |
 
-cd /iopsstor/scratch/cscs/fffoivos/repo/03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/init_bakeoff/arms
-INIT_CKPT_ROOT=/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480 \
-VOCAB_SIZE=148480 \
-bash submit_init_pipeline.sh
-```
+## Outcome
 
-The init build/conversion jobs default to `INIT_UENV_IMAGE=pytorch/v2.9.1:v2`
-because that uenv has a Transformers release new enough to recognize
-`model_type=apertus`. The 2B training jobs still use the training recipe's
-`pytorch/v2.6.0:v1`.
+- Three init checkpoints in both HF and Megatron form, with `init_build_summary.json` recording per-arm stats and the V2 sanity check (correct shapes, no NaN/inf on the forward pass).
+- The composite 153,600 path survives behind `--vocab-size 153600` in `build_init_checkpoints.py` but was never used — the 2026-05-20 scope decision took the bakeoff modern-only, and the eventual production polytonic tokenizer was a different, smaller extension (148,992).
+- The checkpoints the training jobs actually loaded are the **R17-patched TP=2** variants, not these raw conversions — see [`../megatron_patches/README.md`](../megatron_patches/README.md).
 
-Output: three subdirectories under `/iopsstor/.../init_checkpoints/modern_only_148480/`:
-- `vanilla/` — symlinked from the base (no new safetensors)
-- `retok/` — ~16 GB, vocab 148,480, ReTok-initialized new rows
-- `centroid/` — ~16 GB, vocab 148,480, Centroid-initialized new rows
+## Where things are
 
-Plus an `init_build_summary.json` with per-arm stats and the sanity-check forward-pass results (V2: shape correct, no nan/inf).
+| What | Where |
+|---|---|
+| Init logic | [`vanilla.py`](vanilla.py), [`retok.py`](retok.py), [`centroid.py`](centroid.py), [`_common.py`](_common.py) |
+| Clariden driver + jobs | [`build_init_checkpoints.py`](build_init_checkpoints.py), [`build_init_checkpoints.sbatch`](build_init_checkpoints.sbatch), [`convert_init_checkpoints.sbatch`](convert_init_checkpoints.sbatch), [`submit_init_pipeline.sh`](submit_init_pipeline.sh) |
+| Home-side smoke (no GPU, no model load) | [`test_init_logic.py`](test_init_logic.py) |
+| Weights | Clariden `/iopsstor/scratch/cscs/fffoivos/init_checkpoints/modern_only_148480/` |
 
-## Conversion to Megatron format
+## Working documents
 
-`submit_init_pipeline.sh` queues `convert_init_checkpoints.sbatch` after the
-HF build. It uses Megatron-LM-Swiss-AI's checkpoint tool with our Apertus loader:
-
-```bash
-python3 tools/checkpoint/convert.py --model-type GPT \
-    --loader apertus_hf --saver core \
-    --load-dir <arm-hf-dir> --save-dir <arm-hf-dir>/megatron \
-    --tokenizer-model <arm-hf-dir> --bf16 \
-    --loader-transformer-impl transformer_engine
-```
-
-The job marks each converted checkpoint as a `release` checkpoint because
-Megatron's `loader_core` rejects an iteration-0 `iter_0000000` checkpoint on the
-roundtrip/training load path. The training jobs load:
-
-```text
-$INIT_CKPT_ROOT/{vanilla,retok,centroid}/megatron
-```
-
-## Phase A targets (used by both extension arms)
-
-- E target norm: **5.05** (Greek-content tokens, from
-  `runs/apertus_greek_diagnostic_20260511_v2/`)
-- U target norm: **3.80**
-
-These match the existing Greek-token distribution in Apertus base to
-within 1 % (the smoke test confirms `E[modern].norm.p50 = 5.047`,
-`U[modern].norm.p50 = 3.797`).
+[`init_modern_only_148480_20260521/`](init_modern_only_148480_20260521/README.md) — audit copy of the one build/convert run: job ids, elapsed times, `init_build_summary.json`, and the Slurm `.out`/`.err` logs. Historical receipt.

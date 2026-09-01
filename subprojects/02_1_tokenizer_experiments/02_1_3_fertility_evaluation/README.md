@@ -1,113 +1,47 @@
-# 02_1_3 Fertility evaluation
+# 02.1.3 — Fertility Evaluation
 
-Sub-subproject of `02_1_tokenizer_experiments`. **Stage 3**:
+> **In one line:** the in-domain metric harness for cutoff variants — and the place where a held-out-integrity bug was found and worked around rather than fixed.
+> **Period:** ran for the C3 sweep 2026-05-11; committed here 2026-05-18 (`7deea009`). **Status:** completed; the harness and its clean slices were reused unchanged by `02_1_7` and by the polytonic arm.
+> **Came from / led to:** [`../02_1_2_cutoff_variant_builder/`](../02_1_2_cutoff_variant_builder/README.md) → this → [`../02_1_4_cutoff_analysis/`](../02_1_4_cutoff_analysis/README.md) and [`../02_1_7_intrinsic_eval_sweep/`](../02_1_7_intrinsic_eval_sweep/README.md)
 
-```
-[02_1_2 cutoff variant builder] → N merged variants per arm
-       │
-       ▼
-[02_1_3 fertility evaluation] → intrinsic + fertility metrics per (variant, slice)
-       │
-       ▼
-[02_1_4 cutoff analysis] → combines into a cutoff recommendation
-```
+## Why this existed
 
-## Goal
+Stage 3: for every (cutoff variant, held-out slice) pair, measure what the added units actually buy. The primary Greek-quality number this whole program tracks — `greek_word_space_fertility`, tokens per Greek word — is defined and computed here, alongside `chars_per_token`, `tokens_per_byte`, `single_token_greek_word_share`, `added_token_rate`, added-vocab utilization, unused added tokens, and unk / byte-fallback rates.
 
-For each cutoff variant of a tokenizer arm, measure:
+## History
 
-- `chars_per_token` (higher = better compression)
-- `tokens_per_byte` / `bytes_per_token` (inverse view)
-- `greek_word_space_fertility` (lower = fewer tokens per Greek word;
-  the primary Greek-quality metric)
-- `single_token_greek_word_share` (higher = more whole-word tokens)
-- `added_token_rate` (share of decoded tokens that come from the new
-  added units)
-- `eval_added_vocab_utilization_rate` (fraction of added tokens that
-  appear at least once on the eval slice)
-- `eval_unused_added_tokens` (count of added tokens never seen)
-- `unk_rate` / `byte_fallback_rate` (compatibility sanity)
+### 2026-05-11 — the splitter bug
 
-Evaluated on **verifiable clean held-out slices** — see "Held-out
-integrity" below.
+Verification of the C3 exports found the train/val/test splits were **not disjoint at the text level**: the splitter partitioned by `source_split_row_id` (row index) rather than by text or document id, so duplicate texts in the input mix were sent independently to different splits. Measured: 29,527 duplicate texts inside train, **30** train∩val and **36** train∩test exact text-md5 collisions — roughly 0.4–0.5 % of each held-out ([`../../../docs/C3_CONVERGENCE.md`](../../../docs/C3_CONVERGENCE.md) § Held-out integrity).
 
-## Inputs
+The contamination was below the metric noise floor (~1 leaked doc per 300-doc sample), but the slices were not *verifiable* held-outs, and the project rule was that they had to be. The fix was not back-ported to C3's exports. Instead two helper scripts in this directory built a clean evaluation path:
 
-- Cutoff variant dirs from `02_1_2`
-- Apertus base tokenizer (for the `apertus_base` reference row)
-- Held-out parquet slices (clean — produced by the helper scripts in
-  this sub-subproject)
+- `build_virgin_hplt_eval.py` — samples 10,000 HPLT docs whose `source_doc_id` is **not** in the C3 training mix, anti-joined against the `fffoivos/hplt-greek-ge8-no-mt-clean60-wave4` release. Guaranteed unseen by C3's BPE.
+- `clean_holdouts.py` — anti-joins val/test against train on text-md5, giving `C3_val_clean` (7,624 docs) and `C3_test_clean` (7,246).
 
-## Outputs
+Every fertility number cited anywhere downstream comes from those three slices.
 
-`fertility_<arm>_<scope>_<date>/`:
-- `metrics_by_slice.json` — full per-(tokenizer, slice) row records
-- `metrics_by_slice.csv` — same, flat csv
-- `summary.json` + `SUMMARY.md` — auto-generated rollup
-- `tokenizers.json` — tokenizer-set manifest (per-tokenizer sha, vocab,
-  added-units count)
-- `sample_manifests/<slice>.json` — reservoir sample metadata
-- `samples/<slice>.txt.gz` — the actual sampled docs (small)
+### 2026-05-11 → 2026-05-18 — the sweeps
 
-## Scripts
+The C3 cutoff sweep ran 26 tokenizers × 3 slices = **78 rows in about 3 minutes** on the gcloud worker. `02_1_7` later re-ran the same harness on its own four in-house slices (C2_val/test, C3_val/test) plus four latest-GlossAPI datasets, so the report can put in-domain fertility next to TokEval's FLORES+ fertility and document the methodology delta between them.
 
-- `scripts/run_tokenizer_fertility_suite.py` — main driver. Takes
-  `--tokenizer name=path` and `--slice name=path` arguments
-  (repeatable) and produces the artifacts above. Imports the heavy
-  lifting from
-  `tokenizer_analysis/run_wave4_fertility_eval.py`.
-- `scripts/clean_holdouts.py` — anti-join val/test against train on
-  text-md5 to produce verifiable-clean held-out parquets. Required
-  because the splitter has a row-vs-doc bug (see
-  `docs/C3_CONVERGENCE.md` § Held-out integrity).
-- `scripts/build_virgin_hplt_eval.py` — sample 10k HPLT docs whose
-  `source_doc_id` is **not in** the training mix. Guaranteed unseen by
-  the tokenizer's BPE training. Used for the C3 sweep on
-  `virgin_hplt` (the cleanest of the held-out slices we use).
+## Outcome
 
-## Held-out integrity (required reading)
+- Outputs per run: `metrics_by_slice.{json,csv}`, `summary.json` + `SUMMARY.md`, `tokenizers.json` (per-tokenizer sha, vocab, added-unit count), plus reservoir-sample manifests and the sampled docs themselves.
+- Fertility on the clean slices, averaged: `apertus_base` **2.413** → **1.471** at 11,264 → **1.345** at the eventually-chosen 17,408 on `C3_val` ([`../02_1_4_cutoff_analysis/REPORT.md`](../02_1_4_cutoff_analysis/REPORT.md) §2; [`../02_1_7_intrinsic_eval_sweep/REPORT.md`](../02_1_7_intrinsic_eval_sweep/REPORT.md)).
+- Recommendation left standing for future arms: source held-outs the same way (anti-join at document level), and add register-specific control slices before training — a point the polytonic arm's own to-do list inherited and never closed.
+- The underlying splitter defect was documented with a fix path (dedup the mix on `text` before split assignment, or make `stable_key` a content hash) but **not implemented**.
 
-The default C3 train/val/test splits emitted by the splitter at
-`subprojects/_archive/01_2_training_dataset_mix/scripts/export_text_budgeted_splits.py`
-partition by row, not by doc/text. Verified on C3 exports: 30 train↔val
-+ 36 train↔test exact text-md5 collisions (~0.4–0.5% of held-out).
+## Where things are
 
-For the C3 cutoff sweep we evaluated on **three verified-clean slices**:
+| What | Where |
+|---|---|
+| Metric driver | `scripts/run_tokenizer_fertility_suite.py` |
+| Clean-holdout builder | `scripts/clean_holdouts.py` |
+| Virgin-HPLT slice builder | `scripts/build_virgin_hplt_eval.py` |
+| Held-out integrity finding | [`../../../docs/C3_CONVERGENCE.md`](../../../docs/C3_CONVERGENCE.md) § Held-out integrity |
+| C3 sweep outputs | `runs/c3_cutoff_eval_20260511/fertility_c3_full_25_clean_20260511/` on the gcloud worker (not in git) |
 
-- `virgin_hplt` (10,000 docs) — HPLT docs whose `source_doc_id` is not
-  in the C3 training mix. Built by `build_virgin_hplt_eval.py`.
-- `C3_val_clean` (7,624 docs) — C3 val minus 30 train-overlap rows.
-  Built by `clean_holdouts.py`.
-- `C3_test_clean` (7,246 docs) — C3 test minus 36 train-overlap rows.
+## Working documents
 
-Any future modern/polytonic arm should source its own held-outs the same
-way, plus add polytonic-eval slices chosen from the dataset review. That
-arm and its cutoff grid are not fixed in this document.
-
-## Example invocation (C3 sweep, 25 cutoffs × 3 clean slices)
-
-```bash
-source /home/foivos/venvs/glossapi-corpus-clean/bin/activate
-TOK_ARGS=""
-for n in $(seq 1024 1024 25600); do
-  TOK_ARGS="$TOK_ARGS --tokenizer c3_added_${n}=/home/foivos/runs/c3_cutoff_eval_20260511/cutoff_tokenizers/c3_added_${n}"
-done
-python3 scripts/run_tokenizer_fertility_suite.py \
-  --repo-root /home/foivos/Projects/glossapi-tokenizer-extension \
-  --output-dir /home/foivos/runs/c3_cutoff_eval_20260511/fertility_c3_full_25_clean \
-  --latest-glossapi-limit 0 \
-  --tokenizer apertus_base=/home/foivos/data/glossapi_work/tokenizer_base_snapshots/apertus_8b_2509_20260415 \
-  $TOK_ARGS \
-  --slice virgin_hplt=/home/foivos/runs/c3_cutoff_eval_20260511/virgin_hplt_eval/hplt_virgin_eval_20260511.parquet \
-  --slice C3_val_clean=/home/foivos/runs/c3_wave2_broad_latest_cleaner_20260506/50_50/splits/glossapi_plus_hplt_50_50/exports/val_clean.parquet \
-  --slice C3_test_clean=/home/foivos/runs/c3_wave2_broad_latest_cleaner_20260506/50_50/splits/glossapi_plus_hplt_50_50/exports/test_clean.parquet
-```
-
-Runtime: 78 rows (26 tokenizers × 3 slices) on the gcloud worker
-finishes in ~3 minutes.
-
-## Where the C3 outputs live
-
-- Instance: `~/runs/c3_cutoff_eval_20260511/fertility_c3_full_25_clean_20260511/`
-- Home copy: `metrics_by_slice.json` pulled to `/tmp/c3_cutoff_metrics.json`
-  during the analysis step (`02_1_4`)
+None. Three scripts and this README.

@@ -1,5 +1,7 @@
 # Subprojects Overview
 
+> **Historical snapshot (generated 2026-05-18, partially amended later).** Covers subprojects 02–05 as they stood in May–June 2026 and is superseded by the per-subproject READMEs and the map in [../README.md](../README.md). An uncommitted July 2026 amendment describing 06/07/08 in the owner's working tree did not apply cleanly and was not merged; those subprojects are described in their own READMEs.
+
 One-paragraph summary of every sub-subproject under
 `subprojects/` of the glossapi-tokenizer-extension repo. Generated
 2026-05-18. Sorted by pipeline order within each parent subproject.
