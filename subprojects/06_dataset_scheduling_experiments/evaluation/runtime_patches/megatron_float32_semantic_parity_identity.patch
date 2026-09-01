@@ -1,0 +1,12 @@
+diff --git a/tools/checkpoint/saver_swissai_hf.py b/tools/checkpoint/saver_swissai_hf.py
+--- a/tools/checkpoint/saver_swissai_hf.py
++++ b/tools/checkpoint/saver_swissai_hf.py
+@@ -396,6 +396,7 @@ def save_checkpoint(queue: mp.Queue, args):
+         print("Testing final logits")
+         message = queue_get("logits_check")
+         ref_output = message["output"].cuda()
+         model = model.cuda().float()
++        print("Converted semantic parity dtype: float32")
+         with torch.no_grad():
+             output = model(input_ids=message["tokens"].cuda(), position_ids=message["position_ids"].cuda()).logits
+         del model

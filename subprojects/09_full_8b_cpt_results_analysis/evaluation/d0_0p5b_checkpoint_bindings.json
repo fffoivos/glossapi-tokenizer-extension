@@ -1,0 +1,44 @@
+{
+  "schema_version": "apertus_d0_0p5b_native_greek_checkpoint_bindings_v1",
+  "status": "frozen",
+  "selection_rule": "initial, saved checkpoint nearest the full-8B 39.996882944B point, and final",
+  "tokens_per_update": 2097152,
+  "checkpoints": [
+    {
+      "label": "d0_iter_0000000",
+      "iteration": 0,
+      "token_slots": 0,
+      "model_path": "/capstor/scratch/cscs/fffoivos/cpt_runs/dataset-scheduling-0p5b/20260803T014500Z-tied-td-v6/full_td",
+      "export_receipt": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0000000/attempt_1/tasks/D0_mixed/export/checkpoint_eval_export_receipt.json"
+    },
+    {
+      "label": "d0_iter_0018944",
+      "iteration": 18944,
+      "token_slots": 39728447488,
+      "model_path": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0018944/attempt_3/tasks/D0_mixed/export/hf",
+      "export_receipt": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0018944/attempt_3/tasks/D0_mixed/export/checkpoint_eval_export_receipt.json"
+    },
+    {
+      "label": "d0_iter_0038496",
+      "iteration": 38496,
+      "token_slots": 80731963392,
+      "model_path": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0038496/attempt_3/tasks/D0_mixed/export/hf",
+      "export_receipt": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0038496/attempt_3/tasks/D0_mixed/export/checkpoint_eval_export_receipt.json"
+    }
+  ],
+  "model_contract": {
+    "vocab_size": 148992,
+    "tokenizer_json_sha256_allowed": [
+      "cc3f544817da0e8d1623e3f7484df7f67464aeb00867aece956880e9b407ef8f",
+      "4650ed354fc1b53a0c41fdb127dce962795346f0bb69532f6d444c0d4c011b3b"
+    ],
+    "rope_theta": 500000,
+    "max_position_embeddings": 4096,
+    "tie_word_embeddings": true,
+    "hidden_size": 1024,
+    "intermediate_size": 6144,
+    "num_hidden_layers": 20,
+    "num_attention_heads": 16,
+    "num_key_value_heads": 4
+  }
+}

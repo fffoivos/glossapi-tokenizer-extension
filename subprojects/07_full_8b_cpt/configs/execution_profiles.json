@@ -1,0 +1,63 @@
+{
+  "schema_version": "apertus_full_8b_execution_profiles_v1",
+  "status": "frozen_candidates",
+  "scientific_recipe_id": "full8b-mixed-79-20-1-wsd10-v1",
+  "scientific_invariants": {
+    "sequence_length": 4096,
+    "global_batch_sequences": 1024,
+    "global_batch_tokens": 4194304,
+    "micro_batch_sequences": 2,
+    "training_updates": 19248,
+    "tensor_parallel": 2,
+    "pipeline_parallel": 1,
+    "context_parallel": 1,
+    "precision": "bf16_parameters_fp32_main_gradients",
+    "schedule_arm": "D0_mixed",
+    "optimizer": "AdEMAMix",
+    "lr_schedule": "WSD10"
+  },
+  "profiles": {
+    "dp32_16node": {
+      "nodes": 16,
+      "gpus_per_node": 4,
+      "world_size": 64,
+      "data_parallel": 32,
+      "gradient_accumulation_steps": 16,
+      "segment_boundaries": [0, 3208, 6416, 9624, 12832, 16040, 19248],
+      "status": "proven_fallback"
+    },
+    "dp64_32node": {
+      "nodes": 32,
+      "gpus_per_node": 4,
+      "world_size": 128,
+      "data_parallel": 64,
+      "gradient_accumulation_steps": 8,
+      "segment_boundaries": [0, 6416, 12832, 19248],
+      "status": "candidate_requires_benchmark_promotion"
+    }
+  },
+  "benchmark": {
+    "optimizer_updates": 288,
+    "burn_in_updates": 32,
+    "measured_updates": 256,
+    "checkpoint_update": 160,
+    "restart_comparison_update": 161,
+    "promotion": {
+      "loss_atol": 0.0001,
+      "loss_rtol": 0.0001,
+      "gradient_norm_atol": 0.0001,
+      "gradient_norm_rtol": 0.001,
+      "restart_gradient_norm_atol": 0.001,
+      "restart_gradient_norm_rtol": 0.02,
+      "parameter_norm_atol": 0.00001,
+      "parameter_norm_rtol": 0.000001,
+      "trajectory_rmse_over_control_std_max": 0.05,
+      "trajectory_abs_mean_over_control_std_max": 0.02,
+      "median_throughput_speedup_min": 1.6,
+      "gpu_hour_ratio_max": 1.25,
+      "p90_amortized_wall_seconds_per_update_max": 5.89,
+      "skipped_updates_max": 0,
+      "nonfinite_updates_max": 0
+    }
+  }
+}

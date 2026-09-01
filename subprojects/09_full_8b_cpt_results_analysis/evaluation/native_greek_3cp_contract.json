@@ -1,0 +1,108 @@
+{
+  "schema_version": "apertus_full8_native_greek_3cp_contract_v1",
+  "status": "frozen_except_protipa_access",
+  "created_utc": "2026-08-12T00:00:00Z",
+  "checkpoint_scope": [
+    {
+      "label": "iter_0000000",
+      "iteration": 0,
+      "token_slots": 0,
+      "model_path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/_preflight/20260808T023300Z-sanitized-v45/initial_hf_anchor/model",
+      "evidence_receipt": "/iopsstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/_preflight/20260808T023300Z-sanitized-v45/initial_greekmmlu/initial_greekmmlu_receipt.json"
+    },
+    {
+      "label": "iter_0009536",
+      "iteration": 9536,
+      "token_slots": 39996882944,
+      "model_path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0009536/attempt_0/export/hf",
+      "evidence_receipt": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0009536/attempt_0/export/checkpoint_eval_export_receipt.json"
+    },
+    {
+      "label": "iter_0018284",
+      "iteration": 18284,
+      "token_slots": 76688654336,
+      "model_path": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0018284/attempt_0/export/hf",
+      "evidence_receipt": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0018284/attempt_0/export/checkpoint_eval_export_receipt.json"
+    }
+  ],
+  "model_contract": {
+    "vocab_size": 148992,
+    "tokenizer_json_sha256_allowed": [
+      "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+      "acf4d5c6a8aa0cc64c9c781c203fd6dbb4581b0124cca0a76a9e10322fd81092"
+    ],
+    "tokenizer_note": "The initialization anchor carries the frozen overlay byte form; trained HF exports carry a semantically verified reserialization. Both hashes are receipt-bound.",
+    "rope_theta": 500000,
+    "max_position_embeddings": 4096,
+    "tie_word_embeddings": false
+  },
+  "scoring": {
+    "prompt_language": "Greek",
+    "method": "zero-shot length-normalized candidate continuation log-likelihood",
+    "metrics": [
+      "accuracy",
+      "choice_nll",
+      "correct_answer_bpb",
+      "binary_macro_f1_where_applicable",
+      "oyxoy_nli_exact_set_accuracy"
+    ],
+    "dtype_policy": "float32 is authoritative unless the frozen BF16 parity gate passes",
+    "max_input_tokens": 3072
+  },
+  "benchmarks": [
+    {
+      "id": "demosqa",
+      "source": "IMISLab/DemosQA",
+      "revision": "c06a8fe1f672eb57d011e52831586b2713ab956f",
+      "split": "test",
+      "expected_rows": 600,
+      "access": "public"
+    },
+    {
+      "id": "medical_mcqa",
+      "source": "ilsp/medical_mcqa_greek",
+      "revision": "3b05cd96947664e0faa917149f22dd4820f7ca25",
+      "split": "validation",
+      "expected_rows": 432,
+      "access": "public"
+    },
+    {
+      "id": "asep_mcqa",
+      "source": "ilsp/mcqa_greek_asep",
+      "revision": "6dcf6eda989d07bb141cc792e1ed5e1c3893d548",
+      "split": "default",
+      "expected_rows": 1200,
+      "access": "public"
+    },
+    {
+      "id": "gpcr",
+      "source": "ilsp/greek_pcr",
+      "revision": "2ec7dc63e4b12b5f7cdbf367f28a5ed68ef6cec4",
+      "split": "default",
+      "expected_rows": 208,
+      "access": "gated_auto_approved_for_current_token"
+    },
+    {
+      "id": "oyxoy",
+      "source": "https://doi.org/10.5281/zenodo.12704732",
+      "archive_md5": "93150e9c891360dcca518916c92ed27b",
+      "data_revision": "8e8d80efd3b66cdd0b2dbfb40e526704e107281b",
+      "baseline_revision": "a2152b0ddc7bee917df3d3035020e7dfc1b6e2c0",
+      "tasks": [
+        "oyxoy_nli",
+        "oyxoy_wsd_definition",
+        "oyxoy_wic",
+        "oyxoy_metaphor"
+      ],
+      "access": "public"
+    },
+    {
+      "id": "protipa_text_only",
+      "source": "ilsp/greek-protipa-exams",
+      "revision": "8ad3757de70b13f9e2dd8cdc74eff35ad3268895",
+      "split": "test",
+      "access": "gated_manual_not_approved_for_current_token",
+      "status": "blocked_until_owner_accepts_dataset_gate"
+    }
+  ]
+}

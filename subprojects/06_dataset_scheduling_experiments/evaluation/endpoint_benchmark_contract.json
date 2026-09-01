@@ -1,0 +1,29 @@
+{
+  "schema_version": "apertus_mini_endpoint_benchmark_contract_v1",
+  "status": "frozen",
+  "scoring": "zero_shot_normalized_choice_log_likelihood",
+  "prompt_language": "Greek",
+  "metrics": [
+    "accuracy",
+    "choice_nll",
+    "correct_answer_bpb"
+  ],
+  "benchmarks": {
+    "greek_belebele": {
+      "repo_id": "facebook/belebele",
+      "revision": "7899cdfa4e1e0d733fd77c848e2c273cb1d32be2",
+      "config": "ell_Grek",
+      "split": "test",
+      "expected_rows": 900,
+      "role": "translated_passage_grounded_reading_comprehension"
+    },
+    "demosqa": {
+      "repo_id": "IMISLab/DemosQA",
+      "revision": "c06a8fe1f672eb57d011e52831586b2713ab956f",
+      "config": null,
+      "split": "test",
+      "expected_rows": 600,
+      "role": "secondary_native_informal_community_greek"
+    }
+  }
+}

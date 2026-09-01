@@ -1,0 +1,1090 @@
+from __future__ import annotations
+
+import json
+import hashlib
+import importlib.util
+import io
+import contextlib
+import re
+import subprocess
+import sys
+import tempfile
+import unittest
+from datetime import datetime, timedelta
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def write(path: Path, value: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value) + "\n", encoding="utf-8")
+
+
+def training_log(
+    path: Path,
+    milliseconds: float,
+    *,
+    start: int = 1,
+    end: int = 288,
+    timestamps: bool = False,
+) -> None:
+    rows = []
+    epoch = datetime(2026, 8, 5, 12, 0, 0)
+    for iteration in range(start, end + 1):
+        wall = ""
+        if timestamps:
+            finished = epoch + timedelta(milliseconds=milliseconds * iteration)
+            wall = f"[{finished:%Y-%m-%d %H:%M:%S}] "
+        rows.append(
+            f"{wall}iteration {iteration}/ 19248 | elapsed time per iteration (ms): {milliseconds:.3f} | "
+            "lm loss: 6.000000 | grad norm: 0.500000 | params norm: 100.000000 | "
+            "number of skipped iterations: 0 | number of nan iterations: 0"
+        )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+
+
+def benchmark_receipts(root: Path, *, elapsed: float, profile: str) -> None:
+    common = {
+        "schema_version": "apertus_full_8b_training_job_v1",
+        "status": "completed",
+        "scientific_digest": "same",
+        "profile_id": profile,
+        "checkpoint_save_mode": "synchronous",
+        "allocation": {
+            "nodelist": "nid[007500-007515]",
+            "leaf_switches": ["group36"],
+            "single_leaf_switch": True,
+        },
+    }
+    write(root / "segments/updates_0_288/training_job_receipt.json", {
+        **common, "elapsed_seconds": elapsed, "start_iteration": 0, "end_iteration": 288,
+    })
+    write(root / "segments/updates_160_161/training_job_receipt.json", {
+        **common, "elapsed_seconds": 1, "start_iteration": 160, "end_iteration": 161,
+    })
+    checkpoint = root / "checkpoints/iter_0000160"
+    checkpoint.mkdir(parents=True)
+    view = root / "benchmark_load_views" / f"iter_0000160_for_{profile}"
+    view.mkdir(parents=True)
+    (view / "latest_checkpointed_iteration.txt").write_text("160\n")
+    (view / "iter_0000160").symlink_to(checkpoint)
+
+
+def benchmark_repeat(root: Path, source: Path) -> None:
+    common = {
+        "schema_version": "apertus_full_8b_training_job_v1",
+        "status": "completed",
+        "scientific_digest": "same",
+        "profile_id": "dp32_16node",
+        "checkpoint_save_mode": "synchronous",
+        "allocation": {
+            "nodelist": "nid[007500-007515]",
+            "leaf_switches": ["group36"],
+            "single_leaf_switch": True,
+        },
+        "elapsed_seconds": 1,
+        "start_iteration": 160,
+        "end_iteration": 161,
+    }
+    write(root / "segments/updates_160_161/training_job_receipt.json", common)
+    training_log(root / "segments/updates_160_161/training.log", 8500, start=161, end=161)
+    checkpoint = source / "checkpoints/iter_0000160"
+    view = root / "benchmark_load_views/iter_0000160_for_dp32_16node"
+    view.mkdir(parents=True)
+    (view / "latest_checkpointed_iteration.txt").write_text("160\n")
+    (view / "iter_0000160").symlink_to(checkpoint)
+
+
+class Full8BOrchestrationTests(unittest.TestCase):
+    def test_resumable_training_forbids_async_checkpoint_save(self) -> None:
+        wrapper = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertNotIn("--async-save", wrapper)
+        self.assertIn(
+            'checkpoint_save_mode,nodelist,leaf_switches=sys.argv[1:]', wrapper
+        )
+        self.assertIn('synchronous "$SLURM_JOB_NODELIST"', wrapper)
+
+    def test_multinode_training_is_single_leaf_switch_and_receipted(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        checkpoint_validation = (
+            ROOT / "clariden/run_checkpoint_source_validation.sbatch"
+        ).read_text()
+        self.assertIn("#SBATCH --switches=1", train)
+        self.assertIn("#SBATCH --switches=1", checkpoint_validation)
+        self.assertIn("scontrol show topology", train)
+        self.assertIn('[[ "${#PLACEMENT_LEAF_SWITCHES[@]}" -eq 1 ]]', train)
+        self.assertIn('"single_leaf_switch"', train)
+
+    def test_leaf_switch_restriction_is_scheduler_hard_and_export_safe(self) -> None:
+        helper = (ROOT / "clariden/resolve_leaf_switch_exclusion.sh").read_text()
+        parity = (ROOT / "clariden/submit_checkpoint_parity_smoke.sh").read_text()
+        benchmark = (ROOT / "clariden/submit_parallelism_benchmark.sh").read_text()
+        production = (ROOT / "clariden/submit_production.sh").read_text()
+        supervisor = (ROOT / "scripts/supervise_campaign.py").read_text()
+        self.assertIn("scontrol show topology", helper)
+        self.assertIn("scontrol show hostlist", helper)
+        self.assertIn('--exclude="$dp32_exclude"', parity)
+        self.assertIn('--exclude="$dp64_exclude"', benchmark)
+        self.assertIn('--exclude="$train_exclude"', production)
+        self.assertIn('f"--exclude={args.train_exclude}"', supervisor)
+        self.assertNotIn("FULL8_TRAIN_EXCLUDE=", production)
+
+    def test_sync_checkpoint_parity_smoke_is_dependency_closed(self) -> None:
+        submit = (ROOT / "clariden/submit_checkpoint_parity_smoke.sh").read_text()
+        self.assertIn("APERTUS8B_SYNC_DP32_RESTART", submit)
+        self.assertIn("FULL8_END_ITERATION=162", submit)
+        self.assertEqual(submit.count("FULL8_EXACT_LOAD_ITERATION=160"), 2)
+        self.assertIn('afterok:$restart:$repeat', submit)
+        self.assertNotIn("dp64_32node", submit)
+
+    def test_sync_checkpoint_parity_receipt_passes_two_restarts(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            control = root / "control"
+            repeat = root / "repeat"
+            stage = root / "stage"
+            write(stage / "schedules/schedule_manifest.json", {"status": "frozen"})
+            training_log(control / "segments/updates_0_162/training.log", 8500, end=162)
+            training_log(control / "segments/updates_160_161/training.log", 8500, start=161, end=161)
+            training_log(repeat / "segments/updates_160_161/training.log", 8500, start=161, end=161)
+            common = {
+                "schema_version": "apertus_full_8b_training_job_v1",
+                "status": "completed",
+                "scientific_digest": "41998a042d1c9d7ee88700b8692b488b2b6b1f936512a9f7bd07aff79542b666",
+                "profile_id": "dp32_16node",
+                "checkpoint_save_mode": "synchronous",
+                "allocation": {
+                    "nodelist": "nid[007500-007515]",
+                    "leaf_switches": ["group36"],
+                    "single_leaf_switch": True,
+                },
+            }
+            write(control / "segments/updates_0_162/training_job_receipt.json", {
+                **common, "start_iteration": 0, "end_iteration": 162,
+            })
+            write(control / "segments/updates_160_161/training_job_receipt.json", {
+                **common, "start_iteration": 160, "end_iteration": 161,
+            })
+            write(repeat / "segments/updates_160_161/training_job_receipt.json", {
+                **common, "start_iteration": 160, "end_iteration": 161,
+            })
+            checkpoint = control / "checkpoints/iter_0000160"
+            checkpoint.mkdir(parents=True)
+            for target in (control, repeat):
+                view = target / "benchmark_load_views/iter_0000160_for_dp32_16node"
+                view.mkdir(parents=True)
+                (view / "latest_checkpointed_iteration.txt").write_text("160\n")
+                (view / "iter_0000160").symlink_to(checkpoint)
+            output = root / "receipt.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/finalize_checkpoint_parity_smoke.py"),
+                "--profiles", str(ROOT / "configs/execution_profiles.json"),
+                "--stage-root", str(stage), "--control-root", str(control),
+                "--control-repeat-root", str(repeat), "--output", str(output),
+            ], check=True, capture_output=True, text=True)
+            receipt = json.loads(output.read_text())
+            self.assertEqual(receipt["status"], "passed")
+            self.assertTrue(all(receipt["checks"].values()))
+
+    def test_sanitized_contract_derives_exact_horizon_and_cadence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            pool = root / "pool.json"
+            active = 80_000_000_001
+            write(pool, {
+                "schema_version": "apertus_schedule_pool_corpus_v1",
+                "status": "completed",
+                "source_root": "/sanitized",
+                "sanitized_bridge": {
+                    "path": "/bridge.json", "sha256": "a" * 64, "bytes": 10,
+                    "eligibility_audit": {"path": "/audit.json", "sha256": "b" * 64, "bytes": 10},
+                    "postmask_dedup": {"path": "/dedup.json", "sha256": "c" * 64, "bytes": 10},
+                },
+                "integer_79_20_1_geometry": {"active_tokens": active},
+                "raw_counts": {
+                    "hplt_new_greek": {"tokens": 43}, "non_hplt_new_greek": {"tokens": 20},
+                    "foreign_replay": {"tokens": 16}, "old_greek_replay": {"tokens": 1},
+                },
+            })
+            recipe = root / "recipe.json"; profiles = root / "profiles.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/derive_sanitized_contracts.py"),
+                "--base-recipe", str(ROOT / "configs/recipe_8b_full_mixed.json"),
+                "--base-profiles", str(ROOT / "configs/execution_profiles.json"),
+                "--pool-receipt", str(pool), "--recipe-output", str(recipe),
+                "--profiles-output", str(profiles),
+            ], check=True, capture_output=True, text=True)
+            derived = json.loads(recipe.read_text())
+            updates = (active + 4_194_304 - 1) // 4_194_304
+            self.assertEqual(derived["batch_and_parallelism"]["training_updates"], updates)
+            self.assertEqual(derived["evaluation"]["source_conditioned"]["interval_updates"], 238)
+            self.assertEqual(derived["optimization"]["beta3_warmup_updates"], updates)
+            self.assertEqual(derived["evaluation"]["greekmmlu"]["checkpoint_updates"][-1], updates)
+            self.assertEqual(derived["evaluation"]["per_document_validation"]["milestone_updates"], [0, int(0.8 * updates), updates])
+            self.assertTrue(derived["initialization"]["token_distillation_dropout_context"]["existing_verified_initialization_preserved"])
+            retention = derived["evaluation"]["retention_alerts"]
+            self.assertEqual(retention["warning"]["any_panel_increase_nats"], 0.05)
+            self.assertEqual(retention["critical"]["any_panel_increase_nats"], 0.08)
+            self.assertFalse(retention["action"]["automatic_training_stop"])
+            self.assertIn(
+                "excludes exactly 6,648",
+                derived["provenance_disclosures"]["openarchives_needs_ocr"],
+            )
+
+    def test_selected_content_reader_derives_source_local_order(self) -> None:
+        path = ROOT / "dataset/freeze_selected_training_content.py"
+        spec = importlib.util.spec_from_file_location("full8_selected_content", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            tasks = {}
+            rows = []
+            for task_index, text in enumerate(("first", "second")):
+                digest = hashlib.sha256(text.encode()).digest()
+                doc_id = f"doc-{task_index}"
+                identity = hashlib.sha256(doc_id.encode() + b"\0" + digest).digest()[:16]
+                ledger = root / f"{task_index}.jsonl"
+                ledger.write_text(json.dumps({
+                    "doc_id": doc_id, "text_sha256": digest.hex(), "tokens": task_index + 3,
+                }) + "\n", encoding="utf-8")
+                manifest = root / f"{task_index}.manifest.json"
+                write(manifest, {"outputs": {"retained_ledger": {
+                    "path": str(ledger), "rows": 1,
+                }}})
+                tasks[task_index] = {
+                    "pool": "foreign_replay",
+                    "source_manifest": {"path": str(manifest)},
+                }
+                rows.append((2, task_index, 0, task_index + 3, identity, bytes([task_index + 1]) * 16))
+            catalog = root / "selected.catalog45"
+            array = module.np.asarray(list(reversed(rows)), dtype=module.CATALOG_DTYPE)
+            array.tofile(catalog)
+            output = io.BytesIO()
+            documents, tokens, bindings = module.extract_selected_hashes(
+                "foreign_replay", catalog, tasks, output,
+            )
+            self.assertEqual((documents, tokens, len(bindings)), (2, 7, 2))
+            self.assertEqual(output.getvalue(), b"".join(
+                hashlib.sha256(text.encode()).digest() for text in ("first", "second")
+            ))
+
+    def test_sha256_sortedness_check_uses_exact_raw_byte_order(self) -> None:
+        path = ROOT / "dataset/build_clean_replay_validation.py"
+        spec = importlib.util.spec_from_file_location("full8_clean_replay", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        values = module.np.asarray([
+            b"\x00" * 31 + b"\x01",
+            b"\x00" * 30 + b"\x01\x00",
+            b"\x01" + b"\x00" * 31,
+        ], dtype="V32")
+        module.require_strictly_sorted_sha256(values, chunk_rows=2)
+        with self.assertRaisesRegex(ValueError, "not unique and sorted"):
+            module.require_strictly_sorted_sha256(values[[1, 0, 2]], chunk_rows=2)
+        with self.assertRaisesRegex(ValueError, "not unique and sorted"):
+            module.require_strictly_sorted_sha256(values[[0, 0, 2]], chunk_rows=2)
+
+    def test_corrected_initial_hf_changes_only_evaluation_geometry(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source"
+            source.mkdir()
+            config = {
+                "rope_theta": 12_000_000.0, "max_position_embeddings": 65_536,
+                "tie_word_embeddings": False, "vocab_size": 148_992,
+                "rope_scaling": {"factor": 8.0, "rope_type": "llama3"},
+            }
+            (source / "config.json").write_text(json.dumps(config), encoding="utf-8")
+            names = {
+                "generation_config.json", "model-00001-of-00004.safetensors",
+                "model-00002-of-00004.safetensors", "model-00003-of-00004.safetensors",
+                "model-00004-of-00004.safetensors", "model.safetensors.index.json",
+                "special_tokens_map.json", "tokenizer_config.json", "tokenizer.json",
+            }
+            for name in names:
+                (source / name).write_bytes(name.encode())
+            (source / "tokenizer.json").write_text(
+                json.dumps({"version": "1.0", "model": {"vocab": {"a": 0}}}),
+                encoding="utf-8",
+            )
+            verification = root / "verification.json"
+            write(verification, {
+                "standard_max_abs_diff": 0.0, "r17_max_abs_diff": 0.0,
+                "xielu_max_abs_diff": 0.0, "qk_norm_max_abs_diff": 0.0,
+                "orig_only": [], "trip_only": [], "shape_mismatches": [],
+                "standard_changed_over_tol_count": 0, "r17_changed_over_tol_count": 0,
+                "logits": {"logit_max_abs_diff": 0.0},
+            })
+            output = root / "model"
+            receipt = root / "receipt.json"
+            canonical_tokenizer = root / "canonical-tokenizer.json"
+            canonical_tokenizer.write_text(json.dumps(
+                json.loads((source / "tokenizer.json").read_text()), indent=2,
+            ) + "\n", encoding="utf-8")
+            subprocess.run([
+                "python3", str(ROOT / "evaluation/materialize_corrected_initial_hf.py"),
+                "--source", str(source), "--roundtrip-verification", str(verification),
+                "--expected-verification-sha256", hashlib.sha256(verification.read_bytes()).hexdigest(),
+                "--expected-tokenizer-sha256", hashlib.sha256(canonical_tokenizer.read_bytes()).hexdigest(),
+                "--canonical-tokenizer-json", str(canonical_tokenizer),
+                "--output-root", str(output), "--receipt", str(receipt),
+            ], check=True, capture_output=True, text=True)
+            corrected = json.loads((output / "config.json").read_text())
+            self.assertEqual(corrected["rope_theta"], 500_000.0)
+            self.assertEqual(corrected["max_position_embeddings"], 4_096)
+            self.assertEqual(
+                {key for key in config if config[key] != corrected[key]},
+                {"rope_theta", "max_position_embeddings"},
+            )
+            frozen = json.loads(receipt.read_text())
+            self.assertTrue(frozen["zero_tensor_and_logit_drift"])
+            self.assertEqual(
+                hashlib.sha256((output / "tokenizer.json").read_bytes()).hexdigest(),
+                hashlib.sha256(canonical_tokenizer.read_bytes()).hexdigest(),
+            )
+            self.assertEqual(frozen["file_count"], 10)
+
+    def test_prelaunch_keeps_hardlinked_hf_anchor_on_capstor(self) -> None:
+        for name in (
+            "submit_sanitized_prelaunch_and_launch.sh",
+            "submit_corrected_prelaunch_and_launch.sh",
+        ):
+            script = (ROOT / "clariden" / name).read_text(encoding="utf-8")
+            self.assertIn(
+                'default_initial_hf_anchor="/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/_preflight/$prelaunch_name/initial_hf_anchor"',
+                script,
+            )
+            self.assertIn('initial_hf_root="$initial_hf_anchor_root/model"', script)
+            self.assertIn('! -e "$initial_hf_anchor_root"', script)
+            self.assertNotIn(
+                'initial_hf_root="$FULL8_PRELAUNCH_ROOT/initial_hf_anchor/model"', script,
+            )
+
+    def test_graceful_finalizer_uses_resume_record_after_tracker_advances(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            interrupted = root / "segments/updates_0_288"
+            restarted = root / "segments/updates_11_12"
+            training_log(interrupted / "training.log", 8500.0, start=1, end=11)
+            training_log(restarted / "training.log", 8500.0, start=12, end=12)
+            (interrupted / "graceful_stop_requested").touch()
+            write(interrupted / "training_job_receipt.json", {
+                "schema_version": "apertus_full_8b_training_job_v1",
+                "status": "gracefully_stopped", "profile_id": "dp32_16node",
+                "requested_end_iteration": 288, "last_logged_iteration": 11,
+            })
+            write(restarted / "training_job_receipt.json", {
+                "schema_version": "apertus_full_8b_training_job_v1",
+                "status": "completed", "profile_id": "dp32_16node",
+                "start_iteration": 11, "end_iteration": 12,
+            })
+            checkpoint = root / "checkpoints/iter_0000011"
+            checkpoint.mkdir(parents=True)
+            (checkpoint / ".metadata").write_bytes(b"checkpoint-11")
+            (root / "checkpoints/latest_checkpointed_iteration.txt").write_text("12\n")
+            write(root / "resume_submission.json", {
+                "schema_version": "apertus_full_8b_graceful_resume_submission_v1",
+                "status": "submitted", "checkpoint_iteration": 11,
+            })
+            output = root / "graceful_stop_smoke_receipt.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/finalize_graceful_stop_smoke.py"),
+                "--run-root", str(root), "--interrupted-root", str(interrupted),
+                "--restart-root", str(restarted), "--output", str(output),
+            ], check=True, capture_output=True, text=True)
+            receipt = json.loads(output.read_text())
+            self.assertEqual(receipt["checkpoint"]["iteration"], 11)
+            self.assertEqual(receipt["checkpoint"]["current_tracker_iteration"], 12)
+
+    def test_code_bundle_verifier_rejects_unreceipted_files(self) -> None:
+        path = ROOT / "scripts/contract.py"
+        spec = importlib.util.spec_from_file_location("full8_contract", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "bundle"
+            root.mkdir()
+            payload = root / "entry.py"
+            payload.write_text("value = 1\n", encoding="utf-8")
+            row = {
+                "relative_path": "entry.py",
+                "bytes": payload.stat().st_size,
+                "sha256": hashlib.sha256(payload.read_bytes()).hexdigest(),
+            }
+            receipt = Path(temporary) / "receipt.json"
+            write(receipt, {
+                "schema_version": "apertus_mini_immutable_code_bundle_v1",
+                "status": "frozen",
+                "kind": "scientific",
+                "root": str(root.resolve()),
+                "file_count": 1,
+                "tree_sha256": hashlib.sha256(
+                    json.dumps([row], separators=(",", ":"), sort_keys=True).encode()
+                ).hexdigest(),
+                "files": [row],
+                "exclusions": {"directory_parts": [], "file_suffixes": []},
+            })
+            module.verify_code_bundle_receipt(receipt, root)
+            (root / "unreceipted.py").write_text("value = 2\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "inventory drift"):
+                module.verify_code_bundle_receipt(receipt, root)
+
+    def test_every_code_root_literal_exists_in_the_frozen_repository(self) -> None:
+        repository_root = ROOT.parents[1]
+        pattern = re.compile(r'\$FULL8_CODE_ROOT/([^"\\\s]+)')
+        missing = []
+        for script in sorted((ROOT / "clariden").iterdir()):
+            if not script.is_file():
+                continue
+            for relative in pattern.findall(script.read_text(encoding="utf-8")):
+                if not (repository_root / relative).exists():
+                    missing.append(f"{script.name}: {relative}")
+        self.assertEqual(missing, [])
+
+    def test_modern_campaign_modules_never_use_system_python(self) -> None:
+        unsafe = re.compile(
+            r'^(?:exec\s+)?python3\s+"\$FULL8_CODE_ROOT/(?:subprojects/07_full_8b_cpt|subprojects/06_dataset_scheduling_experiments)/[^"\s]+\.py"',
+            re.MULTILINE,
+        )
+        violations = []
+        for script in sorted((ROOT / "clariden").iterdir()):
+            if script.is_file() and unsafe.search(script.read_text(encoding="utf-8")):
+                violations.append(script.name)
+        self.assertEqual(violations, [])
+
+    def test_benchmark_restart_loads_iteration_160_not_the_terminal_288(self) -> None:
+        submit = (ROOT / "clariden/submit_parallelism_benchmark.sh").read_text()
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertEqual(submit.count("FULL8_EXACT_LOAD_ITERATION=160"), 3)
+        self.assertIn('initial_common="$common,FULL8_BENCHMARK_SAVE_ITERATIONS=160"', submit)
+        self.assertNotIn('FULL8_BENCHMARK_SAVE_ITERATIONS=160,FULL8_BENCHMARK_SAVE_ITERATIONS=', submit)
+        self.assertIn("benchmark_load_views", train)
+        self.assertIn("latest_checkpointed_iteration.txt", train)
+        self.assertEqual(submit.count("--time=00:20:00"), 3)
+        self.assertIn('FULL8_BENCHMARK_DEPENDENCY must be afterok:JOBID', submit)
+        self.assertEqual(submit.count('"${initial_dependency[@]}"'), 2)
+
+    def test_megatron_cache_is_writable_run_state_not_frozen_dataset_state(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertIn('DATA_CACHE="$FULL8_RUN_ROOT/dataset_cache"', train)
+        self.assertIn('--data-cache-path "$DATA_CACHE"', train)
+        self.assertNotIn('--data-cache-path "$FULL8_STAGE_ROOT', train)
+
+    def test_checkpoint_compatibility_is_dependency_closed_and_preloaded(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        shim = (ROOT / "runtime_compat/sitecustomize.py").read_text()
+        self.assertIn('RUNTIME_COMPAT="$FULL8_CODE_ROOT/subprojects/07_full_8b_cpt/runtime_compat"', train)
+        self.assertIn('export PYTHONPATH="$RUNTIME_COMPAT:$MEGATRON:$TRAINING_CODE"', train)
+        self.assertIn('np.product = np.prod', shim)
+        self.assertIn('_apertus_preserves_dynamic_metadata', shim)
+
+    def test_full_8b_greekmmlu_jobs_have_measured_wall_time_margin(self) -> None:
+        initial = (ROOT / "clariden/run_initial_greekmmlu.sbatch").read_text()
+        prelaunch = (ROOT / "clariden/submit_conversion_smoke.sh").read_text()
+        production = (ROOT / "evaluation/submit_greekmmlu_checkpoint.sh").read_text()
+        self.assertIn("#SBATCH --time=01:15:00", initial)
+        self.assertIn("--time=01:15:00", prelaunch)
+        self.assertIn("--time=01:15:00", production)
+
+    def test_full_8b_conversion_uses_sharded_exact_mapping_without_oom_logit_test(self) -> None:
+        shared = (
+            ROOT.parent
+            / "06_dataset_scheduling_experiments/clariden/convert_checkpoint_for_native_greekmmlu.sbatch"
+        ).read_text()
+        prelaunch = (ROOT / "clariden/submit_conversion_smoke.sh").read_text()
+        production = (ROOT / "evaluation/submit_greekmmlu_checkpoint.sh").read_text()
+        verifier = (ROOT / "evaluation/verify_exact_checkpoint_weight_mapping_8b.py").read_text()
+        finalizer = (ROOT / "evaluation/finalize_checkpoint_export_8b.py").read_text()
+        self.assertIn("EXPORT_MODEL_SCALE=${EXPORT_MODEL_SCALE:-0p5B}", shared)
+        self.assertIn("verify_exact_checkpoint_weight_mapping_8b.py", shared)
+        self.assertIn("finalize_checkpoint_export_8b.py", shared)
+        self.assertIn("EXPORT_MODEL_SCALE=8B", prelaunch)
+        self.assertIn("EXPORT_MODEL_SCALE=8B", production)
+        self.assertIn('"output_layer.weight"', verifier)
+        self.assertIn('"model.safetensors.index.json"', verifier)
+        self.assertIn('"source_parameter_tensors_expected": len(expected_source)', verifier)
+        self.assertIn('"runtime_logit_diagnostics": "skipped_single_gpu_memory_limit"', finalizer)
+        self.assertIn('"parity_acceptance_path": "bit_exact_parameter_mapping"', finalizer)
+
+    def test_profiles_preserve_global_batch(self) -> None:
+        for profile in ("dp32_16node", "dp64_32node"):
+            subprocess.run(
+                [
+                    "python3", str(ROOT / "scripts/validate_execution_profile.py"),
+                    "--recipe", str(ROOT / "configs/recipe_8b_full_mixed.json"),
+                    "--profiles", str(ROOT / "configs/execution_profiles.json"),
+                    "--profile-id", profile,
+                ], check=True, capture_output=True, text=True,
+            )
+
+    def test_training_launcher_uses_the_dependency_closed_profile_cli(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertIn('PROFILE_RECEIPT="$SEGMENT_ROOT/execution_profile.json"', train)
+        self.assertIn('scripts/validate_execution_profile.py"', train)
+        self.assertIn('--output "$PROFILE_RECEIPT"', train)
+        self.assertNotIn("from validate_execution_profile import validate", train)
+        self.assertNotIn("rsplit('/', 2)[0] + '/scripts'", train)
+
+    def test_rank_local_uenv_is_not_nested_inside_an_outer_uenv_session(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        nested = (ROOT / "clariden/nested_sbatch_child.sbatch").read_text()
+        self.assertNotIn(
+            'uenv run pytorch/v2.9.1:v2 --view=default -- \\\n+    srun --nodes="$NODES" --ntasks="$NODES"',
+            train,
+        )
+        self.assertNotIn(
+            "rank_runtime=$(uenv run pytorch/v2.9.1:v2 --view=default --",
+            nested,
+        )
+        self.assertIn(
+            'exec uenv run pytorch/v2.9.1:v2 --view=default -- bash -lc',
+            train,
+        )
+        self.assertIn(
+            'rank_runtime=$(srun --nodes=1',
+            nested,
+        )
+
+    def test_graceful_stop_smokes_use_the_real_bundle_verifier(self) -> None:
+        for name in (
+            "signal_graceful_stop_smoke.sbatch",
+            "resume_graceful_stop_smoke.sbatch",
+            "finalize_graceful_stop_smoke.sbatch",
+        ):
+            wrapper = (ROOT / "clariden" / name).read_text()
+            self.assertIn(
+                "06_dataset_scheduling_experiments/production/verify_code_bundle.py",
+                wrapper,
+            )
+            self.assertNotIn('scripts/contract.py" verify-code-bundle', wrapper)
+
+    def test_owner_decisions_record_risk_without_legal_claim(self) -> None:
+        subprocess.run(
+            [
+                "python3", str(ROOT / "scripts/validate_owner_decisions.py"),
+                "--decisions", str(ROOT / "configs/owner_decisions_20260805.json"),
+                "--recipe-id", "full8b-mixed-79-20-1-wsd10-v1",
+            ], check=True, capture_output=True, text=True,
+        )
+
+    def test_parallelism_benchmark_promotes_only_passing_candidate(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            control = root / "control"; candidate = root / "candidate"; repeat = root / "repeat"
+            for target, ms, elapsed, profile in (
+                (control, 8500.0, 2600, "dp32_16node"),
+                (candidate, 5000.0, 1440, "dp64_32node"),
+            ):
+                training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
+                training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
+                benchmark_receipts(target, elapsed=elapsed, profile=profile)
+            benchmark_repeat(repeat, control)
+            contract = root / "contract.json"
+            write(contract, {
+                "schema_version":"apertus_full_8b_parallelism_benchmark_contract_v1", "status":"frozen", "updates":288,
+                "sequence_ids":{"prefix_sha256":"abc"}, "goldfish":{"implementation":{"sha256":"def"}},
+            })
+            output = root / "promotion.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/finalize_parallelism_benchmark.py"),
+                "--profiles", str(ROOT / "configs/execution_profiles.json"), "--benchmark-contract", str(contract),
+                "--control-root", str(control), "--candidate-root", str(candidate),
+                "--control-repeat-root", str(repeat), "--output", str(output),
+            ], check=True, capture_output=True, text=True)
+            result = json.loads(output.read_text())
+            self.assertTrue(result["candidate_promoted"])
+            self.assertEqual(result["selected_profile"], "dp64_32node")
+            self.assertTrue(all(result["checks"].values()))
+
+    def test_dp32_fallback_selection_is_exact_recipe_and_parity_bound(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            recipe = ROOT / "configs/recipe_8b_full_mixed.json"
+            profiles = ROOT / "configs/execution_profiles.json"
+            selected = root / "selected.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/validate_execution_profile.py"),
+                "--recipe", str(recipe), "--profiles", str(profiles),
+                "--profile-id", "dp32_16node", "--output", str(selected),
+            ], check=True, capture_output=True, text=True)
+            scientific_digest = json.loads(selected.read_text())["selection"]["scientific_digest"]
+
+            stage = root / "stage"
+            schedule = stage / "schedules/schedule_manifest.json"
+            write(schedule, {"schema_version": "apertus_data_order_schedules_v1", "status": "frozen"})
+            parity_root = root / "parity"
+            control_log = parity_root / "control_dp32/segments/updates_0_162/training.log"
+            training_log(control_log, 8500, end=162)
+            main_receipt = parity_root / "control_dp32/segments/updates_0_162/training_job_receipt.json"
+            first_receipt = parity_root / "control_dp32/segments/updates_160_161/training_job_receipt.json"
+            second_receipt = parity_root / "control_dp32_repeat/segments/updates_160_161/training_job_receipt.json"
+            common = {
+                "schema_version": "apertus_full_8b_training_job_v1",
+                "status": "completed", "profile_id": "dp32_16node",
+                "scientific_digest": scientific_digest,
+                "checkpoint_save_mode": "synchronous",
+                "allocation": {"single_leaf_switch": True, "leaf_switches": ["group29"]},
+            }
+            write(main_receipt, {**common, "job_id": "control", "start_iteration": 0, "end_iteration": 162})
+            write(first_receipt, {**common, "job_id": "restart-1", "start_iteration": 160, "end_iteration": 161})
+            write(second_receipt, {**common, "job_id": "restart-2", "start_iteration": 160, "end_iteration": 161})
+
+            def binding(path: Path) -> dict:
+                return {
+                    "path": str(path.resolve()), "bytes": path.stat().st_size,
+                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                }
+
+            parity_checks = {
+                "control_completed_to_162": True,
+                "synchronous_checkpoint_save": True,
+                "single_leaf_switch_placement": True,
+                "control_zero_skipped_updates": True,
+                "control_zero_nonfinite_updates": True,
+                "first_restart_provenance": True,
+                "second_restart_provenance": True,
+                "first_restart_numerically_equivalent": True,
+                "second_restart_numerically_equivalent": True,
+                "independent_restarts_identical": True,
+            }
+            profile_values = json.loads(profiles.read_text())
+            parity = parity_root / "checkpoint_parity_receipt.json"
+            write(parity, {
+                "schema_version": "apertus_full_8b_checkpoint_parity_smoke_v1",
+                "status": "passed", "profile_id": "dp32_16node",
+                "checkpoint_save_mode": "synchronous", "checks": parity_checks,
+                "thresholds": {
+                    "gradient_atol": profile_values["benchmark"]["promotion"]["restart_gradient_norm_atol"],
+                    "gradient_rtol": profile_values["benchmark"]["promotion"]["restart_gradient_norm_rtol"],
+                },
+                "inputs": {
+                    "profiles": binding(profiles), "schedule_manifest": binding(schedule),
+                    "control_log": binding(control_log),
+                },
+                "restart": {
+                    "first": {"provenance": {"passed": True, "receipt": binding(first_receipt)}, "numerical": {"passed": True}},
+                    "second": {"provenance": {"passed": True, "receipt": binding(second_receipt)}, "numerical": {"passed": True}},
+                    "independent_identity": {"passed": True},
+                },
+            })
+
+            selection_code = root / "selection-code"; selection_code.mkdir()
+            (selection_code / "marker").write_text("selection\n")
+            parity_code = root / "parity-code"
+            finalizer = parity_code / "subprojects/07_full_8b_cpt/scripts/finalize_checkpoint_parity_smoke.py"
+            finalizer.parent.mkdir(parents=True)
+            finalizer.write_text("# frozen parity finalizer\n")
+            selection_bundle = root / "selection-code.receipt.json"
+            parity_bundle = root / "parity-code.receipt.json"
+            freezer = ROOT.parents[0] / "06_dataset_scheduling_experiments/production/freeze_code_bundle.py"
+            for code_root, receipt in ((selection_code, selection_bundle), (parity_code, parity_bundle)):
+                subprocess.run([
+                    "python3", str(freezer), "--root", str(code_root),
+                    "--kind", "scientific", "--output", str(receipt),
+                ], check=True, capture_output=True, text=True)
+
+            output = root / "promotion.json"
+            command = [
+                "python3", str(ROOT / "scripts/finalize_dp32_fallback_selection.py"),
+                "--code-root", str(selection_code), "--code-bundle-receipt", str(selection_bundle),
+                "--parity-code-root", str(parity_code), "--parity-code-bundle-receipt", str(parity_bundle),
+                "--recipe", str(recipe), "--profiles", str(profiles), "--stage-root", str(stage),
+                "--parity-root", str(parity_root), "--output", str(output),
+            ]
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            result = json.loads(output.read_text())
+            self.assertEqual(result["selected_profile"], "dp32_16node")
+            self.assertFalse(result["candidate_evaluated"])
+            self.assertTrue(result["fallback_control_viable"])
+            self.assertTrue(all(result["checks"].values()))
+
+            broken = json.loads(parity.read_text())
+            broken["checks"]["independent_restarts_identical"] = False
+            write(parity, broken)
+            rejected = subprocess.run(
+                [*command[:-1], str(root / "rejected.json")],
+                capture_output=True, text=True,
+            )
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn("did not pass every frozen check", rejected.stderr)
+
+    def test_dp32_fallback_selection_wrapper_is_immutable_and_no_overwrite(self) -> None:
+        wrapper = (
+            ROOT / "clariden/finalize_dp32_fallback_selection.sbatch"
+        ).read_text()
+        submit = (
+            ROOT / "clariden/submit_dp32_fallback_selection.sh"
+        ).read_text()
+        self.assertEqual(wrapper.count("verify_code_bundle.py"), 2)
+        self.assertIn('[[ ! -e "$FULL8_BENCHMARK_ROOT" ]]', wrapper)
+        self.assertIn("finalize_dp32_fallback_selection.py", wrapper)
+        self.assertIn("--profile-id dp32_16node", wrapper)
+        self.assertNotIn("dp64_32node", wrapper)
+        self.assertIn('afterok:$FULL8_PARITY_GATE_JOB_ID', submit)
+        self.assertIn("APERTUS8B_SELECT_PROVEN_DP32", submit)
+        self.assertIn("DRY_RUN", submit)
+        self.assertIn('[[ ! -e "$FULL8_BENCHMARK_ROOT" ]]', submit)
+
+    def test_conversion_smoke_resolves_dp32_fallback_parity_checkpoint(self) -> None:
+        wrapper = (ROOT / "clariden/submit_conversion_smoke.sh").read_text()
+        self.assertIn("apertus_full_8b_dp32_fallback_selection_v1", wrapper)
+        self.assertIn('parity.name != "checkpoint_parity_receipt.json"', wrapper)
+        self.assertIn('parity.parent / "control_dp32/checkpoints"', wrapper)
+        self.assertIn('[[ -d "$source" ]]', wrapper)
+
+    def test_conversion_smoke_leaves_native_greek_result_leaf_for_evaluator(self) -> None:
+        wrapper = (ROOT / "clariden/submit_conversion_smoke.sh").read_text()
+        evaluator = (
+            ROOT.parent
+            / "06_dataset_scheduling_experiments/clariden/run_checkpoint_native_greekmmlu.sbatch"
+        ).read_text()
+        self.assertIn('mkdir -p "$root/export" "$FULL8_PRELAUNCH_ROOT/logs"', wrapper)
+        self.assertNotIn('mkdir -p "$root/export" "$root/greekmmlu"', wrapper)
+        self.assertIn('[[ ! -e "$GREEKMMLU_ROOT" ]]', evaluator)
+
+    def test_benchmark_fixed_startup_is_amortized_over_production_segment(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            control = root / "control"; candidate = root / "candidate"; repeat = root / "repeat"
+            for target, ms, elapsed, profile in (
+                (control, 8500.0, 288 * 8.5 + 160, "dp32_16node"),
+                (candidate, 5000.0, 288 * 5.0 + 160, "dp64_32node"),
+            ):
+                training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
+                training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
+                benchmark_receipts(target, elapsed=elapsed, profile=profile)
+            benchmark_repeat(repeat, control)
+            contract = root / "contract.json"
+            write(contract, {
+                "schema_version":"apertus_full_8b_parallelism_benchmark_contract_v1", "status":"frozen", "updates":288,
+                "sequence_ids":{"prefix_sha256":"abc"}, "goldfish":{"implementation":{"sha256":"def"}},
+            })
+            output = root / "promotion.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/finalize_parallelism_benchmark.py"),
+                "--profiles", str(ROOT / "configs/execution_profiles.json"), "--benchmark-contract", str(contract),
+                "--control-root", str(control), "--candidate-root", str(candidate),
+                "--control-repeat-root", str(repeat), "--output", str(output),
+            ], check=True, capture_output=True, text=True)
+            performance = json.loads(output.read_text())["performance"]
+            self.assertGreater(performance["candidate_benchmark_wall_seconds_per_update"], 5.5)
+            self.assertLess(performance["candidate_projected_production_wall_seconds_per_update"], 5.1)
+
+    def test_benchmark_never_falls_back_to_a_control_with_failed_restart(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            control = root / "control"; candidate = root / "candidate"; repeat = root / "repeat"
+            for target, ms, elapsed, profile in (
+                (control, 8500.0, 2600, "dp32_16node"),
+                (candidate, 5000.0, 1440, "dp64_32node"),
+            ):
+                training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
+                training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
+                benchmark_receipts(target, elapsed=elapsed, profile=profile)
+            benchmark_repeat(repeat, control)
+            restart = control / "segments/updates_160_161/training.log"
+            restart.write_text(restart.read_text().replace("lm loss: 6.000000", "lm loss: 6.100000"))
+            contract = root / "contract.json"
+            write(contract, {
+                "schema_version":"apertus_full_8b_parallelism_benchmark_contract_v1", "status":"frozen", "updates":288,
+                "sequence_ids":{"prefix_sha256":"abc"}, "goldfish":{"implementation":{"sha256":"def"}},
+            })
+            output = root / "promotion.json"
+            result = subprocess.run([
+                "python3", str(ROOT / "scripts/finalize_parallelism_benchmark.py"),
+                "--profiles", str(ROOT / "configs/execution_profiles.json"), "--benchmark-contract", str(contract),
+                "--control-root", str(control), "--candidate-root", str(candidate),
+                "--control-repeat-root", str(repeat), "--output", str(output),
+            ], capture_output=True, text=True)
+            receipt = json.loads(output.read_text())
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(receipt["status"], "failed")
+            self.assertIsNone(receipt["selected_profile"])
+            self.assertFalse(receipt["fallback_control_viable"])
+
+    def test_cross_node_restart_allows_bounded_gradient_reduction_roundoff(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            control = root / "control"; candidate = root / "candidate"; repeat = root / "repeat"
+            for target, ms, elapsed, profile in (
+                (control, 8500.0, 2600, "dp32_16node"),
+                (candidate, 5000.0, 1440, "dp64_32node"),
+            ):
+                training_log(target / "segments/updates_0_288/training.log", ms, timestamps=True)
+                training_log(target / "segments/updates_160_161/training.log", ms, start=161, end=161)
+                benchmark_receipts(target, elapsed=elapsed, profile=profile)
+            benchmark_repeat(repeat, control)
+            restart = control / "segments/updates_160_161/training.log"
+            restart.write_text(restart.read_text().replace("grad norm: 0.500000", "grad norm: 0.505000"))
+            contract = root / "contract.json"
+            write(contract, {
+                "schema_version":"apertus_full_8b_parallelism_benchmark_contract_v1", "status":"frozen", "updates":288,
+                "sequence_ids":{"prefix_sha256":"abc"}, "goldfish":{"implementation":{"sha256":"def"}},
+            })
+            output = root / "promotion.json"
+            subprocess.run([
+                "python3", str(ROOT / "scripts/finalize_parallelism_benchmark.py"),
+                "--profiles", str(ROOT / "configs/execution_profiles.json"), "--benchmark-contract", str(contract),
+                "--control-root", str(control), "--candidate-root", str(candidate),
+                "--control-repeat-root", str(repeat), "--output", str(output),
+            ], check=True, capture_output=True, text=True)
+            receipt = json.loads(output.read_text())
+            self.assertTrue(receipt["checks"]["control_restart_provenance"])
+            self.assertTrue(receipt["checks"]["control_restart_numerically_equivalent"])
+            self.assertTrue(receipt["restart"]["control"]["numerical"]["gradient_norm"]["within_tolerance"])
+            self.assertEqual(receipt["restart"]["control"]["numerical"]["exact_logged_fields"], {"loss": True, "params": True})
+
+    def test_training_attempt_requires_all_thirteen_panels(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            log = root / "train.log"
+            training_log(log, 5000.0, start=1, end=25)
+            panels = [{"name": f"panel_{index}"} for index in range(13)]
+            with log.open("a", encoding="utf-8") as handle:
+                for row in panels:
+                    handle.write(f"validation loss at iteration 25 on [{row['name']}] | lm loss: 1.0\n")
+            manifest = root / "validation.json"; write(manifest, {"panels":panels})
+            recipe = root / "recipe.json"; write(recipe, {"evaluation":{"source_conditioned":{"interval_updates":25}}})
+            output = root / "audit.json"
+            subprocess.run([
+                "python3", str(ROOT / "train/audit_training_attempt.py"), "--log", str(log),
+                "--validation-manifest", str(manifest), "--recipe", str(recipe),
+                "--start", "0", "--end", "25", "--output", str(output),
+            ], check=True, capture_output=True, text=True)
+            self.assertEqual(json.loads(output.read_text())["status"], "passed")
+
+    def test_checkpoint_source_validation_is_exact_load_and_skip_train(self) -> None:
+        wrapper = (ROOT / "clariden/run_checkpoint_source_validation.sbatch").read_text()
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertIn('FULL8_EXACT_LOAD_ITERATION="$FULL8_SOURCE_ITERATION"', wrapper)
+        self.assertIn("FULL8_CHECKPOINT_VALIDATION_ONLY=1", wrapper)
+        self.assertIn("--skip-train --no-load-optim --no-load-rng", train)
+        self.assertIn("finalize_source_validation_checkpoint.py", train)
+
+    def test_production_submit_is_receipt_gated_and_dry_run_safe(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            selected = root / "selected.json"; gate = root / "gate.json"; recipe = root / "recipe.json"
+            prelaunch = root / "prelaunch"
+            write(recipe, {"evaluation":{"greekmmlu":{"checkpoint_updates":[0,6416,12832,19248]}}})
+            write(selected, {"schema_version":"apertus_full_8b_selected_execution_profile_v1", "status":"frozen", "recipe":{"path":str(recipe.resolve())}, "selection":{"profile_id":"dp64_32node","nodes":32,"segment_boundaries":[0,6416,12832,19248]}})
+            write(gate, {"schema_version":"apertus_full_8b_launch_gate_v1", "status":"passed", "initialization_checkpoint":{"root":"/init"}})
+            write(prelaunch / "launch_environment.json", {
+                "schema_version":"apertus_full_8b_launch_environment_v1",
+                "status":"passed", "placement":{"leaf_switch":"group36"},
+            })
+            env = {
+                "FULL8_CODE_ROOT":str(ROOT.parents[1]), "FULL8_CODE_BUNDLE_RECEIPT":"/bundle.json",
+                "FULL8_STAGE_ROOT":"/stage", "FULL8_RUN_ROOT":"/new-run",
+                "FULL8_INITIAL_MEGATRON":"/init", "FULL8_PRELAUNCH_ROOT":str(prelaunch),
+                "FULL8_SELECTED_PROFILE":str(selected), "FULL8_LAUNCH_GATE":str(gate), "DRY_RUN":"1",
+                "FULL8_RECIPE":str(recipe), "FULL8_PROFILES":"/profiles.json",
+                "FULL8_TRAIN_LEAF_SWITCH":"group36",
+                "FULL8_TRAIN_EXCLUDE_DRY_RUN_OVERRIDE":"nid[000001-000010]",
+            }
+            result = subprocess.run([str(ROOT / "clariden/submit_production.sh")], env={**__import__("os").environ, **env}, text=True, capture_output=True, check=True)
+            self.assertIn("dp64_32node", result.stdout)
+            self.assertIn("--nodes=32", result.stderr)
+
+    def test_graceful_stop_is_batch_signalled_pollable_and_retry_safe(self) -> None:
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertIn("#SBATCH --signal=B:USR1@600", train)
+        self.assertNotIn("SIGUSR2", train)
+        self.assertIn("trap request_graceful_stop USR1 TERM INT", train)
+        self.assertIn('mv "$FULL8_RUN_ROOT/triggers/$trigger"', train)
+        self.assertIn("TRAIN_PIPELINE_PID=$!", train)
+        self.assertIn('while kill -0 "$TRAIN_PIPELINE_PID"', train)
+
+    def test_supervisor_recovers_a_signalled_incomplete_attempt(self) -> None:
+        path = ROOT / "scripts/supervise_campaign.py"
+        sys.path.insert(0, str(path.parent))
+        spec = importlib.util.spec_from_file_location("full8_supervisor", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            log = root / "training.log"
+            training_log(log, 5000.0, start=1, end=25)
+            marker = root / "graceful_stop_requested"
+            marker.touch()
+            self.assertEqual(module.last_logged_iteration(log), 25)
+            self.assertTrue(module.retryable_terminal("FAILED", marker, 25, 100))
+            marker.unlink()
+            self.assertFalse(module.retryable_terminal("FAILED", marker, 25, 100))
+            self.assertTrue(module.retryable_terminal(
+                "FAILED", marker, 25, 100, verified_recovery_checkpoint=True,
+            ))
+            self.assertTrue(module.retryable_terminal("TIMEOUT", marker, 25, 100))
+
+    def test_supervisor_submissions_escape_the_parent_uenv(self) -> None:
+        path = ROOT / "scripts/supervise_campaign.py"
+        sys.path.insert(0, str(path.parent))
+        spec = importlib.util.spec_from_file_location("full8_supervisor_uenv", path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        command = module.allow_nested_sbatch(["sbatch", "--parsable", "child.sbatch"])
+        self.assertEqual(command[1], "--uenv-passthrough=ignore")
+        self.assertEqual(command.count("--uenv-passthrough=ignore"), 1)
+        with self.assertRaises(ValueError):
+            module.allow_nested_sbatch(["srun", "child.sbatch"])
+
+    def test_nested_evaluation_and_resume_submissions_escape_uenv(self) -> None:
+        checkpoint = (ROOT / "evaluation/submit_greekmmlu_checkpoint.sh").read_text()
+        resume = (ROOT / "clariden/resume_graceful_stop_smoke.sbatch").read_text()
+        self.assertEqual(checkpoint.count("sbatch --uenv-passthrough=ignore"), 4)
+        self.assertEqual(resume.count("sbatch --uenv-passthrough=ignore"), 2)
+
+    def test_nested_sbatch_hardware_probe_uses_exact_supervisor_runtime(self) -> None:
+        wrapper = (ROOT / "clariden/prove_nested_sbatch.sbatch").read_text()
+        submitter = (ROOT / "scripts/submit_nested_sbatch_probe.py").read_text()
+        child = (ROOT / "clariden/nested_sbatch_child.sbatch").read_text()
+        self.assertIn("uenv run pytorch/v2.9.1:v2 --view=default -- python3", wrapper)
+        self.assertIn('"sbatch", "--uenv-passthrough=ignore", "--parsable"', submitter)
+        self.assertIn("verify_code_bundle.py", child)
+        self.assertIn("srun --nodes=1 --ntasks=1", child)
+        train = (ROOT / "clariden/train_segment.sbatch").read_text()
+        self.assertIn("exec uenv run pytorch/v2.9.1:v2 --view=default -- bash -lc", train)
+        self.assertIn("export PYTHONPATH=", train)
+        self.assertIn("import megatron", child)
+        self.assertIn("megatron-import-ok", child)
+
+    def test_contract_cli_fails_closed_for_missing_bundle(self) -> None:
+        result = subprocess.run([
+            "python3", str(ROOT / "scripts/contract.py"), "verify-code-bundle",
+            "--root", "/nonexistent", "--receipt", "/nonexistent", "--kind", "scientific",
+        ], text=True, capture_output=True)
+        self.assertNotEqual(result.returncode, 0)
+
+    def test_evaluation_iteration_transport_avoids_slurm_export_commas(self) -> None:
+        supervisor_path = ROOT / "scripts/supervise_campaign.py"
+        queue_path = ROOT / "evaluation/run_evaluation_queue.py"
+        sys.path.insert(0, str(supervisor_path.parent))
+        supervisor_spec = importlib.util.spec_from_file_location("full8_supervisor_transport", supervisor_path)
+        queue_spec = importlib.util.spec_from_file_location("full8_queue_transport", queue_path)
+        assert supervisor_spec and supervisor_spec.loader and queue_spec and queue_spec.loader
+        supervisor = importlib.util.module_from_spec(supervisor_spec)
+        queue = importlib.util.module_from_spec(queue_spec)
+        supervisor_spec.loader.exec_module(supervisor)
+        queue_spec.loader.exec_module(queue)
+        expected = [400, 1192, 2384]
+        encoded = supervisor.encode_evaluation_iterations(expected)
+        self.assertEqual(encoded, "400:1192:2384")
+        self.assertNotIn(",", encoded)
+        self.assertEqual(queue.decode_evaluation_iterations(encoded), expected)
+        self.assertEqual(queue.decode_evaluation_iterations("400,1192,2384"), expected)
+
+    def test_campaign_status_accepts_cross_stage_initial_greekmmlu_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            run = root / "run"
+            prelaunch = root / "prelaunch"
+            selected = root / "selected.json"
+            initial_greek = root / "corrected-anchor" / "initial_greekmmlu_receipt.json"
+            write(selected, {"selection": {
+                "segment_boundaries": [0, 3208, 6416, 9624, 12832, 16040, 19248],
+                "profile_id": "dp32_16node", "nodes": 16,
+            }})
+            write(initial_greek, {"status": "completed"})
+            path = ROOT / "scripts/campaign_status.py"
+            sys.path.insert(0, str(path.parent))
+            spec = importlib.util.spec_from_file_location("full8_campaign_status", path)
+            assert spec and spec.loader
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            module.jobs = lambda: []
+            command = [
+                "campaign_status.py", "--run-root", str(run),
+                "--selected-profile", str(selected), "--prelaunch-root", str(prelaunch),
+                "--initial-greekmmlu", str(initial_greek),
+            ]
+            output = io.StringIO()
+            previous_argv = sys.argv
+            try:
+                sys.argv = command
+                with contextlib.redirect_stdout(output):
+                    self.assertEqual(module.main(), 0)
+            finally:
+                sys.argv = previous_argv
+            status = json.loads(output.getvalue())
+            self.assertEqual(status["evidence"]["greekmmlu_completed"], 1)
+
+    def test_initial_greekmmlu_finalizer_rejects_wrong_rope_geometry_first(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            model = root / "model"; model.mkdir()
+            write(model / "config.json", {"rope_theta": 12_000_000, "max_position_embeddings": 65_536})
+            result = subprocess.run([
+                "python3", str(ROOT / "evaluation/finalize_hf_greekmmlu.py"),
+                "--model", str(model), "--evaluation-root", str(root / "missing"),
+                "--model-label", "bad", "--clean-subset-manifest", str(root / "missing.json"),
+                "--output", str(root / "receipt.json"),
+            ], text=True, capture_output=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("HF evaluation geometry drift", result.stderr)
+
+    def test_launch_gate_is_computed_not_stamped_true(self) -> None:
+        gate = (ROOT / "scripts/build_launch_gate.py").read_text()
+        self.assertNotIn("{name: True for name in recipe", gate)
+        self.assertIn("verify_code_bundle_receipt", gate)
+        self.assertIn("initial checkpoint inventory drift", gate)
+        self.assertIn("initial validation/manifest drift", gate)
+        self.assertIn("validation panels are not proven training-content disjoint", gate)
+        self.assertIn("nested sbatch runtime proof drift", gate)
+        self.assertIn('nested_submit.get("rank_runtime")', gate)
+        self.assertIn('nested_submit.get("rank_megatron_import")', gate)
+        self.assertIn("apertus_full_8b_dp32_fallback_selection_v1", gate)
+        self.assertIn("DP32 fallback selection evidence drift", gate)
+
+    def test_canonical_validation_pipeline_is_fail_closed_on_content_overlap(self) -> None:
+        freeze = (ROOT / "evaluation/freeze_validation_manifest.py").read_text()
+        canonical = (ROOT / "clariden/finalize_data.sbatch").read_text()
+        overlay = (ROOT / "clariden/build_all_panel_validation_overlay.sbatch").read_text()
+        self.assertIn('"--replacement-old-greek-manifest", type=Path, required=True', freeze)
+        self.assertIn("freeze_selected_training_content.py", canonical)
+        self.assertIn("build_clean_replay_validation.py", canonical)
+        self.assertIn("build_training_disjoint_validation_manifest.py", canonical)
+        self.assertIn("build_training_disjoint_validation_manifest.py", overlay)
+
+    def test_data_pipeline_is_bound_to_the_executing_code_bundle(self) -> None:
+        launcher = (ROOT / "clariden/submit_data_pipeline.sh").read_text()
+        self.assertIn('FULL8_CODE_BUNDLE_RECEIPT:?set immutable code-bundle receipt', launcher)
+        self.assertIn('FULL8_CODE_BUNDLE_RECEIPT=$FULL8_CODE_BUNDLE_RECEIPT', launcher)
+        for name in ("freeze_data_inventory.sbatch", "pack_full_data.sbatch", "finalize_data.sbatch"):
+            wrapper = (ROOT / "clariden" / name).read_text()
+            self.assertIn('FULL8_CODE_BUNDLE_RECEIPT:?set immutable code-bundle receipt', wrapper)
+            self.assertIn("verify_code_bundle.py", wrapper)
+            self.assertIn('--receipt "$FULL8_CODE_BUNDLE_RECEIPT" --kind scientific', wrapper)
+
+    def test_final_launch_handoff_is_dependency_safe_and_fail_closed(self) -> None:
+        handoff = (ROOT / "clariden/finalize_and_submit_production.sbatch").read_text()
+        coordinator = (
+            ROOT / "clariden/start_sanitized_prelaunch_after_benchmark.sbatch"
+        ).read_text()
+        environment = (ROOT / "scripts/capture_launch_environment.py").read_text()
+        self.assertIn('FULL8_LAUNCH_AUTHORIZATION:?set explicit production authorization', handoff)
+        self.assertIn('== APERTUS8B_FULL_MIXED_CPT', handoff)
+        self.assertLess(handoff.index("capture_launch_environment.py"), handoff.index("build_launch_gate.py"))
+        self.assertLess(handoff.index("build_launch_gate.py"), handoff.index("DRY_RUN=1"))
+        self.assertLess(handoff.index("DRY_RUN=1"), handoff.index("DRY_RUN=0"))
+        self.assertIn('[[ ! -e "$environment" && ! -e "$gate" && ! -e "$FULL8_RUN_ROOT" ]]', handoff)
+        self.assertIn("verify_code_bundle.py", coordinator)
+        self.assertIn("promotion_receipt.json", coordinator)
+        self.assertLess(coordinator.index("DRY_RUN=1"), coordinator.index("DRY_RUN=0"))
+        self.assertIn("submit_sanitized_prelaunch_and_launch.sh", coordinator)
+        self.assertIn("--conversion-smoke", handoff)
+        self.assertIn("--benchmark-receipt", handoff)
+        self.assertIn("--initial-hf-receipt", handoff)
+        self.assertIn('"--uenv-passthrough=ignore"', environment)
+
+
+if __name__ == "__main__":
+    unittest.main()
