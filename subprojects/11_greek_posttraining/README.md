@@ -1,5 +1,7 @@
 # 10 — Greek post-training: SFT data survey and adaptation pilots
 
+> **Renumbered 2026-09-01:** this directory was `10_greek_posttraining` until the consolidation; it collided with `10_early_cooldown_causal_experiment`. Its own documents still refer to it as subproject 10.
+
 > **In one line:** a two-day survey of what Greek instruction-tuning data actually exists, a
 > proposed minimal SFT mix and build pipeline for it, and two 100-row pilots of a
 > "translate the prompt, write the answer natively" adaptation of `HuggingFaceH4/no_robots` into

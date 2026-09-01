@@ -17,7 +17,7 @@ applied; the READMEs describe, they do not move or delete.
   between them.
 - Seven worktrees held uncommitted work: the 2026-07-29 polytonic tokenizer decision and
   the 148,992-token ship bundle, `05/07_8b_lr_floor_reconstruction`, `09_1`, `09_3`,
-  `08/publication`, all of `10_greek_posttraining` (139 files), the 2026-08-06 RoPE
+  `08/publication`, all of `11_greek_posttraining` (139 files), the 2026-08-06 RoPE
   correction to `CURRENT_HYPERPARAMETERS.md`, and 06/07 result presentations.
 - READMEs were agent status snapshots ("new agents should start at…", absolute
   `/home/foivos/...` links; 39 broken links), not histories. `05_token_distillation_cpt`
@@ -45,8 +45,8 @@ Left unmerged on purpose: `agent/h2g-safe-open-verifier-20260817` (13 commits of
 
 1. **Publish or not.** Nothing has been pushed. Options: fast-forward `main` to this
    branch and push; or push the branch and open a PR; or keep it local.
-2. **Rename `10_greek_posttraining`** (collides with `10_early_cooldown_causal_experiment`;
-   `11_greek_posttraining` is the obvious choice). Its README states the collision.
+2. ~~Rename `10_greek_posttraining`~~ — **done 2026-09-01**: renamed to `11_greek_posttraining`
+   (it collided with `10_early_cooldown_causal_experiment`); its own documents still say "10".
 3. **The 119 differing 06/07 working-tree copies** in `~/Projects/train-apertus-with-glossapi`
    (scripts, sbatch, `recipe_8b_full_mixed.json`, READMEs). The committed versions were
    treated as authoritative. Discard the copies, or diff and decide file by file.

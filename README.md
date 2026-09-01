@@ -46,7 +46,7 @@ historical. Nothing was deleted; the READMEs make the clutter navigable.
 | 08 | [`08_targeted_8b_cpt_experiments`](subprojects/08_targeted_8b_cpt_experiments/README.md) | 08-11 → 08-23 | Does a hard HPLT→OpenArchives curriculum replicate, and does 1.5B predict 8B? | Neither: the 59.96 % headline missed by 2.06 pp; 1.5B and 8B moved in opposite directions; an exploratory no-decay branch was stopped by its pre-registered gate. |
 | 09 | [`09_full_8b_cpt_results_analysis`](subprojects/09_full_8b_cpt_results_analysis/README.md) | 08-12 → 08-23 | What did the 8B run actually learn and forget? | Peak-then-decline on GreekMMLU while BPB kept improving; the 0.5B proxy rejected; `avg_peak5` checkpoint average ties the peak and wins retention; 19 checkpoints released (09_2). |
 | 10 | [`10_early_cooldown_causal_experiment`](subprojects/10_early_cooldown_causal_experiment/README.md) | 08-12 → 08-14 | Does cooldown timing *cause* the 9,536 peak? | Abandoned: five launch attempts, none trained; the restart-invariant lessons are the output. |
-| 10 | [`10_greek_posttraining`](subprojects/10_greek_posttraining/README.md) | 08-23 → 08-24 | What would SFT of the Greek checkpoint take? | Survey + two 100-row pilots; Greek SFT is greenfield; no corpus built, no SFT trained. (Number collides with the row above — see *Open items*.) |
+| 11 | [`11_greek_posttraining`](subprojects/11_greek_posttraining/README.md) | 08-23 → 08-24 | What would SFT of the Greek checkpoint take? | Survey + two 100-row pilots; Greek SFT is greenfield; no corpus built, no SFT trained. (Renumbered from `10_` on 2026-09-01 — it collided with the row above.) |
 | — | [`papers`](subprojects/papers/README.md) | 06-11 | Do the cited papers say what the recipe cites them for? | 18 of 40 citations not fully confirmed, two contradicted; resolved by the sweeps rather than by citation. |
 
 ## Chronology of the program
@@ -109,7 +109,7 @@ A causal early-cooldown branch from that peak never trained
 (08-11 → 08-23) failed to reproduce its headline and showed 1.5B does not mirror
 8B ([08](subprojects/08_targeted_8b_cpt_experiments/README.md)). The program
 closed with a post-training survey and two SFT pilots on 08-23/24
-([10_greek_posttraining](subprojects/10_greek_posttraining/README.md)).
+([11_greek_posttraining](subprojects/11_greek_posttraining/README.md)).
 
 ## Subproject summaries
 
@@ -152,8 +152,8 @@ GreekMMLU peaks at update 9,536 = 56.81 % (init 35.78 %, terminal 54.85 %) acros
 ### 10 — Early-cooldown causal experiment — 2026-08-12 → 08-14 — abandoned
 Would branch from the update-9,536 checkpoint and start the 3,657-update cooldown immediately with everything else fixed. It never trained: two restarts proved a historical gradient norm is not a cross-allocation invariant, the paired gate rejected a probe over one display quantum (2.011 vs 2.010), one launch died on a Slurm `--switches` relaxation, and the final sandwich run failed its control gate nine minutes in. 6.08 GPU-h, zero scientific updates. → [README](subprojects/10_early_cooldown_causal_experiment/README.md)
 
-### 10 — Greek post-training — 2026-08-23 → 08-24 — ended at the pilot stage
-Found Greek SFT to be greenfield (~3.5 k reusable quality rows anywhere), sized a minimal mix (~62 k rows) whose binding constraint is human review, and ran two 100-row classify → translate → generate pilots on no_robots that passed deterministic gates 99/100 while proving those gates blind to naturalness. Pilot 2 was completed but never reviewed; no corpus built, no SFT trained. → [README](subprojects/10_greek_posttraining/README.md)
+### 11 — Greek post-training — 2026-08-23 → 08-24 — ended at the pilot stage
+Found Greek SFT to be greenfield (~3.5 k reusable quality rows anywhere), sized a minimal mix (~62 k rows) whose binding constraint is human review, and ran two 100-row classify → translate → generate pilots on no_robots that passed deterministic gates 99/100 while proving those gates blind to naturalness. Pilot 2 was completed but never reviewed; no corpus built, no SFT trained. → [README](subprojects/11_greek_posttraining/README.md)
 
 ### papers — reading library and citation audit — 2026-06-11 — completed
 Twenty papers read in full and audited claim-by-claim against the frozen recipe: 18 of 40 citations not fully confirmed, two contradicted. The tensions were settled empirically by the sweeps. → [README](subprojects/papers/README.md)
@@ -195,7 +195,7 @@ the local `main` continued to 2026-07-22; subprojects 06–10 existed only on
 carrying 06/07/09/10, and the `h2g-*` family carrying 06/08); and several units
 of work — the 2026-07-29 polytonic tokenizer decision and ship bundle,
 `05/07_8b_lr_floor_reconstruction`, `09_1`, `09_3`, `08/publication`, all of
-`10_greek_posttraining` — existed only as uncommitted files in working trees.
+`11_greek_posttraining` — existed only as uncommitted files in working trees.
 
 The consolidation branch merges every leaf branch (ten branches; the four
 add/add conflicts are documented in the merge commit) and adds one commit that
@@ -207,7 +207,7 @@ and the root-level `frozen_*` deployment bundles in the `h2g` worktrees.
 
 ## Open items
 
-- **Numbering collision:** `10_early_cooldown_causal_experiment` and `10_greek_posttraining` share a number; the latter's own survey doc says it "takes 10 to avoid collision". A rename (e.g. to `11_`) is the owner's call.
+- **Numbering:** `11_greek_posttraining` was `10_greek_posttraining` until 2026-09-01 (it collided with `10_early_cooldown_causal_experiment`); its own documents still say "10".
 - **Unreviewed results:** the post-2026-08-19 findings in 09 (`avg_peak5`, ensembles, retention lm-eval) are explicitly not independently reviewed; 09's canonical 19-checkpoint presentation contains no averaged model, so "best model" differs between documents.
 - **No floor decision from `05/07_8b_lr_floor_reconstruction`:** its three tails completed with receipts but no comparison or decision was committed, and 06/07 do not cite it although both use WSD-10.
 - **Approval receipts outside git:** the 1.5B TD acceptance policy in 08 is still marked `proposal_pending_owner_approval` in-tree though the 1.5B run trained; the approval receipt lives on Clariden.
