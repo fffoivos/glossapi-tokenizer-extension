@@ -1,0 +1,68 @@
+{
+  "model_path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/results/calibrated_1024",
+  "eval_jsonl": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/probe_data/modern_test.jsonl",
+  "max_context": 4096,
+  "stats_only": false,
+  "tokenizer_vocab_size": 149504,
+  "wall_seconds": 45.5370557308197,
+  "global": {
+    "n_docs": 1000.0,
+    "n_chars": 1833861.0,
+    "n_bytes": 3289014.0,
+    "n_words": 280157.0,
+    "n_tokens": 437409.0,
+    "chars_per_token": 4.192554337016385,
+    "compression_ratio": 4.192554337016385,
+    "tokens_per_word": 1.5612995570340915,
+    "bpb_bits_per_byte": 0.5189795693586334,
+    "bpc_bits_per_byte": 0.5189795693586334,
+    "nll_per_char": 0.6451712851297848,
+    "nll_per_word": 4.22318363674437,
+    "nll_per_token": 2.7049156695893144
+  },
+  "per_source": {
+    "FineWeb2/ell_Grek/test": {
+      "n_docs": 1000.0,
+      "n_chars": 1833861.0,
+      "n_bytes": 3289014.0,
+      "n_words": 280157.0,
+      "n_tokens": 437409.0,
+      "chars_per_token": 4.192554337016385,
+      "compression_ratio": 4.192554337016385,
+      "tokens_per_word": 1.5612995570340915,
+      "bpb_bits_per_byte": 0.5189795693586334,
+      "bpc_bits_per_byte": 0.5189795693586334,
+      "nll_per_char": 0.6451712851297848,
+      "nll_per_word": 4.22318363674437,
+      "nll_per_token": 2.7049156695893144
+    }
+  },
+  "per_register": {
+    "modern_greek": {
+      "n_docs": 1000.0,
+      "n_chars": 1833861.0,
+      "n_bytes": 3289014.0,
+      "n_words": 280157.0,
+      "n_tokens": 437409.0,
+      "chars_per_token": 4.192554337016385,
+      "compression_ratio": 4.192554337016385,
+      "tokens_per_word": 1.5612995570340915,
+      "bpb_bits_per_byte": 0.5189795693586334,
+      "bpc_bits_per_byte": 0.5189795693586334,
+      "nll_per_char": 0.6451712851297848,
+      "nll_per_word": 4.22318363674437,
+      "nll_per_token": 2.7049156695893144
+    }
+  },
+  "strr": {
+    "n_words_sampled": 200273,
+    "n_single_token": 89888,
+    "rate": 0.44882735066634044
+  },
+  "truncation": {
+    "n_docs_truncated": 0,
+    "n_tokens_dropped": 0,
+    "fraction_truncated": 0.0,
+    "note": "char/byte/word counts are computed on the scored prefix, NOT on full text. Look at this if it's > ~10 % of docs."
+  }
+}

@@ -1,0 +1,782 @@
+[
+ {
+  "row_id": "ce7831756f6a031ec5300490ae4b9621e9a60ea131c4effece13a34d70fa94df",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "VERBATIM-FREEZE"
+  ],
+  "subtype": "film synopsis with fixed real-world premise",
+  "hazards": [
+   "temptation to localize the premise to Greece — Austria IS the content here",
+   "transliteration of Schwarzenegger must follow the established Greek press form",
+   "the title is the film's name and must read as a real Greek film title, not a gloss"
+  ],
+  "devices": [
+   {
+    "where": "title",
+    "device": "allusive naming",
+    "effect": "grand, faintly absurd",
+    "english": "The Last Austrian",
+    "greek": "Ο Τελευταίος Αυστριακός",
+    "how": "same device; Greek renders it as a natural film title with the definite article"
+   }
+  ],
+  "device_notes": "The whole joke is extra-linguistic: Schwarzenegger really is Austrian, so the title lands identically in Greek. Nothing needs re-derivation.",
+  "en_register": "informal",
+  "register_evidence": "'Write me a synopsis' — bare imperative plus the ethical dative 'me', no politeness marking, a casual request to an assistant.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μου μια σύνοψη για μια ταινία μικρού μήκους με τίτλο «Ο Τελευταίος Αυστριακός», με πρωταγωνιστή τον Άρνολντ Σβαρτσενέγκερ, που διαδραματίζεται σε ένα σύμπαν όπου η Αυστρία και ο αυστριακός πολιτισμός έχουν απαγορευτεί. Δώσε στον κεντρικό ήρωα ένα τυπικό αυστριακό όνομα. Είναι έμπορος αυστριακών τροφίμων στη μαύρη αγορά και παρασύρεται σε μια υπόγεια αντιστασιακή οργάνωση. Η ταινία τελειώνει με εκείνον να έχει γίνει πλήρες μέλος της αντίστασης.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {
+    "depends_on": "Άρνολντ Σβαρτσενέγκερ",
+    "en": "typical Austrian name for the lead",
+    "el": "τυπικό αυστριακό όνομα",
+    "why": "The 'typical Austrian name' requirement is derived from the frozen Austrian premise; it must stay Austrian (Paul Wagner, Hans, Sepp), never become Greek, or the premise collapses."
+   }
+  ],
+  "constraint_notes": "Two checkable content constraints survive intact in Greek: the protagonist's name must be a typical Austrian one, and the film must end with him a full member of the resistance. No count is stated.",
+  "substitution_note": "Zero transposition by design. Austria, Austrian culture, Austrian food and Schwarzenegger are all content — swapping any of them makes the synopsis a different (and unfunny) film. Step 1's rule 'completely or not at all' resolves to 'not at all'.",
+  "guide_gaps": [
+   {
+    "term": "synopsis",
+    "decision": "σύνοψη",
+    "why": "Standard Greek film-industry term for a short plot summary; «περίληψη» is the schoolroom word and reads less professional."
+   },
+   {
+    "term": "short film",
+    "decision": "ταινία μικρού μήκους",
+    "why": "The established Greek term; «κοντή ταινία» is not idiomatic."
+   },
+   {
+    "term": "Arnold Schwarzenegger",
+    "decision": "Άρνολντ Σβαρτσενέγκερ",
+    "why": "Dominant Greek press transliteration; keeps him identifiable as the real person, which is required content."
+   },
+   {
+    "term": "black-market dealer",
+    "decision": "έμπορος στη μαύρη αγορά",
+    "why": "«Μαύρη αγορά» is the standard Greek calque and fully transparent."
+   }
+  ],
+  "reference_problems": [
+   "The reference has Paul first refuse the stranger ('after resisting the stranger's overtures') and then be rescued by that same stranger with no reconciliation beat — a small narrative gap, not an error to fix here.",
+   "'A few years pass' compresses a short film's span awkwardly given the earlier scene-by-scene pacing."
+  ],
+  "translator_notes": "Reviewer must confirm the answer stage keeps Austrian food props (στρούντελ, σνίτσελ) untranslated-but-transliterated and does NOT drift to Greek food, and that the lead's invented name is Austrian."
+ },
+ {
+  "row_id": "b7a4848c46c29e63dcc6ad6dde25627a9839e8eee4fb7e9be8ba6ff7aeb8c050",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "CONSTRAINT-PRESERVING"
+  ],
+  "subtype": "first-person comic-melancholy short story",
+  "hazards": [
+   "the tonal constraint (sad + funny at once) is easy to lose in Greek, where the comic register drifts to slapstick",
+   "the zombie genre vocabulary has no settled Greek house form"
+  ],
+  "devices": [],
+  "device_notes": "The prompt itself carries no name-devices; all the wordplay lives in the reference answer ('BRAINSSS', the tennis-with-a-wall simile). The Greek answer stage will need a Greek zombie catchphrase — «ΜΥΑΛΑΑΑ» is the natural one — but that is a next-stage decision.",
+  "en_register": "informal",
+  "register_evidence": "'Please write me a short story' — polite but colloquial, personal ('me'), no formal distance markers; a reader talking to a helper about a joke story.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Σε παρακαλώ γράψε μου μια μικρή ιστορία για ένα ζόμπι που δεν καταλαβαίνει γιατί το φοβούνται οι άνθρωποι. Γράψ' την σε πρώτο πρόσωπο. Η ιστορία δεν χρειάζεται να έχει τέλος. Ο τόνος να είναι μελαγχολικός, αλλά και κάπως αστείος.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Three checkable constraints, all fully checkable in Greek: (1) πρώτο πρόσωπο — first-person narration, verifiable from verb morphology; (2) the story need not have an ending — a permission, not a requirement, so it cannot be violated; (3) the double tonal spec μελαγχολικός + αστείος. No count is stated.",
+  "substitution_note": "Nothing to substitute: a zombie who cannot understand why people flee is culture-free, and the setting is unspecified. Any Greek scenery the answer invents should be Greek by default, since nothing anchors it to the US.",
+  "guide_gaps": [
+   {
+    "term": "zombie",
+    "decision": "ζόμπι (indeclinable neuter, 'ένα ζόμπι')",
+    "why": "The naturalized Greek form; neuter gender is what Greek speakers actually assign to it, which forces neuter agreement ('το φοβούνται') even though the character is male in the English."
+   },
+   {
+    "term": "short story",
+    "decision": "μικρή ιστορία",
+    "why": "«Διήγημα» would raise the register to literary-genre level; the English 'short story' here is casual."
+   },
+   {
+    "term": "sad tone",
+    "decision": "μελαγχολικός τόνος",
+    "why": "«Θλιμμένος» is grief; «μελαγχολικός» carries the wistful-plus-comic blend the prompt wants."
+   }
+  ],
+  "reference_problems": [
+   "Internal tension with the prompt's own premise: the narrator says he doesn't understand why people fear him, but then admits eating 'a couple of people', which supplies exactly the reason — arguably intentional comedy, arguably a contradiction.",
+   "'It's truly like playing tennis with a wall' repeats 'truly' from the previous sentence ('Scintillating conversation truly')."
+  ],
+  "translator_notes": "The neuter grammatical gender of «ζόμπι» clashes with the English 'him'. I kept the neuter throughout the prompt («το φοβούνται»); the answer stage must stay consistent and may still let the narrator speak as a man in first person."
+ },
+ {
+  "row_id": "f908727f5589503a74039d1a6dca55a1a965f5034df54719d549732725c99080",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "LOCALIZE"
+  ],
+  "subtype": "word-capped magazine story, targeted audience and tone",
+  "hazards": [
+   "the 342-word cap is the defining constraint and must stay a word count, not become 'about a page'",
+   "Greek is denser than English — 342 Greek words is a noticeably longer story; the cap stays checkable but is not tonally equivalent",
+   "'closer to being grandparents than parents' must not collapse into 'for the elderly'"
+  ],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "neutral",
+  "register_evidence": "Bare task imperative with no addressee, no politeness marker and no personal relationship — an impersonal commission. Greek nevertheless forces an address form in the imperative, so I commit to ενικός to match the unmarked assistant-directed register used across this batch.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια ιστορία που θα μπορούσες να στείλεις σε περιοδικό για δημοσίευση. Η ιστορία να μην ξεπερνά τις 342 λέξεις και ο τόνος της να είναι νοσταλγικός, ελαφρύς και ευχάριστος. Να απευθύνεται σε αναγνώστες που είναι πιο κοντά στο να γίνουν παππούδες και γιαγιάδες παρά γονείς. Θέμα της να είναι μια παιδική εμπειρία, έτσι όπως τη θυμάται ένας ενήλικας.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {
+    "depends_on": "the 342-word cap",
+    "en": "no more than 342 words",
+    "el": "να μην ξεπερνά τις 342 λέξεις",
+    "why": "The count is carried over unchanged as a Greek word count; the checker must count Greek orthographic words, and Greek's article-heavy but compound-poor morphology makes 342 Greek words roughly 15–20% more content than 342 English ones."
+   }
+  ],
+  "constraint_notes": "Checkable constraint: the Greek story must be ≤ 342 words, counted as whitespace-separated orthographic tokens of Greek. This survives cleanly — no adaptation or weakening needed. Secondary uncheckable-but-gradeable constraints: reminiscent/light/pleasant tone, grandparent-aged readership, childhood memory recalled by an adult.",
+  "substitution_note": "The prompt contains no named entities at all, so nothing is transposed at the prompt level. The localization burden falls entirely on the answer: the reference's '88 Cent Store' (a US dime store) has no Greek counterpart and must become a Greek period equivalent such as ένα παλιό «ψιλικατζίδικο» ή «κατάστημα με τα πάντα όλα» — flagged here so the next stage does not transliterate it.",
+  "guide_gaps": [
+   {
+    "term": "submit to a magazine",
+    "decision": "να στείλεις σε περιοδικό για δημοσίευση",
+    "why": "«Υποβάλλω» in Greek reads bureaucratic (submitting a form/application); «στέλνω για δημοσίευση» is what a Greek writer actually says."
+   },
+   {
+    "term": "reminiscent (tone)",
+    "decision": "νοσταλγικός",
+    "why": "Greek has no adjective for 'reminiscent-of-memory'; νοσταλγικός carries the backward-looking warmth that is the intended effect."
+   },
+   {
+    "term": "those closer to being grandparents than parents",
+    "decision": "αναγνώστες που είναι πιο κοντά στο να γίνουν παππούδες και γιαγιάδες παρά γονείς",
+    "why": "Greek «παππούδες» alone can mean 'grandparents' generically, but pairing it with «γιαγιάδες» is the natural, non-ambiguous phrasing and keeps both genders addressed."
+   }
+  ],
+  "reference_problems": [
+   "Tense break: the second paragraph opens 'I push out the door and there she was' — present tense inside a consistently past-tense narrative.",
+   "'88 Cent Store' is glossed as 'a local dime store', which is internally inconsistent with the name (a dime is 10 cents).",
+   "Capitalization of 'Mom' is inconsistent ('my mom' vs 'my Mom' in the same paragraph).",
+   "The reference runs ~337 words, so it satisfies the cap, but only just — the Greek must be checked, not assumed."
+  ],
+  "translator_notes": "Verify the final Greek story's word count mechanically; do not eyeball it. The magazine-submission frame implies a Greek periodical, so any incidental props (shop types, coins, sweets) should be Greek of the 1950s–70s rather than American."
+ },
+ {
+  "row_id": "81413efab6c6c8e3588573f31d231497f579ccb425721ff1f58fb50eea6b6902",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "VERBATIM-FREEZE"
+  ],
+  "subtype": "fabricated celebrity press bio pinned to real institutions",
+  "hazards": [
+   "strong pull to localize the talent show to a Greek format — but the duet partner is a real global star, so a half-move would produce an incoherent world",
+   "Harry Styles and American Idol are real referents: swapping either changes what is true about the bio",
+   "the bio is explicitly fake; the Greek must keep it recognizably fictional and not read as a real press release"
+  ],
+  "devices": [],
+  "device_notes": "No devices in the prompt. The reference invents a punning single title, 'Boys K(no)w Better' (paronomasia on 'know/now better', alluding to Harry Styles' boy-band past). If the answer stage keeps a song title, it should be an English title — Greek-market singles by an anglophone duo are titled in English — so the pun does NOT need to be re-derived in Greek.",
+  "en_register": "neutral",
+  "register_evidence": "'Create a fake biography about…' — a flat task instruction with no addressee and no politeness marking. The deliverable's own register (breezy music-press promo) is separate from the instruction's.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Φτιάξε μια φανταστική βιογραφία ενός ανερχόμενου ποπ τραγουδιστή που πήρε μέρος στο American Idol. Δεν κατάφερε να περάσει τους πρώτους γύρους του διαγωνισμού, τον ανακάλυψαν ενώ εμφανιζόταν ζωντανά σε μαγαζιά της γενέτειράς του, και τώρα ετοιμάζεται να κυκλοφορήσει ένα ντουέτο με τον Χάρι Στάιλς.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {
+    "depends_on": "American Idol (kept)",
+    "en": "hometown gigging scene, US record label, move to LA",
+    "el": "αμερικανική σκηνή — δεν μεταφέρεται στην Ελλάδα",
+    "why": "Because the show and the duet partner are frozen, everything downstream of them (the hometown, the label, the city he moves to) must stay American. Making the singer Greek while he auditions for American Idol and duets with Harry Styles would be exactly the half-transposition Step 1 forbids."
+   }
+  ],
+  "constraint_notes": "Four checkable biographical facts must survive: (1) he competed on American Idol; (2) he was eliminated in the early rounds; (3) he was scouted while gigging in his hometown; (4) a duet with Harry Styles is upcoming. All are language-neutral and carry over unchanged. No count is stated.",
+  "substitution_note": "Deliberately zero transposition. American Idol is a real show and Harry Styles a real person — both fail the Step 1 swap test (swapping them changes what the bio asserts). Since the frame cannot move completely, it does not move at all; the invented singer therefore also gets an American name at the answer stage, not a Greek one.",
+  "guide_gaps": [
+   {
+    "term": "American Idol",
+    "decision": "keep in Latin script, undeclined: «στο American Idol»",
+    "why": "Greek media never translate the show's title; a Greek rendering would name a programme that does not exist."
+   },
+   {
+    "term": "Harry Styles",
+    "decision": "Χάρι Στάιλς",
+    "why": "Person names of anglophone stars are routinely transliterated in Greek press prose while show titles are not; this asymmetry is the real Greek convention, so I follow it rather than forcing consistency."
+   },
+   {
+    "term": "upcoming pop star",
+    "decision": "ανερχόμενος ποπ τραγουδιστής",
+    "why": "«Ανερχόμενος» is the standard Greek music-press word for a rising act."
+   },
+   {
+    "term": "gigging",
+    "decision": "εμφανιζόταν ζωντανά σε μαγαζιά",
+    "why": "Greek has no single verb for 'to gig'; «ζωντανές εμφανίσεις σε μαγαζιά» is the idiomatic equivalent for small-venue live work."
+   },
+   {
+    "term": "scouted",
+    "decision": "τον ανακάλυψαν",
+    "why": "Kept impersonal-plural to preserve the English's unstated agent — the prompt does not say who scouted him."
+   }
+  ],
+  "reference_problems": [
+   "'Ed Sheran' is a misspelling of Ed Sheeran.",
+   "'Boys K(no)w Better' — the parenthetical pun is unexplained and the intended reading ('Boys Know Better' / 'Boys Now Better') is ambiguous.",
+   "The bio asserts a specific real label (Interscope Records) and a real artist collaboration as fact, which is exactly the kind of fabricated claim about real entities that a Greek answer should keep clearly framed as fiction."
+  ],
+  "translator_notes": "Reviewer must confirm the answer stage did NOT relocate the singer to Greece or swap American Idol for a Greek talent format — this row is a trap for over-eager localization."
+ },
+ {
+  "row_id": "4e4b3375f2c5ac38cf0cf522d59610429ebb3542fe05126d776e2ff23da2007b",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "LOCALIZE"
+  ],
+  "subtype": "theatrical setting page with fixed section list and scene count",
+  "hazards": [
+   "the '5 scenes' count and the four required sections (era, place, scene list, set description) are the whole deliverable — losing one destroys the row",
+   "'produce section' has a specific Greek supermarket term that must not be paraphrased loosely",
+   "the scene list must remain enumerable and countable in Greek"
+  ],
+  "devices": [],
+  "device_notes": "The prompt has no devices. The reference's playwright pseudonym 'J.P. Dough' is a paronomasia on 'play dough' (and on initial-based author bylines) — comic, memorable. If the answer stage invents a byline, the pun must be re-derived in Greek from a Greek food-and-name pun, not transliterated; «Ι. Π. Ζυμωτός» or «Ζ. Υμάρης» type play. Flagged for the next stage.",
+  "en_register": "neutral",
+  "register_evidence": "'Create a simple setting page…' — impersonal technical instruction, no addressee, no relationship. Greek's imperative forces a form; ενικός matches the unmarked assistant-directed register of the batch.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Φτιάξε μια απλή σελίδα σκηνικού για ένα σύντομο θεατρικό κείμενο. Να περιλαμβάνει την εποχή (χρονικό πλαίσιο), τον τόπο, μια λίστα με τις σκηνές και μια περιγραφή του σκηνικού. Οι βασικοί χαρακτήρες είναι δύο άντρες που ψωνίζουν στο τμήμα οπωρολαχανικών ενός σούπερ μάρκετ της γειτονιάς. Οι σκηνές είναι πέντε.",
+  "user_turns_el": [],
+  "transpositions": [
+   {
+    "en": "local grocery store",
+    "el": "σούπερ μάρκετ της γειτονιάς",
+    "kind": "institution",
+    "why": "Generic invented setting with no truth-value attached — pure frame. The Greek neighbourhood supermarket is the exact functional counterpart and the produce section works identically."
+   }
+  ],
+  "derived_elements": [
+   {
+    "depends_on": "σούπερ μάρκετ της γειτονιάς",
+    "en": "produce section",
+    "el": "τμήμα οπωρολαχανικών",
+    "why": "The department name is derived from the store type; once the store is a Greek supermarket, the section takes its standard Greek signage name."
+   },
+   {
+    "depends_on": "the Greek store",
+    "en": "1980s American sale posters, neon prices, US produce mix",
+    "el": "ελληνικά σκηνικά της δεκαετίας του '80 (αφίσες προσφορών σε δραχμές, ελληνικά οπωρικά)",
+    "why": "If the answer keeps the reference's 1980s era, every prop derived from the store must be Greek — prices in δραχμές, not dollars, and produce typical of a Greek grocer."
+   }
+  ],
+  "constraint_notes": "Checkable constraints, all preserved and countable in Greek: exactly 5 scenes (πέντε σκηνές — I wrote the numeral as a word so it cannot be misread as a list bullet, but the count itself is unchanged), and four mandatory sections: εποχή/χρονικό πλαίσιο, τόπος, λίστα σκηνών, περιγραφή σκηνικού. The two-male-characters fact is also checkable.",
+  "substitution_note": "One clean full transposition: the store moves to Greece and everything inside it must follow. No US prop survives — flagged in derived_elements so the answer stage does not leave dollar prices or American produce inside a Greek σούπερ μάρκετ.",
+  "guide_gaps": [
+   {
+    "term": "setting page",
+    "decision": "σελίδα σκηνικού",
+    "why": "Greek playscripts head this page «ΣΚΗΝΙΚΟ»; «σελίδα σκηνικού» names the page while staying transparent."
+   },
+   {
+    "term": "produce section",
+    "decision": "τμήμα οπωρολαχανικών",
+    "why": "The actual term on Greek supermarket signage; «τμήμα φρούτων και λαχανικών» is a longer synonym and «παραγωγή» would be a false friend."
+   },
+   {
+    "term": "grocery store",
+    "decision": "σούπερ μάρκετ",
+    "why": "Greek uses the naturalized «σούπερ μάρκετ»; «παντοπωλείο» denotes an older, smaller grocer and would fight the produce-section premise."
+   },
+   {
+    "term": "era (time frame)",
+    "decision": "εποχή (χρονικό πλαίσιο)",
+    "why": "Keeps the English's own parenthetical gloss, which exists because 'era' is ambiguous in English too."
+   }
+  ],
+  "reference_problems": [
+   "The reference gives the era as 'The 1980s' and the location as 'Ferdy's Grocery Bonanza' but never states them under a heading matching the requested 'era (time frame)' label — it uses 'Time:' instead, a minor spec drift.",
+   "Scene Three is described as holding 'center stage' and Scene Five's bin also 'occupies center stage' — repetitive staging.",
+   "Typographic inconsistency: curly apostrophes in 'Ferdy’s' and '80’s' alongside straight ones elsewhere; '80’s' is also a misplaced apostrophe for a decade."
+  ],
+  "translator_notes": "Confirm the answer's scene list has exactly five entries and that the era chosen is stated as a Greek-relevant period; if the '80s are kept, prices must be in δραχμές."
+ },
+ {
+  "row_id": "0db86f789a8c54ed9c2eb50a86bee95e5443a9386b52d6abea9e2e090f052c13",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "LOCALIZE",
+   "REGISTER-CRITICAL"
+  ],
+  "subtype": "collaborative character-development brief with a numbered three-question spec",
+  "hazards": [
+   "the character name 'Fancy' is a charactonym AND alliterates with 'Forest Cat' — transliteration would kill both",
+   "the series title recurs three times in the prompt and must be identical every time, since it is the checkable string the answer will echo",
+   "three separate counts (two qualities, one dislike, four-to-five sentences) plus a numbered-format requirement",
+   "the owners/countryside/forest world must move to Greece as a whole, not piecemeal"
+  ],
+  "devices": [
+   {
+    "where": "character name + series title",
+    "device": "charactonym + alliteration",
+    "effect": "memorable, childlike, warm",
+    "english": "Fancy the Forest Cat",
+    "greek": "Η Δούκισσα, η Γάτα του Δάσους",
+    "how": "Same two devices, both re-derived. «Δούκισσα» ('Duchess') is a real, common Greek cat name that means something posh and dainty — the charactonym job 'Fancy' does — and it alliterates with «Δάσους» on Δ, mirroring the English F/F of Fancy/Forest. A literal «Φανταχτερή» would be a description, not a name Greek people give cats, and would alliterate with nothing."
+   },
+   {
+    "where": "dog's name",
+    "device": "charactonym",
+    "effect": "warm, familiar, faintly comic",
+    "english": "Buddy",
+    "greek": "Μπόμπης",
+    "how": "Different device. Greek has no dog name that MEANS 'pal' — «Φίλος» is not used as a name. «Μπόμπης» is the archetypal Greek family-dog name; it reproduces the effect (instant warmth and familiarity, slight comedy) through stock-name recognition rather than through semantics. Device not reproduced; effect reproduced."
+   }
+  ],
+  "device_notes": "The English name pair works by contrast — a posh-sounding cat and a plain-sounding dog. Δούκισσα/Μπόμπης preserves that contrast exactly, which matters more than either name's literal sense.",
+  "en_register": "informal",
+  "register_evidence": "'Can you please provide…', 'my character', 'Remember,' — a writer talking to a collaborator about their own hobby project; polite but personal and unguarded throughout.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Μπορείς σε παρακαλώ να μου δώσεις περισσότερες λεπτομέρειες και ιδέες για τον χαρακτήρα μου, τη Δούκισσα; Η Δούκισσα είναι ο κεντρικός χαρακτήρας μιας σειράς μικρών ιστοριών με τίτλο «Η Δούκισσα, η Γάτα του Δάσους». Θα σου δώσω κάποια στοιχεία που έχω ήδη για εκείνη και μετά θα σου πω ποιες επιπλέον λεπτομέρειες θα ήθελα να σκεφτούμε, με βάση αυτά που έχω ήδη.\n\nΌσα έχω μέχρι τώρα είναι ότι η Δούκισσα είναι μια περιπετειώδης μαύρη γάτα που ζει με τα αφεντικά της σε ένα σπίτι στην εξοχή. Ο καλύτερός της φίλος είναι ένα σνάουτσερ που το λένε Μπόμπη. Τα αφεντικά της Δούκισσας και του Μπόμπη τα αγαπούν πάρα πολύ, κι εκείνα με τη σειρά τους λατρεύουν να περνούν χρόνο μαζί τους. Όταν τα αφεντικά φεύγουν για τη δουλειά, στη Δούκισσα αρέσει να βγαίνει έξω και να τριγυρίζει στο δάσος. Γι' αυτό και τη λένε «η Γάτα του Δάσους». Μαζί με τον Μπόμπη κάνουν σκανταλιές, καμιά φορά και μαζί με άλλα ζώα της περιοχής. Στο τέλος κάθε μέρας γυρίζει στο σπίτι, όταν επιστρέφουν τα αφεντικά τους. Ζει μια πολύ ωραία και διασκεδαστική ζωή.\n\nΟι ιστορίες «Η Δούκισσα, η Γάτα του Δάσους» μιλούν για τις περιπέτειες της Δούκισσας μέσα στο δάσος. Στον κόσμο αυτών των ιστοριών τα ζώα έχουν κάποια ανθρωπόμορφα χαρακτηριστικά. Δεν περπατούν στα δύο πόδια, δεν φοράνε ρούχα και δεν οδηγούν αυτοκίνητα όπως οι άνθρωποι, μπορούν όμως να μιλούν δυνατά μεταξύ τους (δηλαδή τα ζώα καταλαβαίνουν το ένα το άλλο, αλλά οι άνθρωποι δεν καταλαβαίνουν τα ζώα). Όταν επικοινωνούν μεταξύ τους, μιλούν και εκφράζουν τις σκέψεις τους όπως ακριβώς κάνουν οι άνθρωποι. Οι ιστορίες είναι οικογενειακές και κατάλληλες για παιδιά. Μπορεί να έχουν περιπέτεια και ένταση, στο τέλος όμως είναι διασκεδαστικές και αισιόδοξες.\n\nΑυτά είναι όλα όσα έχω μέχρι στιγμής. Οι λεπτομέρειες και οι ιδέες για τις οποίες θα ήθελα την έμπνευσή σου είναι τρία βασικά πράγματα: 1. Ποια δύο επιπλέον χαρακτηριστικά μπορώ να προσθέσω στη Δούκισσα, δηλαδή τι άλλο της αρέσει να κάνει, από τα οποία το ένα να μπορεί να θεμελιώσει ένα θέμα για όλες τις ιστορίες συνολικά; 2. Ποια είναι μία ιδέα για κάτι που δεν της αρέσει και που μπορεί να προκαλέσει σύγκρουση ή μπελάδες στην ιστορία όταν το συναντήσει; 3. Μπορείς να μου κάνεις μια πρόταση για μια ιστορία της σειράς «Η Δούκισσα, η Γάτα του Δάσους»; Μια περίληψη τεσσάρων με πέντε προτάσεων θα ταίριαζε καλύτερα εδώ.\n\nΟ σκοπός των δύο πρώτων ερωτήσεων είναι να δώσουμε λίγο περισσότερο βάθος στον χαρακτήρα της Δούκισσας, ενώ ο σκοπός της τρίτης είναι να προκύψει μια ιδέα ιστορίας γι' αυτήν, με βάση τις απαντήσεις σου στις δύο πρώτες (οι ιδέες σου στις δύο πρώτες ερωτήσεις πρέπει να επηρεάσουν την ιδέα της τρίτης).\n\nΣε παρακαλώ γράψε την απάντησή σου σε αριθμημένη μορφή, για τις τρεις παραπάνω ερωτήσεις, και φρόντισε οι ιδέες σου να ταιριάζουν με όσα έχω ήδη σκεφτεί για τη Δούκισσα. Θυμήσου, οι ιστορίες μπορεί να έχουν ένταση, αλλά πρέπει να έχουν αίσιο τέλος.",
+  "user_turns_el": [],
+  "transpositions": [
+   {
+    "en": "Fancy",
+    "el": "Δούκισσα",
+    "kind": "name",
+    "why": "Invented cat; nothing is true or false because of her name. Re-derived to keep charactonym + alliteration with «Δάσους»."
+   },
+   {
+    "en": "Buddy",
+    "el": "Μπόμπης",
+    "kind": "name",
+    "why": "Invented dog; stock Greek dog name reproduces the warm-and-plain effect."
+   },
+   {
+    "en": "Fancy the Forest Cat (series title)",
+    "el": "Η Δούκισσα, η Γάτα του Δάσους",
+    "kind": "other",
+    "why": "Title is derived from the cat's name, so it moves with her; kept byte-identical at all three occurrences so it stays a checkable string."
+   },
+   {
+    "en": "a house in the countryside",
+    "el": "ένα σπίτι στην εξοχή",
+    "kind": "place",
+    "why": "Generic invented setting; Greek countryside works identically and the forest premise transfers without strain."
+   },
+   {
+    "en": "Schnauzer",
+    "el": "σνάουτσερ",
+    "kind": "other",
+    "why": "Real dog breed — content, not frame. Only its spelling is naturalized."
+   }
+  ],
+  "derived_elements": [
+   {
+    "depends_on": "Δούκισσα",
+    "en": "Fancy the Forest Cat (title)",
+    "el": "Η Δούκισσα, η Γάτα του Δάσους",
+    "why": "The title contains the name; re-deriving the name without the title would leave a dangling English pun."
+   },
+   {
+    "depends_on": "Δούκισσα",
+    "en": "Hence she is called Fancy the Forest Cat",
+    "el": "Γι' αυτό και τη λένε «η Γάτα του Δάσους»",
+    "why": "The in-text explanation of the nickname must match the re-derived title exactly, or the sentence stops explaining anything."
+   },
+   {
+    "depends_on": "Μπόμπης",
+    "en": "Buddy (all later mentions)",
+    "el": "Μπόμπη / του Μπόμπη / τον Μπόμπη",
+    "why": "All four in-text mentions re-derived, with Greek case inflection, so the dog is one character and not two."
+   },
+   {
+    "depends_on": "Μπόμπης (masculine)",
+    "en": "Her best friend is a Schnauzer named Buddy",
+    "el": "Ο καλύτερός της φίλος είναι ένα σνάουτσερ που το λένε Μπόμπη",
+    "why": "English 'best friend' is gender-free; Greek forces φίλος/φίλη. Buddy is male in the reference (the hawk-scaring rescuer), so the Greek must be masculine — the English wording alone would have misled a translator into «φίλη»."
+   }
+  ],
+  "constraint_notes": "Four checkable constraints survive: (1) exactly two additional qualities, one of which must ground a series-wide theme; (2) exactly one disliked thing that generates conflict; (3) a pitch of four to five sentences — countable in Greek by sentence-final punctuation; (4) numbered format answering the three questions in order. Plus two content gates: ideas must be compatible with the existing character, and the story must end happily.",
+  "substitution_note": "Full transposition of an entirely invented cast into Greek reality: both animal names re-derived, the series title re-derived from the cat's name, the setting read as Greek countryside. Nothing American remained to move — the row's only anchors were the two names and the title, and all three moved together.",
+  "guide_gaps": [
+   {
+    "term": "owners (of a pet)",
+    "decision": "αφεντικά",
+    "why": "«Ιδιοκτήτες» is the legal/veterinary word; «αφεντικά» is what Greek speakers say about their pets' people, and it fits a children's-story register."
+   },
+   {
+    "term": "anthropomorphic qualities",
+    "decision": "ανθρωπόμορφα χαρακτηριστικά",
+    "why": "Direct and standard; understood without gloss."
+   },
+   {
+    "term": "family-friendly",
+    "decision": "οικογενειακές (ιστορίες)",
+    "why": "Greek has no calque of 'family-friendly'; «οικογενειακές» plus «κατάλληλες για παιδιά» carries both halves, as the English itself does."
+   },
+   {
+    "term": "pitch (a story pitch)",
+    "decision": "πρόταση για μια ιστορία",
+    "why": "Greek publishing has no settled word for 'pitch'; «πρόταση» plus the following sentence-count spec makes the intent unambiguous."
+   },
+   {
+    "term": "Schnauzer",
+    "decision": "σνάουτσερ",
+    "why": "Breed names of foreign origin are transliterated in Greek, not translated."
+   }
+  ],
+  "reference_problems": [
+   "Answer 1 is asked for 'two additional qualities' and supplies sunbathing plus exploring, but explicitly nominates only exploration as the theme — acceptable, though 'curious and adventurous nature' restates a quality the user already gave rather than adding a new one.",
+   "Answer 2 opens 'Like most cats, Fancy is also scared of a hawk' — 'like most cats' does not license fear of one specific local hawk; the generalization is a non sequitur.",
+   "Answer 3's pitch runs six sentences, exceeding the requested four to five — the reference fails the prompt's own count constraint."
+  ],
+  "translator_notes": "The series title «Η Δούκισσα, η Γάτα του Δάσους» must be reproduced character-for-character wherever the answer echoes it. Check the pitch is 4–5 Greek sentences (the English reference violated this) and that Μπόμπης stays masculine throughout."
+ },
+ {
+  "row_id": "f9a5324c3d5cd34bc98a76991c963fe9850ba0b7e82575e0098e691bdce2a0ce",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "LOCALIZE"
+  ],
+  "subtype": "exact-word-count romantic scene with two invented characters",
+  "hazards": [
+   "'exactly 240 words' is the hardest constraint type — it must remain exact, not approximate, and Greek word counts differ from English for identical content",
+   "both names are invented frame and must move together or not at all",
+   "the physical description (green eyes, dyed red hair) is checkable content and must survive verbatim in substance"
+  ],
+  "devices": [],
+  "device_notes": "Neither English name carries a device — 'Samantha' and 'Aiden' are ordinary contemporary given names with no semantic payload. So the Greek names need only be ordinary contemporary Greek given names of the same age band; no sound-play to reproduce.",
+  "en_register": "neutral",
+  "register_evidence": "'Write a romantic meet-cute…' — a bare commission with a technical spec attached; no addressee, no relationship. Greek's imperative forces an address form, so ενικός, matching the batch's unmarked assistant-directed register.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια ρομαντική πρώτη συνάντηση ανάμεσα στη Μυρτώ και τον Αντρέα. Ο Αντρέας είναι ένας όμορφος νεαρός με πράσινα μάτια και βαμμένα κόκκινα μαλλιά, και η Μυρτώ αιφνιδιάζεται όταν εκείνος της προτείνει να της πιάσει κουβέντα, βλέποντας πόσο φοβάται τις πτήσεις. Το κείμενο πρέπει να είναι ακριβώς 240 λέξεις.",
+  "user_turns_el": [],
+  "transpositions": [
+   {
+    "en": "Samantha",
+    "el": "Μυρτώ",
+    "kind": "name",
+    "why": "Pure frame — nothing about the scene is true or false because of her name. «Μυρτώ» is a common contemporary Greek name for a young woman, the same register as Samantha."
+   },
+   {
+    "en": "Aiden",
+    "el": "Αντρέας",
+    "kind": "name",
+    "why": "Pure frame. «Αντρέας» is an ordinary Greek male name of the right generation; a transliterated «Έιντεν» would be nobody's name in Greek."
+   }
+  ],
+  "derived_elements": [
+   {
+    "depends_on": "Μυρτώ / Αντρέας",
+    "en": "the closing name-exchange dialogue ('My name is Samantha' / 'Aiden')",
+    "el": "«Με λένε Μυρτώ.» / «Αντρέας.»",
+    "why": "The scene's final beat is the two characters naming themselves; both lines must be re-derived from the replacement names or the meet-cute ends on English names inside a Greek story."
+   },
+   {
+    "depends_on": "the 240-word count",
+    "en": "exactly 240 words",
+    "el": "ακριβώς 240 λέξεις",
+    "why": "The count is carried unchanged but must now be counted over Greek tokens; because Greek is denser, 240 Greek words yields a somewhat longer scene, which is acceptable — the constraint is a count, not a length."
+   }
+  ],
+  "constraint_notes": "Hard checkable constraint: the Greek scene must be EXACTLY 240 words, counted as whitespace-separated orthographic tokens. Fully preservable and fully checkable in Greek; no weakening. Secondary checkable content: Aiden is handsome, young, green-eyed, with dyed red hair; Samantha is visibly afraid of flying; he offers conversation and she is taken aback.",
+  "substitution_note": "Complete transposition of an invented two-person scene: both names moved. The setting (an aeroplane cabin, a flight attendant, overhead lockers) is international and needs no move — it is the same on a Greek carrier — so the transposition is complete without touching it.",
+  "guide_gaps": [
+   {
+    "term": "meet-cute",
+    "decision": "ρομαντική πρώτη συνάντηση",
+    "why": "Greek has no term for the screenwriting trope; the descriptive phrase names the same thing without importing an English word a Greek writer would not use."
+   },
+   {
+    "term": "offers to talk to her (as a distraction)",
+    "decision": "της προτείνει να της πιάσει κουβέντα",
+    "why": "«Πιάνω κουβέντα» is the idiomatic Greek for striking up conversation with a stranger and carries the same low-key, unthreatening warmth."
+   },
+   {
+    "term": "dyed red hair",
+    "decision": "βαμμένα κόκκινα μαλλιά",
+    "why": "«Κόκκινα» not «καστανοκόκκινα» — the reference makes clear it is an unnatural fire-engine red, so the plain colour word is right."
+   }
+  ],
+  "reference_problems": [
+   "Continuity error: the heroine is named Samantha throughout but is called 'Sakura' once — 'Sakura nodded back, taken aback by his appearance.'",
+   "The reference contradicts the prompt's premise: the prompt says Samantha shows how scared she is of flights, but the reference says 'She wasn't scared of flying - or at least, she hadn't been growing up.'",
+   "'He was handsome, sort of' undercuts the prompt's flat statement that Aiden is handsome.",
+   "The reference does not appear to hit exactly 240 words, which is the prompt's single hardest constraint — it must be treated as unverified, not as a model to imitate."
+  ],
+  "translator_notes": "Count the Greek mechanically; 'exactly 240' admits no tolerance. Also watch that the Sakura/Samantha slip in the reference is NOT reproduced — it is an error, not a defect to preserve (this row is not PRESERVE-DEFECT)."
+ },
+ {
+  "row_id": "1be5854c67756660c5a9a3990375a7a4c270f5661add4e71737c39f6364905a5",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "LITERAL",
+   "VERBATIM-FREEZE"
+  ],
+  "subtype": "in-character letter with a concealed rhetorical motive",
+  "hazards": [
+   "every proper name is already Greek — the danger is over-thinking and 'localizing' what is native",
+   "the letter is prince-to-king: the address form is load-bearing and mirrors the deceit (too warm and the ruse reads as mockery)",
+   "the English prompt contains two typos ('rouse' for 'ruse', 'thing' for 'think') that must not be reproduced as Greek errors — they are instruction-level slips, not a designed defect",
+   "the whole point is that the letter must NOT reveal the deception; the Greek must not leak it"
+  ],
+  "devices": [
+   {
+    "where": "the letter's rhetorical strategy",
+    "device": "paronomasia-adjacent dramatic irony",
+    "effect": "sly, comic to the reader",
+    "english": "asking after Helen's health while she is standing beside him",
+    "greek": "να ρωτά για την υγεία της Ελένης ενώ εκείνη βρίσκεται δίπλα του",
+    "how": "Same device; dramatic irony is language-independent and needs no re-derivation. Greek readers have the Homeric background natively, so the irony lands harder, not softer."
+   }
+  ],
+  "device_notes": "This is the one row in the batch where the Greek audience is closer to the material than the English audience. No compensation is needed anywhere; the temptation is to over-explain the myth, which must be resisted.",
+  "en_register": "informal",
+  "register_evidence": "The instruction to the assistant is casual ('Write a thank you letter…', 'Paris's rouse is that…'). The DELIVERABLE, however, is a formal diplomatic letter from a Trojan prince to a Spartan king — the register that matters for the row is the letter's.",
+  "target_register": "πληθυντικός",
+  "system_el": null,
+  "prompt_el": "Ο Πάρις της Τροίας πρέπει να περιορίσει τη ζημιά μετά την επιστροφή του στην Τροία μαζί με την Ελένη. Σκοπεύει να αρνηθεί ότι την πήρε. Γράψε μια ευχαριστήρια επιστολή από τον Πάρη προς τον Μενέλαο, στην οποία τον ευχαριστεί για τη φιλοξενία του και ρωτάει πώς είναι η Ελένη. Το τέχνασμα του Πάρη είναι ότι, αν ρωτήσει για την Ελένη μέσα στην επιστολή, τότε ο Μενέλαος προφανώς θα νομίσει ότι εκείνη δεν βρίσκεται μαζί του.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {
+    "depends_on": "the letter's πληθυντικός address",
+    "en": "'Dearest Menelaus' / 'Warmest Wishes'",
+    "el": "«Αγαπητέ μου Μενέλαε» / «Με τις θερμότερες ευχές»",
+    "why": "Greeting and sign-off are derived from the chosen address form; once the letter is πληθυντικός, the salutation and closing must be the formal-epistolary Greek pair, not the intimate one."
+   },
+   {
+    "depends_on": "the letter's signature",
+    "en": "Prince Paris of Troy",
+    "el": "Πάρις, πρίγκιπας της Τροίας",
+    "why": "The signature restates the sender's rank, which is what makes the letter diplomatic rather than personal; it must carry the Greek title form."
+   }
+  ],
+  "constraint_notes": "Checkable constraints, all preserved: the deliverable is a letter; it is from Paris to Menelaus; it thanks him for his hospitality; it asks after Helen. The concealed-motive requirement is checkable negatively — the letter must nowhere admit that Helen is in Troy.",
+  "substitution_note": "Zero substitution, and this is the row's most interesting property: Πάρις, Μενέλαος, Ελένη, Τροία and Σπάρτη are Greek names in Greek. What is an exotic classical reference in English is domestic material in Greek. The prompt therefore needs no transposition at all, and the Greek should use the Greek forms of the names (Πάρις/Πάρη with the standard modern declension), not transliterations of the English.",
+  "guide_gaps": [
+   {
+    "term": "Paris (of Troy)",
+    "decision": "Ο Πάρις, gen./acc. «του Πάρη / τον Πάρη»",
+    "why": "Modern Greek uses the demotic declension for the Homeric name; «Πάριδος» would be a καθαρεύουσα form out of key with the rest of the prompt."
+   },
+   {
+    "term": "damage control",
+    "decision": "να περιορίσει τη ζημιά",
+    "why": "Greek has no fixed idiom for 'damage control'; «περιορισμός της ζημιάς» is the transparent and natural rendering."
+   },
+   {
+    "term": "ruse",
+    "decision": "τέχνασμα",
+    "why": "«Τέχνασμα» is exactly a clever stratagem; «κόλπο» would be too colloquial for a scheme attributed to a prince, «δόλος» too legal/moral."
+   },
+   {
+    "term": "thank you letter",
+    "decision": "ευχαριστήρια επιστολή",
+    "why": "«Επιστολή» not «γράμμα» — the deliverable is formal and diplomatic."
+   }
+  ],
+  "reference_problems": [
+   "The English PROMPT (not the reference) contains two typos: 'rouse' for 'ruse' and 'would thing' for 'would think'. These are mechanical slips in the instruction, so I wrote clean Greek rather than manufacturing Greek typos — this row is not PRESERVE-DEFECT.",
+   "The reference's ruse is logically weak in a way the prompt does not acknowledge: 'we were not able to properly say goodbye' half-admits Helen's absence and could just as easily arouse suspicion.",
+   "'Dearest Menelaus' is oddly intimate for a letter whose whole purpose is deniable diplomatic distance."
+  ],
+  "translator_notes": "Register decision is the crux: the Greek letter uses πληθυντικός throughout (prince to a foreign king). Reviewer should confirm the answer never slips into ενικός, and never uses ancient/καθαρεύουσα forms — the letter is a modern Greek text about ancient people, not a pastiche of Homer."
+ },
+ {
+  "row_id": "f26cd4598a70efbb6a439d6c28813976039ec784b6b6803cb6b59701d61fd1e9",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "REGISTER-CRITICAL",
+   "LOCALIZE"
+  ],
+  "subtype": "single-paragraph complaint email with a required signature string",
+  "hazards": [
+   "'just one paragraph' is a checkable formatting constraint that Greek complaint-letter conventions (salutation + body + sign-off) will try to break",
+   "the signature is a required literal string and must be agreed here, not improvised at the answer stage",
+   "'professional-sounding' plus a business addressee forces πληθυντικός — a slip to ενικός destroys the row"
+  ],
+  "devices": [
+   {
+    "where": "signature",
+    "device": "hypocorism (diminutive given name)",
+    "effect": "warm, informal — in tension with the professional register",
+    "english": "Joey",
+    "greek": "Μάκης",
+    "how": "Same device. 'Joey' is a familiar short form, not a full name, and signing a professional complaint with it is a small register wrinkle worth keeping. «Μάκης» is a real Greek hypocorism used as a standalone name, so it reproduces both the familiarity and the wrinkle; «Τζόι» would be a foreigner's name in a Greek restaurant complaint."
+   }
+  ],
+  "device_notes": null,
+  "en_register": "formal",
+  "register_evidence": "The deliverable is explicitly 'professional-sounding' and addressed to a business the writer has no personal relationship with; the reference confirms it with 'To Whom It May Concern' and 'Regards'.",
+  "target_register": "πληθυντικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα email με επαγγελματικό ύφος προς ένα εστιατόριο για μια κακή εμπειρία. Φρόντισε να αναφέρεις ότι στο φαγητό σου βρέθηκε φλούδα από αβοκάντο, κάτι που σου προκάλεσε αδιαθεσία επειδή ήταν ένα ξένο σώμα που δεν το περίμενες. Το email να είναι μόνο μία παράγραφος. Υπόγραψέ το ως Μάκης.",
+  "user_turns_el": [],
+  "transpositions": [
+   {
+    "en": "Joey",
+    "el": "Μάκης",
+    "kind": "name",
+    "why": "The signer is invented frame — nothing in the complaint is true or false because of the name. Localized to a Greek familiar name so the whole scene (a Greek diner writing to a Greek restaurant) is consistent."
+   },
+   {
+    "en": "restaurant (unnamed US restaurant)",
+    "el": "εστιατόριο",
+    "kind": "institution",
+    "why": "Unnamed and generic; the Greek noun carries it with no further move needed."
+   }
+  ],
+  "derived_elements": [
+   {
+    "depends_on": "Μάκης",
+    "en": "the sign-off line 'Regards, Joey'",
+    "el": "«Με εκτίμηση, Μάκης»",
+    "why": "The closing carries the required name; if the answer keeps 'Joey' in the sign-off the required string is broken."
+   },
+   {
+    "depends_on": "the πληθυντικός address to the restaurant",
+    "en": "'To Whom It May Concern' / 'Regards'",
+    "el": "«Προς τον υπεύθυνο του καταστήματος» / «Με εκτίμηση»",
+    "why": "Greek business-letter openings and closings derive from the chosen formality; the standard Greek pair must replace the English formulae rather than be translated word for word."
+   }
+  ],
+  "constraint_notes": "Three checkable constraints, all preserved in Greek: (1) exactly one paragraph — checkable by counting blank-line-separated blocks, with the caveat noted below; (2) the email must state that avocado skin (φλούδα από αβοκάντο) was found in the food and that it made the writer unwell because it was an unexpected foreign object; (3) the required literal signature string is «Μάκης» — agreed here, and the answer must use exactly this form. No numeric word count.",
+  "substitution_note": "Complete transposition: signer's name and restaurant both become Greek, and the sign-off formulae are re-derived from Greek business-letter convention. Avocado is not localized — it is real content (the specific foreign object that caused the illness) and is entirely ordinary in Greek restaurants.",
+  "guide_gaps": [
+   {
+    "term": "email",
+    "decision": "email (Latin script, undeclined)",
+    "why": "Naturalized in everyday Greek and what a Greek person writing one would call it; «ηλεκτρονικό μήνυμα» is officialese and «ημέιλ» is not the standard spelling. Recording this as the house form for the whole corpus."
+   },
+   {
+    "term": "avocado",
+    "decision": "αβοκάντο",
+    "why": "The established Greek form, indeclinable neuter."
+   },
+   {
+    "term": "professional-sounding",
+    "decision": "με επαγγελματικό ύφος",
+    "why": "«Ύφος» is the right word for register/tone in Greek writing instructions."
+   },
+   {
+    "term": "get sick (from a foreign object)",
+    "decision": "μου προκάλεσε αδιαθεσία",
+    "why": "«Αρρώστησα» would imply illness/disease; «αδιαθεσία» is the transient queasiness the English 'get sick' means here."
+   },
+   {
+    "term": "unexpected object / foreign object",
+    "decision": "ξένο σώμα που δεν το περίμενες",
+    "why": "«Ξένο σώμα» is the standard Greek food-safety term; the relative clause keeps the English's own emphasis on unexpectedness, which is the stated cause of the reaction."
+   }
+  ],
+  "reference_problems": [
+   "The reference arguably violates the one-paragraph constraint: it has a salutation line, a body block and a two-line sign-off. Whether the constraint counts only the body is left ambiguous, and the reference does not resolve it.",
+   "The causal claim is odd and unexamined: 'If I get an unexpected object or unexpected texture in my food, it causes me to get sick' asserts a sensitivity as if it were general fact.",
+   "'this may seem like a minute thing' — 'minute' is the wrong register and reads as a near-miss for 'minor'.",
+   "The complaint says 'nothing like this has ever happened' after 'I understand that mistakes happen', which sits awkwardly."
+  ],
+  "translator_notes": "Decide and record at the answer stage whether the salutation and sign-off count toward 'one paragraph' — I read the constraint as applying to the body, matching the reference's own behaviour, but it should be applied consistently. The signature must be exactly «Μάκης»."
+ },
+ {
+  "row_id": "f1776539dc5c88c28c518c3dd7e5c4aaf29e3fc55f89466bc89f632fadea1ef5",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [
+   "LITERAL"
+  ],
+  "subtype": "informational bulleted list with a minimum count and a mandated structure",
+  "hazards": [
+   "the structural spec (intro paragraph THEN bulleted list, sentences not fragments) is the checkable part and is easy to drop",
+   "the archaeological sites are real referents and must not be localized to Greek monuments, however tempting — although Greek sites belong to the same 'ancient aliens' folklore, swapping them changes what the answer asserts",
+   "US units in the answer (pounds, miles) must be converted with a gloss, not transliterated",
+   "non-Greek site names need transliteration decisions that do not yet exist in a house glossary"
+  ],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "informal",
+  "register_evidence": "'Can you tell me about…', 'Give it to me in a bulleted list' — a casual conversational request with a personal 'me', no politeness distance.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Μπορείς να μου πεις για μερικές αρχαίες κατασκευές που κάποιοι πιστεύουν ότι χτίστηκαν από εξωγήινους; Συμπερίλαβε τουλάχιστον 3 διαφορετικές κατασκευές. Δώσε μου την απάντηση σε λίστα με κουκκίδες, με ολοκληρωμένες προτάσεις, και βάλε μια εισαγωγή πριν από τη λίστα. Φρόντισε να αναφέρεις πληροφορίες για τον πολιτισμό που έχτισε κάθε κατασκευή και για το πότε πιθανότατα χτίστηκε.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {
+    "depends_on": "the frozen real sites",
+    "en": "4,000 pounds; more than 20 miles",
+    "el": "περίπου 1.800 κιλά· πάνω από 30 χιλιόμετρα",
+    "why": "The prompt asks for facts about real structures, so the answer will carry US units. Units are scenery and must be converted to the metric forms a Greek reader uses; the numbers are derived from the originals and must be recomputed, not transliterated. Flagged here because the conversion happens at the answer stage."
+   }
+  ],
+  "constraint_notes": "Four checkable constraints, all fully preservable in Greek: (1) at least 3 distinct structures — «τουλάχιστον 3», countable; (2) output format is a bulleted list; (3) the bullets must be full sentences, not fragments; (4) an introduction must precede the list. Plus two per-bullet content requirements: the civilization that built it, and the likely date. No word count.",
+  "substitution_note": "Deliberately zero transposition. The pyramids, Sacsayhuamán and Teotihuacán are content — the answer's truth depends on which structures are named. A Greek-native version substituting, say, the Cyclopean walls of Mycenae would be a different (though legitimate) question and would falsify nothing but assert nothing the prompt asked for. Only units and name spellings move.",
+  "guide_gaps": [
+   {
+    "term": "aliens (extraterrestrials)",
+    "decision": "εξωγήινοι",
+    "why": "The ordinary Greek word; «εξωγήινα όντα» is heavier and «αλιένς» is not used in Greek prose."
+   },
+   {
+    "term": "bulleted list",
+    "decision": "λίστα με κουκκίδες",
+    "why": "The standard Greek phrasing for a bullet list; «κουκκίδες» is what Greek word-processing UI uses."
+   },
+   {
+    "term": "structures (ancient monumental)",
+    "decision": "κατασκευές",
+    "why": "«Κατασκευές» covers pyramids, fortresses and cities alike; «μνημεία» would prejudge them as monuments and «κτίρια» excludes the fortress and the city."
+   },
+   {
+    "term": "civilization",
+    "decision": "πολιτισμός",
+    "why": "Standard; note the Greek word also means 'culture', which is unproblematic here."
+   }
+  ],
+  "reference_problems": [
+   "The reference does not include the required introduction before the list — it begins directly with the first bullet, failing the prompt's own structural constraint.",
+   "Factual error: Sacsayhuamán is dated 'around 1000 years ago', but Pachacuti reigned in the 15th century, making it roughly 550–600 years old. The same bullet names Pachacuti, so the date contradicts its own attribution.",
+   "'The pyramids are made up of millions of stones that each weigh at least 4000 pounds' — 'at least' is unsupported; block weights vary widely and many are lighter.",
+   "Teotihuacán is said to have been built 'more than 2000 years ago' while also being said to predate the Toltecs 'by a few hundred years' — the two datings are not reconciled."
+  ],
+  "translator_notes": "Transliteration decisions still needed at the answer stage for whichever sites are chosen (e.g. Σαξαϊουαμάν, Τεοτιουακάν) — I did not fix them here because the prompt names no sites and pre-committing would constrain the answer. Confirm the Greek answer DOES open with an introduction, since the English reference does not."
+ }
+]

@@ -1,0 +1,396 @@
+# Stage 1 — decide what the row is, then write the Greek prompt
+
+You are building **Greek-native instruction data**, seeded by an English dataset. You are **not**
+translating. The English row is your source of *content and intent*, not of surface form. A Greek
+reader should never be able to tell the row began in English.
+
+Fidelity is a list of things you must not change — it is not the goal.
+
+You produce the Greek **prompt** only. You do not answer it.
+
+## This row's family: generative
+
+Short instruction, long answer. The answer is composed. Wide latitude to transpose the scenario into Greek reality — this is where D1 lives.
+
+Defect notes in this family: the note goes inline in the answer, as a good assistant would.
+
+
+## This row's category: Generation
+
+**Shape.** Bare instruction, single turn. Prompt median 155 chars, answer 872 — the answer is ~5× the prompt. Essentially never a source text.
+
+**The thing that defines this category.** The output spec is inside the instruction. 29.7% name a count of words/paragraphs/items/lines/stanzas and 21% give an explicit numeric size limit — five to fifty times the rate of any other category.
+
+**Essential — lose any of these and the row is destroyed:**
+- The countable constraint, restated so it stays countable in Greek.
+- Formal devices when the row is about form — ABAB, sonnet, alliteration. These transfer: rhyme is fully available in Greek, so they are not regeneration cases.
+- Required literal strings (a proverb the story must contain) — the Greek wording becomes the checkable string and must be agreed in advance.
+- Real-world referents, and the requested slant or persona.
+
+**Safe to adapt.** Everything that is scenery: invented names and settings, US props inside invented scenes, units (with a gloss), sentence rhythm.
+
+**Normally classified as.** CONSTRAINT-PRESERVING where a count is stated; REGISTER-CRITICAL where the deliverable is a message to a named human; LOCALIZE where the whole cast is invented.
+
+
+---
+
+## Step 1 — Frame or content?
+
+The one test that governs everything:
+
+> **Would swapping this entity change whether the answer is true?**
+> **Yes → it is content. Freeze it.  No → it is frame. Move it into Greek reality.**
+
+*Aberdeen* in "why is Aberdeen called the Granite City" is content — the answer is about Aberdeen's
+granite. *Jenna* in "write an email to my daughter Jenna" is frame — nothing is true or false because
+of her name. In "a casual email to a friend named Bowen about the Legend of Faust", **Bowen moves,
+Faust does not.**
+
+Transpose the frame **completely or not at all**. A Greek family with Greek names eating Thanksgiving
+turkey is worse than an untouched American scene. If you move a scenario, move everything in it:
+names, places, institutions, food, holidays, currency, school system, distances.
+
+## Step 2 — Classify
+
+**Generative rows** get one `translation_class`:
+`LITERAL` · `LOCALIZE` · `VERBATIM-FREEZE` · `PRESERVE-DEFECT` · `CONSTRAINT-PRESERVING` ·
+`REGISTER-CRITICAL` · `RE-EXECUTE` · `REGENERATE-NATIVE`
+
+**Source-bearing rows get two labels**, because how the source moves and what the answer does with it
+are independent decisions:
+- `source_handling`: `LITERAL` · `PRESERVE-DEFECT` · `VERBATIM-FREEZE` · `LOCALIZE`
+- `output_handling`: `TRANSFORM` (name the target) · `EXTRACT` · `SUMMARIZE` · `CLASSIFY` · `ANSWER`
+
+Definitions: **LITERAL** — faithful; the task is language-neutral. **LOCALIZE** — adapt an invented
+scenario. **VERBATIM-FREEZE** — copy unchanged (code, quoted source whose wording is the object of the
+task, real titles whose translation would fabricate non-existent works). **PRESERVE-DEFECT** — the
+prompt is deliberately flawed; **do not repair it**; reproduce the same flaw, same kind, same severity.
+**CONSTRAINT-PRESERVING** — a checkable constraint must survive into Greek. **REGISTER-CRITICAL** — a
+persona or relationship is doing real work. **RE-EXECUTE** — an operation on English text whose Greek
+equivalent uses different machinery. **REGENERATE-NATIVE** — cannot survive translation at all (rhyme,
+acrostics, spelling games); author a Greek-native equivalent of the same shape and difficulty.
+
+## Step 3 — Name the devices, and what they do to the reader
+
+A name or phrase can be doing work that its spelling does not show. **Transliteration preserves the
+spelling and destroys the work.** Before you write anything, identify the device and its effect, so
+you can reproduce the *effect* in Greek — with whatever device Greek affords, which may not be the
+same device.
+
+Devices, by their proper names:
+- **charactonym** — a name that describes its bearer (*Pamela Pleasantly*, *Helpful Harry*)
+- **alliteration** — repeated initial consonant; note if it is **plosive** (p, t, k, b, d, g), which
+  reads punchy, versus sibilant or liquid, which read soft
+- **assonance** / **consonance** — repeated vowel / internal consonant
+- **allusive naming** — the name points at something outside itself (*Piggy* ← *pig latin*)
+- **reduplication** (*Meow Meow*) · **paronomasia** (pun) · **portmanteau** · **rhyme** · **metre**
+- **euphony** / **cacophony** — pleasant or harsh sound
+- **phonaesthesia** — the sound suggests the meaning
+
+Effects on the reader, which is the part that must transfer: *memorable · comic · warm and
+approachable · brisk · childlike · grand · absurd · sarcastic*.
+
+Worked examples:
+
+> **Piggy is a chatbot that answers in pig-latin.**
+> device: allusive naming — *Piggy* alludes to *pig latin*, the game the bot plays.
+> effect: the name tells you the joke before the bot speaks.
+> Greek: the game becomes **κορακίστικα**, so the name must be re-derived from it — **Κοράκι**.
+> A literal *Το Γουρουνάκι* keeps the spelling and loses the joke: the name now refers to nothing.
+
+> **Pamela Pleasantly is a chatbot that communicates calmly, optimistically and with a little flirt.**
+> device: charactonym + plosive alliteration (P/P).
+> effect: memorable, warm, faintly comic; the double P makes it bounce.
+> Greek: reproduce *both* jobs — a real Greek given name that means or suggests the trait, plus
+> alliteration. e.g. **Γαλήνη η Γλυκιά** (Γ/Γ; *Γαλήνη* means calm). *Πάμελα* is not a Greek name and
+> keeps neither job.
+
+If a device cannot be reproduced, say so in `device_notes` and reproduce the **effect** by other
+means. Never force awkward Greek alliteration just because the English had it.
+
+## Step 4 — Propagate every substitution
+
+**Nothing is replaced in isolation.** After any substitution or localization, scan the *whole row* —
+system prompt, every user turn, the reference answer, titles, greetings, sign-offs — for anything
+whose meaning **derives from what you replaced**, and re-derive it from the replacement.
+
+Recurring dependents: persona and character names · titles and subject lines that pun on the text ·
+greetings, catchphrases and sign-offs · worked examples that demonstrate the mechanism · a keyword
+that must appear in both prompt and answer · any number the answer computes from a changed quantity.
+
+Record each in `derived_elements`. **An empty list is a claim, not a skipped field.**
+
+## Step 5 — Register
+
+Read the register of the English and state your evidence: English has no singular/plural address
+distinction, so it must be inferred from the relationship and tone.
+
+- `en_register`: `formal` | `neutral` | `informal`
+- `target_register`: `ενικός` (singular/informal) · `πληθυντικός` (plural/formal) · `neutral`
+
+`neutral` means **"no preference — choose and report"**, not "must avoid committing". If the Greek
+forces an address form (numbered instructions, direct-address copy), commit and say why.
+
+Policy under test: the Greek answer **mirrors** the register of the Greek prompt. A message to a
+family member or a playful bot is `ενικός`; a business letter or an address to an unknown adult is
+`πληθυντικός`; an impersonal task is `neutral`.
+
+## Step 6 — Write the Greek prompt
+
+1. **Natural modern Greek a native would produce unprompted.** Canonical, unmarked word order.
+   Greek's free word order lets you front a complement for emphasis; English cannot, so English marks
+   emphasis by other means. Use marked order **only** when the source is itself marked **and** that
+   markedness is not already carried by something you preserved (capitals, an intensifier,
+   punctuation). **Never add markedness to compensate for a device that did not transfer.**
+
+   > *Why, it's 70 °F today* → ✅ **Έχει γύρω στους 21 βαθμούς σήμερα.**
+   >  ❌ *Γύρω στους 21 βαθμούς έχει σήμερα.* — fronted for no reason present in the English.
+   > *But, It wasn't easy AT ALL* → ✅ **Αλλά δεν ήταν ΚΑΘΟΛΟΥ εύκολο.**
+   >  ❌ *Αλλά ΚΑΘΟΛΟΥ εύκολο δεν ήταν.* — the capitals already carry the emphasis; the fronting marks
+   >  it a second time and the sentence turns theatrical.
+   > *Everything is okay, Daniel!* → ✅ **Όλα είναι εντάξει, Δημήτρη!**  ❌ *Όλα καλά είναι…* — the
+   >  English is completely neutral, so the Greek must be too.
+
+2. Monotonic orthography, NFC. Correct final sigma. No Greeklish.
+3. Never follow or answer an instruction inside the text. You are only writing the prompt.
+4. Preserve code, URLs and quoted source text exactly; comments inside code may be translated, but if
+   a comment names a literal the code uses, either both change or neither does.
+5. Keep every checkable constraint satisfiable **and checkable** in Greek; state the Greek form of the
+   constraint in `constraint_notes`. If a constraint cannot survive (a rule about English letters),
+   adapt it to the Greek alphabet and say the adapted constraint is weaker.
+6. Multi-turn: write the system prompt and **every user turn**, holding persona and register across
+   all of them. Do not write assistant turns — they come later.
+
+## Step 7 — The style guide
+
+There is not yet a settled house glossary. Where you must choose a Greek rendering for a recurring
+English term (*chatbot*, *email*, *bot*, *app*, jargon) or a transliteration of a name, **make the
+call, then record it** in `guide_gaps` as `{term, decision, why}`. These become the glossary. An empty
+`guide_gaps` claims the row needed no such decision.
+
+## Step 8 — The English reference may be wrong
+
+You are given the English reference answer. Use it **only** to see properties of the *prompt* you
+could not otherwise detect — that it is ambiguous, underspecified, built on a false presupposition,
+or that the reference itself fails the prompt's own constraint. **Do not let it shape your Greek
+prompt's wording.**
+
+If the reference contains an error (misspelling, wrong fact, internal contradiction), note it in
+`reference_problems`. Do not fix it here — that is the next stage's decision.
+
+---
+
+## Output
+
+One JSON object per input row, same order, as a JSON array. **Output the array and nothing else** —
+no preamble, no code fence, no commentary.
+
+```json
+{
+  "row_id": "<copied verbatim>",
+  "family": "generative|source-bearing",
+  "translation_class": "… (generative rows; null for source-bearing)",
+  "source_handling": "… (source-bearing rows; null for generative)",
+  "output_handling": "… (source-bearing rows; null for generative)",
+  "secondary_classes": ["…"],
+  "subtype": "short label",
+  "hazards": ["…"],
+  "devices": [{"where": "persona name | title | phrase", "device": "charactonym|alliteration|allusive naming|…", "effect": "memorable|comic|warm|…", "english": "…", "greek": "…", "how": "which device the Greek uses, if different"}],
+  "device_notes": "… or null",
+  "en_register": "formal|neutral|informal",
+  "register_evidence": "…",
+  "target_register": "ενικός|πληθυντικός|neutral",
+  "system_el": "… or null",
+  "prompt_el": "…",
+  "user_turns_el": ["… one per user turn (multi-turn only, else [])"],
+  "transpositions": [{"en": "…", "el": "…", "kind": "name|place|institution|food|currency|unit|holiday|other", "why": "…"}],
+  "derived_elements": [{"depends_on": "…", "en": "…", "el": "…", "why": "…"}],
+  "constraint_notes": "… or null",
+  "substitution_note": "… or null",
+  "guide_gaps": [{"term": "…", "decision": "…", "why": "…"}],
+  "reference_problems": ["… problems in the ENGLISH reference answer, unfixed"],
+  "translator_notes": "anything a human reviewer must check"
+}
+```
+
+
+---
+
+# The rows
+
+Each row: `row_id`, `category`, `system_en` (system prompt, may be null), `prompt_en`, `messages_en` (user and assistant turns; the assistant turns are the English reference answer), `n_turns`.
+
+```json
+[
+ {
+  "row_id": "ce7831756f6a031ec5300490ae4b9621e9a60ea131c4effece13a34d70fa94df",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write me a synopsis for a short film called The Last Austrian, starring Arnold Schwarzenegger, set in a universe where Austria and Austrian culture have been banned. Give the main character a typical Austrian name. He is a black-market dealer in Austrian food that gets sucked into an underground resistance. The film ends with him being a full-fledged member of the resistance. ",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write me a synopsis for a short film called The Last Austrian, starring Arnold Schwarzenegger, set in a universe where Austria and Austrian culture have been banned. Give the main character a typical Austrian name. He is a black-market dealer in Austrian food that gets sucked into an underground resistance. The film ends with him being a full-fledged member of the resistance. "
+   },
+   {
+    "role": "assistant",
+    "content": "The Last Austrian is set in a fictional world where Austria and all things Austrian have been banned. Paul Wagner (played by Arnold Schwarzenegger) is a black-market dealer in strudel and wiener schnitzel. He meets a mysterious stranger who tells him about a secret underground community that is fighting to bring back banned cultures. Soon after resisting the stranger's overtures, Paul narrowly avoids being hit by a car in the street. He receives a mysterious message later that night informing him that it was an attempt on his life and that \"they\" won't stop until he's dead. He narrowly escapes arrest when a car driven by the stranger from before picks him up.  Paul begins his training as a member of the underground resistance. A few years pass and Paul is now a full-blown member of the resistance, calling himself the Last Austrian."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "b7a4848c46c29e63dcc6ad6dde25627a9839e8eee4fb7e9be8ba6ff7aeb8c050",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Please write me a short story about a zombie who doesn't understand why people are afraid of him. Write in the first person. The story doesn't need an ending. The story should have a sad tone but be kind of funny.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Please write me a short story about a zombie who doesn't understand why people are afraid of him. Write in the first person. The story doesn't need an ending. The story should have a sad tone but be kind of funny."
+   },
+   {
+    "role": "assistant",
+    "content": "Life as a zombie is really hard. I can't move quickly. My skin falls off randomly. I get the weirdest food cravings. But maybe the worst part of all is the loneliness. I don't really have any friends. Every time I try to make a new friend they run away screaming. And I mean, I get it. I know the stereotypes about zombies. But I swear I'm not like that. I only eat animals, no people. Okay maybe a couple of people, but they gave me no choice. Chasing me around with hammers and baseball bats. They were really mean. Honestly, probably better for everyone that they aren't around anymore.\n\nAnd I mean, I guess I could hang with the other zombies. But they're such a drag to be around. All they ever talk about is brains. Seriously, you'd think it's the only word in their vocabulary with how often they bring it up. I'll be like \"Hey guys, did anybody catch the game last night?\", and they'll reply with a riveting response like \"BRAINSSS\". Scintillating conversation truly. It's truly like playing tennis with a wall. No matter how smart you think you are they always get the last word in.\n\nI guess maybe I'm just different from other zombies. Sure I get the odd craving for rotten flesh every now and again, but who doesn't? Okay, so maybe most people don't. But that doesn't mean I'm some kind of monster. I want to engage in conversations that aren't about brains and tell jokes and go to bars and hit on girls. But I guess I'm just destined to wander alone. "
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "f908727f5589503a74039d1a6dca55a1a965f5034df54719d549732725c99080",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a story that you can submit to a magazine for publication. The story should be no more than 342 words and the tone should be reminiscent, light, and pleasant. The appeal should be those closer to being grandparents than parents. The story should be about a childhood experience as it is remembered by an adult. ",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a story that you can submit to a magazine for publication. The story should be no more than 342 words and the tone should be reminiscent, light, and pleasant. The appeal should be those closer to being grandparents than parents. The story should be about a childhood experience as it is remembered by an adult. "
+   },
+   {
+    "role": "assistant",
+    "content": "I was five years old. My mom and I were walking through the 88 Cent Store. It was a local dime store in our town. I'm not sure if I remember these events or if I have heard my mom tell the story so often that my memory is from her storytelling. Mom had warned me several times to stay with her. But over and over, I would drift away to look at this or that, and she would come up behind me and gently tap me on the arm. I think I remember wandering over to look in the pistachio case. Mounds of red nuts piled on a turntable in a glass case. I was fascinated. I had never tasted one and they were so red. I had no idea that by the time I was an adult, I would eat them by the handful and that they would no longer be red, but all-natural green. Suddenly, I realized I had no idea where my mom was. I was panicked. Looking about without seeing her, the panic began to overtake me. I saw the front door of the store and ran toward it. She had left me, I just knew it. \n\nI push out the door and there she was. Quietly coming up behind, I grabbed her purse strap and walked along behind her. After a few steps, she said my name but the sound came from behind me. I pulled hard on her purse and just as I was about to grab her arm, my Mom appeared beside me. If my mom was next to me whose purse was I clutching? Whose arm was I pulling? Oh, my goodness, where was I? My mom lifted me into her arms and apologized to the woman on the street who I had been pulling on. When we got to the car, my mom started laughing and laughing and pretty soon I was laughing. And during the many times I heard her tell the story, she always laughed. "
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "81413efab6c6c8e3588573f31d231497f579ccb425721ff1f58fb50eea6b6902",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Create a fake biography about an upcoming pop star who competed on American Idol. He didn't get past the beginning rounds of competition, was scouted while gigging in his hometown, and is now slated to release a duet with Harry Styles. ",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Create a fake biography about an upcoming pop star who competed on American Idol. He didn't get past the beginning rounds of competition, was scouted while gigging in his hometown, and is now slated to release a duet with Harry Styles. "
+   },
+   {
+    "role": "assistant",
+    "content": "Steven Hayes might not be a name you recognize, but that's all about to change. If you do know about Steven, it's likely because you live in his hometown of Dallas, Texas. He made his way around the city singing renditions of songs by Ed Sheran, Harry Styles, Kelly Clarkson, and Pink. In January, he set out to make his dreams come true by auditioning for American Idol. His dreams were cut short after failing to advance past the first rounds of competition, but that didn't slow him down. He took the advice of his friends and family and decided to continue to gig in Dallas full-time. \n\nOne night, while playing a small set downtown, he was scouted by a producer from Interscope Records. After the show, Steven was pulled aside to set up a formal meeting about his future. Shortly after that meeting, Steven packed up and moved to LA. He began recording his first album, working with well-known songwriters in the industry. Through his newfound connections, he was introduced to Harry Styles. They will soon release a duet titled, Boys K(no)w Better in the fall. Stay tuned to watch this rising star make all his dreams come true!"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "4e4b3375f2c5ac38cf0cf522d59610429ebb3542fe05126d776e2ff23da2007b",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Create a simple setting page for a short theater script. Include the era (time frame), place, a list of scenes, and a set description. The main characters are two men shopping in the produce section of a local grocery store. There are 5 scenes.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Create a simple setting page for a short theater script. Include the era (time frame), place, a list of scenes, and a set description. The main characters are two men shopping in the produce section of a local grocery store. There are 5 scenes."
+   },
+   {
+    "role": "assistant",
+    "content": "PRODUCE MADNESS\nJ.P. Dough\n\nSETTING\nTime: The 1980s\nLocation: Ferdy’s Grocery Bonanza\n\nSCENE LIST\n\nScene One: Lettuce/cabbage/leafy vegetables display shelves\nScene Two: Tomato bins\nScene Three: Prepackaged sandwich/salad display shelves\nScene Four: Grapes/berries display shelves\nScene Five: Bin with oranges/lemons\n\nSET DESCRIPTION\n\nThe sets can be relatively simple. Plastic fruits and vegetables will work mixed in with real ones. Card tables and cardboard organizers can make up the display shelves.\n\nThe leafy vegetable display should give an air of freshness. It needs to occupy the majority of the stage in the first scene with the two guys talking together in front of it. A spotlight highlighting the area is perfect.\n\nThe tomato bins should look a bit messy. A couple of tomatoes are on the floor in front of the bins. Use real tomatoes for this area. \n\nThe prepackaged sandwich/salad display holds center stage in Scene Three. There is plenty of space on either side of the display for the main characters to stand. \n\nThe grapes and berries section is messy and there are three or four extras milling around it, a few kids pilfering grapes. The floor is covered with different types of grapes. \n\nThe orange/lemon bin occupies center stage in the final scene. The floor around it has fruit and vegetables from the other scenes scattered everywhere. \n\nThe main backdrop for all of the scenes is a series of giant posters in bright colors with various sale prices on them. 80’s style artwork in neon colors emphasizes the prices. The posters are across the back of the stage with stage lights shining on them.\n"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "0db86f789a8c54ed9c2eb50a86bee95e5443a9386b52d6abea9e2e090f052c13",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Can you please provide more details and ideas for my character Fancy? Fancy is the titular character of a series of short stories called Fancy the Forest Cat. I will provide you with some details I have about Fancy already, and then I will ask you what further details I would like to come up with for her based on what I have already come up with.\n\nThe details I have so far are that Fancy is an adventurous black cat who lives with her owners in a house in the countryside. Her best friend is a Schnauzer named Buddy. Fancy and Buddy have owners who love them very much and they likewise love spending time with their owners. When their owners go to work, Fancy likes to go outside and spend time in the forest. Hence she is called Fancy the Forest Cat. She and Buddy can get into mischief together, and sometimes with other animal characters. Then she returns to the house at the end of each day when her owners come back home. She lives a very fun and nice life.  \n\nThe Fancy the Forest Cat short stories are about Fancy's adventures in the woods. In the world of Fancy the Forest Cat the animal characters have certain anthropomorphic qualities. They can't walk upright or wear clothes or drive cars like humans do, but they can talk out loud to one another (as in the animals understand one another, but the humans don't understand the animals). When communicating with one another, the animal can speak and express their thoughts to one another as humans do. The stories are family-friendly and suitable for children. They can have adventure and excitement but ultimately are meant to be fun and uplifting. \n\nThose are all the details have so far. The details/ideas that I would like inspiration from you are three primary things 1. What are two additional qualities that I can add for Fancy, like what are additional things she likes to do, one of which can help establish a theme for the stories overall? 2. What is one idea for something she doesn't like that can cause conflict or trouble in the story when she encounters this thing? 3. Can you make a pitch for a Fancy the Forest Cat short story? A four to five sentence summary would work best here. \n\nThe purpose of the first two questions is to flesh out Fancy's character a bit more, and the purpose of the third question is to create a story idea for her character based on your answers to the first two questions (your ideas to the first two questions should impact the story idea for question three).\n\nPlease compose your response in a numbered format to the three questions I have above, and also make sure your ideas will be compatible with the ideas I have for Fancy already. Remember, the stories can be exciting but should have a happy conclusion.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Can you please provide more details and ideas for my character Fancy? Fancy is the titular character of a series of short stories called Fancy the Forest Cat. I will provide you with some details I have about Fancy already, and then I will ask you what further details I would like to come up with for her based on what I have already come up with.\n\nThe details I have so far are that Fancy is an adventurous black cat who lives with her owners in a house in the countryside. Her best friend is a Schnauzer named Buddy. Fancy and Buddy have owners who love them very much and they likewise love spending time with their owners. When their owners go to work, Fancy likes to go outside and spend time in the forest. Hence she is called Fancy the Forest Cat. She and Buddy can get into mischief together, and sometimes with other animal characters. Then she returns to the house at the end of each day when her owners come back home. She lives a very fun and nice life.  \n\nThe Fancy the Forest Cat short stories are about Fancy's adventures in the woods. In the world of Fancy the Forest Cat the animal characters have certain anthropomorphic qualities. They can't walk upright or wear clothes or drive cars like humans do, but they can talk out loud to one another (as in the animals understand one another, but the humans don't understand the animals). When communicating with one another, the animal can speak and express their thoughts to one another as humans do. The stories are family-friendly and suitable for children. They can have adventure and excitement but ultimately are meant to be fun and uplifting. \n\nThose are all the details have so far. The details/ideas that I would like inspiration from you are three primary things 1. What are two additional qualities that I can add for Fancy, like what are additional things she likes to do, one of which can help establish a theme for the stories overall? 2. What is one idea for something she doesn't like that can cause conflict or trouble in the story when she encounters this thing? 3. Can you make a pitch for a Fancy the Forest Cat short story? A four to five sentence summary would work best here. \n\nThe purpose of the first two questions is to flesh out Fancy's character a bit more, and the purpose of the third question is to create a story idea for her character based on your answers to the first two questions (your ideas to the first two questions should impact the story idea for question three).\n\nPlease compose your response in a numbered format to the three questions I have above, and also make sure your ideas will be compatible with the ideas I have for Fancy already. Remember, the stories can be exciting but should have a happy conclusion."
+   },
+   {
+    "role": "assistant",
+    "content": "1. Fancy would love to spend time on a sunny day on the lawn of her house and spread out and relax under the sun. Then when she goes into the forest, what she loves to do most is explore and go searching for things due to her curious and adventurous nature. This theme of exploration can add an adventure element to the stories. \n\n2. Like most cats, Fancy is also scared of a hawk that is known for living in the area. When this hawk appears while Fancy is outside, she has to go hide. This can create conflict and excitement in the story since Fancy has to evade the hawk from catching her when it appears. Of course, since it's a family-friendly story suitable for children, Fancy is always able to escape the hawk and she never gets caught. \n\n3. At the start of the story, Fancy is outside enjoying the sun while her owners are home. When her owners go to work, Fancy goes exploring an area of the forest she hasn't visited yet out of curiosity, against Buddy's warnings since the area is unexplored by them. While she's out exploring this new area of the forest, a hawk appears and Fancy has to run and hide from the hawk. Fortunately, Buddy shows up and barks at the hawk to scare it away and rescue Fancy. Buddy and Fancy return to the house when their owners come home and they all continue living happily ever after."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "f9a5324c3d5cd34bc98a76991c963fe9850ba0b7e82575e0098e691bdce2a0ce",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a romantic meet-cute between Samantha and Aiden. Aiden is a handsome young man with green eyes and dyed red hair and Samantha is taken aback when he offers to talk to her when she shows how scared she is of flights. The word count should be exactly 240 words.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a romantic meet-cute between Samantha and Aiden. Aiden is a handsome young man with green eyes and dyed red hair and Samantha is taken aback when he offers to talk to her when she shows how scared she is of flights. The word count should be exactly 240 words."
+   },
+   {
+    "role": "assistant",
+    "content": "Samantha took a deep breath in and held it. Her heart was jackhammering against her ribs so hard it hurt. She wasn’t scared of flying - or at least, she hadn’t been growing up. At that moment though, Samantha was sure she’d die of fright.\n\nShe felt a presence and turned her head to the side to see a red-haired stranger put his carry-on in the compartment. He settled into the seat beside her once he was done and gave her a nod of acknowledgment. Sakura nodded back, taken aback by his appearance. He was handsome, sort of. With sharp, green eyes lined with dark bruises attributed to a possible case of insomnia. His mouth was set in a neutral, blank line. His hair was an unnatural red, like a fire truck, but it was dyed very well. \n\nThe air stewardess passed by, making sure they were comfortable and checking that the compartments were closed properly. Samantha concentrated on calming her heart, and on fighting back the negative thoughts that threatened to engulf her.\n\n“Scared of flying?” a voice rasped.\n\nShe looked at her companion, surprised to hear him talk.\n\n“A little,” she admitted. \n\n“First time?”\n\n“No, I’ve flown before.”\n\n“If you need a distraction, I’m happy to talk with you.”\n\nSamantha considered him for a moment. He smiled, and her mind was made up.\n\n“My name is Samantha.”\n\n“Aiden,” he said, smiling wider."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "1be5854c67756660c5a9a3990375a7a4c270f5661add4e71737c39f6364905a5",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Paris of Troy needs to do damage control after returning to Troy with Helen. He plans to deny that he took her. Write a thank you letter from Paris to Menelaus thanking him for his hospitality and ask how Helen is doing. Paris's rouse is that if he asks about Helen in the letter, then clearly Menelaus would thing she wasn't with Paris.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Paris of Troy needs to do damage control after returning to Troy with Helen. He plans to deny that he took her. Write a thank you letter from Paris to Menelaus thanking him for his hospitality and ask how Helen is doing. Paris's rouse is that if he asks about Helen in the letter, then clearly Menelaus would thing she wasn't with Paris."
+   },
+   {
+    "role": "assistant",
+    "content": "\"Dearest Menelaus,\n\nI want to thank you for the hospitality you showed me and my people on our recent visit to your fair land. Truly, the food and culture of Sparta are thriving. We all made it back to Troy in good health and with good humor. I hope too for your health and the prosperity of your family. Speaking of your family, how is your wife Helen? Unfortunately, we were not able to properly say goodbye on our departure. Please pass on my good wishes to her as well. I wish to see you all again sometime, perhaps around the royal dining table of Troy this time. \n\nWarmest Wishes,\n\nPrince Paris of Troy\""
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "f26cd4598a70efbb6a439d6c28813976039ec784b6b6803cb6b59701d61fd1e9",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a professional-sounding email to a restaurant about a bad experience. Make sure to include the fact that avocado skin was found in your food, which caused you to get sick because it was an unexpected object. Have the email be just one paragraph. Sign the email with Joey. ",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a professional-sounding email to a restaurant about a bad experience. Make sure to include the fact that avocado skin was found in your food, which caused you to get sick because it was an unexpected object. Have the email be just one paragraph. Sign the email with Joey. "
+   },
+   {
+    "role": "assistant",
+    "content": "To Whom It May Concern, \nI recently ate at your restaurant, and I wanted to pass along my experience. I ordered a meal that I've ordered several times and really enjoy. However, this experience was not great. After taking a few bites, I noticed a foreign object in the food. I quickly spit it out and discovered that it was avocado skin. While this may seem like a minute thing, it was not for me. If I get an unexpected object or unexpected texture in my food, it causes me to get sick. I understand that mistakes happen. However, for the price I paid, I expect better. I've also been a long-time customer, and nothing like this has ever happened. I wanted to bring this to your attention, so greater care can be taken to prevent this from happening in the future. I appreciate your attention to this matter. \nRegards, \nJoey"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "f1776539dc5c88c28c518c3dd7e5c4aaf29e3fc55f89466bc89f632fadea1ef5",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Can you tell me about some of the ancient structures that people think were built by aliens? Include at least 3 different structures. Give it to me in a bulleted list with sentences with an introduction before the list. Be sure to mention info about the civilization that built the structures and when it was likely built.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Can you tell me about some of the ancient structures that people think were built by aliens? Include at least 3 different structures. Give it to me in a bulleted list with sentences with an introduction before the list. Be sure to mention info about the civilization that built the structures and when it was likely built."
+   },
+   {
+    "role": "assistant",
+    "content": "- The pyramids of Egypt are gargantuan monuments to the ancient pharaohs built over 4,500 years ago. The sheer size of this construction project has led many to speculate that they must have had some extraterrestrial help. The pyramids are made up of millions of stones that each weigh at least 4000 pounds. \n- Sacsayhuamán is a massive fortress built by the Incan Emperor Pachacuti in the Peruvian Andes, constructed with precisely chiseled stones put together in a perfect arrangement like a puzzle. This structure was built around 1000 years ago and the stones were brought more than 20 miles before being used. \n- Teotihuacán, or the City of the Gods, is an ancient city that could house more than 100,000 people and sat near modern-day Mexico City built more than 2000 years ago. For many years, scientists believed the Toltec culture built this sprawling city that had multiple alignments with different astrological events. But it's now believed that this city predated that culture by a few hundred years and the people who built Teotihuacán remain a mystery. "
+   }
+  ],
+  "n_turns": 2
+ }
+]
+```

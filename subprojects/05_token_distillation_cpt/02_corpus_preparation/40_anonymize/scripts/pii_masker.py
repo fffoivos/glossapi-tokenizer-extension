@@ -85,17 +85,44 @@ def _iban_from_candidate(cand: str) -> str | None:
 
 def mask(text: str) -> tuple[str, dict]:
     """Mask email/IP/IBAN in `text`. Returns (masked_text, per-type unique counts).
-    Mirrors Apertus's sequential findall + text.replace(unique_match, token)."""
+    Mirrors Apertus's sequential findall + text.replace(unique_match, token),
+    repeating the sequence to a fixed point so overlap/boundary exposure cannot
+    leave PII for a second invocation."""
     counts = {"email": 0, "ip": 0, "iban": 0}
     seen: set[str] = set()
-    for m in EMAIL_RE.findall(text):
-        if m and m not in seen:
-            seen.add(m); counts["email"] += 1; text = text.replace(m, "<email-pii>")
-    for m in IP_RE.findall(text):
-        if m and m not in seen:
-            seen.add(m); counts["ip"] += 1; text = text.replace(m, "<ip-pii>")
-    for cand in IBAN_CAND_RE.findall(text):
-        ib = _iban_from_candidate(cand)
-        if ib and ib not in seen:
-            seen.add(ib); counts["iban"] += 1; text = text.replace(ib, "<iban-pii>")
+    while True:
+        changed = False
+        for m in EMAIL_RE.findall(text):
+            if m and m not in seen:
+                replaced = text.replace(m, "<email-pii>")
+                if replaced == text:
+                    continue
+                seen.add(m)
+                counts["email"] += 1
+                text = replaced
+                changed = True
+        for m in IP_RE.findall(text):
+            if m and m not in seen:
+                replaced = text.replace(m, "<ip-pii>")
+                if replaced == text:
+                    continue
+                seen.add(m)
+                counts["ip"] += 1
+                text = replaced
+                changed = True
+        # A candidate is deliberately capped at 34 compact characters. Two
+        # concatenated valid IBANs can therefore expose the second only after
+        # the first replacement; the fixed-point pass catches it immediately.
+        for cand in IBAN_CAND_RE.findall(text):
+            ib = _iban_from_candidate(cand)
+            if ib and ib not in seen:
+                replaced = text.replace(ib, "<iban-pii>")
+                if replaced == text:
+                    continue
+                seen.add(ib)
+                counts["iban"] += 1
+                text = replaced
+                changed = True
+        if not changed:
+            break
     return text, counts

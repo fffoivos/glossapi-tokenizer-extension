@@ -1,0 +1,66 @@
+[
+  {
+    "row_id": "454531ade945a64fec386377c4a42cd8453ffac196d38c00e5d6e0800649dfcc",
+    "response_el": "Ορίστε μερικές ιδέες για σλόγκαν, όλες χτισμένες πάνω στο ίδιο εύρημα: το ουράνιο τόξο σημαίνει ταυτόχρονα χρώματα και πολλές γεύσεις μαζί.\n\n- «Ένα ουράνιο τόξο σε κάθε μπάλα» — Υπόσχεται ότι κάθε μπάλα κρύβει ολόκληρη τη γκάμα των γεύσεων, όχι μία μόνο. Δουλεύει και ως λεζάντα κάτω από φωτογραφία προϊόντος.\n\n- «Δεν χρειάζεται βροχή για ουράνιο τόξο» — Παίζει με τη γνωστή εικόνα ότι το ουράνιο τόξο βγαίνει μετά τη βροχή· εδώ έρχεται μέσα στον καύσωνα, που είναι ακριβώς η στιγμή που πουλάει το σορμπέ.\n\n- «Επτά χρώματα, μηδέν συμβιβασμοί» — Σύντομο και ρυθμικό, με την αντίθεση αριθμού και άρνησης. Ταιριάζει αν θέλετε να τονίσετε φρέσκα φρούτα και καθαρά υλικά.\n\n- «Βάλε χρώμα στο καλοκαίρι σου» — Το πιο «γενικό» της ομάδας, άρα και το πιο ευέλικτο: στέκει σε αφίσα, σε στόρι και σε ραδιοφωνικό σποτ, χωρίς να χρειάζεται να φαίνεται το προϊόν.\n\n- «Δροσιά σε όλα τα χρώματα» — Ενώνει τα δύο επιχειρήματα πώλησης, τη δροσιά και την ποικιλία, σε τέσσερις λέξεις· λειτουργεί καλά και ως μόνιμη υπογραφή της μάρκας κάτω από το λογότυπο.\n\nΔύο πρακτικές παρατηρήσεις. Πρώτον, δεν μου είπατε πού θα μπει η διαφήμιση ούτε σε ποιο κοινό απευθύνεστε· τα παραπάνω γράφτηκαν για ευρύ, μαζικό κοινό και σε ενικό, όπως συνηθίζεται στην ελληνική διαφήμιση γλυκού. Αν πρόκειται για συσκευασία σούπερ μάρκετ ή για επαγγελματικό κατάλογο, θα τα ξαναγράψουμε σε πληθυντικό και πιο ουδέτερο ύφος. Δεύτερον, αποφύγετε διατυπώσεις τύπου «δοκίμασε το ουράνιο τόξο»: είναι πολύ κοντά σε κατοχυρωμένο σλόγκαν ξένης μάρκας ζαχαρωδών και μπορεί να σας δημιουργήσει ζήτημα με τα σήματα.",
+    "assistant_turns_el": [],
+    "register_used": "πληθυντικός",
+    "register_note": "Stage 1 set target_register to neutral because the Greek prompt forces no address form. The deliverable does: Greek slogans in the imperative must pick one. I kept the assistant's own framing prose in πληθυντικός (polite, unmarked for an unknown adult client) and wrote the slogan copy itself in ενικός, which is the convention for mass-market sweets; the answer states this choice explicitly so it is not read as an inconsistency.",
+    "constraint_check": "No count is stated in the prompt. Constraints satisfied: (1) plural 'Τι σλόγκαν' — five slogans given, above the plural minimum and at the category median; (2) every slogan is usable copy for this specific product — four of five name or evoke the rainbow/colour axis and the fifth ('Δροσιά σε όλα τα χρώματα') names both the colour range and the frozen-dessert selling point; (3) each item keeps its own gloss; (4) list-marker style is uniformly bulleted.",
+    "defect_note": null,
+    "reference_corrections": [
+      {
+        "what": "Duplicated word in the third gloss",
+        "english": "will will make you happy",
+        "greek": "n/a — the gloss was re-authored, not translated; no duplicated word appears",
+        "why": "Plain typo in the reference; reproducing it would inject an error into Greek training data and the row is not PRESERVE-DEFECT."
+      },
+      {
+        "what": "Reference recommends a slogan it itself identifies as a take on 'Taste the rainbow', a registered slogan of a confectionery brand, without flagging the trademark risk",
+        "english": "\"Taste the rainbow one scoop at a time\" - This is a take on the slogan \"Taste the rainbow\"",
+        "greek": "Dropped; replaced by natively authored Greek slogans, and the risk is named inline: «αποφύγετε διατυπώσεις τύπου «δοκίμασε το ουράνιο τόξο»: είναι πολύ κοντά σε κατοχυρωμένο σλόγκαν ξένης μάρκας ζαχαρωδών»",
+        "why": "The allusion does not exist for a Greek reader, so the line would be pointless wordplay; and advising a client to run near-identical copy is a real hazard a good assistant should name."
+      },
+      {
+        "what": "First two reference slogans are near-duplicates (both 'rainbow' + 'scoop'), reducing brainstorm variety",
+        "english": "\"Experience a rainbow in every scoop\" / \"Taste the rainbow one scoop at a time\"",
+        "greek": "Only one 'μπάλα' slogan kept; the other four take different angles (weather idiom, ingredient claim, seasonal call to action, brand signature)",
+        "why": "A brainstorm's value is spread of options; two paraphrases of one idea waste a slot."
+      },
+      {
+        "what": "Reference gives three items, below the category median of five",
+        "english": "three slogans",
+        "greek": "five slogans",
+        "why": "The prompt's plural is open-ended and the category shape is five items; three under-delivers on an explicitly open brainstorm request."
+      }
+    ],
+    "class_disagreement": null,
+    "guide_gaps": [
+      {
+        "term": "σλόγκαν",
+        "decision": "kept as stage 1 set it, invariable, Greek script",
+        "why": "Standard term in Greek advertising practice; 'σύνθημα' reads political/protest."
+      },
+      {
+        "term": "scoop",
+        "decision": "μπάλα",
+        "why": "The ordinary Greek retail word for a served scoop of frozen dessert ('μπάλα παγωτού'); 'κουταλιά' would describe eating at home, not counter service."
+      },
+      {
+        "term": "story (social media format)",
+        "decision": "στόρι, Greek script",
+        "why": "Greek marketing usage writes it phonetically in Greek far more often than as 'story'; no Latin-script word was introduced anywhere in the answer."
+      }
+    ],
+    "deviations": [
+      "None of the English slogans is carried over; all five Greek slogans are newly authored from the rainbow/flavour polysemy, per the REGENERATE-NATIVE class.",
+      "Item count raised from three to five and the near-duplicate pair collapsed, to hit the category's normal brainstorm shape and variety.",
+      "Added an inline closing paragraph the reference does not have: it names the missing brief (medium and audience), states the address-form choice, and warns about the trademark-adjacent line. The generative family requires ambiguity to be raised inside the answer.",
+      "Length is longer than the reference (which is short for the category) but sits at the category median of roughly 190 words."
+    ],
+    "self_flags": [
+      "Check that «Δεν χρειάζεται βροχή για ουράνιο τόξο» reads as fresh rather than as a stock line; it leans on a very familiar Greek image and a copywriter may find it too safe.",
+      "The mixed register (πληθυντικός in the prose, ενικός inside the slogans) is deliberate and declared in the answer, but it departs from stage 1's 'neutral'; confirm this is the wanted resolution rather than forcing the slogans into πληθυντικός.",
+      "«Επτά χρώματα, μηδέν συμβιβασμοί» asserts an ingredient-quality claim the client may not be able to substantiate; the gloss hedges it with 'αν θέλετε να τονίσετε', but a reviewer may prefer it removed."
+    ]
+  }
+]

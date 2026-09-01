@@ -1,0 +1,60 @@
+{
+  "schema_version": "apertus_targeted_8b_experiment_b_plan_v1",
+  "experiment_id": "B_iter9536_unseen_glossapi_wsd10",
+  "status": "retired_by_owner_20260812",
+  "launch_authorized": false,
+  "retirement": {
+    "decision_date": "2026-08-12",
+    "reason": "Owner retained Experiment A and dropped the update-9536 unseen-GlossAPI continuation in favor of a separate replication and scale-predictivity study.",
+    "preserve_builder_and_receipts": true,
+    "allow_new_gpu_submissions": false,
+    "cancelled_pending_jobs": [3061757, 3061758]
+  },
+  "priority": 2,
+  "parent": {
+    "run_root": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12",
+    "stage_root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260807T063000Z-d0-v3",
+    "schedule_manifest": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260807T063000Z-d0-v3/schedules/schedule_manifest.json",
+    "schedule_arm": "D0_mixed",
+    "checkpoint_iteration": 9536,
+    "checkpoint_receipt": "/capstor/scratch/cscs/fffoivos/runs/07_full_8b_cpt/20260808T121000Z-d0-wsd10-sanitized-successor-v12/checkpoint_evaluations/iter_0009536/attempt_0/export/source_checkpoint_receipt.json",
+    "exposure_evidence": "subprojects/07_full_8b_cpt/presentations/data/full8_checkpoint_drift_20260811/checkpoint_source_exposure.json"
+  },
+  "selection": {
+    "definition": "all post-checkpoint packed sequences from pool code 1 plus still-unseen replay sequences from pool codes 2 and 3",
+    "parent_prefix_slots": 9764864,
+    "expected_remaining_non_hplt_active_tokens": 9123187023,
+    "sequence_reuse_from_parent_prefix_allowed": false,
+    "preserve_parent_relative_order_within_pool": true,
+    "mix": {"modern_non_hplt": "0.79", "foreign_replay": "0.20", "old_greek_replay": "0.01"},
+    "replay_quota_resolution": "nearest_whole_packed_sequence_with_residual_report"
+  },
+  "planning_geometry": {
+    "modern_active_tokens": 9123187023,
+    "foreign_active_tokens": 2309667601,
+    "old_greek_active_tokens": 115483380,
+    "total_active_tokens": 11548338004,
+    "global_batch_token_slots": 4194304,
+    "continuation_updates": 2754,
+    "final_absolute_update": 12290,
+    "loss_inactive_tail_slots": 2775212,
+    "segments": [9536, 12290]
+  },
+  "optimization": {
+    "inherit_scientific_recipe_from": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/full8_mixed_sanitized/20260807T063000Z-d0-v3/contracts/recipe_8b_full_mixed.sanitized.json",
+    "load_optimizer_rng_and_sample_cursor": true,
+    "restart_warmup": false,
+    "rescale_ademamix_ramps": false,
+    "inherited_parent_alpha_beta3_ramp_horizon_updates": 18284,
+    "peak_lr": 0.000055,
+    "final_lr": 0.0000055,
+    "lr_schedule": "WSD_1-sqrt_over_entire_continuation",
+    "checkpoint_averaging": false
+  },
+  "evaluation": {
+    "source_conditioned_interval_updates": 25,
+    "greekmmlu_cadence_active_tokens": 1000000000,
+    "include_parent_anchor": true,
+    "include_final": true
+  }
+}

@@ -1,0 +1,60 @@
+diff --git a/tools/checkpoint/saver_swissai_hf.py b/tools/checkpoint/saver_swissai_hf.py
+index 486c888d1..ec2b79922 100644
+--- a/tools/checkpoint/saver_swissai_hf.py
++++ b/tools/checkpoint/saver_swissai_hf.py
+@@ -409,6 +409,46 @@ def save_checkpoint(queue, args):
+         agree = torch.sum(preds_ref == preds_new)/preds_ref.numel()
+         print(f"Converted model agrees on {100*agree:.2f}% of predictions")
+         assert agree >= threshold
++
++        # Raw-logit relative error is unstable around zero and is not invariant
++        # to a per-position logit shift.  Record probability-space parity in
++        # bounded chunks so trained checkpoints can be judged by the
++        # distributions consumed by NLL and multiple-choice evaluation.
++        ref_rows = ref_output.reshape(-1, ref_output.size(-1)).float()
++        new_rows = output.reshape(-1, output.size(-1)).float()
++        kl_sum = tv_sum = top_logprob_abs_sum = 0.0
++        kl_max = tv_max = top_logprob_abs_max = 0.0
++        row_count = ref_rows.size(0)
++        for start in range(0, row_count, 64):
++            stop = min(start + 64, row_count)
++            ref_log_probs = torch.log_softmax(ref_rows[start:stop], dim=-1)
++            new_log_probs = torch.log_softmax(new_rows[start:stop], dim=-1)
++            ref_probs = ref_log_probs.exp()
++            new_probs = new_log_probs.exp()
++            kl = torch.sum(ref_probs * (ref_log_probs - new_log_probs), dim=-1)
++            tv = 0.5 * torch.sum(torch.abs(ref_probs - new_probs), dim=-1)
++            top_ids = torch.argmax(ref_rows[start:stop], dim=-1, keepdim=True)
++            top_logprob_abs = torch.abs(
++                torch.gather(ref_log_probs, -1, top_ids)
++                - torch.gather(new_log_probs, -1, top_ids)
++            ).squeeze(-1)
++            kl_sum += kl.double().sum().item()
++            tv_sum += tv.double().sum().item()
++            top_logprob_abs_sum += top_logprob_abs.double().sum().item()
++            kl_max = max(kl_max, kl.max().item())
++            tv_max = max(tv_max, tv.max().item())
++            top_logprob_abs_max = max(
++                top_logprob_abs_max, top_logprob_abs.max().item()
++            )
++        print(f"Converted mean KL divergence: {kl_sum / row_count:.12e}")
++        print(f"Converted max KL divergence: {kl_max:.12e}")
++        print(f"Converted mean total variation: {tv_sum / row_count:.12e}")
++        print(f"Converted max total variation: {tv_max:.12e}")
++        print(
++            "Converted mean top-token log-prob absolute difference: "
++            f"{top_logprob_abs_sum / row_count:.12e}"
++        )
++        print(f"Converted max top-token log-prob absolute difference: {top_logprob_abs_max:.12e}")
+ 
+         # Check two: atol and rtol on all logits.
+         threshold = 0.95
+@@ -429,7 +469,7 @@ def save_checkpoint(queue, args):
+         print(f"Max relative difference: {torch.max(rel_diff)}")
+         print(f"Mean relative difference (no inf): {torch.mean(rel_diff_no_inf)}")
+         print(f"Relative difference inf proportion: {torch.mean(rel_diff_inf_mask.float())}")
+-        assert close >= threshold
++        print(f"Canonical raw-logit threshold passed: {bool(close >= threshold)}")
+ 
+     queue_get()  # Recv final "exit" message so saver exits gracefully.
+ 

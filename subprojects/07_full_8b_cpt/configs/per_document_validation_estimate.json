@@ -1,0 +1,46 @@
+{
+  "schema_version": "apertus_per_document_validation_estimate_v1",
+  "status": "planning_only_until_one_panel_smoke",
+  "campaign": "five_completed_0p5b_data_order_endpoints",
+  "authoritative_hf_endpoint_root": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/mini_cpt5_20260803T074854Z/evaluations_fp32_v1/iteration_0038496/attempt_3/tasks",
+  "endpoint_model_safetensors_verified_present_at": "2026-08-05T08:49:00Z",
+  "models": 5,
+  "panels_per_model": 13,
+  "documents_per_panel": {
+    "code": 7219,
+    "de": 7855,
+    "english": 6142,
+    "greek_phd": 53,
+    "historical_polytonic": 239,
+    "hplt": 7992,
+    "math": 5337,
+    "neutral_external_modern_greek": 345,
+    "non_hplt": 1398,
+    "old_greek": 5833,
+    "openarchives": 154,
+    "ru": 5490,
+    "zh": 9414
+  },
+  "planning_tokens_per_model": 113871569,
+  "planning_tokens_all_models": 569357845,
+  "execution_shape": {
+    "nodes_per_model": 4,
+    "gpus_per_node": 4,
+    "concurrent_models": 5,
+    "campaign_nodes": 20,
+    "campaign_gpus": 80,
+    "one_panel_per_gpu_at_a_time": true,
+    "required_prefix_gate": "one_D0_HPLT_full_panel_smoke_with_measured_tokens_per_second"
+  },
+  "forecast": {
+    "remaining_smoke_and_calibration_hours": [1, 3],
+    "execution_after_allocation_hours": [0.5, 1.5],
+    "scheduler_queue_not_included": true,
+    "rule": "replace_this_range_with_measured_tokens_per_second_after_one_representative_long_document_panel_smoke"
+  },
+  "method": {
+    "metric_context": "document_local_bos_no_cross_document_context",
+    "outputs": ["nll_numerator_nats", "utf8_bytes", "bpb", "base_target_nll", "added_target_nll"],
+    "uncertainty": "paired_document_bootstrap; neutral_external_uses_cluster_id; other_panels_use_doc_id_until_cluster_mapping_is_frozen"
+  }
+}

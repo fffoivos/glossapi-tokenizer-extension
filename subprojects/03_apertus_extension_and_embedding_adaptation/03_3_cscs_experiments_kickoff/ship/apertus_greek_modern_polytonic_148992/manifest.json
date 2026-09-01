@@ -1,0 +1,67 @@
+{
+  "name": "apertus_greek_modern_polytonic_148992",
+  "status": "production_frozen",
+  "purpose": "Tokenizer for the next cleaned Greek CPT dataset: Apertus base plus ModernGreek-17408 plus the selected first 512 polytonic continuation merges.",
+  "vocab_size": 148992,
+  "base_apertus_vocab": 131072,
+  "added_modern_greek_c3": 17408,
+  "added_polytonic_greek": 512,
+  "polytonic_id_range": [
+    148480,
+    148992
+  ],
+  "polytonic_id_range_semantics": "half-open [start, end)",
+  "alignment": {
+    "128": true,
+    "256": true,
+    "factor_256": 582,
+    "actual_vocab_size": 148992,
+    "external_padding_tokens": 0
+  },
+  "append_only_contract": {
+    "base_vocab_size": 148480,
+    "base_ids_exact": true,
+    "base_merge_prefix_exact": true,
+    "appended_merge_count": 512,
+    "new_vocab_entry_count": 512,
+    "orphan_new_vocab_entries": 0,
+    "merge_dependencies_safe": true,
+    "merge_result_ids_sequential": true,
+    "base_tokenizer_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+    "full_polytonic_source_sha256": "b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad"
+  },
+  "front_end_contract": {
+    "normalizer": null,
+    "pre_tokenizer": "Sequence(Split(GPT-2 regex) -> ByteLevel)",
+    "decoder": "ByteLevel",
+    "model_type": "BPE",
+    "special_tokens": {
+      "unk": 0,
+      "bos": 1,
+      "eos": 2,
+      "pad": 3,
+      "reserved_count": 1000
+    }
+  },
+  "loadable_via": "transformers.AutoTokenizer.from_pretrained() -> PreTrainedTokenizerFast",
+  "selection": {
+    "decision": "cutoff_512",
+    "decision_date": "2026-07-29",
+    "evidence": "selection.json",
+    "suspicious_token_review": "suspicious_token_review.json",
+    "release_audit": "release_audit.json",
+    "modern_bpb_ratio_to_148480": 1.0013753238548275,
+    "ancient_token_reduction_vs_148480": 0.07616770788696181,
+    "ancient_strr": 0.41045282064254995
+  },
+  "huggingface": {
+    "repository_id": "fffoivos/apertus-tokenizer-extension",
+    "subfolder": "greek-modern-polytonic-tokenizer"
+  },
+  "dataset_tokenization_status": "not_started",
+  "sha256": {
+    "tokenizer.json": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+    "tokenizer_config.json": "ea64a17b41e1deaa7469212f413676129f33977ca3a48767f0ca68dc346df502",
+    "special_tokens_map.json": "816ec96e37c6d15e3cbc535dc146c898a7218f209fc154384f31fc1e6ad31ba5"
+  }
+}

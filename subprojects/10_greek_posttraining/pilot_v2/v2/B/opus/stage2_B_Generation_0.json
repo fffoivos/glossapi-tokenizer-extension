@@ -1,0 +1,429 @@
+[
+ {
+  "row_id": "35b5cd9f131a301e3c9917615f851782cfe1d523a05374e077298b3b89dc3785",
+  "response_el": "Γεια σου, μαμά,\n\nΠώς είσαι; Ξέρω ότι έχει περάσει καιρός από την τελευταία φορά που μιλήσαμε, και η ευθύνη είναι δική μου. Έπρεπε να σε παίρνω πιο συχνά· είσαι η μάνα μου και δεν υπάρχει τίποτα πιο σημαντικό για μένα από σένα.\n\nΤι κάνουν τα σκυλιά; Φαντάζομαι ότι ο Ρόκι σε ταλαιπωρεί ακόμα — τον ξέρω, δεν κάθεται λεπτό. Θέλω να μου κάνεις τη χάρη και να αφήσεις να πληρώσω εγώ κάποιον να τον βγάζει βόλτα τα απογεύματα, να μη σε σέρνει εσένα σε όλη τη γειτονιά. Δεν είναι κόπος για μένα· αντίθετα, θα κοιμάμαι πιο ήσυχος.\n\nΤα εγγόνια σου είναι μια χαρά. Η Ελένη πάει στην ακαδημία βόλεϊ και ο Νίκος στο μπάσκετ, και τα πάνε περίφημα και οι δύο — ο προπονητής του Νίκου λέει ότι φέτος θα παίζει βασικός. Σκέφτομαι συχνά πόσο τυχερός ήμουν με τον τρόπο που με μεγάλωσες: ό,τι κι αν μου συνέβαινε, ήξερα ότι μπορούσα να έρθω να σ' το πω και δεν θα με έκρινες. Προσπαθώ να δώσω το ίδιο και στα παιδιά, και κάτι φαίνεται να πιάνει, γιατί μου τα λένε όλα.\n\nΣε λίγο πρέπει να τρέξω να τα πάρω από το σχολείο, γι' αυτό σταματάω εδώ. Σε φιλώ, μαμά, και περιμένω πώς και πώς απάντηση. Τα λέμε πολύ σύντομα — σ' αγαπώ.\n\nΟ γιος σου",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Ενικός throughout, as stage 1 set: a son writing to his own mother. The letter opens with «Γεια σου, μαμά» rather than any επιστολή formula, keeping the informal register the row depends on.",
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Unmotivated abrupt ending",
+    "english": "Unfortunately, I have to cut this letter a little short",
+    "greek": "Σε λίγο πρέπει να τρέξω να τα πάρω από το σχολείο, γι' αυτό σταματάω εδώ.",
+    "why": "The English gives no reason and nothing earlier sets up time pressure, so the sentence reads as a non sequitur. I supplied a reason that follows from the letter's own content (the children)."
+   },
+   {
+    "what": "Ungrammatical/dialectal clause plus an untransferable film gag",
+    "english": "I would hate for Ricky to do you like those dogs in the movies do where they drag their owners for at least a mile",
+    "greek": "να μη σε σέρνει εσένα σε όλη τη γειτονιά",
+    "why": "'do you like' is ungrammatical, and the US movie-dog gag is a foreign prop inside an otherwise Greek scene. I kept the image (the dog dragging its owner) and dropped the film reference."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "varsity sports",
+    "decision": "ακαδημία βόλεϊ / μπάσκετ",
+    "why": "Greek schools do not run varsity athletics; children's competitive sport happens in club ακαδημίες, which is the true functional equivalent."
+   },
+   {
+    "term": "βόλεϊ / μπάσκετ",
+    "decision": "Greek-script transliterations, not Latin script",
+    "why": "These are the ordinary Greek words for the sports and are always written in Greek script."
+   }
+  ],
+  "deviations": [
+   "The whole cast is localized completely, as stage 1 required: dog Ricky → Ρόκι, grandchildren Lisa and Rob → Ελένη and Νίκος.",
+   "Added a concrete detail (ο προπονητής λέει ότι θα παίζει βασικός) in place of the English 'doing extremely well', because Greek needs something specific for the boast to land warmly."
+  ],
+  "self_flags": [
+   "Check the son's sign-off «Ο γιος σου» reads as warm rather than stiff; an alternative is simply the invented first name, which I avoided so the row does not need a fourth invented name."
+  ]
+ },
+ {
+  "row_id": "8073ef0ec7dd4010d3dcfb4f805a59dc09fa78bee23bc9e69b6d4f3fb902a5ca",
+  "response_el": "Δεν κατάφερα ποτέ τίποτα σπουδαίο, και το ξέρω. Ό,τι ξεκινάω το παρατάω στη μέση, και ύστερα το κουβαλάω για χρόνια. Τα πρωινά μου μοιάζουν όλα ίδια, γκρίζα και βουβά, και το βράδυ μετράω τα ίδια πράγματα που δεν έκανα. Κι όμως, σήμερα ξανασηκώνομαι — κι αυτό μόνο του αρκεί για να ξαναρχίσω.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "First person throughout, as a mantra requires; no addressee is invoked, so no address form is forced on the reader.",
+  "constraint_check": "The tonal order is preserved and checkable: sentences 1–3 are entirely self-deprecating and bleak (δεν κατάφερα τίποτα, το παρατάω στη μέση, γκρίζα και βουβά), and the positive turn appears only in the final sentence, introduced by «Κι όμως». No positive claim appears before it.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The reference violates its own prompt by placing the positive turn in the first sentence",
+    "english": "I might be the king of failure, but at least I'm the king of something.",
+    "greek": "Δεν κατάφερα ποτέ τίποτα σπουδαίο, και το ξέρω.",
+    "why": "The prompt requires the positive note at the END. The English opens with an upbeat reframing, so I moved all positivity to the closing sentence and kept the opening purely self-deprecating."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "mantra",
+    "decision": "Written as a first-person repeatable formula; the noun itself does not appear in the answer",
+    "why": "Stage 1 fixed «ένα μάντρα» (neuter) for the prompt to disambiguate it from η μάντρα. The answer does not need to name the genre, so the homograph problem never surfaces in the output."
+   }
+  ],
+  "deviations": [
+   "The English 'king of failure / king of something' irony is dropped because it is precisely the misplaced positive turn. The wry tone is carried instead by «και το ξέρω» and «μετράω τα ίδια πράγματα που δεν έκανα»."
+  ],
+  "self_flags": [
+   "Reviewer should confirm the last sentence is felt as positive enough to satisfy 'positive at the end' — it is deliberately modest rather than triumphant, to stay in the same register as the melancholy that precedes it."
+  ]
+ },
+ {
+  "row_id": "a16979b07edb296e5c12338204023194b450ed4b295cf22ca562800b507d6624",
+  "response_el": "Λοιπόν, ξέρεις που έχουμε τηλεόραση, που στέλνουμε γράμματα και που παίρνουμε τηλέφωνο ο ένας τον άλλον; Φαντάσου κάτι που τα κάνει όλα αυτά μαζί, μόνο που τα κάνει με κόσμο σε ολόκληρο τον πλανήτη. Το ίντερνετ — ή, αν θέλεις τη σοβαρή λέξη, το διαδίκτυο — είναι ένα τεράστιο δίκτυο υπολογιστών που είναι συνδεδεμένοι μεταξύ τους. Ναι, τα ίδια μηχανήματα που έχουν οι τράπεζες και τα πανεπιστήμια και πιάνουν μισό δωμάτιο· απλώς φαντάσου τα να μικραίνουν τόσο ώστε να χωράνε σε ένα γραφείο. Η σύνδεση στην αρχή γίνεται μέσα από τις ίδιες τηλεφωνικές γραμμές που έχεις στο σπίτι, και το πρώτο πράγμα που κάνεις μ' αυτήν είναι το ηλεκτρονικό ταχυδρομείο — το «ιμέιλ», όπως θα το λέμε. Γράφεις το μήνυμά σου σε ένα πληκτρολόγιο, σαν της γραφομηχανής, οι λέξεις εμφανίζονται σε μια οθόνη σαν της τηλεόρασης, και το στέλνεις στη διεύθυνση του άλλου· φτάνει σε δευτερόλεπτα, όχι σε τρεις μέρες.\n\nΜετά τα γράμματα έρχονται οι ιστοσελίδες: σελίδες σαν εφημερίδας, μόνο που δεν τις τυπώνει κανείς και τις ανοίγεις όποια ώρα θέλεις, από όπου κι αν είναι γραμμένες. Όσο περνάει ο καιρός και οι γραμμές γίνονται πιο γρήγορες, χωράνε και εικόνες, μουσική, ταινίες — βλέπεις κάτι σαν εκπομπή χωρίς να περιμένεις το πρόγραμμα, και μπορείς να φτιάξεις και τη δική σου. Στο τέλος φτάνουμε στο σημείο να μιλάς την ίδια στιγμή με κάποιον που είναι χιλιάδες χιλιόμετρα μακριά, να τον βλέπεις κιόλας, ή να παίζεις μαζί του σκάκι σαν να κάθεται απέναντί σου. Ξέρω, ακούγεται σαν παραμύθι· αλλά έτσι θα πάει το πράγμα.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Ενικός and colloquial («Λοιπόν, ξέρεις που…», «Ξέρω, ακούγεται σαν παραμύθι»), as the prompt's «χαλαρό ύφος» requires.",
+  "constraint_check": "Exactly two paragraphs, separated by one blank line, and each is a normal conversational paragraph rather than an overloaded block. Both the ≤2-paragraph cap and the χαλαρό-ύφος constraint are satisfied.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Assumes a 1970s listener personally owns computers",
+    "english": "much smaller than the ones you have",
+    "greek": "τα ίδια μηχανήματα που έχουν οι τράπεζες και τα πανεπιστήμια… φαντάσου τα να μικραίνουν τόσο ώστε να χωράνε σε ένα γραφείο",
+    "why": "Almost nobody owned a computer in the 1970s. The comparison is re-anchored to institutional machines, which the listener could plausibly have seen or read about."
+   },
+   {
+    "what": "Anachronistic brand and country examples presented as if the listener could evaluate them",
+    "english": "a website called YouTube was created… You can play chess with someone in China, or have a conversation with someone in Britain.",
+    "greek": "μπορείς να φτιάξεις και τη δική σου [εκπομπή]… να παίζεις μαζί του σκάκι σαν να κάθεται απέναντί σου",
+    "why": "A 1970s listener has no way to place a brand name that does not yet exist. I kept the capability (anyone can publish video; live conversation and games across distance) and dropped the brand, closing instead with an explicit acknowledgement that it sounds far-fetched."
+   },
+   {
+    "what": "The reference bursts the two-paragraph cap in spirit",
+    "english": "two extremely long paragraphs running from email through websites, video, YouTube, live streaming and online chess",
+    "greek": "two paragraphs of ordinary conversational length covering the same ground more compactly",
+    "why": "The prompt's whole point is the size limit; the reference is the weak model here."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "email",
+    "decision": "ηλεκτρονικό ταχυδρομείο, then «ιμέιλ» in quotation marks",
+    "why": "Mirrors the reference's move of introducing the coinage as a novelty. A 1970s Greek listener has no loanword to hang it on, so the descriptive term comes first."
+   },
+   {
+    "term": "website",
+    "decision": "ιστοσελίδα",
+    "why": "The standard Greek term; the newspaper-page analogy is what makes it intelligible in the fiction, not the word itself."
+   }
+  ],
+  "deviations": [
+   "Substantially shorter than the reference, deliberately, to honour the constraint the reference breaks.",
+   "Added «φτάνει σε δευτερόλεπτα, όχι σε τρεις μέρες» — a contrast with the post that a 1970s listener actually feels, replacing the reference's list-like description of an inbox."
+  ],
+  "self_flags": [
+   "Confirm the paragraph count survives any downstream reflow — the constraint depends on exactly one blank line in the answer."
+  ]
+ },
+ {
+  "row_id": "484a7383586712f559c98eed43c9e4c43816c8a4a3385bf148819db174dde1b7",
+  "response_el": "Να διευκρινίσω πρώτα κάτι, γιατί η διατύπωση σηκώνει δύο διαβάσματα: το «για παιδιά» μπορεί να σημαίνει είτε χάικου γραμμένο για να το διαβάσουν παιδιά είτε χάικου για τη γυμναστική των παιδιών. Το έγραψα έτσι ώστε να στέκει και στα δύο — παιδική εικόνα, παιδική γλώσσα:\n\nΣκοινάκι, μπάλα,\nκαι τρέχουμε στην αυλή·\nχαρά στο σώμα.\n\nΑν θέλεις αυστηρά τη μία από τις δύο εκδοχές, πες μου ποια και το ξαναγράφω.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Ενικός in the framing sentences, matching the prompt's bare imperative; the haiku itself uses first-person plural («τρέχουμε»), which forces no address form.",
+  "constraint_check": "5-7-5 counted as spoken Greek with συνίζηση. Line 1: Σκοι-νά-κι (3) μπά-λα (2) = 5. Line 2: και (1) τρέ-χου-με (3) στην αυ-λή (3) = 7. Line 3: χα-ρά (2) στο (1) σώ-μα (2) = 5. Three lines.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The reference silently resolves the prompt's ambiguity and grafts on a fourth idea",
+    "english": "Jump rope, chase, and ball / Exercise is good for you / Have fun with it too",
+    "greek": "Σκοινάκι, μπάλα, / και τρέχουμε στην αυλή· / χαρά στο σώμα.",
+    "why": "This is a generative row, so the ambiguity of 'for kids' is named in the answer instead of being decided silently. I also folded the reference's separate 'have fun' line into the haiku's own closing image, since three lines cannot carry four ideas."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "jump rope",
+    "decision": "σκοινάκι",
+    "why": "The ordinary Greek word for the children's game and the rope alike; «σχοινάκι» is the alternative spelling, and I fix σκοινάκι here."
+   }
+  ],
+  "deviations": [
+   "Adds a short framing note about the ambiguity, which the English reference does not have, per the family rule that generative rows name the ambiguity inline.",
+   "The haiku's content is re-derived rather than translated: Greek syllables are longer, so three activities became two plus a running image."
+  ],
+  "self_flags": [
+   "Recount line 2 aloud: «στην αυλή» must be read as three syllables (στην-αυ-λή); a reader who elides it to two would make the line 6."
+  ]
+ },
+ {
+  "row_id": "43eca3ee2e00067fdfa6b229e006a19be89a04bee5c9af4c17f0c9fb74940d6d",
+  "response_el": "Ο Κώστας ο Καρχαρίας οργώνει τον βυθό\nκι ο Σάκης το σαλάχι από κοντά τον ακολουθεί.\nΔυο ντετέκτιβ της θάλασσας, με μύτη ερευνητή,\nπου τίποτα ύποπτο δεν τους ξεφεύγει εκεί.\n\nΜια μέρα φτάνει μήνυμα από τα κοράλλια:\nένας ιππόκαμπος τους φόρους δεν πληρώνει.\nΔέκα χρόνια κρύβεται μέσα στα ρεύματα\nκι η υπόθεση με τίποτα δεν τελειώνει.\n\nΑκολουθούν τα ίχνη στα φύκια και στα βράχια,\nρωτούν ένα χταπόδι που τα βλέπει και τα κρατά·\nκι εκείνο, με μια ήσυχη κίνηση, τους δείχνει\nμια σπηλιά που κοιμάται στα σκοτεινά νερά.\n\nΤον βρίσκουν ζαρωμένο μέσα σ' ένα κοχύλι,\nνα μετράει τα κέρματά του ένα ένα, κρυφά.\n«Σας περίμενα», τους λέει, και σηκώνει τα πτερύγια,\nκαι φεύγει μαζί τους ήσυχα, χωρίς αντίσταση καμιά.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Third-person narration; the single line of dialogue uses πληθυντικός («Σας περίμενα») because the seahorse is addressing two detectives — that is grammatical number, not politeness, so the row's ενικός target is unaffected.",
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Broken rhyme and a metrically overlong line in stanza 3",
+    "english": "They tracked him across the ocean / Until they found him, they could not relax",
+    "greek": "Ακολουθούν τα ίχνη στα φύκια και στα βράχια… μια σπηλιά που κοιμάται στα σκοτεινά νερά.",
+    "why": "The English scheme collapses in that stanza. The Greek keeps a consistent rhyme on lines 2 and 4 of every stanza (ακολουθεί/εκεί, πληρώνει/τελειώνει, κρατά/νερά, κρυφά/καμιά) without forcing word order."
+   },
+   {
+    "what": "Odd English for tax evasion",
+    "english": "a seahorse who had failed to pay all his tax",
+    "greek": "ένας ιππόκαμπος τους φόρους δεν πληρώνει",
+    "why": "'all his tax' is not idiomatic; the Greek uses the ordinary collocation, which is if anything more natural in Greek than in English."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "detective",
+    "decision": "ντετέκτιβ (Greek script, indeclinable)",
+    "why": "The everyday Greek word; «ερευνητής» would read as a scientist and «αστυνόμος» would import a rank the poem does not need."
+   }
+  ],
+  "deviations": [
+   "The shark's name is re-derived from Greek sound, not transliterated: Κώστας ο Καρχαρίας keeps the alliteration that 'Sean the Shark' has and that «Σον» would destroy. The stingray gets a matching charactonym, Σάκης το Σαλάχι, which the English does not have.",
+   "The final stanza gives the culprit a line of dialogue instead of the reference's narrated surrender, so the comic tone lands in Greek."
+  ],
+  "self_flags": [
+   "Check that no line reads as marked word order for the sake of rhyme — I believe all four stanzas are in canonical order, but stanza 3 line 3 («κι εκείνο, με μια ήσυχη κίνηση, τους δείχνει») has a parenthetical that a reviewer may want moved."
+  ]
+ },
+ {
+  "row_id": "da798799889da7005a5860020c4f796f07aa2e38fcc4352299bfed4d826f8adb",
+  "response_el": "Φως στο πρόσωπο,\nαπαλά με σηκώνει·\nέτοιμος ξανά.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "No addressee is invoked; the haiku is in the first person, so no address form is forced. Recorded as ενικός to match stage 1.",
+  "constraint_check": "5-7-5 counted as spoken Greek with συνίζηση. Line 1: Φως (1) στο (1) πρό-σω-πο (3) = 5. Line 2: α-πα-λά (3) με (1) ση-κώ-νει (3) = 7. Line 3: έ-τοι-μος (3) ξα-νά (2) = 5. Three lines.",
+  "defect_note": null,
+  "reference_corrections": [],
+  "class_disagreement": null,
+  "guide_gaps": [],
+  "deviations": [
+   "The word ήλιος is not in the poem: «ήλιος» plus «πρωινός» would consume most of a seven-syllable line, so the sun is present as φως on the face — the same image the English opens with ('Warm rays on my face'). Compressing differently from the English is expected here, not infidelity.",
+   "The reference's three beats (warmth / gentle awakening / readiness) are all preserved, in the same order."
+  ],
+  "self_flags": [
+   "Reviewer should recount aloud; «πρόσωπο» is unambiguously three syllables, but confirm nobody reads «απαλά με» with elision."
+  ]
+ },
+ {
+  "row_id": "de2a2f97af74465ecbd03e4f9292662eb49de9b212c1dd57f2040a093048652d",
+  "response_el": "Ορίστε οι ομάδες των δύο πόλεων που αγωνίζονται στα μεγάλα επαγγελματικά πρωταθλήματα των ΗΠΑ. Τα ονόματα δίνονται όπως είναι επίσημα, με το άθλημα και το πρωτάθλημα δίπλα:\n\nΣικάγο\n- Chicago Bears — αμερικανικό ποδόσφαιρο (NFL)\n- Chicago Bulls — μπάσκετ (NBA)\n- Chicago Sky — μπάσκετ γυναικών (WNBA)\n- Chicago Cubs — μπέιζμπολ (MLB)\n- Chicago White Sox — μπέιζμπολ (MLB)\n- Chicago Blackhawks — χόκεϊ επί πάγου (NHL)\n- Chicago Fire FC — ποδόσφαιρο (MLS)\n- Chicago Red Stars — ποδόσφαιρο γυναικών (NWSL)\n\nΜιλγουόκι\n- Milwaukee Bucks — μπάσκετ (NBA)\n- Milwaukee Brewers — μπέιζμπολ (MLB)\n\nΤο Μιλγουόκι δεν έχει ομάδα στο NFL ούτε στο NHL — η ομάδα του αμερικανικού ποδοσφαίρου που συνδέεται με την πολιτεία του Ουισκόνσιν είναι οι Green Bay Packers, από άλλη πόλη. Θα συναντήσεις επίσης τους Milwaukee Admirals και τους Milwaukee Wave, αλλά δεν τους έβαλα στη λίστα: οι πρώτοι παίζουν στο AHL, που είναι το δεύτερο επίπεδο του χόκεϊ, και οι δεύτεροι σε πρωτάθλημα ποδοσφαίρου σάλας — κανένα από τα δύο δεν θεωρείται «μεγάλο» επαγγελματικό πρωτάθλημα. Με το ίδιο κριτήριο μένουν εκτός και οι Chicago Wolves, που είναι επίσης ομάδα του AHL.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Ενικός («Θα συναντήσεις»), matching the prompt's «Μπορείς να μου φτιάξεις».",
+  "constraint_check": "The stated criterion «μεγάλες επαγγελματικές» is applied explicitly and consistently: every listed club plays in NFL/NBA/WNBA/MLB/NHL/MLS/NWSL, and the three clubs that fail the criterion are named and excluded with the reason given.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Two minor-league/indoor sides listed as major professional teams",
+    "english": "-Milwaukee Admirals\n-Milwaukee Wave",
+    "greek": "Both moved out of the list, with an explanation that the Admirals play in the AHL (second-tier hockey) and the Wave in indoor soccer",
+    "why": "The prompt asks specifically for MAJOR professional teams; neither league qualifies."
+   },
+   {
+    "what": "The criterion applied inconsistently between the two cities",
+    "english": "Chicago's AHL side (Chicago Wolves) omitted while Milwaukee's AHL side included",
+    "greek": "«Με το ίδιο κριτήριο μένουν εκτός και οι Chicago Wolves, που είναι επίσης ομάδα του AHL.»",
+    "why": "Whatever the cut-off, it has to be the same for both cities; naming the Wolves makes the consistency visible."
+   },
+   {
+    "what": "Bare list with no sport or league, so the 'major professional' claim cannot be checked",
+    "english": "-Chicago Bears\n-Chicago Bulls\n… (unannotated)",
+    "greek": "Each team annotated with its sport and league",
+    "why": "This is the reference's worst defect for a row whose only requirement is a fuzzy criterion; the annotation makes the answer verifiable."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "team names (Chicago Bears, Milwaukee Bucks …)",
+    "decision": "kept in Latin script, untranslated",
+    "why": "They are real registered organisation names; «Αρκούδες του Σικάγου» names an entity that does not exist. This is the VERBATIM-FREEZE call stage 1 recorded."
+   },
+   {
+    "term": "league acronyms (NFL, NBA, MLB, NHL, MLS, WNBA, NWSL, AHL)",
+    "decision": "kept in Latin script",
+    "why": "Greek sports writing uses these acronyms unchanged; there are no Greek equivalents."
+   },
+   {
+    "term": "American football",
+    "decision": "αμερικανικό ποδόσφαιρο",
+    "why": "Necessary in Greek, where «ποδόσφαιρο» unqualified means association football — the ambiguity does not exist in the English."
+   }
+  ],
+  "deviations": [
+   "Added the sport/league gloss per team and a short closing paragraph on the excluded clubs; the English is a bare list. This is the Stage-2 call stage 1 flagged as available.",
+   "Added the Green Bay Packers note, because a Greek reader who knows Wisconsin only vaguely would otherwise wonder why Milwaukee has no NFL team."
+  ],
+  "self_flags": [
+   "Roster facts should be re-checked against the current season; league membership (especially NWSL and MLS) changes."
+  ]
+ },
+ {
+  "row_id": "5564c3c307a4cbc9cd2b04f577fa65a220a0097c85e56a861ba7b865a7f9fd14",
+  "response_el": "1. Κυνηγητό\n2. Κρυφτό\n3. Πόλεμος με μπαλόνια νερού\n4. Ζωγραφική προσώπου\n5. Λίμπο\n6. Φουσκωτό κάστρο\n7. Κυνήγι θησαυρού στην αυλή\n8. Διελκυστίνδα\n9. Σκυταλοδρομία με τσουβάλια\n10. Πινιάτα",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The deliverable is a bare list, so no address form appears; ενικός is recorded to match stage 1 and would surface in any framing sentence.",
+  "constraint_check": "Exactly 10 items, numbered 1.–10. in the standard Greek style. Every item is an outdoor activity: eight need open ground (κυνηγητό, κρυφτό, μπαλόνια νερού, φουσκωτό κάστρο, κυνήγι θησαυρού, διελκυστίνδα, σκυταλοδρομία, πινιάτα), λίμπο needs room to line up, and ζωγραφική προσώπου is standard at outdoor Greek children's parties. No two items are the same game family: one chasing game, one hiding game, one searching game, the rest distinct.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "An item that does not satisfy the stated outdoor constraint",
+    "english": "4.) Painting",
+    "greek": "4. Ζωγραφική προσώπου",
+    "why": "Plain painting is not specifically outdoor; face painting is what actually happens at an outdoor children's party and satisfies the constraint."
+   },
+   {
+    "what": "Nonstandard numbering",
+    "english": "1.) 2.) 3.) …",
+    "greek": "1. 2. 3. …",
+    "why": "'1.)' mixes a period with a closing parenthesis. Greek numbered lists use «1.»."
+   },
+   {
+    "what": "Three items from the same chase/search family",
+    "english": "Tag / Capture the flag / Scavenger hunt",
+    "greek": "Κυνηγητό / Κρυφτό / Κυνήγι θησαυρού, with the fourth slot given to Πινιάτα",
+    "why": "A list of 10 ideas should be 10 distinct ideas; the English is less varied than it looks."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "cornhole",
+    "decision": "dropped entirely, replaced by πινιάτα",
+    "why": "Cornhole is a US party prop with no Greek counterpart and no Greek name; transliterating it («κόρνχολ») would name a game no Greek child has played. Πινιάτα is genuinely current at Greek children's parties."
+   },
+   {
+    "term": "tug of war",
+    "decision": "διελκυστίνδα",
+    "why": "The established Greek term, familiar from school sports days."
+   },
+   {
+    "term": "sack race",
+    "decision": "σκυταλοδρομία με τσουβάλια",
+    "why": "The Greek fair/school-day game that occupies the same slot; «σακουλοδρομία» is not established."
+   },
+   {
+    "term": "jump house",
+    "decision": "φουσκωτό κάστρο",
+    "why": "Stage 1's call; the standard Greek term for the rented inflatable."
+   }
+  ],
+  "deviations": [
+   "The whole item set is re-derived for a Greek outdoor party rather than translated: cornhole and capture the flag are gone, κρυφτό and πινιάτα are in.",
+   "Item order regrouped so that similar games are not adjacent; the English order carries no meaning."
+  ],
+  "self_flags": [
+   "If the reviewer considers ζωγραφική προσώπου insufficiently 'activity-like', σχοινάκι or μουσικές καρέκλες are drop-in replacements that keep the count at 10."
+  ]
+ },
+ {
+  "row_id": "8ff9633d0c181dc09cdfd8684f638f68f2d699ebef0217e5a2a8051ed2bbe961",
+  "response_el": "Πόλεις που τις έσβησε μια νύχτα ολόκληρες,\nΟύτε ένα όνομα δεν έμεινε στις πόρτες,\nΛίγο ψωμί μοιράζεται σε χέρια που τρέμουν,\nΕίναι πάντα η νίκη πιο βαριά απ' όσο τη λένε,\nΜητέρες μετρούν παράθυρα και δεν κοιμούνται,\nΌσοι γύρισαν, γύρισαν μισοί,\nΣτάχτη το χώμα — κι όμως εμείς ξαναφυτεύουμε.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "No addressee; the poem is impersonal until the closing «εμείς». Recorded as ενικός to match stage 1's target, which the poem never contradicts.",
+  "constraint_check": "Exactly 7 lines. Their initial letters read Π, Ο, Λ, Ε, Μ, Ο, Σ in order, spelling ΠΟΛΕΜΟΣ. Line 6 begins with Ό (capital omicron with accent, which is the letter Ο) and line 7 with capital Σ, not final ς. The subject is war throughout.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The form collapses — the third line is a long prose sentence, not a line of verse",
+    "english": "Rest in peace to each soldier who comes back home and those who never did.",
+    "greek": "Όσοι γύρισαν, γύρισαν μισοί,",
+    "why": "In the English the last line is several times the length of the first two, so the poem stops being a poem. The Greek keeps all seven lines within a comparable span."
+   },
+   {
+    "what": "Syntactically unfinished opening",
+    "english": "Winning in the mind, / Above all else,",
+    "greek": "Πόλεις που τις έσβησε μια νύχτα ολόκληρες, / Ούτε ένα όνομα δεν έμεινε στις πόρτες,",
+    "why": "The English lines do not resolve into a statement. Each Greek line is a complete image, and the sequence reads as one continuous statement."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "acrostic initial letters",
+    "decision": "each line begins with a capital letter, accents retained where the word carries one (Όσοι)",
+    "why": "Greek capitals normally drop the accent only in all-caps text; a sentence-initial capital keeps it. Ό is the letter Ο for the purposes of the acrostic, as stage 1 recorded."
+   }
+  ],
+  "deviations": [
+   "Seven lines instead of three, derived from ΠΟΛΕΜΟΣ (7 letters) rather than WAR (3). The Greek task is therefore materially longer than the English, as stage 1 flagged.",
+   "The content is composed fresh; the reference's 'winning in the mind' framing had no coherent statement to carry over. The Greek keeps the reference's two surviving beats — remembrance of soldiers, and a note that is not purely bleak — the second of which lands in the final line."
+  ],
+  "self_flags": [
+   "Reviewer must check the initials letter by letter, especially line 6 (Ό) and line 7 (Σ, not ς).",
+   "Owner decision flagged by stage 1 is still open: the line count differs from the English, so source/target difficulty is not matched for this row."
+  ]
+ },
+ {
+  "row_id": "04e43910a6d6284b0650d8c013de55b0022e2f21e78fa1547263f195e4e05079",
+  "response_el": "Ναι, υπάρχουν αρκετά. Τα περισσότερα από αυτά είναι ιοβόλα, δηλαδή ζώα που ενίουν το δηλητήριό τους με αγκάθια, δόντια ή κεντρί όταν απειληθούν ή όταν κυνηγούν — κάτι διαφορετικό από τα ζώα που είναι δηλητηριώδη μόνο αν τα φάει κανείς. Πέντε χαρακτηριστικά παραδείγματα:\n\n1. Λεοντόψαρο (Pterois)\n\nΈχει σειρές από δηλητηριώδη αγκάθια στη ράχη, στην κοιλιά και στα πλευρικά πτερύγια, τα οποία χρησιμοποιεί αμυντικά. Στον άνθρωπο το τσίμπημα σπάνια είναι θανατηφόρο, αλλά προκαλεί έντονο πόνο, πρήξιμο, ναυτία και ζάλη, και σε σπάνιες περιπτώσεις σοβαρή αλλεργική αντίδραση. Τα τελευταία χρόνια το είδος έχει επεκταθεί και στην ανατολική Μεσόγειο.\n\n2. Θαλάσσια φίδια\n\nΑνήκουν στα πιο ιοβόλα ζώα του πλανήτη, αλλά είναι γενικά ήρεμα και δαγκώνουν σπάνια, μόνο αν πιεστούν ή πιαστούν σε δίχτυα. Το δηλητήριό τους δρα στους μυς και στο νευρικό σύστημα, και μια σοβαρή δαγκωνιά μπορεί να είναι θανατηφόρα για ενήλικο άνθρωπο.\n\n3. Κωνοσαλίγκαρα (Conus)\n\nΣαλιγκάρια με πανέμορφα, πολύπλοκα σχεδιασμένα κελύφη — γι' αυτό και ο κόσμος τα μαζεύει, χωρίς να ξέρει τι κρατάει. Κινούνται πολύ αργά και κυνηγούν με ένα δηλητηριώδες «καμάκι», ένα τροποποιημένο δόντι που εκτοξεύουν σε σκουλήκια, μικρά ψάρια και μαλάκια. Τα μεγαλύτερα είδη μπορούν να σκοτώσουν άνθρωπο και δεν υπάρχει αντίδοτο.\n\n4. Πετρόψαρο (Synanceia)\n\nΜοιάζει τόσο με πέτρα που λουόμενοι στον Ινδικό και στον Ειρηνικό το πατούν κατά λάθος. Έχει στη ράχη σκληρά αγκάθια συνδεδεμένα με αδένες δηλητηρίου: η πίεση του βάρους πάνω στο αγκάθι είναι που σπρώχνει το δηλητήριο στην πληγή. Ο πόνος είναι από τους χειρότερους που έχουν περιγραφεί και το τσίμπημα μπορεί να αποβεί μοιραίο χωρίς ιατρική βοήθεια.\n\n5. Ανθοαχινός (Toxopneustes pileolus)\n\nΈνας από τους πιο επικίνδυνους αχινούς. Δεν είναι τα αγκάθια που πληγώνουν, αλλά μικρά όργανα σαν λουλουδάκια που καλύπτουν το σώμα του και κλείνουν πάνω στο δέρμα. Ένα άγγιγμα προκαλεί έντονο πόνο και μπορεί να ακολουθήσει μούδιασμα ή παράλυση στους μυς, στα χείλη και στα βλέφαρα, που κρατάει ώρες.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The prompt is a bare information request in ενικός («Ανάφερέ μου», «πες μου»); the answer is impersonal expository prose, which forces no address form and does not clash with it.",
+  "constraint_check": "Exactly five animals, numbered 1–5, and every one of them gets a short description of two to four sentences — the «λίγα λόγια για το καθένα» requirement is met for all five, not just some. The opening yes/no question is also answered explicitly («Ναι, υπάρχουν αρκετά»).",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The yes/no question is never answered",
+    "english": "the answer jumps straight into the numbered list",
+    "greek": "Ναι, υπάρχουν αρκετά.",
+    "why": "The prompt opens with a direct question; leaving it unanswered is a straightforward failure to follow the instruction."
+   },
+   {
+    "what": "Wild overstatement of cone snail venom quantity",
+    "english": "One dose of harpoon venom has the potential to internally damage, or even kill, hundreds of people.",
+    "greek": "Τα μεγαλύτερα είδη μπορούν να σκοτώσουν άνθρωπο και δεν υπάρχει αντίδοτο.",
+    "why": "The 'hundreds of people' figure is a popular myth presented as fact. The accurate and still striking point is that a single sting from the large species can be fatal and has no antivenom."
+   },
+   {
+    "what": "Self-contradictory flower urchin claim",
+    "english": "paralysis of muscles, lips, and eyes, but the pain diminishes quickly, typically in 15 minutes or less",
+    "greek": "έντονο πόνο και μπορεί να ακολουθήσει μούδιασμα ή παράλυση στους μυς, στα χείλη και στα βλέφαρα, που κρατάει ώρες",
+    "why": "The 15-minute claim contradicts the paralysis described in the same sentence and the standard clinical description."
+   },
+   {
+    "what": "Invented causal reasoning and a wrong symptom for lionfish",
+    "english": "Lionfish are slow swimmers, so they need envenomation as protection… causes diarrhea, extreme nausea, and headaches",
+    "greek": "τα οποία χρησιμοποιεί αμυντικά… έντονο πόνο, πρήξιμο, ναυτία και ζάλη",
+    "why": "The swimming-speed explanation is made up, and diarrhoea is not a typical envenomation symptom; the reliable ones are pain, swelling, nausea and dizziness."
+   },
+   {
+    "what": "Imprecise mechanism for stonefish envenomation",
+    "english": "covered with venomous spikes that shove venom into whatever it comes into contact with",
+    "greek": "η πίεση του βάρους πάνω στο αγκάθι είναι που σπρώχνει το δηλητήριο στην πληγή",
+    "why": "The stonefish is passive; the venom is delivered because the victim's weight compresses the venom glands at the base of the spine."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "venomous vs poisonous",
+    "decision": "ιοβόλα glossed in the first sentence, δηλητηριώδη used elsewhere",
+    "why": "Greek δηλητηριώδης covers both senses, so the English distinction is genuinely lost. Rather than leave it lost, the opening sentence defines ιοβόλα and contrasts it with poisonous-if-eaten, which makes the rest of the answer unambiguous."
+   },
+   {
+    "term": "species names",
+    "decision": "Greek common name plus the Latin genus/binomial on first mention",
+    "why": "κωνοσαλίγκαρα and ανθοαχινός have no settled Greek usage, so the binomial is what makes them identifiable."
+   }
+  ],
+  "deviations": [
+   "The five species are unchanged — no Mediterranean substitution — because they are content, as stage 1 recorded.",
+   "Added one true and locally relevant fact (the lionfish's spread into the eastern Mediterranean); the English has no equivalent sentence.",
+   "Slightly shorter than the reference, because several of the reference's sentences were the fabricated claims listed above."
+  ],
+  "self_flags": [
+   "A subject-matter reviewer should verify the sea-snake and cone-snail lethality statements, which I stated conservatively.",
+   "«Καμάκι» for the cone snail's radular tooth is in quotation marks as an image; if the corpus prefers a technical term, «ραδιδικό δόντι» is available but obscure."
+  ]
+ }
+]

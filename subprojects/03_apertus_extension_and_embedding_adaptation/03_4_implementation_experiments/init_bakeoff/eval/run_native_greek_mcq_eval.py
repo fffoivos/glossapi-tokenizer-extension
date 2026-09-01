@@ -357,6 +357,19 @@ def _summarize(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[d
             continue
         n = len(group)
         correct = sum(1 for row in group if row["correct"])
+        choice_nlls = []
+        correct_answer_neg_log2 = 0.0
+        correct_answer_utf8_bytes = 0
+        for row in group:
+            normalized_scores = [float(score["avg_logprob"]) for score in row["choice_scores"]]
+            maximum = max(normalized_scores)
+            log_normalizer = maximum + math.log(
+                sum(math.exp(score - maximum) for score in normalized_scores)
+            )
+            choice_nlls.append(log_normalizer - normalized_scores[int(row["answer_index"])])
+            correct_score = row["choice_scores"][int(row["answer_index"])]
+            correct_answer_neg_log2 += -float(correct_score["sum_logprob"]) / math.log(2.0)
+            correct_answer_utf8_bytes += int(row["correct_answer_utf8_bytes"])
         summary.append(
             {
                 "benchmark": benchmark,
@@ -364,6 +377,15 @@ def _summarize(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[d
                 "n": n,
                 "accuracy": correct / n if n else float("nan"),
                 "correct": correct,
+                "choice_nll": sum(choice_nlls) / n if n else float("nan"),
+                "choice_nll_sum": sum(choice_nlls),
+                "correct_answer_bpb": (
+                    correct_answer_neg_log2 / correct_answer_utf8_bytes
+                    if correct_answer_utf8_bytes
+                    else float("nan")
+                ),
+                "correct_answer_neg_log2_sum": correct_answer_neg_log2,
+                "correct_answer_utf8_bytes": correct_answer_utf8_bytes,
             }
         )
     all_rows = [row for row in summary if row["subject"] == "__all__"]
@@ -382,12 +404,35 @@ def _summarize(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[d
         total_n = sum(int(row["n"]) for row in items)
         total_correct = sum(int(row["correct"]) for row in items)
         accuracies = [float(row["accuracy"]) for row in items]
+        total_choice_nll = sum(float(row["choice_nll_sum"]) for row in items)
+        total_correct_answer_neg_log2 = sum(
+            float(row["correct_answer_neg_log2_sum"]) for row in items
+        )
+        total_correct_answer_bytes = sum(
+            int(row["correct_answer_utf8_bytes"]) for row in items
+        )
         return {
             "n_tasks": len(items),
             "total_n": total_n,
             "total_correct": total_correct,
             "macro_accuracy": sum(accuracies) / len(accuracies) if accuracies else None,
             "micro_accuracy": total_correct / total_n if total_n else None,
+            "macro_choice_nll": (
+                sum(float(row["choice_nll"]) for row in items) / len(items)
+                if items
+                else None
+            ),
+            "micro_choice_nll": total_choice_nll / total_n if total_n else None,
+            "macro_correct_answer_bpb": (
+                sum(float(row["correct_answer_bpb"]) for row in items) / len(items)
+                if items
+                else None
+            ),
+            "micro_correct_answer_bpb": (
+                total_correct_answer_neg_log2 / total_correct_answer_bytes
+                if total_correct_answer_bytes
+                else None
+            ),
         }
 
     aggregate_report = {
@@ -425,6 +470,11 @@ def main() -> None:
         "candidate_batch_size": args.candidate_batch_size,
         "example_batch_size": args.example_batch_size,
         "registry": str(args.registry.resolve()),
+        "metrics": [
+            "official_zero_shot_accuracy_from_average_answer_token_logprob",
+            "multiple_choice_cross_entropy_from_normalized_average_answer_token_logprob",
+            "correct_answer_continuation_bits_per_utf8_byte_from_sum_logprob",
+        ],
     }
     (args.output_dir / "run_metadata.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n")
 
@@ -460,6 +510,9 @@ def main() -> None:
                         "correct": scored["correct"],
                         "choice_scores": scored["choice_scores"],
                         "num_choices": len(example.choices),
+                        "correct_answer_utf8_bytes": len(
+                            example.choices[example.answer_index].encode("utf-8")
+                        ),
                         "metadata": example.metadata or {},
                     }
                 )
@@ -475,7 +528,21 @@ def main() -> None:
     summary, headline, diagnostics, aggregate_report = _summarize(rows)
     summary_path = args.output_dir / f"{model_label}_native_mcq_summary.csv"
     with summary_path.open("w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=["benchmark", "subject", "n", "accuracy", "correct"])
+        writer = csv.DictWriter(
+            fh,
+            fieldnames=[
+                "benchmark",
+                "subject",
+                "n",
+                "accuracy",
+                "correct",
+                "choice_nll",
+                "choice_nll_sum",
+                "correct_answer_bpb",
+                "correct_answer_neg_log2_sum",
+                "correct_answer_utf8_bytes",
+            ],
+        )
         writer.writeheader()
         writer.writerows(summary)
     (args.output_dir / f"{model_label}_native_mcq_headline.json").write_text(
@@ -490,7 +557,11 @@ def main() -> None:
 
     print("\nHeadline:")
     for row in headline:
-        print(f"{row['benchmark']}: n={row['n']} acc={row['accuracy']:.4f}", flush=True)
+        print(
+            f"{row['benchmark']}: n={row['n']} acc={row['accuracy']:.4f} "
+            f"choice_nll={row['choice_nll']:.4f} correct_bpb={row['correct_answer_bpb']:.4f}",
+            flush=True,
+        )
     if diagnostics:
         print("\nDiagnostics:")
         for row in diagnostics:

@@ -1,0 +1,416 @@
+[
+  {
+    "row_id": "7619871aec80b42d6022acaec9a2af8c238293f6a644f14594374dd7f3b72d31",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "symbolism explanation",
+    "hazards": [
+      "The Hand of Fatima is the factual referent and must not be localized.",
+      "The symbol has multiple names and interpretations across religious traditions."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Bare impersonal factual question with no addressee or interpersonal tone.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Τι συμβολίζει το Χέρι της Φάτιμα;",
+    "user_turns_el": [],
+    "transpositions": [
+      {
+        "en": "Hand of Fatima",
+        "el": "Χέρι της Φάτιμα",
+        "kind": "other",
+        "why": "Established Greek rendering of the real symbol's name."
+      }
+    ],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": "Only the established Greek name of the real referent is used; the referent itself is unchanged.",
+    "guide_gaps": [
+      {
+        "term": "Fatima",
+        "decision": "Φάτιμα",
+        "why": "Conventional modern Greek transliteration of the Arabic given name."
+      }
+    ],
+    "reference_problems": [
+      "The claim that the symbol dates back to cave paintings is unsupported and misleading.",
+      "The answer presents disputed interpretations, including the five fingers as the five pillars of Islam, as universal facts.",
+      "It implies that the symbol's name and origin are exclusively Islamic even though the hamsa predates Islam and has several cultural associations.",
+      "The phrase \"back luck\" is a misspelling of \"bad luck\"."
+    ],
+    "translator_notes": "The concise Greek question preserves the cross-cultural symbol without importing any interpretation from the reference answer."
+  },
+  {
+    "row_id": "dc0dfbf118a0b29a6452a269f6d0f1f5c04106717e96007bdc3840f18100c203",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [
+      "VERBATIM-FREEZE"
+    ],
+    "subtype": "film plot",
+    "hazards": [
+      "The English title is shared by more than one film, so the question is underspecified.",
+      "Translating the title without an established edition-specific Greek title could obscure the intended work."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Bare factual question about a film, with no direct address or marked tone.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Ποια ήταν η υπόθεση της ταινίας «The Great Train Robbery»;",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": "The real film title is retained verbatim because the prompt gives no year or other disambiguating detail.",
+    "guide_gaps": [
+      {
+        "term": "The Great Train Robbery",
+        "decision": "Διατήρηση του αγγλικού τίτλου «The Great Train Robbery»",
+        "why": "The title denotes several real films, and an unsupported Greek translation could introduce further ambiguity."
+      }
+    ],
+    "reference_problems": [
+      "The prompt does not identify a year, director or version, but the reference assumes the 1903 Edwin S. Porter film.",
+      "The 1903 film's robbery begins aboard a train after the outlaws overpower the station operator; saying that they hold up a locomotive at a station is imprecise."
+    ],
+    "translator_notes": "A reviewer may choose an established Greek release title if the row is first disambiguated as referring to the 1903 film."
+  },
+  {
+    "row_id": "5c9a219ea3c4cfd70f66ac0bcc11c0d289c21244b2761d2982ca7c95c9140541",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "scientific cause",
+    "hazards": [
+      "In ordinary usage, \"dinosaurs\" often means non-avian dinosaurs, although birds are surviving dinosaurs.",
+      "The scientific referent and timescale must not be localized or altered."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Short impersonal scientific question with no form of address.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Γιατί εξαφανίστηκαν οι δεινόσαυροι;",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": null,
+    "guide_gaps": [],
+    "reference_problems": [
+      "The answer does not distinguish non-avian dinosaurs from avian dinosaurs, which survive as birds.",
+      "It portrays the cause as broadly debatable, whereas the Chicxulub asteroid impact is supported as the principal cause of the end-Cretaceous mass extinction; Deccan volcanism may have contributed."
+    ],
+    "translator_notes": "The source's ordinary-language ambiguity between all dinosaurs and non-avian dinosaurs is preserved rather than silently repaired."
+  },
+  {
+    "row_id": "a69ea904d649ff697453fca8cd51a6d3e44db68872c3d54f5da4475b164b0f16",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "anatomical count",
+    "hazards": [
+      "The number depends on age and on how anatomical variation is counted.",
+      "The prompt does not specify an adult or a newborn."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Bare impersonal factual question with no direct address.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Πόσα οστά έχει ο άνθρωπος;",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": null,
+    "guide_gaps": [],
+    "reference_problems": [
+      "The statement that babies are born with nearly 300 bones is a common approximation whose exact value depends on how cartilaginous elements and unfused structures are counted.",
+      "The standard adult count of 206 does not cover all normal anatomical variation."
+    ],
+    "translator_notes": "The age ambiguity is retained because adding «ενήλικος» would narrow the original question."
+  },
+  {
+    "row_id": "faf66018a8b571eaf3eb88478c5ccb4bc21c6d36fbfd39545a8ab551a3fc1bb8",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "historical claim check",
+    "hazards": [
+      "Texas, the two-year interval and the historical claim are factual content and must remain unchanged.",
+      "Knowing about the Emancipation Proclamation is not identical to learning that emancipation had become enforceable locally.",
+      "The subject requires historically respectful language without changing the proposition being tested."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Direct historical yes-or-no question with no addressee or interpersonal relationship.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Χρειάστηκαν πράγματι πάνω από δύο χρόνια για να μάθουν οι σκλαβωμένοι άνθρωποι στο Τέξας ότι είχαν απελευθερωθεί;",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": "The quantity remains «πάνω από δύο χρόνια» and is not rescaled.",
+    "substitution_note": "The people-first phrase «σκλαβωμένοι άνθρωποι» preserves the historical group while avoiding a needlessly dehumanizing nominal label.",
+    "guide_gaps": [
+      {
+        "term": "slaves",
+        "decision": "σκλαβωμένοι άνθρωποι",
+        "why": "Natural, historically precise people-first wording in contemporary Greek."
+      }
+    ],
+    "reference_problems": [
+      "The categorical conclusion conflates awareness of the Emancipation Proclamation with actual freedom and its enforcement in Confederate-controlled Texas.",
+      "The inference that most enslaved people must have known because they would have heard slaveholders discussing the proclamation is speculative.",
+      "The answer does not explain the distinction between the preliminary proclamation of 1862, the proclamation taking effect in 1863 and enforcement in Texas in June 1865.",
+      "The final sentence is incomplete and ends with a trailing comma."
+    ],
+    "translator_notes": "The wording preserves the source's contested premise; it does not insert Juneteenth or otherwise answer the question."
+  },
+  {
+    "row_id": "47c5f5bb7cdcd8c2f3f03b80480920cd843b8dcb426d0130f183c2c36fe3d1fb",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "person identification and outcome",
+    "hazards": [
+      "The NSA, the year 2013 and the unnamed person are factual content.",
+      "The phrase \"what happened to him\" is open-ended and time-sensitive.",
+      "The characterization \"whistleblower\" can carry legal and political implications."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "The English contains a polite conversational request but no relationship or status cue; it can be rendered as an impersonal factual question without selecting a Greek address form.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Ποιος ήταν ο μάρτυρας δημοσίου συμφέροντος που διέρρευσε απόρρητες πληροφορίες της Υπηρεσίας Εθνικής Ασφάλειας των ΗΠΑ (NSA) το 2013; Πώς λεγόταν και τι απέγινε;",
+    "user_turns_el": [],
+    "transpositions": [
+      {
+        "en": "National Security Agency",
+        "el": "Υπηρεσία Εθνικής Ασφάλειας των ΗΠΑ",
+        "kind": "institution",
+        "why": "Descriptive Greek rendering that preserves the exact US institution, with its official English acronym retained."
+      }
+    ],
+    "derived_elements": [
+      {
+        "depends_on": "National Security Agency",
+        "en": "NSA",
+        "el": "NSA",
+        "why": "The official English acronym is retained after the Greek expansion so that the institution remains unmistakable."
+      }
+    ],
+    "constraint_notes": "The year 2013 is preserved exactly.",
+    "substitution_note": "No person, country, institution or event has been localized.",
+    "guide_gaps": [
+      {
+        "term": "whistleblower",
+        "decision": "μάρτυρας δημοσίου συμφέροντος",
+        "why": "Established formal Greek term that is more precise than a literal rendering involving a whistle."
+      },
+      {
+        "term": "National Security Agency (NSA)",
+        "decision": "Υπηρεσία Εθνικής Ασφάλειας των ΗΠΑ (NSA)",
+        "why": "The Greek expansion aids comprehension while the English acronym preserves recognizability."
+      }
+    ],
+    "reference_problems": [
+      "Snowden was working as an NSA contractor, rather than simply being an NSA employee, when he made the disclosures.",
+      "He was charged with three federal offenses, including two counts under the Espionage Act and one count of theft of government property; the reference's wording can be read as omitting the third charge.",
+      "The answer stops at permanent residency in October 2020 and omits later developments, notably his receipt of Russian citizenship in 2022, so it no longer fully answers the open-ended phrase \"what happened to him.\""
+    ],
+    "translator_notes": "The phrase «τι απέγινε» deliberately retains the source's open temporal scope."
+  },
+  {
+    "row_id": "380f35e5e9670559330023b8bd20a14df66cb1919384f58a681e325b36fe09f5",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "landmark measurement",
+    "hazards": [
+      "The height is ambiguous unless the measurement endpoints are specified.",
+      "The Statue of Liberty is the factual referent and must not be replaced by a Greek landmark."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Bare impersonal measurement question with no addressee.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Τι ύψος έχει το Άγαλμα της Ελευθερίας;",
+    "user_turns_el": [],
+    "transpositions": [
+      {
+        "en": "Statue of Liberty",
+        "el": "Άγαλμα της Ελευθερίας",
+        "kind": "other",
+        "why": "Established Greek name of the real monument."
+      }
+    ],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": "The monument is unchanged; only its established Greek name is used.",
+    "guide_gaps": [],
+    "reference_problems": [],
+    "translator_notes": "The original endpoint ambiguity is preserved. A correct answer may distinguish the statue itself from the monument's total ground-to-torch height."
+  },
+  {
+    "row_id": "001d678a9ff4b6aa83fa3495283bd772cead249d8da6b9f7e72a69ec38918124",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "astronomical count",
+    "hazards": [
+      "The solar system must not be broadened to the Milky Way or another astronomical scope.",
+      "The numerical answer depends on the accepted definition of a planet."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Bare impersonal factual question with no address form.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Πόσοι πλανήτες υπάρχουν στο ηλιακό μας σύστημα;",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": null,
+    "guide_gaps": [],
+    "reference_problems": [
+      "The answer incorrectly describes the criteria as applying to a full-size planet in the Milky Way; the IAU's 2006 definition applies specifically to planets in the Solar System.",
+      "The final sentence says Pluto \"needed to meet\" the last criterion instead of saying that it failed to meet it.",
+      "The phrase \"There were nine planets\" is imprecise: Pluto did not physically cease to be a planet-like body but was reclassified under the adopted definition."
+    ],
+    "translator_notes": "The Greek question retains the exact scope «ηλιακό μας σύστημα»."
+  },
+  {
+    "row_id": "4815ee286ab8cd9d4d7dfa1ab384c4cbcd314fda68d9b61394bc5335a810494d",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "award nominations list",
+    "hazards": [
+      "Martin Scorsese and the Academy Award category are factual referents.",
+      "The requested list changes as new films receive nominations.",
+      "The possessive phrase \"Martin Scorsese movies\" is slightly ambiguous but ordinarily denotes films he directed."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Impersonal factual question requesting a list, with no direct address.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Ποιες ταινίες του Μάρτιν Σκορσέζε έχουν προταθεί για το Όσκαρ Καλύτερης Ταινίας;",
+    "user_turns_el": [],
+    "transpositions": [
+      {
+        "en": "Martin Scorsese",
+        "el": "Μάρτιν Σκορσέζε",
+        "kind": "name",
+        "why": "Conventional Greek transliteration of the director's name."
+      },
+      {
+        "en": "Oscar for Best Picture",
+        "el": "Όσκαρ Καλύτερης Ταινίας",
+        "kind": "other",
+        "why": "Established Greek rendering of the award category."
+      }
+    ],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": "No filmography or award referent is changed.",
+    "guide_gaps": [
+      {
+        "term": "Martin Scorsese",
+        "decision": "Μάρτιν Σκορσέζε",
+        "why": "Conventional Greek transliteration."
+      },
+      {
+        "term": "Oscar for Best Picture",
+        "decision": "Όσκαρ Καλύτερης Ταινίας",
+        "why": "Natural and established Greek name for the category."
+      }
+    ],
+    "reference_problems": [
+      "The list is outdated: «Killers of the Flower Moon» was also nominated for Best Picture, bringing the number of Scorsese-directed nominees to ten as of the 2024 ceremony.",
+      "\"Raging Bill\" is a misspelling of the film title «Raging Bull».",
+      "Calling «The Departed» Scorsese's first Best Picture win is misleading: Best Picture is awarded to the credited producers, while Scorsese personally won Best Director.",
+      "The claim that «Goodfellas» gave Scorsese his third Best Director nomination is incorrect; it was his second, after «Raging Bull»."
+    ],
+    "translator_notes": "The prompt intentionally includes no cutoff year, matching the source; answers should therefore be current at generation time."
+  },
+  {
+    "row_id": "0d0e79d66f053645b56efefbe444ab1c03fa5d2a48fd89a3b8bf11baeaa23daf",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "author identification",
+    "hazards": [
+      "The real novel title is the factual referent.",
+      "An established Greek title should be used without changing the work."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Bare impersonal factual question with no addressee.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Ποιος έγραψε το μυθιστόρημα «Η βουή και η μανία»;",
+    "user_turns_el": [],
+    "transpositions": [
+      {
+        "en": "The Sound and the Fury",
+        "el": "Η βουή και η μανία",
+        "kind": "other",
+        "why": "Established Greek title of William Faulkner's novel."
+      }
+    ],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": "The work is unchanged; its established Greek title is used.",
+    "guide_gaps": [
+      {
+        "term": "The Sound and the Fury",
+        "decision": "Η βουή και η μανία",
+        "why": "Established Greek publication title."
+      }
+    ],
+    "reference_problems": [
+      "The answer's broad statement that the family loses its religious faith over roughly thirty years oversimplifies the characters' differing relationships to religion.",
+      "The assertion that many characters die tragically is vague and overstates death as a central shared outcome of the main cast."
+    ],
+    "translator_notes": "Adding «μυθιστόρημα» makes the Greek question idiomatic while preserving the exact referent."
+  }
+]

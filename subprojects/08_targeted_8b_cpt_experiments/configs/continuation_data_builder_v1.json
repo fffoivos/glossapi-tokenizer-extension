@@ -1,0 +1,69 @@
+{
+  "schema_version": "apertus_targeted_continuation_data_builder_v1",
+  "status": "frozen",
+  "purpose": "Preserve the exact continuation data builder used for Experiment B as the starting point for future, explicitly versioned data-mix experiments.",
+  "implementations": [
+    {
+      "role": "select_and_order_parent_suffix_sequences",
+      "path": "scripts/build_continuation_b_schedule.py",
+      "sha256": "6514382d6790627b5055b2f6d038e14e123ccddcba007969725b5004a0a0e286"
+    },
+    {
+      "role": "materialize_byte_exact_parent_packed_pool_view",
+      "path": "scripts/build_continuation_b_pool_view.py",
+      "sha256": "a11199b85da389547a9eaca46730c3d384c65accbd2dc1f71da9da3e0dc4f247"
+    }
+  ],
+  "experiment_b_proof": {
+    "scientific_bundle_root": "/iopsstor/scratch/cscs/fffoivos/orchestration/targeted-8b-cpt/20260812T084500Z-targeted8b-v39",
+    "scientific_bundle_tree_sha256": "4734ab501674c6ea6b5af7ba8ce53653b50930b654bee89709b04779b4c4a131",
+    "scientific_bundle_receipt_sha256": "0dc38dd31ed3ed5bdb3abda4faec9620904574fa729e015d27e4ccc505d5554b",
+    "stage_root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/targeted8b/experiment_b/20260812T010000Z-prep-v4/experiment_b",
+    "schedule_manifest_sha256": "26fb77c9097cc81de459c120e670dcd053a2bde52543affdb7b463c109d4baf3",
+    "pool_corpus_receipt_sha256": "dfa2915a185a40fb42a73ef08df770f59cf613c5a50fca5fbf33a0b32c2686c3",
+    "packed_corpus_receipt_sha256": "783811376229e706ec174a686e0dfde8506f67d978a58bb300021cae5e92d80a",
+    "packed_payload_integrity_receipt_sha256": "6d7e596a81b0246dfad81ccbb0489554f5411acd37670a939024214484defaea"
+  },
+  "proven_b_invocation": {
+    "parent_arm": "D0_mixed",
+    "checkpoint_iteration": 9536,
+    "global_batch_sequences": 1024,
+    "expected_modern_active_tokens": 9123187023,
+    "window_count": 128
+  },
+  "reusable_inputs": [
+    "parent_schedule_manifest",
+    "parent_checkpoint_receipt",
+    "parent_checkpoint_directory",
+    "parent_arm",
+    "checkpoint_iteration",
+    "global_batch_sequences",
+    "expected_modern_active_tokens",
+    "window_count",
+    "output_directory"
+  ],
+  "fixed_v1_policy": {
+    "selected_suffix_pools": [
+      "G",
+      "F",
+      "O"
+    ],
+    "modern_anchor": "all unseen G sequences in the strict parent-schedule suffix",
+    "foreign_active_token_target": "round(G * 20 / 79)",
+    "old_greek_active_token_target": "round(G * 1 / 79)",
+    "replay_selection": "nearest active-token prefix from each unseen parent-suffix replay stream",
+    "cross_pool_order": "deterministic smooth_categories",
+    "within_pool_relative_order_preserved": true,
+    "parent_prefix_byte_exact": true,
+    "parent_prefix_overlap_allowed": false,
+    "global_deduplication_performed": false,
+    "padding": "loss-inactive filler slots only"
+  },
+  "versioning_policy": {
+    "edit_v1_in_place_for_new_mix": false,
+    "new_mix_requires_new_policy_id": true,
+    "new_mix_requires_new_implementation_or_explicit_parameter_schema": true,
+    "new_mix_requires_new_tests_receipts_and_launch_gate": true,
+    "existing_b_artifacts_must_remain_reproducible": true
+  }
+}

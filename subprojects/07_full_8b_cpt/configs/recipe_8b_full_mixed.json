@@ -1,0 +1,239 @@
+{
+  "schema_version": "apertus_full_8b_mixed_cpt_recipe_v1",
+  "recipe_id": "full8b-mixed-79-20-1-wsd10-v1",
+  "status": "prepared_not_launch_authorized",
+  "scientific_decision": {
+    "data_order": "D0_mixed",
+    "reason": "Observed point-estimate leader of the completed 0.5B data-order screen",
+    "checkpoint_averaging": false,
+    "lr_floor": "WSD-10",
+    "lr_floor_status": "settled_baseline_but_reopen_after_per_document_validation_if_requested"
+  },
+  "data": {
+    "source_dataset": {
+      "repo_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+      "revision": "3f97cec48af502f4996cf8ff20b02660e2dd3d31",
+      "complete_eligible_training_pass": true,
+      "libduth": {
+        "technical_selection": "included_by_explicit_owner_directive_and_present_in_public_v2",
+        "evidence_conflict": "older_source_license_adjudication_records_CC_BY_NC_ND_and_does_not_support_training_or_redistribution",
+        "legal_conclusion_claimed": false,
+        "required_resolution": "reconciled_permission_evidence_or_explicit_recorded_risk_acceptance"
+      }
+    },
+    "source_binary_root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/cpt25b_midtraining/20260731T124000Z-cpt25b-v1",
+    "source_binary_tokenizer": "fffoivos/apertus-tokenizer-extension@fcd33ec09fb7d86bc072b3a4b3e890efa6473b66/greek-modern-polytonic-tokenizer",
+    "expected_pre_global_exact_dedup_capacity": {
+      "modern_greek_tokens": 63776651867,
+      "foreign_replay_tokens": 45299005189,
+      "old_greek_replay_tokens": 2666110500
+    },
+    "target_mix": {
+      "modern_greek": "0.79",
+      "foreign_replay": "0.20",
+      "old_greek_replay": "0.01",
+      "hplt_and_non_hplt_within_modern": "natural_post_exclusion_ratio",
+      "selected_without_replacement": true,
+      "stationary_windowed_randomization": true,
+      "seed": 20260801
+    },
+    "planning_post_dedup_active_tokens": 80729939067,
+    "planning_training_slots_tokens": 80731963392,
+    "planning_loss_inactive_tail_tokens": 2024325,
+    "pool_receipt_required": true,
+    "packing_receipt_required": true,
+    "schedule_receipt_required": true,
+    "schedule_arm": "D0_mixed",
+    "sequence_length": 4096,
+    "source_document_metadata_preserved_in_upstream_ledgers": true,
+    "packed_cross_document_semantics": {
+      "reset_attention_mask": true,
+      "reset_position_ids": true,
+      "eod_mask_loss": true
+    }
+  },
+  "tokenizer": {
+    "repo_id": "fffoivos/apertus-tokenizer-extension",
+    "revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+    "subfolder": "greek-modern-polytonic-tokenizer",
+    "tokenizer_json_sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+    "base_tokens": 131072,
+    "modern_added_tokens": 17408,
+    "polytonic_added_tokens": 512,
+    "vocab_size": 148992,
+    "alignment_divisor": 256,
+    "padding_tokens": 0,
+    "pad_token_id": 3
+  },
+  "initialization": {
+    "base_model": "swiss-ai/Apertus-8B-2509@3162c99675aa588097cecd4a24b9aa1f712af477",
+    "policy": "verified_untied_layer11_token_distillation_plus_polytonic_output_calibration",
+    "megatron_tp2_checkpoint": "/capstor/scratch/cscs/fffoivos/models/greek-cpt25b-init-roundtrip/20260731T124000Z-cpt25b-v1/megatron_tp2_r17patched",
+    "production_verification_path": "/capstor/scratch/cscs/fffoivos/models/greek-cpt25b-init/20260731T124000Z-cpt25b-v1/production_init_verification.json",
+    "production_verification_file_sha256": "7b4adb065f401305064cda8c45cc1b2c1430366ef8fbf5ee060f154be5b48e26",
+    "roundtrip_verification_path": "/capstor/scratch/cscs/fffoivos/models/greek-cpt25b-init-roundtrip/20260731T124000Z-cpt25b-v1/work/verification.json",
+    "roundtrip_verification_file_sha256": "06ddc69f4787f470b85d4be55992f898b98d8ab4fd8ab34a89a4d3bb96eb7e33",
+    "input_output_embeddings_tied": false,
+    "target_layer": 11
+  },
+  "model": {
+    "layers": 32,
+    "hidden_size": 4096,
+    "ffn_hidden_size": 21504,
+    "attention_heads": 32,
+    "query_groups": 8,
+    "activation": "xIELU",
+    "normalization": "RMSNorm",
+    "qk_layernorm": true,
+    "bias_linear": false,
+    "init_method_std": 0.008944,
+    "max_position_embeddings": 4096,
+    "rope": {
+      "position_embedding_type": "rope",
+      "base": 500000,
+      "use_scaling": true,
+      "scaling_factor": 8.0
+    }
+  },
+  "optimization": {
+    "optimizer": "AdEMAMix",
+    "beta1": 0.9,
+    "beta2": 0.999,
+    "beta3": 0.999,
+    "alpha": 4.0,
+    "beta3_warmup_updates": 19248,
+    "alpha_warmup_updates": 19248,
+    "weight_decay": 0.1,
+    "gradient_clip_norm": 0.1,
+    "precision": "bf16",
+    "main_gradients": "fp32",
+    "nan_and_inf_checks_enabled": true,
+    "loss": {
+      "name": "Goldfish",
+      "k": 50,
+      "h": 50
+    },
+    "learning_rate": {
+      "schedule": "WSD",
+      "peak": 0.000055,
+      "warmup_initial": 0.0000055,
+      "final": 0.0000055,
+      "warmup_updates": 400,
+      "stable_until_update": 15398,
+      "cooldown_updates": 3850,
+      "cooldown_shape": "1-sqrt"
+    }
+  },
+  "batch_and_parallelism": {
+    "global_batch_sequences": 1024,
+    "global_batch_tokens": 4194304,
+    "micro_batch_sequences": 2,
+    "training_updates": 19248,
+    "training_samples": 19709952,
+    "tensor_parallel": 2,
+    "pipeline_parallel": 1,
+    "context_parallel": 1,
+    "nodes": 16,
+    "gpus_per_node": 4,
+    "world_size": 64,
+    "data_parallel": 32,
+    "gradient_accumulation_steps": 16,
+    "distributed_optimizer": true,
+    "overlap_gradient_reduce": true,
+    "overlap_parameter_gather": true
+  },
+  "segments": {
+    "partition": "normal",
+    "account": "a0140",
+    "wall_limit": "12:00:00",
+    "boundaries": [0, 3208, 6416, 9624, 12832, 16040, 19248],
+    "count": 6,
+    "signal_before_limit_seconds": 600,
+    "resume_requires_optimizer_rng_sample_cursor_parity": true
+  },
+  "evaluation": {
+    "source_conditioned": {
+      "interval_updates": 25,
+      "panels": [
+        "hplt",
+        "non_hplt",
+        "openarchives",
+        "greek_phd",
+        "historical_polytonic",
+        "english",
+        "de",
+        "ru",
+        "zh",
+        "code",
+        "math",
+        "old_greek",
+        "neutral_external_modern_greek"
+      ],
+      "metrics": ["nll", "bpb", "base_target_nll", "added_target_nll"]
+    },
+    "greekmmlu": {
+      "dataset": "dascim/GreekMMLU",
+      "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+      "public_items": 16632,
+      "decontaminated_items": 16159,
+      "metrics": ["zero_shot_accuracy", "choice_nll", "correct_answer_bpb"],
+      "checkpoint_updates": [0, 400, 1192, 2384, 3576, 4768, 5960, 7152, 8344, 9536, 10728, 11920, 13112, 14304, 15398, 15496, 16688, 17880, 19072, 19248],
+      "cadence_policy": "initial_after_warmup_about_every_5B_tokens_cooldown_start_final",
+      "asynchronous_bounded_concurrency": true
+    },
+    "per_document_validation": {
+      "milestone_updates": [0, 15398, 19248],
+      "required_fields": ["doc_id", "source_dataset", "nll_numerator_nats", "target_tokens", "utf8_bytes", "bpb", "base_target_nll", "added_target_nll"],
+      "bootstrap_unit": "doc_id_until_an_explicit_cluster_id_mapping_is_frozen"
+    },
+    "checkpoint_updates": [400, 1192, 2384, 3208, 3576, 4768, 5960, 6416, 7152, 8344, 9536, 9624, 10728, 11920, 12832, 13112, 14304, 15398, 15496, 16040, 16688, 17880, 19072, 19248],
+    "checkpoint_averaging": false
+  },
+  "software": {
+    "uenv": "pytorch/v2.9.1:v2",
+    "megatron_upstream_commit": "c92402e39ef3c8e69ea378a59e79059dc14541f4",
+    "megatron_runtime_patchset": {
+      "required": true,
+      "changed_files": [
+        "megatron/training/arguments.py",
+        "megatron/training/training.py",
+        "pretrain_gpt.py"
+      ],
+      "patches": [
+        {
+          "path": "subprojects/06_dataset_scheduling_experiments/training/runtime_patches/megatron_extra_valid_c92402e.patch",
+          "sha256": "2e6810fa8b6c25597ccb3bcb9dc1ff5bf843ead2337e3edde0344605a23ec4c6"
+        },
+        {
+          "path": "subprojects/06_dataset_scheduling_experiments/training/runtime_patches/megatron_exact_eval_iterations_c92402e.patch",
+          "sha256": "6d9392cfb0dd08e62089d0a98e2817b222bb9a25ee5cefa8f3cdf29a8ce16bea"
+        }
+      ],
+      "runtime_receipt_required": true
+    },
+    "validated_runtime_receipt": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T093500Z-megatron-production-c92402e-v1.receipt.json",
+      "file_sha256": "99b9ecbd49bec162941d1b9bd11996b39ab421f4c43eca962c09ca37fdc7b36a",
+      "git_diff_sha256": "550a9f570a99f1ca20773bd2d97795210ce153ace1be794cf9f11aeb4b2238e6",
+      "revalidate_at_every_job_start": true
+    },
+    "scientific_code_must_be_clean_and_tree_hashed": true,
+    "job_start_revalidation_required": true
+  },
+  "launch_gates": [
+    "frozen_pool_corpus_receipt_matches_recipe",
+    "D0_selection_confirmed_after_per_document_rerun_or_explicit_point_estimate_acceptance",
+    "libduth_permission_evidence_conflict_is_reconciled_or_explicitly_accepted",
+    "packed_schedule_receipt_matches_recipe",
+    "all_13_validation_panels_are_frozen",
+    "tokenizer_and_initialization_hashes_pass",
+    "nan_checks_are_enabled",
+    "initial_validation_is_finite",
+    "two_update_train_and_resume_smoke_passes",
+    "greekmmlu_checkpoint_conversion_and_eval_smoke_passes",
+    "initial_per_document_validation_all_13_panels_passes",
+    "at_least_6TB_checkpoint_conversion_and_evaluation_space_is_available",
+    "fresh_scheduler_snapshot_is_recorded",
+    "explicit_production_launch_authorization_is_received"
+  ]
+}

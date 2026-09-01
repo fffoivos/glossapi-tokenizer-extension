@@ -1,0 +1,16 @@
+--- a/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch
++++ b/subprojects/07_full_8b_cpt/clariden/train_segment.sbatch
+@@ -222,10 +222,10 @@
+-readarray -t contract < <(python3 - "$RECIPE" "$VALIDATION" "$FULL8_START_ITERATION" "$FULL8_END_ITERATION" "${PROFILE[boundaries]}" "${FULL8_BENCHMARK_MODE:-0}" "${FULL8_BENCHMARK_SAVE_ITERATIONS:-}" "${FULL8_RECOVERY_MODE:-0}" "${FULL8_CHECKPOINT_VALIDATION_ONLY:-0}" <<'PY'
++readarray -t contract < <(python3 - "$RECIPE" "$VALIDATION" "$FULL8_START_ITERATION" "$FULL8_END_ITERATION" "${PROFILE[boundaries]}" "${FULL8_BENCHMARK_MODE:-0}" "${FULL8_BENCHMARK_SAVE_ITERATIONS:-}" "${FULL8_RECOVERY_MODE:-0}" "${FULL8_CHECKPOINT_VALIDATION_ONLY:-0}" "${FULL8_BENCHMARK_BASE_ITERATION:-0}" <<'PY'
+ import json,sys
+ r=json.load(open(sys.argv[1])); v=json.load(open(sys.argv[2])); start,end=map(int,sys.argv[3:5])
+-b=list(map(int,sys.argv[5].split(','))); benchmark=sys.argv[6]=='1'; recovery=sys.argv[8]=='1'; validation_only=sys.argv[9]=='1'
++b=list(map(int,sys.argv[5].split(','))); benchmark=sys.argv[6]=='1'; recovery=sys.argv[8]=='1'; validation_only=sys.argv[9]=='1'; benchmark_base=int(sys.argv[10])
+ if validation_only:
+  if not 0 <= start < end <= max(b): raise SystemExit("invalid checkpoint validation range")
+ elif benchmark:
+- if not (0 <= start < end <= 288): raise SystemExit("invalid benchmark range")
++ if not (benchmark_base <= start < end <= benchmark_base + 288): raise SystemExit("invalid benchmark range")
+  saves=[int(x) for x in sys.argv[7].split(',') if x]
+ else:

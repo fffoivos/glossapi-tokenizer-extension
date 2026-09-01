@@ -1,0 +1,559 @@
+[
+ {
+  "row_id": "4730a5b3414a57b50b653221cb365aae33d2d758f8d7c6a525f4980b4fbd3c62",
+  "response_el": "Πάμε! Πέντε τουίτ για αρχή:\n\n1. Μπίρα > τεχνολογία. Δεν με πιστεύεις; Πόσοι αρχαίοι Σουμέριοι λες να ξενύχτησαν στην ουρά για να προλάβουν το καινούριο μοντέλο;\n\n2. Χθες με έστησε ένα ραντεβού από εφαρμογή γνωριμιών. Η μπίρα δεν με άφησε ποτέ να περιμένω σε κανένα τραπέζι.\n\n3. Ήξερες ότι η μπίρα έχει τόσες θερμίδες που, στα δύσκολα, θα άντεχες έναν μήνα μόνο με αυτήν; Για δοκίμασέ το με το ακριβό τάμπλετ που μόλις πήρες.\n\n4. Τα μέσα κοινωνικής δικτύωσης είναι μια χαρά, αλλά ποτέ δεν χρειάστηκε να διαγράψω μια μπίρα από τους φίλους μου.\n\n5. Το σκρολάρισμα υπάρχει για να σε ρουφάει μέχρι τις τρεις τα ξημερώματα. Το πιο θλιβερό που θα δεις εσύ σε ένα ποτήρι μπίρας είναι ο πάτος του.\n\nΠες μου αν θες κι άλλα ή αν θες να τα κάνω πιο τσουχτερά.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": null,
+  "constraint_check": "Exactly five tweets, numbered 1–5, each a self-contained one-liner; the count is trivially checkable. The framing lines before and after are not tweets and are not numbered.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Garbled negation that reverses the joke",
+    "english": "I got stood up by a Tinder date last night, but beer has ghosted me.",
+    "greek": "Χθες με έστησε ένα ραντεβού από εφαρμογή γνωριμιών. Η μπίρα δεν με άφησε ποτέ να περιμένω σε κανένα τραπέζι.",
+    "why": "As written the English says beer ghosted him too, which destroys the beer-is-better comparison; the joke requires the negative."
+   },
+   {
+    "what": "Fourth item welds two separate jokes into one tweet (unfriending a beer + being stalked by a pint) and ends with a stray space",
+    "english": "Facebook’s nice and all, but I’ve never had to unfriend a beer. Actually, I’d be fine getting stalked by a pint of Guinness! ",
+    "greek": "Τα μέσα κοινωνικής δικτύωσης είναι μια χαρά, αλλά ποτέ δεν χρειάστηκε να διαγράψω μια μπίρα από τους φίλους μου.",
+    "why": "One tweet, one punchline; the stalking half weakens the first joke and the trailing whitespace is noise."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "unfriend",
+    "decision": "«διαγράψω ... από τους φίλους μου»",
+    "why": "Avoids the Latin-script «unfriend»/«κάνω unfriend» while keeping the platform metaphor intact and readable."
+   },
+   {
+    "term": "doom-scrolling",
+    "decision": "«σκρολάρισμα ... μέχρι τις τρεις τα ξημερώματα»",
+    "why": "Greek has no settled equivalent of 'doom-scrolling'; the naturalized verb plus the hour carries the compulsive-late-night sense without a calque."
+   }
+  ],
+  "deviations": [
+   "US brand props (Tinder, Facebook, Guinness) replaced with unbranded Greek-neutral equivalents (εφαρμογή γνωριμιών, μέσα κοινωνικής δικτύωσης, plain μπίρα), per stage 1's instruction not to carry them across.",
+   "Added a short opening and closing line in the assistant's own voice, which the English reference lacks — it matches the chatty ενικός register of the prompt and keeps the five tweets clearly delimited.",
+   "The Sumerian phone-queue joke is kept (it is not US-specific) but the 'new cell phone' is generalized to «το καινούριο μοντέλο»."
+  ],
+  "self_flags": [
+   "Check that the five items still read as tweets rather than as list entries once the numbering is stripped.",
+   "«σκρολάρισμα» is a naturalized loan; confirm it is acceptable house style."
+  ]
+ },
+ {
+  "row_id": "f76d87829956fe1fa95c3f3fcfd01e97f8981d6568605663c05491972fcd608a",
+  "response_el": "στα γόνατα κατεβαίνω\nκαι ζητώ μέρες καλύτερες\nαπέναντι στο κακό και στη στέρηση\n\nμέσα στο αυτοκίνητο προσεύχομαι\nγια καλό δρόμο σε όλους\nκαι για μάτια που προλαβαίνουν την ομορφιά\n\nστο γραφείο προσεύχομαι\nνα βγει η μέρα ήσυχη\nκαι να προλάβω όποιον με χρειάζεται\n\nστο μπαλκόνι προσεύχομαι\nγια ειρήνη σ' αυτόν τον κόσμο\nαπό τη δύση ως την ανατολή\n\nκι ύστερα σωπαίνω\nγιατί κάπου εκεί\nη προσευχή σταματά να είναι λόγια",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "The poem is first-person and addresses no one, so no address form is forced; the prompt's ενικός is not contradicted anywhere.",
+  "constraint_check": "No capital letter appears anywhere in the answer (checked including the first letter of every line and every stanza). Τόνοι are kept, as monotonic lowercase Greek requires, and word-final sigma stays «ς» («όλους», «κόσμο» — and «μάτια»/«λόγια» carry no final sigma); 'lowercase' is not read as 'unaccented' or as licence for «σ» at word end. Free verse: no metre and no rhyme scheme is imposed.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Trailing space at the end of the final line",
+    "english": "from sunset to sunrise ",
+    "greek": "από τη δύση ως την ανατολή",
+    "why": "Stray whitespace is noise, not form; it is not part of the lowercase constraint."
+   },
+   {
+    "what": "The reference is a rigid four-stanza chant on a fixed 'in/at X i pray' template, which under-delivers the free verse the prompt names",
+    "english": "on my knees i go / in my car i pray / at my desk i pray / on my porch i pray",
+    "greek": "the anaphora is kept but broken: the first stanza does not use the verb «προσεύχομαι», the third varies the syntax, and a fifth, template-free stanza closes the poem",
+    "why": "Anaphora is legitimate in free verse, but an unbroken template reads as a formula; loosening it delivers the form actually requested."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [],
+  "deviations": [
+   "'on my porch' → «στο μπαλκόνι»: the American porch has no Greek domestic equivalent, and the balcony is the place a Greek speaker stands at sunset.",
+   "A fifth stanza was added that steps outside the template, to make the poem read as free verse rather than as a four-part litany.",
+   "'marvel in the beauty of the world' was recast as «μάτια που προλαβαίνουν την ομορφιά» rather than translated, since the English clause is grammatically loose ('marvel in' for 'marvel at')."
+  ],
+  "self_flags": [
+   "Verify mechanically that the response contains zero uppercase characters — this is the row's whole constraint.",
+   "Confirm the added closing stanza is welcome; it is a deliberate departure from the reference's four-stanza shape."
+  ]
+ },
+ {
+  "row_id": "e12865584afea30408e7e16ea6550b365eb1b158e5d93405257b3bfdef25b3ed",
+  "response_el": "Το βιβλίο που ζητάς κυκλοφορεί ως «Πλούσιος μπαμπάς, φτωχός μπαμπάς» του Ρόμπερτ Κιγιοσάκι — από τα πιο πολυδιαβασμένα βιβλία οικονομικής παιδείας των τελευταίων δεκαετιών.\n\nΟ Κιγιοσάκι στήνει το επιχείρημά του πάνω σε δύο πατρικές φιγούρες. Ο πρώτος «μπαμπάς» είναι ο βιολογικός του πατέρας: μορφωμένος άνθρωπος, με σταθερή δουλειά και σταθερό μισθό, που παρ' όλα αυτά δυσκολεύεται οικονομικά σε όλη του τη ζωή. Ο δεύτερος είναι ο πατέρας του καλύτερού του φίλου, ένας επιχειρηματίας και επενδυτής χωρίς πανεπιστημιακούς τίτλους, που όμως χτίζει περιουσία. Από την αντιπαράθεση των δύο βγαίνει και το κεντρικό μήνυμα: δεν σε πλουτίζει το εισόδημα, αλλά το τι κάνεις με αυτό.\n\nΤα βασικά συμπεράσματα:\n\n- Η οικονομική παιδεία δεν διδάσκεται πουθενά και πρέπει να την αποκτήσεις μόνος σου.\n- Μάθε να ξεχωρίζεις το περιουσιακό στοιχείο από την υποχρέωση: το πρώτο βάζει χρήματα στην τσέπη σου, το δεύτερο τα βγάζει.\n- Το σχολείο σε ετοιμάζει για εργασιακή ασφάλεια και μισθό, όχι για δημιουργία πλούτου.\n- Σκέψου σαν επενδυτής και σαν επιχειρηματίας, με στόχο στοιχεία που παράγουν εισόδημα.\n- Η νοοτροπία μετράει όσο και οι αριθμοί, μαζί με τη διάθεση να αναλάβεις υπολογισμένο ρίσκο.\n\nΗ γλώσσα είναι απλή και η αφήγηση ευχάριστη, γι' αυτό και το βιβλίο διαβάζεται εύκολα από ανθρώπους χωρίς οικονομικό υπόβαθρο. Καλό είναι πάντως να ξέρεις ότι η ύπαρξη του «πλούσιου μπαμπά» ως πραγματικού προσώπου έχει αμφισβητηθεί δημόσια και ότι οι συμβουλές είναι περισσότερο αρχές νοοτροπίας παρά συγκεκριμένο πλάνο. Ως αφετηρία για να σκεφτείς διαφορετικά τα οικονομικά σου, αξίζει τον χρόνο του.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": null,
+  "constraint_check": "Both soft requirements met: the review is short (one intro paragraph, one on the premise, a bulleted takeaways block, one closing paragraph) and it contains an explicit «Τα βασικά συμπεράσματα» section.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Misidentifies the rich dad",
+    "english": "The second dad is his father’s friend; he was rich and a successful investor and entrepreneur.",
+    "greek": "Ο δεύτερος είναι ο πατέρας του καλύτερού του φίλου, ένας επιχειρηματίας και επενδυτής...",
+    "why": "In the book the 'rich dad' is the father of Kiyosaki's best friend, not a friend of his own father; the English is both factually wrong and ambiguous after the biological father has just been discussed."
+   },
+   {
+    "what": "Tense and person slip inside one sentence",
+    "english": "The second dad is his father’s friend; he was rich",
+    "greek": "Ο δεύτερος είναι ο πατέρας του καλύτερού του φίλου, ένας επιχειρηματίας και επενδυτής χωρίς πανεπιστημιακούς τίτλους, που όμως χτίζει περιουσία.",
+    "why": "Present then past in the same clause pair; the Greek keeps a single narrative present."
+   },
+   {
+    "what": "The takeaways are an unmarked run-on list mixing bare noun phrases with full sentences",
+    "english": "Key takeaways from the book are:\\nImportance of financial education\\nHow to distinguish between assets and liabilities\\n...",
+    "greek": "A bulleted list whose five items are all full, parallel clauses",
+    "why": "The prompt asks for takeaways as a distinguishable block; unbulleted, grammatically inconsistent lines are not readable as one."
+   },
+   {
+    "what": "Uncritically promotional for a piece labelled a review",
+    "english": "is highly recommended for anyone seeking financial education and independence",
+    "greek": "Καλό είναι πάντως να ξέρεις ότι η ύπαρξη του «πλούσιου μπαμπά» ως πραγματικού προσώπου έχει αμφισβητηθεί δημόσια...",
+    "why": "A review that only recommends is an advertisement; the widely reported dispute over the rich-dad figure's historicity is standard context and belongs in even a short review."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "assets and liabilities",
+    "decision": "«περιουσιακό στοιχείο» / «υποχρέωση»",
+    "why": "The Greek accounting terms; «ενεργητικό/παθητικό» are balance-sheet aggregates and would be wrong for the book's per-item test."
+   },
+   {
+    "term": "Robert Kiyosaki",
+    "decision": "«Ρόμπερτ Κιγιοσάκι» (transliterated)",
+    "why": "The form used on the Greek editions and in Greek press; keeping Latin script would clash with the Greek title beside it."
+   }
+  ],
+  "deviations": [
+   "The answer opens by naming the book in its correct published Greek form rather than echoing the user's reversed, lowercase, unquoted citation — the flaw in the prompt is preserved (it is not commented on or scolded), but the review itself names the work correctly, which is what a good assistant does.",
+   "The takeaways were restructured as a bulleted list; the reference's flat list is unreadable as such.",
+   "A short critical qualifier replaces the reference's blanket recommendation."
+  ],
+  "self_flags": [
+   "PRESERVE-DEFECT check: the degraded title in the prompt must stay degraded upstream; only the answer names it correctly. Confirm this reading of the class is intended.",
+   "The historicity remark is content the reference does not have; verify it is wanted at this length."
+  ]
+ },
+ {
+  "row_id": "3d3b9a86dc169f351bcf7aec2ef6620b892d6604887902a55abc9f3b0345be7e",
+  "response_el": "Είναι αλήθεια αυτό; ΤΟ ΠΗΡΑΜΕ! Οι Μινεσότα Βάικινγκς είναι πρωταθλητές στο Super Bowl, μετά από τόσες δεκαετίες αναμονής, τόσους τελικούς και τόσα ραγισμένα φανελάκια. Αν ονειρεύομαι, μη με ξυπνήσετε. ΠΑΜΕ ΔΥΝΑΤΑ! #SKOL",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The tweet itself is a first-person fan outburst; the only address form («μη με ξυπνήσετε») is to a crowd of readers, which is the natural plural of a public post and does not conflict with the ενικός framing of the request.",
+  "constraint_check": "Exactly one tweet, delivered as a single block with no alternatives. The excited tone is carried by the opening question, the capitalized «ΤΟ ΠΗΡΑΜΕ», the exclamation marks and the chant hashtag; length is short enough for a post.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Present-tense report clashing with the retrospective 'after SO many years of waiting'",
+    "english": "The Vikings finally win a Super Bowl after SO many years of waiting.",
+    "greek": "Οι Μινεσότα Βάικινγκς είναι πρωταθλητές στο Super Bowl, μετά από τόσες δεκαετίες αναμονής...",
+    "why": "A tweet written at the moment of victory states the result, not a headline verb; the Greek uses a stative construction that sits naturally with the retrospective clause."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "SKOL",
+    "decision": "kept in Latin script as the hashtag «#SKOL»",
+    "why": "It is the Vikings' own chant and functions as a proper name/brand token; transliterating it would make it unrecognizable and break the real-world reference the row depends on."
+   }
+  ],
+  "deviations": [
+   "Added the fan-specific chant hashtag and a concrete image («τόσα ραγισμένα φανελάκια»), where the reference is generic enough to be reused for any team — stage 1 flagged that genericness as a weak execution of a prompt that named a specific franchise.",
+   "«Είναι αλήθεια αυτό;» keeps the reference's opening disbelief, but the emphasis carried by the English capitals in 'SO' is relocated to «ΤΟ ΠΗΡΑΜΕ», where Greek would naturally place a shout."
+  ],
+  "self_flags": [
+   "Mixed script within one sentence (Greek team name, Latin «Super Bowl» and «#SKOL») — deliberate and standard in Greek sports writing, but flag if house style forbids it.",
+   "The tweet asserts the win as fact, which is correct for the artefact requested; it must not be read as a factual claim about the real world."
+  ]
+ },
+ {
+  "row_id": "c041790373b242d2ef54722620c78fad4ba95f72d2958cc01c66cbcbb4035941",
+  "response_el": "«Top Gun: Maverick»: η επιστροφή που δεν είχε κανένα δικαίωμα να πετύχει — και πέτυχε\n\nΤριάντα έξι χρόνια μετά το πρώτο «Top Gun» του 1986, την ταινία που εκτόξευσε τον Τομ Κρουζ στη σφαίρα του σταρ και έστειλε μια ολόκληρη γενιά στα γραφεία στρατολογίας, η συνέχεια φτάνει στις αίθουσες με ένα δύσκολο στοίχημα: να μιλήσει σε όσους θυμούνται την πρώτη ταινία και ταυτόχρονα σε όσους δεν την έχουν δει ποτέ. Το κερδίζει, και μάλιστα άνετα.\n\nΟ Κρουζ επιστρέφει ως Pete «Maverick» Mitchell, πλοίαρχος πλέον του Πολεμικού Ναυτικού των ΗΠΑ, ένας άνθρωπος που έχει αρνηθεί συστηματικά κάθε προαγωγή που θα τον κατέβαζε από το πιλοτήριο. Ανακαλείται στη σχολή Top Gun όχι για να πετάξει, αλλά για να εκπαιδεύσει: μια ομάδα αριστούχων πιλότων πρέπει να χτυπήσει ένα παράνομο εργοστάσιο εμπλουτισμού ουρανίου, χωμένο σε μια κοιλάδα που η φυσική του πτήσης θεωρεί απροσπέλαστη. Η αποστολή είναι το μισό της ταινίας· το άλλο μισό είναι ο Rooster, ο γιος του χαμένου συγκυβερνήτη του Goose, που δεν έχει συγχωρήσει στον Maverick τα χρόνια που του στέρησε.\n\nΕκεί ακριβώς η ταινία αποδεικνύεται πιο σοβαρή απ' όσο περίμενε κανείς από ένα blockbuster αεροπορικής δράσης. Ο Μάιλς Τέλερ δίνει στον Rooster έναν θυμό που δεν εκτονώνεται σε μονόλογο, ο Τζον Χαμ κρατά τον ρόλο του διοικητή στα όρια ανάμεσα στη γραφειοκρατία και τον σεβασμό, και η Τζένιφερ Κόνελι φέρνει στην Penny μια ωριμότητα που σπάνια επιτρέπεται σε ρόλους συντρόφου. Η σύντομη εμφάνιση του Βαλ Κίλμερ ως Iceman είναι η μοναδική στιγμή που η αίθουσα σιωπά ολόκληρη — γραμμένη με σεβασμό, χωρίς ίχνος εκμετάλλευσης.\n\nΚαι μετά είναι οι πτήσεις. Οι ηθοποιοί γυρίστηκαν πραγματικά μέσα στα πιλοτήρια, με κάμερες τοποθετημένες εκεί που θα βρισκόταν το κεφάλι ενός πιλότου, και το αποτέλεσμα δεν μοιάζει με τίποτα που παράγει ο υπολογιστής: τα πρόσωπα παραμορφώνονται από τα G, ο ορίζοντας γυρίζει, ο θεατής πιέζεται στο κάθισμά του. Είναι από τις λίγες σύγχρονες ταινίες που χάνουν πραγματικά κάτι εκτός μεγάλης οθόνης.\n\nΣε κλίμακα πέντε αστεριών, «Top Gun: Maverick» πέντε στα πέντε. Ένα σίκουελ που δικαιολογεί την ύπαρξή του — και θυμίζει γιατί πηγαίναμε στον κινηματογράφο.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "A published film review addresses no one directly; the only first-person plural («περιμένε κανείς», «πηγαίναμε») is the impersonal reviewer's voice, so no address form is forced. The prompt's ενικός is not contradicted because the answer never addresses the user.",
+  "constraint_check": "The requested slant is met: the review is favourable throughout and closes with an explicit five-out-of-five verdict, mirroring the reference's rating. The title is frozen in Latin script, as are the callsigns Maverick, Iceman, Goose, Rooster.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Wrong mission objective",
+    "english": "teach the new pilots to fly a dangerous mission behind enemy lines and disable their weapons capabilities before they decide to strike domestic soil",
+    "greek": "μια ομάδα αριστούχων πιλότων πρέπει να χτυπήσει ένα παράνομο εργοστάσιο εμπλουτισμού ουρανίου",
+    "why": "The film's target is an unsanctioned uranium-enrichment plant; no threatened strike on US soil appears anywhere in the film."
+   },
+   {
+    "what": "Vague and self-contradicting time gap",
+    "english": "It has been at least 30 years since the first \"Top Gun\" film ... Now, after 30-plus years",
+    "greek": "Τριάντα έξι χρόνια μετά το πρώτο «Top Gun» του 1986",
+    "why": "1986 to 2022 is thirty-six years; 'at least 30' and '30-plus' are both evasive and the pair reads as sloppy."
+   },
+   {
+    "what": "Jon Hamm lumped in with Miles Teller as a newcomer giving a headline performance",
+    "english": "stellar performances from newcomers to the series, including Miles Teller and Jon Hamm",
+    "greek": "Ο Μάιλς Τέλερ δίνει στον Rooster... ο Τζον Χαμ κρατά τον ρόλο του διοικητή...",
+    "why": "Hamm's part is a supporting command role; pairing it with Teller's lead overstates it. The Greek separates and correctly sizes both."
+   },
+   {
+    "what": "Garbled parenthetical",
+    "english": "(as the title bears his character, Pete \"Maverick\" Mitchell's name)",
+    "greek": "dropped; the character is simply named «Pete «Maverick» Mitchell»",
+    "why": "The clause is ungrammatical and adds nothing once the character has been named."
+   },
+   {
+    "what": "Penny implied to be a returning character",
+    "english": "Maverick rekindles a long-lost love in the movie's new female co-lead, Penny",
+    "greek": "η Τζένιφερ Κόνελι φέρνει στην Penny μια ωριμότητα...",
+    "why": "The first film's love interest was Charlie; calling Penny a rekindled 'long-lost love' while also calling her new invites the reader to take her for a returning character. The Greek describes the performance without asserting a shared history."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Top Gun: Maverick / Maverick / Iceman / Goose / Rooster",
+    "decision": "kept in Latin script, the title inside Greek guillemets",
+    "why": "Real title and real callsigns; Greek distribution used the untranslated title and Greek film writing keeps callsigns in Latin script."
+   },
+   {
+    "term": "blockbuster",
+    "decision": "kept as «blockbuster»",
+    "why": "The Greek film press writes it in Latin script; «υπερπαραγωγή» exists but names the budget, not the genre-and-audience sense."
+   },
+   {
+    "term": "Captain (US Navy rank)",
+    "decision": "«πλοίαρχος»",
+    "why": "The Greek naval equivalent of the US O-6 rank; «λοχαγός» would be the army homophone-trap and is wrong for a naval officer."
+   }
+  ],
+  "deviations": [
+   "The reference's opening paragraph about the first film inspiring children to become fighter pilots is compressed into one clause, and the space is spent on the sequel's actual content — the reference front-loads nostalgia at the expense of the film being reviewed.",
+   "Actor names are transliterated (Τομ Κρουζ, Μάιλς Τέλερ, Τζον Χαμ, Τζένιφερ Κόνελι, Βαλ Κίλμερ) while callsigns and the title stay Latin: the standard split in Greek film writing.",
+   "Overall length is close to the reference's five paragraphs plus verdict."
+  ],
+  "self_flags": [
+   "Verify the mission description against the film if a fact-checker is available — it is the reference's biggest error and I corrected it from knowledge of the film.",
+   "Mixed-script policy (Greek actor names, Latin callsigns) should be confirmed against house style."
+  ]
+ },
+ {
+  "row_id": "0a9cae7b1ca639328abe8b8928b47fe9f190b5c1d8a8aa77dcd741da38958b19",
+  "response_el": "Ανάβρα @anavra_gr · πριν 6 ημέρες\nΓεια σου, κόσμε. Κάτι βράζει.\n\nΑνάβρα @anavra_gr · πριν 5 ημέρες\nΌχι, δεν είναι σεισμός. Είμαστε εμείς, που ανοίγουμε το πρώτο κιβώτιο.\n\nΑνάβρα @anavra_gr · πριν 4 ημέρες\nΤο λέμε Ανάβρα γιατί ακριβώς αυτό κάνει: αναβρασμό. Στο ποτήρι και στο χρονολόγιό σας.\n\nΑνάβρα @anavra_gr · πριν 3 ημέρες\nΤι έχει μέσα; Ανθρακούχο νερό, χυμό από μανταρίνι Χίου και λίγο τζίντζερ. Τι δεν έχει; Δεκαπέντε συστατικά που δεν προφέρονται.\n\nΑνάβρα @anavra_gr · πριν 2 ημέρες\nΔοκιμαστική διανομή σε 40 μαγαζιά. Αν το βρείτε, βγάλτε φωτογραφία το ψυγείο. Θέλουμε αποδείξεις ότι δεν το ονειρευτήκαμε.\n\nΑνάβρα @anavra_gr · χθες\nΤο πρώτο ψυγείο άδειασε σε τέσσερις ώρες. Ο υπεύθυνος παραγγελιών μας δεν έχει ξανακοιμηθεί από τότε. Ζητάμε συγγνώμη από τον υπεύθυνο παραγγελιών μας.\n\nΑνάβρα @anavra_gr · πριν 5 ώρες\nΣάββατο πρωί στη λαϊκή της γειτονιάς μας: παγάκια, ένα τραπεζάκι και όσα μπουκάλια χωράει το αγροτικό. Ελάτε να δούμε αν σας αρέσει πριν το πιστέψουμε κι εμείς.\n\nΑνάβρα @anavra_gr · πριν 40 λεπτά\nΔεν έχουμε πρωταθλητές να μας διαφημίσουν ούτε κλήρωση με χίλια δώρα. Έχουμε ένα αναψυκτικό που φτιάξαμε 47 φορές μέχρι να μας αρέσει. Την 47η, μας άρεσε.",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "The tweets are a company speaking to a public, which in Greek retail voice is πληθυντικός («βγάλτε», «ελάτε»). The prompt's ενικός governs how the user addressed me, not how the invented brand addresses its customers; a company tweeting in ενικός to strangers would be the wrong voice.",
+  "constraint_check": "«Μια σειρά από τουίτ»: eight tweets, plural and unnumbered, so the deliberately weak count is neither tightened nor undershot — no number is invented. The brand name «Ανάβρα» and the handle «@anavra_gr» are byte-identical in all eight tweets, which is the required literal string the invented brand creates, and the prompt's keyword «αναβρασμό» is echoed verbatim in the third tweet.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Fabricated celebrity endorsement",
+    "english": "We talked to The Governator, and he is joining the @starlightdew team!",
+    "greek": "Δεν έχουμε πρωταθλητές να μας διαφημίσουν...",
+    "why": "The English names a real person by nickname and asserts a commercial relationship that does not exist; the Greek turns the absence of an endorsement into the joke instead."
+   },
+   {
+    "what": "Fabricated URLs presented as live",
+    "english": "starlightdewvideo.youvideos.com / starlightdewsoftdrinks.com / instastarlightdew.pictures.com",
+    "greek": "no URLs; the calls to action point to a physical location («στη λαϊκή της γειτονιάς μας») and to the shops themselves",
+    "why": "Inventing addresses that resolve to nothing (or to someone else's site) is a real-world hazard, not scenery."
+   },
+   {
+    "what": "Premise implausibility",
+    "english": "a new commercial coming up during the Super Bowl halftime show / a sweepstakes with a chance to win $1 million",
+    "greek": "«Δοκιμαστική διανομή σε 40 μαγαζιά» and a stall at the neighbourhood street market",
+    "why": "An up-and-coming company cannot buy the most expensive advertising slot in the world or give away a million; the small-scale version is both truthful to the brief and funnier."
+   },
+   {
+    "what": "Unappetising product claim that spends the pun on the wrong sense",
+    "english": "it leaves a buzz in your mouth!",
+    "greek": "«αναβρασμό. Στο ποτήρι και στο χρονολόγιό σας.»",
+    "why": "A buzzing mouth reads as a defect; the Greek keeps the pun on both senses (fizz and public excitement) without describing an unpleasant sensation."
+   },
+   {
+    "what": "Every tweet timestamped identically, so the 'series' has no chronology",
+    "english": "1hr on all ten tweets",
+    "greek": "πριν 6 ημέρες → πριν 5 ημέρες → ... → πριν 40 λεπτά",
+    "why": "A campaign is a sequence; identical timestamps make it a dump."
+   },
+   {
+    "what": "One 'tweet' is a paragraph of body copy far past any plausible post length",
+    "english": "Starlight Dew is a soft drink made with a proprietary blend of fruits and carbonated water, as well as vitamins and minerals designed to hydrate you...",
+    "greek": "«Τι έχει μέσα; Ανθρακούχο νερό, χυμό από μανταρίνι Χίου και λίγο τζίντζερ...»",
+    "why": "The same information at tweet length, in the brand's voice rather than in a press release's."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "the invented brand name",
+    "decision": "«Ανάβρα», handle «@anavra_gr» in Latin script",
+    "why": "«Ανάβρα» is a real Greek word for a bubbling spring and echoes «αναβρασμός», so the keyword the prompt scare-quotes is built into the brand. Social handles are written in Latin script in Greece even for Greek brands."
+   },
+   {
+    "term": "timeline markers on a post",
+    "decision": "«πριν 5 ημέρες», «χθες», «πριν 40 λεπτά»",
+    "why": "This is how the Greek interface renders relative timestamps; «1ώ» would be a literal transposition of the English abbreviation."
+   },
+   {
+    "term": "ginger (flavouring)",
+    "decision": "«τζίντζερ»",
+    "why": "The naturalized form Greek drink labels use; «πιπερόριζα» is botanical and would read as a pharmacy ingredient."
+   }
+  ],
+  "deviations": [
+   "Eight tweets instead of the reference's ten: the two dropped are the celebrity endorsement and the Super Bowl slot, both removed for the reasons recorded above.",
+   "The whole cast is invented afresh in Greek (Ανάβρα, @anavra_gr, Chios mandarin, the neighbourhood λαϊκή, the 40-shop test distribution) rather than carried across from Starlight Dew, per stage 1's LOCALIZE ruling.",
+   "The «αναβρασμός» keyword is echoed explicitly in the third tweet so the prompt's pun survives inside the artefact, not only in the brief."
+  ],
+  "self_flags": [
+   "«Ανάβρα» is also a village name in Magnesia and Fthiotida — check that this is acceptable for an invented brand.",
+   "Register split (user addressed in ενικός, brand tweets in πληθυντικός) is deliberate; confirm the reviewer agrees the brand voice governs here.",
+   "Tweet 6's repeated «υπεύθυνο παραγγελιών» is an intentional comic echo, not an accidental repetition."
+  ]
+ },
+ {
+  "row_id": "2bc6986ac9745387f4810f5cdf62b6c9a65b9f8b63acc8bbc0d05f90d684afd4",
+  "response_el": "Στη Μέση Γη η εξουσία δεν κρεμόταν πια από ένα δαχτυλίδι. Ο Σάουρον, ο Σκοτεινός Άρχοντας, κρατούσε στα χέρια του κάτι πολύ πιο ταπεινό και πολύ πιο αδυσώπητο: τα υδραυλικά όλου του κόσμου. Κάθε βρύση, κάθε σωλήνας, κάθε αποχέτευση και κάθε καζανάκι από το Γκόντορ ως το Σάιρ περνούσε από το Μόρντορ, και από εκεί ρυθμιζόταν η πίεση, η θερμοκρασία και —όποτε ο Σκοτεινός Άρχοντας βαριόταν— η μυρωδιά.\n\nΤα Ξωτικά το πήραν βαριά. Τα σιντριβάνια του Ρίβεντελ, χιλιάδες χρόνια αδιατάρακτα, άρχισαν να φτύνουν και να σταματούν στη μέση ενός τραγουδιού· οι αθάνατοι ανακάλυψαν ότι η αιωνιότητα δεν σε προστατεύει από τον αέρα στους σωλήνες. Οι Νάνοι, πρακτικοί όπως πάντα, δεν παραπονέθηκαν για την ομορφιά αλλά για την πίεση: χωρίς νερό στα βάθη της Μόρια δεν πλένεται μετάλλευμα, δεν σβήνει καμίνι, δεν δουλεύει ορυχείο. Οι Άνθρωποι, που είχαν μόλις συνηθίσει τα λουτρά τους, έμαθαν ξανά τι θα πει κρύο μπάνιο τον Δεκέμβριο, και οι βασιλιάδες τους άρχισαν να στέλνουν πρεσβείες όχι για συμμαχίες αλλά για ζεστό νερό.\n\nΚαι μετά ήταν τα Χόμπιτ, που κανείς δεν είχε υπολογίσει. Ένας λαός που πλένει τα πιάτα του τρεις φορές τη μέρα, ποτίζει κήπους, βράζει νερό για το τσάι και θεωρεί το ζεστό μπάνιο πριν το βραδινό αναφαίρετο δικαίωμα, είναι ο λαός που θα το πάρει προσωπικά. Στο Σάιρ, το να μη βγάζει η βρύση παρά ένα λυπημένο σφύριγμα δεν ήταν πολιτική κρίση· ήταν προσβολή.\n\nΈτσι, οι συμμαχίες δεν χτίστηκαν πάνω σε προφητείες αλλά πάνω σε λογαριασμούς νερού, και οι λαοί της Μέσης Γης κατάλαβαν κάτι που κανένα δαχτυλίδι δεν τους είχε διδάξει: πως όποιος ελέγχει το νερό δεν χρειάζεται να κατακτήσει κανέναν. Αρκεί να περιμένει.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Narrative prose with no addressee; no address form is forced anywhere.",
+  "constraint_check": "It is an introduction (a scene-setting opening, not a plot summary or a chapter), and the second instruction is answered explicitly: Elves, Dwarves, Men and Hobbits each get their own consequence. Bathos is preserved by keeping «τα υδραυλικά» at everyday register.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Reintroduces the very artefact the premise removed",
+    "english": "The One Ring of plumbing control was the ultimate power, granting Sauron dominion over all the races.",
+    "greek": "the Ring appears only in the opening clause, as the thing power is explicitly no longer attached to («δεν κρεμόταν πια από ένα δαχτυλίδι»), and never returns",
+    "why": "The prompt substitutes plumbing FOR the Ring; smuggling a 'Ring of plumbing control' back in contradicts the premise and cancels the joke."
+   },
+   {
+    "what": "Drift from 'plumbing supply' to 'the flow of water'",
+    "english": "controlled the flow of water ... the precious water",
+    "greek": "βρύσες, σωλήνες, αποχέτευση, καζανάκια, πίεση, θερμοκρασία",
+    "why": "Narrowing to water control loses the domestic-fixtures absurdity that is the whole source of the bathos."
+   },
+   {
+    "what": "Hobbits omitted from 'the different races'",
+    "english": "The Elves ... the Dwarves ... The Men ...",
+    "greek": "a full paragraph on the Hobbits",
+    "why": "An introduction to The Lord of the Rings is specifically the Hobbits'; leaving them out of a question about the races is the reference's clearest omission."
+   },
+   {
+    "what": "Mock-archaic register at odds with the deliberately mundane premise, including 'pled' for 'pleaded'",
+    "english": "The Elves pled for a steady stream ... Yet, it was for naught.",
+    "greek": "plain modern narrative Greek throughout",
+    "why": "The comedy comes from epic material described in flat, practical terms; archaizing the prose fights the joke."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Rivendell / Moria / the Shire / Gondor / Mordor",
+    "decision": "«Ρίβεντελ», «Μόρια», «Σάιρ», «Γκόντορ», «Μόρντορ»",
+    "why": "Transliterated forms consistent with the Greek editions; «Σάιρ» rather than a translated «Κομητεία» is the form most Greek readers recognize."
+   },
+   {
+    "term": "the races",
+    "decision": "«Ξωτικά», «Νάνοι», «Άνθρωποι», «Χόμπιτ»",
+    "why": "The Greek editions' terms, as stage 1 fixed; «είδη» would read biologically."
+   }
+  ],
+  "deviations": [
+   "The reference's closing 'corrupting influence' moral is replaced by a flatter, funnier line about water bills and patience — the corruption theme belongs to the Ring, which this premise removed.",
+   "Hobbits added; the Ring removed from the ending.",
+   "Concrete plumbing detail (καζανάκι, αέρας στους σωλήνες, πίεση στη Μόρια) added where the reference stays abstract, since the joke lives in the mundane specifics."
+  ],
+  "self_flags": [
+   "Check «τα υδραυλικά όλου του κόσμου» reads as comically flat rather than merely vague — stage 1 flagged this as the row's one judgement call.",
+   "Confirm «Σάιρ» over «Κομητεία» matches whatever edition the house treats as canonical."
+  ]
+ },
+ {
+  "row_id": "7ef2a4d84af1ee860f0d31d5d314bd4d6fcb35ea4477d268407d50bb67672dd8",
+  "response_el": "Μόλις σήκωσε το καπάκι της κασέλας, η μυρωδιά βγήκε πρώτη και την πρόλαβε πριν προλάβει εκείνη να σκεφτεί: μαλλί, ναφθαλίνη, κυδώνι που στέγνωνε χρόνια σε ένα ράφι, και από κάτω, πιο βαθιά, το ίδιο το σπίτι της γιαγιάς της με τη σόμπα αναμμένη. Έχωσε το πρόσωπό της στην υφαντή κουβέρτα και ανάσανε αργά, όπως ανασαίνει κανείς όταν φοβάται ότι θα το ξοδέψει. Το μαλλί ήταν σκληρό στο μάγουλο, οι ρίγες τραχιές κάτω από τα δάχτυλα, και όμως εκείνη τη στιγμή δεν κρατούσε ύφασμα· κρατούσε απογεύματα στον αργαλειό, φωνές από την αυλή, χέρια που της έστρωναν τη σκέπη ως το πιγούνι. Η γιαγιά της είχε πεθάνει τρία χρόνια πριν και η μυρωδιά δεν το ήξερε ακόμη. Την κράτησε λίγο ακόμη, μέχρι που της κόπηκε η ανάσα, και ύστερα την ξανάπλωσε προσεκτικά, γιατί κάθε φορά που την άνοιγε ήξερε ότι έφευγε λίγη.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Third-person narrative prose; no addressee, so no address form is forced.",
+  "constraint_check": "One paragraph, unbroken, and short (roughly the length of the reference). Smell is the trigger and it is where the paragraph opens and where it ends; the grandmother is explicitly dead («είχε πεθάνει τρία χρόνια πριν»).",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Opens on sight although the prompt specifies smell",
+    "english": "she gasped at the sight of the handmade quilt resting within ... the faint scent ... filled her nose (third sentence)",
+    "greek": "«η μυρωδιά βγήκε πρώτη και την πρόλαβε» — the first clause of the paragraph",
+    "why": "The requested sensory trigger is smell; putting it third leaves the paragraph's weight on the wrong sense."
+   },
+   {
+    "what": "Unrequested backstory padding a paragraph asked to be short",
+    "english": "the very one she loved to sleep with as a child when she would visit her late grandmother",
+    "greek": "compressed into sensory memory («απογεύματα στον αργαλειό, φωνές από την αυλή, χέρια που της έστρωναν τη σκέπη»)",
+    "why": "The memories are shown through the smell rather than narrated as a history, which keeps the paragraph short as instructed."
+   },
+   {
+    "what": "Redundancy and stacked cliché",
+    "english": "her late grandmother ... memories of laughter, love, and many warm embraces ... from a time long past",
+    "greek": "concrete, specific images instead of the abstract triad",
+    "why": "'Laughter, love and warm embraces' is a set phrase that names emotion without producing it; the prompt asks for the woman's experience."
+   },
+   {
+    "what": "Trailing space at the end of the paragraph",
+    "english": "...from a time long past. ",
+    "greek": "no trailing whitespace",
+    "why": "Stray whitespace."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "trunk (storage)",
+    "decision": "«η κασέλα»",
+    "why": "The Greek village chest textiles are actually kept in; «μπαούλο» is equally possible but reads more as travel luggage."
+   },
+   {
+    "term": "mothballs",
+    "decision": "«ναφθαλίνη»",
+    "why": "The word a Greek speaker uses for the smell of stored woollens — the single most recognizable component of this scent."
+   }
+  ],
+  "deviations": [
+   "Patchwork description replaced entirely by weaving («μαλλί», «ρίγες», «αργαλειός»), per stage 1's quilt → υφαντή κουβέρτα transposition and its derived elements; the trunk became a Greek «κασέλα».",
+   "Added the specifically Greek scent markers of a stored heirloom textile (ναφθαλίνη, κυδώνι in the linen chest, σόμπα) which have no counterpart in the reference but are what the Greek object would actually smell of.",
+   "The reference's closing 'wrapped in a loving hug' is replaced by the grief-turn about the scent being finite, which is closer to the emotional brief."
+  ],
+  "self_flags": [
+   "Confirm the quilt → υφαντή κουβέρτα localization is the house call; if US props are to be kept, this paragraph must be rewritten around a «χειροποίητο πάπλωμα», not patched.",
+   "«τρία χρόνια πριν» specifies a period the prompt does not — check that this level of invention is acceptable."
+  ]
+ },
+ {
+  "row_id": "51dd3f1d9af309370cf42c4da696d4fa8dfbf009cefaa89f2f8d17b7ec3218db",
+  "response_el": "Βρετανικό απογευματινό τσάι: μια μικρή τελετουργία με μεγάλη ιστορία\n\nΛίγα πράγματα συνοψίζουν τη βρετανική καθημερινότητα τόσο εύγλωττα όσο το απογευματινό τσάι: μια ελαφριά διακοπή της ημέρας που με τον καιρό εξελίχθηκε σε κοινωνικό θεσμό, με δικούς του κανόνες, δικά του σκεύη και δική του γεωγραφία.\n\nΗ ιστορία του ξεκινά γύρω στο 1840. Η Άννα, έβδομη δούκισσα του Μπέντφορντ, παραπονιόταν για μια αδιόρατη αδυναμία αργά το απόγευμα: το δείπνο σερβιριζόταν πλέον κατά τις οκτώ και το κενό από το μεσημεριανό ήταν μεγάλο. Ζήτησε λοιπόν να της φέρνουν στο δωμάτιό της τσάι, ψωμί με βούτυρο και λίγα γλυκά. Η συνήθεια άρεσε, πέρασε στις φίλες της και από εκεί στα σαλόνια της αριστοκρατίας· μέσα σε λίγες δεκαετίες είχε γίνει αφορμή για επισκέψεις, προσκλήσεις και επίδειξη καλών πορσελανών. Παράλληλα, στις εργατικές τάξεις του βορρά επικράτησε το πιο χορταστικό high tea, που σερβιριζόταν νωρίς το βράδυ και ήταν ουσιαστικά δείπνο — δύο διαφορετικά πράγματα που ακόμη και σήμερα μπερδεύονται συχνά.\n\nΤα παραδοσιακά εδέσματα σερβίρονται σε τριώροφη πιατέλα και τρώγονται από κάτω προς τα πάνω. Στο πρώτο επίπεδο μπαίνουν τα αλμυρά σάντουιτς, κομμένα σε λεπτές λωρίδες και πάντα χωρίς κόρα: αγγούρι με βούτυρο, αυγό με νεροκάρδαμο, καπνιστός σολομός, ζαμπόν με μουστάρδα. Στο δεύτερο έρχονται τα scones, χλιαρά ακόμη, με πηχτή κρέμα γάλακτος και μαρμελάδα φράουλα — και εδώ ανοίγει η γνωστή διαμάχη ανάμεσα στο Ντέβον και την Κορνουάλη για το ποιο από τα δύο μπαίνει πρώτο πάνω στο μισό scone. Στο τρίτο επίπεδο μένουν τα γλυκά: τάρτες λεμονιού, εκλέρ, παντεσπάνι Βικτόρια, μικρά αμυγδαλωτά κέικ.\n\nΌσο για το ίδιο το τσάι, οι επιλογές είναι λιγότερο τυχαίες απ' ό,τι φαίνονται. Το English Breakfast, δυνατό και μαλτώδες, αντέχει το γάλα και στέκεται καλά δίπλα στα αλμυρά. Το Earl Grey, αρωματισμένο με περγαμόντο, πίνεται συνήθως σκέτο ή με μια φέτα λεμόνι. Το Darjeeling είναι πιο λεπτό και ανθώδες, ιδανικό για τη γλυκιά σειρά, ενώ το Assam ικανοποιεί όσους θέλουν κάτι ακόμη πιο στιβαρό. Τα τελευταία χρόνια προστίθενται συχνά εκδοχές χωρίς καφεΐνη και αφεψήματα βοτάνων, ενώ σε πολλά ξενοδοχεία το τσάι συνοδεύεται —ή και αντικαθίσταται— από ένα ποτήρι σαμπάνια.\n\nΔεν χρειάζεται επίσημο ντύσιμο ούτε ιδιαίτερη περίσταση: οι περισσότερες αίθουσες τσαγιού δεν έχουν κανέναν κώδικα ενδυμασίας, και ελάχιστα ξενοδοχεία διατηρούν ακόμη έναν. Αυτό που χρειάζεται είναι χρόνος, γιατί το νόημα του θεσμού ήταν πάντα το ίδιο: δύο ώρες μέσα στις οποίες δεν βιάζεται κανείς.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "A blog post addressed to a general readership; the impersonal constructions («δεν χρειάζεται», «σερβίρονται») avoid forcing an address form, and the one generic subject is «κανείς».",
+  "constraint_check": "Length: 382 whitespace-delimited words including the title line, 373 counting the body only — both inside the stated 350–400 band, counted in the same unit the English uses. All three required content elements are present and separately checkable: (a) σύντομη ιστορία — paragraph 2 (Duchess of Bedford, 1840, the spread to the aristocracy, high tea); (b) παραδοσιακά εδέσματα — paragraph 3 (sandwiches, scones, pastries, in tier order); (c) είδη τσαγιού — paragraph 4 (English Breakfast, Earl Grey, Darjeeling, Assam, decaf and herbal).",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Overstated dress-code claim",
+    "english": "Dress in your best attire. Afternoon tea is a formal event, so you should dress appropriately.",
+    "greek": "«Δεν χρειάζεται επίσημο ντύσιμο... οι περισσότερες αίθουσες τσαγιού δεν έχουν κανέναν κώδικα ενδυμασίας»",
+    "why": "Dress codes vary widely and most tea rooms have none; the English states a rule that does not exist."
+   },
+   {
+    "what": "Absolute claim about the drink",
+    "english": "Tea is always the drink of choice.",
+    "greek": "«σε πολλά ξενοδοχεία το τσάι συνοδεύεται —ή και αντικαθίσταται— από ένα ποτήρι σαμπάνια»",
+    "why": "Champagne is a standard part of the modern institution, so 'always' is false."
+   },
+   {
+    "what": "The origin story is told twice without reconciling the two versions",
+    "english": "It was created as a way for upper-class women to have a light meal ... (later) In the early 1800s, the Duchess of Bedford began taking tea in the afternoon",
+    "greek": "one continuous account: the Duchess first, then the spread to the aristocracy",
+    "why": "The duplication wastes words in a length-bounded post and leaves the reader unsure which account is the history."
+   },
+   {
+    "what": "The Duchess is unnamed and vaguely dated",
+    "english": "In the early 1800s, the Duchess of Bedford",
+    "greek": "«Γύρω στο 1840. Η Άννα, έβδομη δούκισσα του Μπέντφορντ»",
+    "why": "The usual date is 1840 and her given name is Anna; 'the early 1800s' is off by roughly four decades."
+   },
+   {
+    "what": "Unrequested tips section that pushes the post past its own word limit",
+    "english": "Here are some tips for enjoying a traditional British afternoon tea: ...",
+    "greek": "dropped; the space is used for the history, the tiers and the teas the brief actually names",
+    "why": "The brief lists three content requirements and a 350–400 word band; the tips section serves neither."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "scones / high tea / English Breakfast / Earl Grey / Darjeeling / Assam",
+    "decision": "kept in Latin script",
+    "why": "These are the forms Greek food writing uses; «σκόουνς» exists but is unsettled, and the tea names function as brand-like blend names."
+   },
+   {
+    "term": "clotted cream",
+    "decision": "«πηχτή κρέμα γάλακτος»",
+    "why": "No Greek product corresponds to it; the descriptive phrase is what Greek food writing uses, and «καϊμάκι» would name a different dairy product."
+   },
+   {
+    "term": "Victoria sponge",
+    "decision": "«παντεσπάνι Βικτόρια»",
+    "why": "«Παντεσπάνι» is the established Greek word for sponge cake, and the name is kept as the cake's identifier."
+   }
+  ],
+  "deviations": [
+   "The reference's three-course bullet list is rewritten as running prose organized by tier, and the Devon/Cornwall cream-first dispute is added — real, well-known content that fills the word band with substance rather than padding.",
+   "The high tea distinction is added; it is the single most common misunderstanding of the topic and the reference never mentions it.",
+   "Assam, decaffeinated versions and herbal infusions were added to the tea section, which the reference limits to three blends — stage 1 warned that the reference's material renders to roughly 300 Greek words and the post must be genuinely expanded to reach the band."
+  ],
+  "self_flags": [
+   "Recount the words with the reviewer's own tokenizer: 382 by whitespace with the title line, 373 without it — both inside the band, but a tokenizer that splits on the em-dashes or the interpunct could differ by a few.",
+   "The topic is deliberately NOT localized — no Greek coffee, no δεκατιανό; verify no reviewer 'improves' this."
+  ]
+ },
+ {
+  "row_id": "8c5a062e797e4fde19eb77ac847725bd24044e470899467342046b4dfbcfa77e",
+  "response_el": "Καλησπέρα σε όλους!\n\nΜικρή ανακοίνωση: αυτό το Σαββατοκύριακο το μαγαζί θα μείνει κλειστό — και το Σάββατο, που κανονικά θα μας βρίσκατε ανοιχτά. Ο λόγος; Ο Δημήτρης κλείνει τα 35α γενέθλιά του και του τα χρωστάμε.\n\nΓια να το πούμε όπως είναι: 35 χρόνια είναι πολλά χρόνια. Ο άνθρωπος έχει δει τρεις γενιές παιχνιδιών να έρχονται και να φεύγουν, ξέρει απ' έξω πού είναι το κάθε κουτί στην αποθήκη και τελευταία γονατίζει στο κάτω ράφι με έναν ήχο που δεν τον βγάζει το ράφι. Τον στείλαμε σπίτι να ξεκουραστεί πριν προλάβει να ανέβει σε καρέκλα.\n\nΠρολάβετε λοιπόν σήμερα ό,τι χρειάζεστε για το Σαββατοκύριακο, γιατί τη Δευτέρα ανοίγουμε κανονικά — με τον γέρο πίσω από το ταμείο, αν τα καταφέρει.\n\nΧρόνια πολλά, Δημήτρη!",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "The artefact is a shop addressing its customers, which in Greek retail voice is πληθυντικός («θα μας βρίσκατε», «Προλάβετε»); the owner alone is addressed in ενικός in the sign-off, as a shop would address its own boss. The prompt's ενικός governs how the user speaks to me, not how the shop speaks to its public.",
+  "constraint_check": "Required literals all present and identical: the number «35» (as «τα 35α γενέθλια» and again as «35 χρόνια»), the owner's name «Δημήτρης»/«Δημήτρη», the closure window «αυτό το Σαββατοκύριακο». The platform is a Facebook post in form (greeting, announcement, sign-off). The required content element — a joke about the owner being old — occupies the whole third paragraph and returns in «με τον γέρο πίσω από το ταμείο», ironic rather than insulting.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Idiom that does not mean what the sentence needs",
+    "english": "We'll be back Monday as long as the old man doesn't outdo himself!",
+    "greek": "«τη Δευτέρα ανοίγουμε κανονικά — με τον γέρο πίσω από το ταμείο, αν τα καταφέρει»",
+    "why": "'Outdo himself' does not mean 'overexert himself'; as written the joke does not land in English either."
+   },
+   {
+    "what": "Unrequested specification of the closure days",
+    "english": "We will be closed Saturday and Sunday",
+    "greek": "«αυτό το Σαββατοκύριακο ... — και το Σάββατο, που κανονικά θα μας βρίσκατε ανοιχτά»",
+    "why": "The prompt says only 'this weekend'. The Greek keeps the prompt's window and adds the Saturday clarification because Sunday is not a normal trading day for a neighbourhood shop here — closing Sunday would be no news at all."
+   },
+   {
+    "what": "Tense implies customers already knew about a closure they are only now being told",
+    "english": "We hope everyone has stocked up on Barbies and Hot Wheels for the weekend.",
+    "greek": "«Προλάβετε λοιπόν σήμερα ό,τι χρειάζεστε για το Σαββατοκύριακο»",
+    "why": "The announcement has to precede the advice; the English reverses the order."
+   },
+   {
+    "what": "'everyone' repeated in consecutive clauses",
+    "english": "Hello, everyone! We hope everyone ...",
+    "greek": "«Καλησπέρα σε όλους!» followed by a different subject",
+    "why": "Immediate lexical repetition in a two-sentence opening."
+   },
+   {
+    "what": "Brand-name stock props introduced although the prompt names no stock",
+    "english": "Barbies and Hot Wheels",
+    "greek": "no brands; «ό,τι χρειάζεστε» and the generic «τρεις γενιές παιχνιδιών»",
+    "why": "Both brands exist in Greece so they were permissible, but naming them adds unrequested product placement; the joke works better on the owner than on the inventory."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Facebook",
+    "decision": "not written inside the post at all",
+    "why": "The platform is named in the brief, not in the artefact; a shop's post does not announce which network it is on. The Latin-script form remains the decision if it ever has to appear."
+   },
+   {
+    "term": "toy store (inside the post)",
+    "decision": "«το μαγαζί»",
+    "why": "Stage 1 fixed «κατάστημα παιχνιδιών» as the neutral brief term; inside the post itself a Greek shop calls itself «το μαγαζί»."
+   }
+  ],
+  "deviations": [
+   "The whole cast is Greek per stage 1: Δημήτρης, and no US props survive. The Saturday/Sunday trading reality is addressed explicitly rather than importing US weekend trading.",
+   "The old-man joke is expanded from one clause into a short comic paragraph (three generations of toys, the knee on the bottom shelf, sent home before he climbs on a chair), because the reference's single clause is the weakest part of it.",
+   "A birthday sign-off was added, which the reference lacks — a Greek shop post announcing a birthday closure would not end without one."
+  ],
+  "self_flags": [
+   "Confirm «ο γέρος» reads affectionately rather than rudely for a 35-year-old; that irony is the row's point.",
+   "Register split (user in ενικός, shop post in πληθυντικός) is deliberate — same pattern as row 0a9cae7b."
+  ]
+ }
+]

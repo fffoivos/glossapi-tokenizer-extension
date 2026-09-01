@@ -1,0 +1,179 @@
+{
+  "schema_version": "polytonic-output-row-calibration-v1",
+  "input_model": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/results/td_0512",
+  "output_dir": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/results/calibrated_0512",
+  "calibration_jsonl": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/probe_data/output_calibration.jsonl",
+  "base_vocab_size": 148480,
+  "new_vocab_size": 148992,
+  "updated_rows": 512,
+  "steps": 400,
+  "seq_length": 512,
+  "register_schedule": "strict alternating ancient_polytonic/modern_greek",
+  "learning_rate": 0.0002,
+  "existing_input_rows_exact": true,
+  "existing_output_rows_exact": true,
+  "new_output_norm": {
+    "min": 3.7953710556030273,
+    "median": 3.8239071369171143,
+    "max": 3.8530311584472656
+  },
+  "loss_records": [
+    {
+      "step": 1,
+      "register": "ancient_polytonic",
+      "loss": 3.0895256996154785,
+      "new_row_gradient_norm": 10.218255043029785
+    },
+    {
+      "step": 2,
+      "register": "modern_greek",
+      "loss": 3.512671709060669,
+      "new_row_gradient_norm": 13.77151107788086
+    },
+    {
+      "step": 3,
+      "register": "ancient_polytonic",
+      "loss": 5.420584201812744,
+      "new_row_gradient_norm": 11.56712818145752
+    },
+    {
+      "step": 4,
+      "register": "modern_greek",
+      "loss": 2.489987850189209,
+      "new_row_gradient_norm": 15.258678436279297
+    },
+    {
+      "step": 5,
+      "register": "ancient_polytonic",
+      "loss": 4.496075630187988,
+      "new_row_gradient_norm": 11.200626373291016
+    },
+    {
+      "step": 6,
+      "register": "modern_greek",
+      "loss": 3.0854907035827637,
+      "new_row_gradient_norm": 19.016984939575195
+    },
+    {
+      "step": 7,
+      "register": "ancient_polytonic",
+      "loss": 4.044530391693115,
+      "new_row_gradient_norm": 6.658981800079346
+    },
+    {
+      "step": 8,
+      "register": "modern_greek",
+      "loss": 3.1130664348602295,
+      "new_row_gradient_norm": 14.647531509399414
+    },
+    {
+      "step": 9,
+      "register": "ancient_polytonic",
+      "loss": 2.610788345336914,
+      "new_row_gradient_norm": 11.030072212219238
+    },
+    {
+      "step": 10,
+      "register": "modern_greek",
+      "loss": 3.227783679962158,
+      "new_row_gradient_norm": 11.475753784179688
+    },
+    {
+      "step": 25,
+      "register": "ancient_polytonic",
+      "loss": 4.105771064758301,
+      "new_row_gradient_norm": 1.8037101030349731
+    },
+    {
+      "step": 50,
+      "register": "modern_greek",
+      "loss": 3.2750515937805176,
+      "new_row_gradient_norm": 0.2999304533004761
+    },
+    {
+      "step": 75,
+      "register": "ancient_polytonic",
+      "loss": 2.907477617263794,
+      "new_row_gradient_norm": 2.5669190883636475
+    },
+    {
+      "step": 100,
+      "register": "modern_greek",
+      "loss": 2.7424840927124023,
+      "new_row_gradient_norm": 0.06601680815219879
+    },
+    {
+      "step": 125,
+      "register": "ancient_polytonic",
+      "loss": 2.7582626342773438,
+      "new_row_gradient_norm": 1.30675208568573
+    },
+    {
+      "step": 150,
+      "register": "modern_greek",
+      "loss": 2.565927505493164,
+      "new_row_gradient_norm": 0.02545328438282013
+    },
+    {
+      "step": 175,
+      "register": "ancient_polytonic",
+      "loss": 4.203197002410889,
+      "new_row_gradient_norm": 1.4653410911560059
+    },
+    {
+      "step": 200,
+      "register": "modern_greek",
+      "loss": 2.5994343757629395,
+      "new_row_gradient_norm": 0.05066309869289398
+    },
+    {
+      "step": 225,
+      "register": "ancient_polytonic",
+      "loss": 4.403448581695557,
+      "new_row_gradient_norm": 0.332264244556427
+    },
+    {
+      "step": 250,
+      "register": "modern_greek",
+      "loss": 2.777621269226074,
+      "new_row_gradient_norm": 0.0165240615606308
+    },
+    {
+      "step": 275,
+      "register": "ancient_polytonic",
+      "loss": 3.953913688659668,
+      "new_row_gradient_norm": 1.7115936279296875
+    },
+    {
+      "step": 300,
+      "register": "modern_greek",
+      "loss": 2.827155113220215,
+      "new_row_gradient_norm": 0.027428172528743744
+    },
+    {
+      "step": 325,
+      "register": "ancient_polytonic",
+      "loss": 3.1009721755981445,
+      "new_row_gradient_norm": 1.5281635522842407
+    },
+    {
+      "step": 350,
+      "register": "modern_greek",
+      "loss": 2.1202259063720703,
+      "new_row_gradient_norm": 0.09797786176204681
+    },
+    {
+      "step": 375,
+      "register": "ancient_polytonic",
+      "loss": 3.458371639251709,
+      "new_row_gradient_norm": 1.4099743366241455
+    },
+    {
+      "step": 400,
+      "register": "modern_greek",
+      "loss": 2.9437050819396973,
+      "new_row_gradient_norm": 0.03893757611513138
+    }
+  ],
+  "elapsed_seconds": 40.430105686187744
+}

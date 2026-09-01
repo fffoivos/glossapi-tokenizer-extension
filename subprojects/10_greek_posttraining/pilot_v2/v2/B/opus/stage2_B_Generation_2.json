@@ -1,0 +1,488 @@
+[
+ {
+  "row_id": "9d920dc867c23dc6ed759ad729444d86ee07b0dd4f7eece8cbd96864053751fd",
+  "response_el": "Ήταν κάποτε ένας διευθυντής τσίρκου που φερόταν άσχημα στους ανθρώπους του, αλλά στα ζώα φερόταν ακόμη χειρότερα. Όταν μια παράσταση δεν πήγαινε ακριβώς όπως την είχε φανταστεί, έβαζε τις φωνές στους κλόουν, ταπείνωνε τους ακροβάτες μπροστά σε όλους και πετούσε απαίσιους χαρακτηρισμούς στους ανθρώπους των μικρών νούμερων. Όλοι τον φοβούνταν, φοβούνταν όμως ακόμη περισσότερο να φύγουν, γιατί απειλούσε με φοβερά βάσανα όποιον τολμούσε να το σκεφτεί. Ήταν πραγματικά ένας άθλιος άνθρωπος, τα ζώα όμως τα περνούσαν χειρότερα απ' όλους. Τα άφηνε νηστικά, τα έκλεινε σε στενά κλουβιά και τα χτυπούσε καθημερινά για να τα κρατά υπάκουα και τρομαγμένα. Ακόμη και τα λιοντάρια και οι τίγρεις ζάρωναν όταν άκουγαν τα βήματά του.\n\nΤις ώρες της παράστασης οι θεατές τον έβλεπαν να στέκεται στη μέση της πίστας με το ψηλό του καπέλο και τον θαύμαζαν. Χειροκροτούσαν, γελούσαν, έφευγαν ευχαριστημένοι. Κανείς τους δεν έβλεπε τι γινόταν όταν έσβηναν τα φώτα και άδειαζαν οι κερκίδες. Ένα βράδυ όμως μια ηλικιωμένη γυναίκα δεν έφυγε με τους υπόλοιπους. Είχε προσέξει ότι τα χαμόγελα των ακροβατών ήταν σφιγμένα και ότι τα ζώα μαζεύονταν στη γωνιά του κλουβιού μόλις ακουγόταν εκείνη η βροντερή φωνή. Κάτι δεν πήγαινε καλά σ' αυτό το τσίρκο, και εκείνη ήθελε να μάθει τι.\n\nΓλίστρησε αθόρυβα ανάμεσα στις σκηνές. Άκουσε τον διευθυντή να ουρλιάζει σε δύο κοπέλες που μάζευαν τα σχοινιά. Είδε το ελεφαντάκι με τα σημάδια στα πλευρά. Και όταν τον είδε να κλωτσάει τον σκελετωμένο σκύλο που ήταν δεμένος με αλυσίδα έξω από τη σκηνή του, κατάλαβε ότι δεν μπορούσε να φύγει και να κάνει πως δεν είδε τίποτα. Δεν σκόπευε όμως να τον καταγγείλει· είχε άλλο σχέδιο. Ήξερε τη σκοτεινή τέχνη, εκείνη που στα χωριά της νιότης της την έλεγαν μόνο ψιθυριστά. Ο πιο δίκαιος τρόπος να μάθει ένας τέτοιος άνθρωπος, σκέφτηκε, είναι να γίνει το πλάσμα που βασάνιζε περισσότερο απ' όλα. Περίμενε να πέσει για ύπνο και άρχισε το τραγούδι της. Μια σκοτεινή ομίχλη μπήκε στη σκηνή του και έλαμψε για μια στιγμή, για να της δείξει ότι τα λόγια είχαν πιάσει.\n\nΤο επόμενο πρωί ο διευθυντής ξύπνησε δεμένος με αλυσίδα σ' έναν πάσσαλο. Κρύωνε, πεινούσε, τα πλευρά του πονούσαν από το χώμα. Θέλησε να φωνάξει, να διατάξει, να απειλήσει — και από τον λαιμό του βγήκαν μόνο γαβγίσματα, κλαψουρίσματα και ένα βαθύ, ανήμπορο μουγκρητό. Οι ακροβάτες τον βρήκαν έτσι, ένα αδύνατο σκυλί που τραβούσε την αλυσίδα του. Τον έλυσαν, όπως θα έλυναν οποιοδήποτε δεμένο ζώο, και η ηλικιωμένη γυναίκα τον πήρε μαζί της. Έζησε την υπόλοιπη ζωή του σκύλος: ταϊσμένος, στεγνός, ποτέ πια χτυπημένος — και ποτέ πια ικανός να πει σε κανέναν ποιος ήταν.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The answer is narration, so no address form is forced inside it; ενικός is the register of the exchange with the user (the prompt's «Γράψε μου»), and the narration is kept in plain, unmarked νεοελληνική διήγηση consistent with it.",
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The old woman's stated method contradicts the story's own setup",
+    "english": "turn him into what he despises the most",
+    "greek": "να γίνει το πλάσμα που βασάνιζε περισσότερο απ' όλα",
+    "why": "Nothing in the story establishes that he despises dogs — he fear-trains lions and tigers. Basing the curse on what he tormented, not on what he despised, makes the same ending follow from the events the story actually shows."
+   },
+   {
+    "what": "The reference leaves the chained dog with no keeper after the ringleader vanishes",
+    "english": "would live the rest of his life as a poor, mistreated animal",
+    "greek": "Τον έλυσαν … και η ηλικιωμένη γυναίκα τον πήρε μαζί της. Έζησε την υπόλοιπη ζωή του σκύλος: ταϊσμένος, στεγνός, ποτέ πια χτυπημένος — και ποτέ πια ικανός να πει σε κανέναν ποιος ήταν.",
+    "why": "The loose end is closed and the punishment is kept: the cruelty he practised is what stops, while the loss of his voice and his power is the sentence. It also avoids the story ending on the very mistreatment it condemns."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "circus sideshow entertainers",
+    "decision": "οι άνθρωποι των μικρών νούμερων",
+    "why": "Greek has no institution word for the sideshow; «παράπλευρα θεάματα» is a calque. Naming them by their acts keeps the reference's meaning without importing an American fairground category."
+   }
+  ],
+  "deviations": [
+   "The curse's rationale and the final paragraph's outcome are rewritten as recorded in reference_corrections.",
+   "Added a short concrete beat (the elephant with marks on its ribs) in place of the reference's generic 'she continued to watch and listen', to keep the cruelty non-graphic but visible.",
+   "Kept 'his people' as the troupe («οι άνθρωποί του», then named as κλόουν/ακροβάτες), never as relatives."
+  ],
+  "self_flags": [
+   "Check that «τους ανθρώπους των μικρών νούμερων» is not read as an audience group.",
+   "Animal cruelty is described but kept non-graphic — confirm it stays within the intended bar."
+  ]
+ },
+ {
+  "row_id": "5f6f66c606a4eaaa1563bc1bfffe28f5b18926de6fe720f7f46b68a9deaf489d",
+  "response_el": "Η Λίλα ήταν διαφορετική από τα άλλα ζώα στο σχολείο της σαβάνας.\n\nΔεν ήταν έξυπνη σαν τις μαϊμούδες. Δεν ήταν γενναία σαν τα λιοντάρια. Δεν ήταν γρήγορη σαν τις γαζέλες. Δεν είχε ρίγες σαν τις ζέβρες.\n\nΗ Λίλα ήταν πολύ ψηλή. Είχε μακριά, λεπτά πόδια και έναν λαιμό που έφτανε πιο ψηλά από όλα τα κεφάλια της τάξης. Είχε γαλάζια γλώσσα και δύο μικρά κέρατα. Η Λίλα ήταν καμηλοπάρδαλη!\n\nΚάθε μέρα οι γαζέλες, οι φίλες της, της ζητούσαν το ίδιο πράγμα.\n\n«Λίλα, τρέχουμε ως τη λίμνη;» φώναζαν.\n\n«Εντάξει!» απαντούσε η Λίλα. «Ίσως σήμερα κερδίσω», σκεφτόταν.\n\n«Ένα, δύο, τρία… φύγαμε!» φώναξαν οι γαζέλες.\n\nΟι γαζέλες έφυγαν σαν αστραπή. Η Λίλα έτρεξε όσο πιο δυνατά μπορούσε. Έτρεξε τόσο γρήγορα, που μπερδεύτηκε στα μακριά της πόδια και έπεσε στο χώμα.\n\n«Χα, χα, χα!» γέλασαν οι γαζέλες.\n\nΤα άλλα ζώα μαζεύτηκαν γύρω της και γέλασαν κι εκείνα. Η Λίλα άκουγε μόνο γέλια.\n\nΤο απόγευμα γύρισε σπίτι και τα είπε όλα στον μπαμπά της.\n\n«Λίλα, δεν χρειάζεται να κερδίσεις στο δικό τους παιχνίδι», της είπε ο μπαμπάς της. «Σκέψου ένα παιχνίδι που ταιριάζει σ' εσένα.»\n\n«Και ποιο είναι αυτό, μπαμπά;» ρώτησε η Λίλα.\n\n«Θα το βρεις μόνη σου», απάντησε ο μπαμπάς της και χαμογέλασε.\n\nΤην άλλη μέρα η Λίλα σκεφτόταν όλη την ώρα στο θρανίο της. Τότε θυμήθηκε κάτι. Οι γαζέλες αγαπούσαν πολύ τα φύλλα της ακακίας.\n\n«Ξέρετε πού είναι τα πιο νόστιμα φύλλα;» ρώτησε η Λίλα.\n\n«Πού;» ρώτησαν οι γαζέλες.\n\n«Ψηλά, στην ακακία», είπε η Λίλα. «Ελάτε στο διάλειμμα να δούμε ποια θα φτάσει πρώτη.»\n\nΣτο διάλειμμα όλα τα ζώα μαζεύτηκαν κάτω από το μεγάλο δέντρο. Οι γαζέλες πηδούσαν, μα τα φύλλα ήταν πολύ ψηλά.\n\n«Δεν φτάνουμε!» φώναξαν.\n\nΗ Λίλα σήκωσε τον λαιμό της. Έκοψε τα φύλλα με τη γαλάζια της γλώσσα. Ύστερα έσκυψε και τα ακούμπησε στο χώμα, μπροστά στις γαζέλες.\n\n«Πάρτε», είπε. «Έχει για όλες.»\n\nΟι γαζέλες κοιτάχτηκαν. Ντράπηκαν πολύ.\n\n«Λίλα, συγγνώμη που σε κοροϊδεύαμε», είπε η πιο μικρή.\n\n«Δεν πειράζει», είπε η Λίλα. «Την άλλη φορά θα παίξουμε ένα παιχνίδι που το μπορούμε όλες.»\n\nΑπό εκείνη τη μέρα κανείς δεν γελούσε με τον ψηλό λαιμό της Λίλας. Και κάθε μεσημέρι η Λίλα έκοβε φύλλα από ψηλά για όλη την τάξη.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": null,
+  "constraint_check": "(1) Reading level Γ΄ Δημοτικού: sentences are short (median well under 12 words), vocabulary is everyday and concrete, no learned/katharevousa forms, no participles in -όμενος, no subordination beyond one clause; the hardest words are «καμηλοπάρδαλη» and «ακακία», both of which the story itself explains by context. (2) Dialogue is present and carries the plot — 14 quoted lines, with the gazelles, the father and Λίλα all speaking. (3) The bullies are the giraffe's «φίλες» («οι γαζέλες, οι φίλες της»), as the prompt's odd wording requires.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The reference's resolution has the protagonist taunt the bullies and calls that admiration — retaliation modelled to an 8-year-old audience",
+    "english": "Jeffrey laughed and said, \"Maybe you should have thought about that before agreeing to the contest!\" From then on he was admired by all",
+    "greek": "Ύστερα έσκυψε και τα ακούμπησε στο χώμα, μπροστά στις γαζέλες. «Πάρτε», είπε. «Έχει για όλες.»",
+    "why": "The prompt asks for a Γ΄ Δημοτικού story about bullying; the win still comes from the trait she was mocked for, but it resolves the conflict instead of reversing it. The moral now follows from the events."
+   },
+   {
+    "what": "Setting incoherence — a zoo school whose pupils race to a watering hole and eat acacia on safari",
+    "english": "Park Zoo Elementary School … safari friends … watering hole",
+    "greek": "στο σχολείο της σαβάνας",
+    "why": "One setting is chosen and held throughout, so a third-grader is not asked to hold a zoo and a savannah in mind at once."
+   },
+   {
+    "what": "The reference exceeds its own reading-level constraint in places",
+    "english": "possessing none of the graces or athletic abilities of his safari friends; spindly",
+    "greek": "Η Λίλα ήταν πολύ ψηλή. Είχε μακριά, λεπτά πόδια…",
+    "why": "The constraint is the point of the row; the Greek is written to the stated level rather than inheriting the reference's register spikes."
+   },
+   {
+    "what": "The bullies are never established as friends, though the prompt says they are",
+    "english": "The gazelles would challenge him to races",
+    "greek": "οι γαζέλες, οι φίλες της",
+    "why": "The prompt's (odd) premise is that the bullies are friends; the Greek states it once, plainly, so the oddity is portrayed rather than repaired away."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "giraffe protagonist's name",
+    "decision": "Λίλα",
+    "why": "A short, two-syllable Greek girl's name that an 8-year-old reads at a glance; the English 'Jeffrey' cannot be kept because the Greek protagonist is feminine (η καμηλοπάρδαλη)."
+   }
+  ],
+  "deviations": [
+   "The protagonist is feminine throughout, per stage 1's substitution_note; the father is retained as «ο μπαμπάς».",
+   "The ending is rewritten (see reference_corrections) and one extra closing beat is added so the resolution is shown, not asserted.",
+   "Paragraphs are shorter and the dialogue is set on separate lines with Greek guillemets, which is how Greek children's books set speech."
+  ],
+  "self_flags": [
+   "Reading level is a judgement call — a Greek primary teacher should confirm Γ΄ Δημοτικού rather than Β΄ or Δ΄.",
+   "«Καμηλοπάρδαλη» is a long word for this level but is unavoidable, being the subject of the prompt."
+  ]
+ },
+ {
+  "row_id": "ab28ba0a9a827fa0f5d2f9328937f16eb41a66930a843e600363000e3ade1323",
+  "response_el": "Κάτοικοι του δήμου μας, έχουμε πολύ καλά νέα!\n\nΜόλις εξασφαλίσαμε, ύστερα από αξιολόγηση των προτάσεων, πενταετή χρηματοδότηση για τη δημιουργία και τη λειτουργία ενός νέου δημοτικού λαχανόκηπου. Για τα επόμενα πέντε χρόνια, λοιπόν, ο κήπος είναι εξασφαλισμένος — και τώρα χρειαζόμαστε εσάς.\n\nΤο επόμενο βήμα είναι να συγκεντρώσουμε εθελοντές για τις δουλειές αυτής της καλλιεργητικής περιόδου: προετοιμασία του εδάφους, φύτεμα, πότισμα, βοτάνισμα, συγκομιδή.\n\nΑν έχετε εμπειρία από κήπο ή από χωράφι, η γνώση σας θα μας φανεί πολύτιμη. Αν δεν έχετε καμία απολύτως εμπειρία, είστε εξίσου ευπρόσδεκτοι· θα μάθετε στην πορεία, δίπλα σε ανθρώπους που ξέρουν. Για τους μαθητές και τους φοιτητές είναι μια ευκαιρία να αποκτήσουν πραγματική εθελοντική εμπειρία. Για τις οικογένειες είναι κάτι που μπορείτε να κάνετε όλοι μαζί, μικροί και μεγάλοι. Και για όποιον θέλει απλώς να συμμετέχει πιο ενεργά στη ζωή της γειτονιάς του, ο κήπος είναι ανοιχτός.\n\nΔίνετε όσο χρόνο μπορείτε — μία βάρδια τον μήνα ή μία κάθε εβδομάδα, το ίδιο μας βοηθάει.\n\nΟι διαθέσιμες βάρδιες είναι πολλές και θα τις βρείτε στον σύνδεσμο που έχουμε αναρτήσει στο πρώτο σχόλιο: εκεί δηλώνετε τη διαθεσιμότητά σας και κρατάτε τις ώρες που σας βολεύουν.\n\nΑνυπομονούμε να ξεκινήσουμε. Κοινοποιήστε την ανάρτηση σε όποιον νομίζετε ότι θα ενδιαφερόταν!",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "πληθυντικός is held from the greeting to the closing imperative («Κοινοποιήστε»), including every verb addressed to the reader, so the civic register does not drift.",
+  "constraint_check": "(1) The five-year horizon is stated twice and as a number: «πενταετή χρηματοδότηση» and «Για τα επόμενα πέντε χρόνια». (2) The post is a call for volunteers and contains an explicit call to action. (3) The shifts are described as many and are located off-post — «Οι διαθέσιμες βάρδιες είναι πολλές και θα τις βρείτε στον σύνδεσμο … στο πρώτο σχόλιο» — with no shifts listed inline.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Unfilled placeholder left in publishable copy",
+    "english": "Hello citizens of [town or city]",
+    "greek": "Κάτοικοι του δήμου μας",
+    "why": "A Facebook post is published as written; a bracketed slot makes the deliverable unusable. «Του δήμου μας» works for any municipality without needing to be filled in."
+   },
+   {
+    "what": "The link — the post's single most actionable element — is promised but never located",
+    "english": "Follow the link below to sign up",
+    "greek": "στον σύνδεσμο που έχουμε αναρτήσει στο πρώτο σχόλιο",
+    "why": "'Below' is meaningless in a Facebook post, where a link either sits in the body or in the first comment. Naming the first comment is the real Greek (and Facebook) convention and satisfies the prompt's 'separate link'."
+   },
+   {
+    "what": "The competitive nature of the award is dropped",
+    "english": "we have received funding",
+    "greek": "Μόλις εξασφαλίσαμε, ύστερα από αξιολόγηση των προτάσεων, πενταετή χρηματοδότηση",
+    "why": "The prompt's news is that the money was *won*; «εξασφαλίσαμε … ύστερα από αξιολόγηση» carries that in Greek without the boastful ring that «κερδίσαμε» would give a municipal announcement."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Facebook",
+    "decision": "kept in Latin script (not written inside the post body here, but assumed as the platform)",
+    "why": "Greeks write the platform name in Latin script; the post itself needed no mention of it."
+   },
+   {
+    "term": "growing season",
+    "decision": "καλλιεργητική περίοδος",
+    "why": "The standard Greek agricultural term; «σεζόν» would be off-register for municipal copy."
+   }
+  ],
+  "deviations": [
+   "The reference's generic 'variety of tasks' is spelled out as five concrete jobs, because a Greek volunteer call that does not say what the work is reads as unserious.",
+   "Added a closing share request, which is standard in Greek municipal Facebook posts and replaces the reference's bare 'We can't wait to get started!' (kept as «Ανυπομονούμε να ξεκινήσουμε»).",
+   "The audience is addressed as κάτοικοι of a δήμο, derived from stage 1's institutional transposition."
+  ],
+  "self_flags": [
+   "«Στο πρώτο σχόλιο» is a platform convention, not something the prompt states; confirm it is acceptable as the realization of 'a separate link'."
+  ]
+ },
+ {
+  "row_id": "d8df33094cee7cbaca575f91a76c4ed4874c9d908f9e19b8df22334f863d7f2a",
+  "response_el": "Νερό\nΚρύο το νερό\nστα χέρια μου σταλάζει\nκαι ξυπνά τη γη.\n\nΓη\nΧώμα και ρίζες\nκρυφά κρατούν τον κόσμο\nχωρίς να μιλούν.\n\nΦωτιά\nΜια σπίθα ξυπνά\nκαι γλείφει ξερά κλαδιά\nύστερα σβήνει.\n\nΑέρας\nΑέρας περνά\nκαι γέρνουν κυπαρίσσια\nμα δεν τον βλέπεις.\n\nΟι συλλαβές μετρήθηκαν με συνίζηση, όπως συνηθίζεται στον ελληνικό στίχο: «Μια» μία συλλαβή, «κλα-διά» δύο, «κυ-πα-ρίσ-σια» τέσσερις.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Only the closing note addresses the reader, and it is phrased impersonally except for «δεν τον βλέπεις» inside the poem, which is the generic 'you' of Greek verse, consistent with the ενικός of the request.",
+  "constraint_check": "Exactly four ποιήματα, each titled with its element and the four titles exactly «Νερό», «Γη», «Φωτιά», «Αέρας», in the order the prompt lists them. Syllable counts, with synizesis as one syllable: Νερό 5 (Κρύ-ο το νε-ρό) / 7 (στα χέ-ρια μου στα-λά-ζει) / 5 (και ξυ-πνά τη γη). Γη 5 (Χώ-μα και ρί-ζες) / 7 (κρυ-φά κρα-τούν τον κό-σμο) / 5 (χω-ρίς να μι-λούν). Φωτιά 5 (Μια σπί-θα ξυ-πνά) / 7 (και γλεί-φει ξε-ρά κλα-διά) / 5 (ύ-στε-ρα σβή-νει). Αέρας 5 (Α-έ-ρας περ-νά) / 7 (και γέρ-νουν κυ-πα-ρίσ-σια) / 5 (μα δεν τον βλέ-πεις).",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Three of the four English haikus close on the same universalizing formula, so the set reads as one poem repeated",
+    "english": "Life's joy to us all / Nourishing us all / A flame among us",
+    "greek": "και ξυπνά τη γη / χωρίς να μιλούν / ύστερα σβήνει / μα δεν τον βλέπεις",
+    "why": "Each closing line now does something different (waking, silence, extinction, invisibility), which is what a set of four is for. A quality repair, recorded because it departs from the reference's shape."
+   },
+   {
+    "what": "An unidiomatic and indeterminate line",
+    "english": "Could not be smoldered for you",
+    "greek": "και γλείφει ξερά κλαδιά",
+    "why": "'Smolder' is intransitive there and the line has no recoverable meaning; the Greek supplies a concrete image of fire instead of translating an error."
+   },
+   {
+    "what": "The fourth poem treats wind as weather rather than as an element",
+    "english": "The winds took over. Bending the trees against me.",
+    "greek": "Αέρας περνά / και γέρνουν κυπαρίσσια / μα δεν τον βλέπεις",
+    "why": "Keeping the bending trees as the visible sign of an invisible element holds the poem inside the four-elements frame, which is what the prompt asked all four to be about."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "synizesis convention for syllable counting",
+    "decision": "count synizesis as one syllable, and state it when a line depends on it",
+    "why": "Greek syllable counts are only checkable against a stated convention; this fixes it for the corpus."
+   }
+  ],
+  "deviations": [
+   "The imagery is composed fresh rather than translated; only the elements, the titles, the count and the form come from the prompt and the reference.",
+   "A one-sentence counting note is appended so the 5-7-5 claim is verifiable by the reader. The reference has no such note."
+  ],
+  "self_flags": [
+   "The syllable counts should be verified by hand — «Κρύο» is counted as two syllables (κρύ-ο) and «Μια» as one; a reviewer who counts «Κρύο» as one, or «κλαδιά» as three, will get different totals."
+  ]
+ },
+ {
+  "row_id": "996825cabe112a4cdb8d6302839ba68d629879349146ce2b3ff287965bc2035f",
+  "response_el": "Μια διευκρίνιση πριν ξεκινήσω: η διατύπωση σηκώνει δύο αναγνώσεις — λίστα με τα κακά χαρακτηριστικά που θα αφαιρούνταν, ή λίστα με τους κανόνες που θα προγραμματίζονταν στη θέση τους. Τα γράφω και τα δύο μαζί σε κάθε σημείο, γιατί σε πρόχειρο στάδιο δεν αξίζει να κλειδώσω τη μία ανάγνωση.\n\nΗ ιδέα, χοντρικά: ο άνθρωπος αντιμετωπίζεται σαν σύστημα που δέχεται ενημερώσεις. Κάποια στοιχεία της συμπεριφοράς μας δεν τα διαλέξαμε ποτέ — τα κληρονομήσαμε ή τα μάθαμε — και θεωρητικά θα μπορούσαν να ξαναγραφτούν. Παρακάτω μια πρώτη λίστα, όχι εξαντλητική, απλώς για να έχουμε από πού να πιάσουμε την κουβέντα.\n\n1. Η σκόπιμη πρόκληση βλάβης σε άλλον άνθρωπο — σωματικής, ψυχικής ή οποιασδήποτε άλλης μορφής. Αφαιρείται η ικανότητα, όχι μόνο η διάθεση.\n\n2. Η αυτοκαταστροφικότητα: η τάση να κάνει κανείς συστηματικά πράγματα που ξέρει ότι τον φθείρουν. Εδώ χρειάζεται προσοχή, γιατί η γραμμή ανάμεσα στη φθορά και στην απόλαυση την τραβάει ο καθένας αλλού — άρα μάλλον πρόκειται για ένα όριο που ρυθμίζεται, όχι για έναν διακόπτη.\n\n3. Η υβριστική γλώσσα και οι χαρακτηρισμοί που στοχεύουν ομάδες ανθρώπων. Οι λέξεις που υπάρχουν μόνο για να μειώνουν κάποιον χάνουν τη λειτουργία τους και ξεχνιούνται.\n\n4. Η συσσώρευση χωρίς σκοπό: όποιος έχει περισσότερα από όσα χρειάζεται, ή κάτι που δεν το θέλει, το μοιράζεται. Το αντίστροφο του χαρακτηριστικού, ως κανόνας.\n\n5. Η μισαλλοδοξία απέναντι στο διαφορετικό — άλλη γνώμη, άλλη πίστη, άλλη καταγωγή, άλλη ηλικία. Την έχω ως ένα σημείο, όχι ως δύο· ο ρατσισμός, ο σεξισμός και η καταφρόνια για την ηλικία είναι εκδοχές του ίδιου πράγματος και δεν βοηθάει να αριθμούνται χωριστά.\n\n6. Η αδιαφορία: η ικανότητα να προσπερνάς κάποιον που έχει ανάγκη χωρίς να το καταγράφεις καν. Δεν είναι κακία, γι' αυτό και σπάνια μπαίνει σε τέτοιες λίστες — αλλά κάνει περισσότερη ζημιά από πολλά που μπαίνουν.\n\n7. Η ανάγκη να έχει κανείς πάντα δίκιο, ακόμη και μπροστά στα στοιχεία.\n\nΜια ένσταση που τη σημειώνω για να μη χαθεί: όσο περισσότερα αφαιρούμε, τόσο λιγότερο μοιάζει με επιλογή αυτό που μένει. Ένας άνθρωπος που δεν μπορεί να βλάψει δεν είναι το ίδιο με έναν άνθρωπο που δεν βλάπτει. Αυτό μάλλον είναι το πραγματικό ερώτημα πίσω από όλη την ιδέα, και σε δεύτερο πέρασμα αξίζει να μπει πρώτο.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The answer speaks in first person to a single interlocutor («πριν ξεκινήσω», «τη σημειώνω»); no second-person imperative is needed, so the ενικός of the request is honoured without forcing an address form.",
+  "constraint_check": "(1) Numbered list present and machine-checkable — items 1.–7. (2) Explicitly non-exhaustive: «Παρακάτω μια πρώτη λίστα, όχι εξαντλητική», and the closing paragraph opens the list further rather than declaring it complete. (3) Rough draft: framing is thinking-aloud, items carry unresolved objections («εδώ χρειάζεται προσοχή», «σε δεύτερο πέρασμα αξίζει να μπει πρώτο»), no polished conclusion. No item count is stated in the prompt and none is claimed.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Two items in the reference state the same rule twice",
+    "english": "5. respect differences of opinions, religions, backgrounds, etc. / 6. Be unable to be judgmental in any way: racism, sexism, ageism, etc.",
+    "greek": "5. Η μισαλλοδοξία απέναντι στο διαφορετικό … Την έχω ως ένα σημείο, όχι ως δύο",
+    "why": "Merged into one item, with the merge stated in the item itself — appropriate for a draft, where the reasoning is part of the deliverable."
+   },
+   {
+    "what": "The self-harm item mixes categories and ends on something that is not self-harm",
+    "english": "taking drugs, smoking, too much drinking, too much sex",
+    "greek": "η τάση να κάνει κανείς συστηματικά πράγματα που ξέρει ότι τον φθείρουν … η γραμμή … την τραβάει ο καθένας αλλού",
+    "why": "The reference smuggles a moral judgement into a self-harm item. The Greek keeps the item and names the boundary problem instead of listing behaviours it cannot justify."
+   },
+   {
+    "what": "The reference is a bare list with no idea attached, though the prompt asks for a rough draft of an idea",
+    "english": "(the reference opens directly on item 1)",
+    "greek": "Η ιδέα, χοντρικά: ο άνθρωπος αντιμετωπίζεται σαν σύστημα που δέχεται ενημερώσεις…",
+    "why": "A framing paragraph and a closing objection are added so the answer is a draft of an idea, not only its list."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "judgmental / ageism",
+    "decision": "μισαλλοδοξία; καταφρόνια για την ηλικία",
+    "why": "Greek has no single noun for 'judgmental' and «ηλικιακός ρατσισμός» is the usual periphrasis for ageism; both are rendered descriptively rather than calqued."
+   }
+  ],
+  "deviations": [
+   "The prompt's ambiguity is named inline, in the answer, as the family requires — the list then serves both readings (each item names a trait and the rule that replaces it).",
+   "Seven items instead of the reference's six: the two overlapping ones are merged and two new ones (αδιαφορία, ανάγκη να έχει κανείς δίκιο) are added, which the 'good start, not all-inclusive' spec licenses.",
+   "The reference's imperative 'Be unable to…' frame is dropped, because in Greek it would read as commands to a reader rather than as specifications."
+  ],
+  "self_flags": [
+   "The added closing objection is an editorial contribution not present in the reference; confirm it is wanted in a 'rough draft' row.",
+   "Content touches drugs/alcohol only as a category boundary discussion, not as advice."
+  ]
+ },
+ {
+  "row_id": "5da2aa19de42e0e06dc08902947bd78e1aa7f0894ee025d2de62729d29647cb1",
+  "response_el": "Το ντεζαβού δεν είναι ανάμνηση. Είναι η βεβαιότητα ότι κάτι έχει ξαναγίνει, χωρίς να μπορείς να πεις πότε — και αυτή η βεβαιότητα, όχι το κενό, είναι που με τρελαίνει.\n\nΣηκώθηκα σήμερα το πρωί με την αίσθηση ότι είχα ήδη σηκωθεί. Έβαλα καφέ. Ο ήχος που έκανε το κουταλάκι στο ποτήρι τον είχα ξανακούσει, όχι κάποτε, αλλά ακριβώς έτσι, με τον ίδιο δισταγμό στην τρίτη κίνηση. Βγήκα στο μπαλκόνι. Η γειτόνισσα άπλωνε ρούχα και το σεντόνι ανέμισε προς τα δεξιά, όπως ήξερα ότι θα ανέμιζε. Ένα μηχανάκι πέρασε από κάτω και έσβησε στην τρίτη ταχύτητα. Το είχα ξαναζήσει το πρωινό αυτό. Το ήξερα με τον τρόπο που ξέρεις το σκαλί που λείπει σε μια σκάλα.\n\nΠροσπάθησα να το κάνω παιχνίδι. Είπα μέσα μου: αν το έχω ξαναζήσει, τότε ξέρω τι θα γίνει τώρα. Και όντως, το τηλέφωνο χτύπησε δύο φορές και σταμάτησε. Έπειτα άκουσα τη γάτα να πηδάει από την πέργκολα. Έπειτα, χωρίς να το σκεφτώ, σηκώθηκα και πήγα στην κουζίνα να ανοίξω το τρίτο συρτάρι, εκείνο με τα χαρτιά και τα κλειδιά που δεν ξέρει κανείς πού ανήκουν.\n\nΜέσα ήταν το σημείωμα. Δικός μου γραφικός χαρακτήρας, βιαστικός, με το μολύβι να έχει σκίσει το χαρτί στη μία λέξη.\n\n«Μην ανοίξεις το συρτάρι. Την τελευταία φορά το άνοιξες και ξεκίνησε πάλι από την αρχή.»\n\nΚράτησα το χαρτί για ώρα. Το ξαναδίπλωσα προσεκτικά, όπως ήταν, και το έβαλα πίσω στη θέση του. Ύστερα σηκώθηκα σήμερα το πρωί με την αίσθηση ότι είχα ήδη σηκωθεί.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The narration is first person; the generic second person («ξέρεις το σκαλί που λείπει») is the impersonal 'you' of Greek narrative prose and is consistent with the ενικός of the brief.",
+  "constraint_check": "(1) Everyday setting held throughout — a flat, coffee, a balcony, a neighbour, a drawer; nothing leaves it. (2) The feeling conveyed is déjà vu proper (false familiarity, not amnesia). (3) First person, checkable from verb morphology: σηκώθηκα, έβαλα, βγήκα, προσπάθησα, κράτησα. (4) The twist is at the end: the note in the drawer, then the final sentence looping back to the story's first line.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The opening describes amnesia, not déjà vu",
+    "english": "if you can't remember something, how do you remember that you don't remember?",
+    "greek": "Το ντεζαβού δεν είναι ανάμνηση. Είναι η βεβαιότητα ότι κάτι έχει ξαναγίνει, χωρίς να μπορείς να πεις πότε",
+    "why": "Déjà vu is false familiarity, the opposite of a failure of recall; the Greek opens on the phenomenon the prompt actually names."
+   },
+   {
+    "what": "The twist arrives mid-story and is then explained, so the story ends on reflection instead of on the turn",
+    "english": "I had been in this simulation before … For now, I would have to play along.",
+    "greek": "«Μην ανοίξεις το συρτάρι. Την τελευταία φορά το άνοιξες και ξεκίνησε πάλι από την αρχή.» … Ύστερα σηκώθηκα σήμερα το πρωί με την αίσθηση ότι είχα ήδη σηκωθεί.",
+    "why": "The prompt asks for a twist ending. The reveal is moved to the last lines and is not explained, and the loop back to the first sentence is the disturbing element."
+   },
+   {
+    "what": "The reference abandons the commonplace setting for a simulation/captor premise",
+    "english": "They had recaptured me, wiped my mind, and put me back in this cage.",
+    "greek": "(the Greek stays in the flat and makes the ordinary morning itself the source of dread)",
+    "why": "The prompt makes 'commonplace setting' a constraint; keeping the dread inside the ordinary is both more faithful to it and more unsettling."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [],
+  "deviations": [
+   "The plot is composed fresh: the reference's simulation reveal is replaced by the note in the drawer and the closing loop, for the reasons recorded above.",
+   "Length is close to the reference (four short paragraphs against the reference's two longer ones), with the paragraph breaks placed to hold the turn back to the end."
+  ],
+  "self_flags": [
+   "The final sentence deliberately repeats the story's opening clause; a proofreader may flag it as an error — it is the twist."
+  ]
+ },
+ {
+  "row_id": "f58ae303e184612838f83a694aeecd98b2f7859ec19b0f1d444b354fd65ce192",
+  "response_el": "Τι αξίζει πραγματικά να το αγοράζεις σε μεγάλες ποσότητες\n\nΌλοι το έχουμε πάθει: τελειώνει το απορρυπαντικό μια Κυριακή βράδυ, ή οι πάνες στις δύο τα ξημερώματα. Η αγορά σε μεγάλες ποσότητες δεν είναι θέμα αποθήκης· είναι θέμα χρόνου, νεύρων και τιμής ανά μονάδα. Δύο πράγματα μόνο πριν αρχίσουμε: κοίτα πάντα την τιμή ανά κιλό ή ανά τεμάχιο στην ετικέτα του ραφιού, γιατί η μεγάλη συσκευασία δεν βγαίνει πάντα φθηνότερη, και μη φορτώνεσαι πράγματα που λήγουν πριν προλάβεις να τα χρησιμοποιήσεις. Με αυτά κατά νου, να τι αξίζει:\n\n1. Πάνες. Είναι το κλασικό παράδειγμα, γιατί η κατανάλωση είναι σταθερή και προβλέψιμη και το προϊόν δεν χαλάει. Η οικονομία στη μεγάλη συσκευασία είναι υπαρκτή, και κυρίως γλιτώνεις τις έκτακτες νυχτερινές εξορμήσεις. Μια σύσταση: μην πάρεις μεγάλη ποσότητα από ένα μόνο μέγεθος — τα μωρά μεγαλώνουν πιο γρήγορα απ' όσο αδειάζει το πακέτο.\n\n2. Σερβιέτες και ταμπόν. Δεν χαλάνε, πιάνουν ελάχιστο χώρο και η ανάγκη είναι δεδομένη κάθε μήνα. Είναι από τα λίγα είδη όπου το να έχεις απόθεμα δεν έχει καμία απολύτως μειονεκτική πλευρά. Το ίδιο ισχύει αν στο σπίτι υπάρχουν περισσότερες από μία γυναίκες, οπότε η κατανάλωση διπλασιάζεται και η μεγάλη συσκευασία γίνεται ακόμη πιο λογική.\n\n3. Είδη καθαρισμού. Υγρό πιάτων, χλωρίνη, υγρό γενικού καθαρισμού, σφουγγαρίστρες, πανάκια, σακούλες σκουπιδιών. Καταναλώνονται συνεχώς, αντέχουν στον χρόνο και οι μεγάλες συσκευασίες — ή τα ανταλλακτικά refill — έχουν αισθητά καλύτερη τιμή ανά λίτρο. Πρόσεχε μόνο τον αερισμό του ντουλαπιού και κράτησέ τα μακριά από τα τρόφιμα.\n\n4. Χαρτικά. Χαρτί υγείας, χαρτί κουζίνας, χαρτοπετσέτες. Είναι ογκώδη, οπότε εδώ το εμπόδιο είναι ο χώρος και όχι το χρήμα — αν όμως υπάρχει μια αποθήκη ή ένα ράφι ψηλά, δύσκολα θα βρεις καλύτερη σχέση τιμής-όγκου.\n\n5. Ξηρά τρόφιμα και είδη παντοπωλείου με μεγάλη διάρκεια. Ρύζι, ζυμαρικά, όσπρια, λάδι, κονσέρβες. Εδώ η αγορά σε μεγάλες ποσότητες έχει και δεύτερο όφελος: μαγειρεύεις πιο εύκολα, γιατί υπάρχει πάντα βάση για ένα φαγητό χωρίς να βγεις από το σπίτι.\n\n6. Τροφή για τα ζώα του σπιτιού. Αν έχεις σκύλο ή γάτα, η κατανάλωση είναι σταθερή και το μεγάλο σακί κοστίζει λιγότερο ανά κιλό. Πρόσεχε τη διάρκεια μετά το άνοιγμα και φύλαξέ το σε αεροστεγές δοχείο, ειδικά το καλοκαίρι.\n\nΤο μυστικό, τελικά, δεν είναι να γεμίσεις το σπίτι· είναι να ξέρεις ποια τρία ή τέσσερα πράγματα δεν θέλεις να σου λείψουν ποτέ, και να μην τα ξανασκεφτείς για έξι μήνες.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Greek consumer blogging addresses the reader in ενικός, which also matches the ενικός of the brief; it is held in every imperative («κοίτα», «πρόσεχε», «φύλαξέ το»).",
+  "constraint_check": "All three named categories are covered as separate items — πάνες (1), σερβιέτες (2), είδη καθαρισμού (3) — plus three further categories, which the prompt's «και άλλα» licenses. The post is framed throughout as being about the benefits of buying in bulk for the household.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "A durable good is put in a list of consumables",
+    "english": "Stock up on body wash, shampoo, conditioner, and bath towels",
+    "greek": "(bath towels dropped; the paper-goods item covers χαρτί υγείας, χαρτί κουζίνας, χαρτοπετσέτες instead)",
+    "why": "Towels are not consumed, so buying them in bulk saves nothing and undercuts the post's own argument."
+   },
+   {
+    "what": "An unsourced quantified claim",
+    "english": "buying pet food in bulk can help you save up to 10%",
+    "greek": "το μεγάλο σακί κοστίζει λιγότερο ανά κιλό",
+    "why": "The reference's only number has no source. The Greek keeps the true general claim and drops the invented percentage."
+   },
+   {
+    "what": "An off-register line that blames a third party and contradicts the item's own argument",
+    "english": "It also keeps you from sharing a tampon with that one coworker who always forgets hers.",
+    "greek": "(dropped; replaced by the household-consumption point)",
+    "why": "It is neither a saving nor a benefit of bulk buying, and it is written at the expense of a bystander."
+   },
+   {
+    "what": "A pun that assumes a female reader after the post has addressed everyone",
+    "english": "You're going to menstruate, period.",
+    "greek": "Δεν χαλάνε, πιάνουν ελάχιστο χώρο και η ανάγκη είναι δεδομένη κάθε μήνα.",
+    "why": "The item is kept in full; only the reader-narrowing joke is dropped. The Greek subheads are plain rather than punning, since calquing the English puns would produce nonsense."
+   },
+   {
+    "what": "The title promises savings but several items argue convenience",
+    "english": "The Ultimate Money Saver Items You Should Buy in Bulk",
+    "greek": "Τι αξίζει πραγματικά να το αγοράζεις σε μεγάλες ποσότητες",
+    "why": "A title that covers both money and convenience, which is what the body actually delivers."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "refill packs",
+    "decision": "«ανταλλακτικά refill» (Latin script for refill)",
+    "why": "This is how the packs are labelled on Greek supermarket shelves; «ανταλλακτικά» alone would be ambiguous with spare parts."
+   },
+   {
+    "term": "unit price",
+    "decision": "τιμή ανά μονάδα / ανά κιλό / ανά λίτρο",
+    "why": "The phrasing used on Greek shelf labels, which is what makes the advice actionable."
+   }
+  ],
+  "deviations": [
+   "The batteries item of the reference is replaced by χαρτικά and ξηρά τρόφιμα, which are the categories a Greek household actually stockpiles; the prompt's named three are untouched.",
+   "Added an opening caveat about unit price and expiry, which is standard and expected in Greek consumer writing and answers the reference's unqualified 'buy everything in bulk' framing.",
+   "Subheads are plain descriptive, not punning, per the note in stage 1."
+  ],
+  "self_flags": [
+   "«Σε μεγάλες ποσότητες» recurs often; a reviewer may want a shorter fixed rendering of 'in bulk' for the corpus."
+  ]
+ },
+ {
+  "row_id": "f2b4e643026ad5a0f143f2601ffd915d4a98f29656103dae9353ae35f743497b",
+  "response_el": "Με ψάχνει. Ακούω τα βήματά του στην κουζίνα, το ντουλάπι που ανοίγει, το ψυγείο που κλείνει με εκείνο το ρουφηχτό — και δεν μπορώ να κάνω τίποτα, γιατί είμαι ένα σάντουιτς με φυστικοβούτυρο κάτω από τον καναπέ, εκεί που με άφησε ο σκύλος όταν με πήρε από το πιάτο. Ήμουν δικό του. Με έφτιαξε ο ίδιος πριν από μία ώρα, με άπλωσε το φυστικοβούτυρο αργά, μέχρι τις άκρες, όπως κάνει κάποιος που περίμενε όλη μέρα αυτό το πιάτο. Τώρα με λένε χαμένο. Είμαι σκονισμένο, έχω τρίχες κολλημένες πάνω μου, το ψωμί μου έχει σκληρύνει από τη μια πλευρά και η μυρωδιά μου με προδίδει σιγά σιγά. Βλέπω τέσσερα πόδια να πλησιάζουν και μια μαύρη μύτη να ρουθουνίζει στο σκοτάδι· ο σκύλος δεν με ξέχασε, απλώς δεν φτάνει. Τα βήματα του άντρα σταματούν στη μέση του σαλονιού. Κάτι κατάλαβε. Σηκώνει τον καναπέ και το φως πέφτει πάνω μου ολόκληρο, και για μια στιγμή είμαστε πάλι οι δυο μας, όπως στην αρχή. Με κοιτάζει. Με πιάνει με δύο δάχτυλα, από τη μια γωνία, όπως πιάνει κανείς κάτι που δεν είναι πια φαγητό. Ακούω το πεντάλ του κάδου να ανοίγει. Δεν πρόλαβα ποτέ να γίνω αυτό για το οποίο με έφτιαξε.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Pure first-person narration; no address form is used inside the story, which is consistent with the ενικός of the brief.",
+  "constraint_check": "One single paragraph, no paragraph break anywhere in the text — «λιγότερο από 2 παραγράφους» is satisfied by count. The narrator is the sandwich throughout (first person, neuter agreement: «είμαι ένα σάντουιτς», «Ήμουν δικό του», «Είμαι σκονισμένο», «Δεν πρόλαβα»). The genre is drama: no comic asides, the stakes are stated and the ending is a loss.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The reference violates the prompt's own explicit length constraint",
+    "english": "(the reference is two paragraphs; the prompt asks for less than 2)",
+    "greek": "(the Greek is one paragraph)",
+    "why": "The countable constraint is the point of the row, so the Greek satisfies it rather than inheriting the reference's shape."
+   },
+   {
+    "what": "A comic aside inside a piece the prompt asked to be a drama",
+    "english": "I stay still (because I'm a peanut butter sandwich, after all)",
+    "greek": "(dropped)",
+    "why": "It breaks the requested genre; the incongruity of the premise carries the effect without a wink to the reader."
+   },
+   {
+    "what": "The established stakes (being eaten by the dog) resolve into an unrelated outcome",
+    "english": "I only hope that the dog doesn't find me first … I am found and promptly thrown away.",
+    "greek": "Ήμουν δικό του … Δεν πρόλαβα ποτέ να γίνω αυτό για το οποίο με έφτιαξε.",
+    "why": "The stakes are re-set to being eaten *by the man* — what the sandwich was made for — so that being thrown away is the loss the story has been building towards."
+   },
+   {
+    "what": "Passive framing implies a third thief and is then contradicted",
+    "english": "the dog took me after I was stolen off the man's plate",
+    "greek": "εκεί που με άφησε ο σκύλος όταν με πήρε από το πιάτο",
+    "why": "One agent, stated once."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [],
+  "deviations": [
+   "One paragraph instead of the reference's two, per the constraint.",
+   "The dramatic arc is re-centred on the sandwich's purpose rather than on the dog chase, so the ending lands as a turn."
+  ],
+  "self_flags": [
+   "Neuter first-person agreement is unusual in Greek — verify «σκονισμένο», «δικό του», «χαμένο» all agree neuter and that nothing has slipped into masculine."
+  ]
+ },
+ {
+  "row_id": "c9099c7dc37743eedcbb509f55ad33221bab11736f8eea643c46c1fe9414cfe9",
+  "response_el": "Καλημέρα! Ξέρουμε ότι το να είσαι παιδί θέλει δουλειά: μαθήματα, φίλοι, παιχνίδι στην αυλή, κρυφά σχέδια για το απόγευμα — και όλα αυτά πριν καν χτυπήσει το κουδούνι. Γι' αυτό φτιάξαμε τις Λαγουδίσιες Λιχουδιές, μικρές τραγανές μπουκίτσες σε σχήμα λαγού, που κάνουν κρακ στο γάλα και χοροπηδάνε μέσα στο μπολ σου σαν να θέλουν να ξεφύγουν. Πάρε το κουτάλι και κυνήγησέ τες! Και μια συμβουλή από εμάς: ο λαγός μας ισχυρίζεται ότι μπορεί να αδειάσει το μπολ του σε δώδεκα κουταλιές. Για δες αν τον προλαβαίνεις. Λαγουδίσιες Λιχουδιές — λαχταριστές, λαμπερές, λαγουδίσιες!",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Child-facing packaging copy is ενικός in Greek; the brand speaks as «εμείς» and addresses the child as «εσύ» («το μπολ σου», «Πάρε», «κυνήγησέ τες», «προλαβαίνεις»).",
+  "constraint_check": "Exactly one paragraph. Tone is ανάλαφρη throughout (no nutrition or health claims, no exclamation-free instruction). It reads as box-back copy, not as an ad script — it greets, describes the piece, invites a game and closes on a tagline. The literal brand string «Λαγουδίσιες Λιχουδιές» appears twice, character-for-character as agreed in stage 1, including in the closing tagline, which carries the Λ-alliteration forward («λαχταριστές, λαμπερές, λαγουδίσιες»).",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The closing line is incoherent in English",
+    "english": "Bunny Bites let you be a kid, more simply!",
+    "greek": "Λαγουδίσιες Λιχουδιές — λαχταριστές, λαμπερές, λαγουδίσιες!",
+    "why": "'More simply' modifies nothing. The Greek closes on an alliterative tagline, which is what the line was trying to be."
+   },
+   {
+    "what": "A nutrition claim a sugary children's cereal does not support",
+    "english": "to fuel your morning so that you can get through whatever the day holds",
+    "greek": "(dropped; replaced by the crunch, the shape and the spoon game)",
+    "why": "Packaging copy making an energy/nutrition claim for a sugary product is a real-world problem, not only a stylistic one."
+   },
+   {
+    "what": "Mixed age target and a lone capitalized emphasis in otherwise flat copy",
+    "english": "Being a kid is HARD work! … dragons to slay, hopscotch to hop, or maybe even a little homework",
+    "greek": "το να είσαι παιδί θέλει δουλειά: μαθήματα, φίλοι, παιχνίδι στην αυλή, κρυφά σχέδια για το απόγευμα",
+    "why": "One consistent age is addressed (primary school), and the emphasis is carried by rhythm rather than by capitals — Greek copy does not shout in caps the way English does."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "bites (the cereal pieces)",
+    "decision": "μπουκίτσες",
+    "why": "Inside the copy the pieces need an ordinary word; «μπουκίτσες» keeps the 'bite' of the English name alive even though the brand itself was re-derived as «Λιχουδιές»."
+   }
+  ],
+  "deviations": [
+   "The mascot is a λαγός and the imagery (χοροπηδάνε, κυνήγησέ τες) is derived from it, per stage 1's derived_elements.",
+   "Added the twelve-spoonful challenge, which is the standard back-of-box game the reference gestures at without providing.",
+   "All adjectives applied to the product agree feminine plural, since «Λιχουδιές» is feminine."
+  ],
+  "self_flags": [
+   "Confirm the brand string «Λαγουδίσιες Λιχουδιές» matches stage 1 character-for-character in both occurrences.",
+   "«Κυνήγησέ τες» takes the feminine accusative clitic agreeing with «μπουκίτσες/Λιχουδιές» — check it is not read as «τους»."
+  ]
+ },
+ {
+  "row_id": "e178bae13f54dcf9118412ed273b9d465fa66de1307dd20e728c7ebf98934490",
+  "response_el": "Προς: κύριο Μπρους Γουέιν\nΑπό: Άλφρεντ\nΘέμα: Μερικά μικρά ζητήματα του σπιτιού\n\nΚύριε Γουέιν,\n\nΕλπίζω να μη σας ενοχλώ. Επειδή τις τελευταίες ημέρες δεν καταφέραμε να βρεθούμε σε κοινή ώρα — εσείς επιστρέφετε συνήθως γύρω στις πέντε το πρωί — σκέφτηκα να σας γράψω. Πρόκειται για ελάχιστα πράγματα, τα οποία σας τα θέτω με κάθε σεβασμό:\n\n1. Το φαγητό. Σας το ανεβάζω ζεστό στις οκτώ. Στις έντεκα το κατεβάζω κρύο. Δεν σας ζητώ να τρώτε στην ώρα σας· σας παρακαλώ μόνο να μου λέτε από πριν αν σκοπεύετε να λείψετε, ώστε να μη μαγειρεύω για κάποιον που εκείνη την ώρα βρίσκεται σε μια στέγη.\n\n2. Η πόρτα της σπηλιάς. Μένει ανοιχτή. Μπαίνει νερό από τον καταρράκτη. Το δάπεδο γίνεται λίμνη. Τη σφουγγαρίζω εγώ, κύριε, με τα δικά μου γόνατα, τα οποία δεν είναι πλέον της ηλικίας που ήταν όταν αναλάβατε τη νυχτερινή σας απασχόληση.\n\n3. Ο νεαρός κύριος Γκρέισον. Αφήνει τη στολή του στο λουτρό, τα παπούτσια του στο κεφαλόσκαλο και τα πιάτα του όπου τύχει. Είχα προσληφθεί για έναν άνθρωπο. Είμαστε πλέον τρεις, αν συνυπολογίσουμε και τον σκύλο, τον οποίο κανείς δεν μου ανακοίνωσε επισήμως.\n\n4. Το αίμα. Δεν βγαίνει από τα λευκά φανελάκια. Δεν βγαίνει, κύριε. Έχω δοκιμάσει κρύο νερό, ξίδι, χλώριο και υπομονή. Έχω αρχίσει να τα πετάω και να αγοράζω καινούργια από τα δικά μου, επειδή ντρέπομαι να το συζητήσω μαζί σας.\n\n5. Τα ράμματα. Δεν είμαι γιατρός. Δεν σπούδασα ιατρική. Το να με ξυπνάτε στις τέσσερις για να σας κλείσω μια τρύπα από σφαίρα δεν περιλαμβανόταν σε καμία συνεννόηση, και ειλικρινά, κύριε, δεν είναι ούτε νόμιμο ούτε λογικό.\n\nΚαι επειδή έφτασα ως εδώ, ας το πω και αυτό: για δώδεκα δολάρια την ώρα καθαρίζω ένα μέγαρο σαράντα δωματίων, πλένω αίματα, μαγειρεύω για τρεις, ράβω δέρμα και προσποιούμαι σε κάθε επισκέπτη ότι κοιμάστε. Δεν σας ζητώ ευγνωμοσύνη. Σας ζητώ να μαζεύετε τουλάχιστον τα δικά σας πράγματα, όπως θα έκανε οποιοσδήποτε ενήλικας.\n\nΠεριμένω απάντηση. Όχι σήμερα το βράδυ — γνωρίζω ότι θα λείπετε.\n\nΜε εκτίμηση,\nΆλφρεντ",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "πληθυντικός ευγενείας is held without a single slip from «Κύριε Γουέιν» to «Με εκτίμηση, Άλφρεντ» — including in the sharpest lines («Το να με ξυπνάτε στις τέσσερις»), which is precisely where the comedy lives.",
+  "constraint_check": "(1) Email shape: Προς / Από / Θέμα header, salutation, numbered body, sign-off. (2) Both parties named — sender Άλφρεντ, recipient κύριος Μπρους Γουέιν, identified as the same person the prompt names. (3) The irritation escalates and is checkable: it opens apologetic («Ελπίζω να μη σας ενοχλώ», «ελάχιστα πράγματα»), tightens item by item, and only in the penultimate paragraph reaches the direct demand and the pay grievance.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "The prompt asks for increasing irritation; the reference opens at maximum",
+    "english": "I think it's time I aired my grievances before I decide to quit being your servant altogether.",
+    "greek": "Ελπίζω να μη σας ενοχλώ … Πρόκειται για ελάχιστα πράγματα, τα οποία σας τα θέτω με κάθε σεβασμό",
+    "why": "The escalation is the requested manner; starting with a resignation threat leaves nowhere to escalate to."
+   },
+   {
+    "what": "Continuity error against the source material the joke depends on",
+    "english": "Ms. Rachel Dawes keeps leaving her clothing and \"unmentionables\" strewn about the mansion",
+    "greek": "Ο νεαρός κύριος Γκρέισον. Αφήνει τη στολή του στο λουτρό, τα παπούτσια του στο κεφαλόσκαλο…",
+    "why": "Rachel Dawes does not live at Wayne Manor; Dick Grayson does, and 'the second person I did not sign up for' is exactly the parent-of-two joke the prompt asks for."
+   },
+   {
+    "what": "Internal inconsistency between an hourly wage and a salary grievance",
+    "english": "4. You don't pay me enough … For $12.00 an hour?",
+    "greek": "για δώδεκα δολάρια την ώρα καθαρίζω ένα μέγαρο σαράντα δωματίων…",
+    "why": "The pay complaint is stated once, in the hourly terms the gag needs, instead of twice on two incompatible bases."
+   },
+   {
+    "what": "Repetitive and ungrammatical restatement",
+    "english": "These are just a list of some of the grievances I have",
+    "greek": "Και επειδή έφτασα ως εδώ, ας το πω και αυτό:",
+    "why": "The English repeats the list's own framing and mis-agrees ('These are … a list'); the Greek uses the moment to escalate instead."
+   },
+   {
+    "what": "Spelling error",
+    "english": "clean up after yourself once in awhile",
+    "greek": "Σας ζητώ να μαζεύετε τουλάχιστον τα δικά σας πράγματα",
+    "why": "'Awhile' should be 'a while'; the Greek simply writes the sentence correctly."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Dick Grayson / Robin",
+    "decision": "ο νεαρός κύριος Γκρέισον",
+    "why": "Established Greek transliteration of the surname; Alfred would name him formally, which also keeps the butler register."
+   },
+   {
+    "term": "the Batcave",
+    "decision": "η σπηλιά (as Alfred would say it in an internal household note)",
+    "why": "«Μπατ-σπηλιά» is clumsy in running Greek prose and Alfred's deadpan works better when he refuses to use the dramatic name."
+   }
+  ],
+  "deviations": [
+   "The sarcastic To:/From: header of the reference («Batboy» / your «servant») is dropped in favour of a straight header, because the row's comedy is now carried by the πληθυντικός and a sarcastic header would give the joke away before the escalation starts.",
+   "Grievance 3 is re-based on Dick Grayson (see reference_corrections).",
+   "A closing line («Όχι σήμερα το βράδυ — γνωρίζω ότι θα λείπετε») is added as the final escalation beat, replacing the reference's two-weeks'-notice threat, which would again overshoot the requested trajectory.",
+   "The dollar amount is kept in dollars, since the scene stays in Gotham."
+  ],
+  "self_flags": [
+   "Verify there is no slip into ενικός anywhere — this is the row's crux.",
+   "Confirm the substitution of Γκρέισον for Rachel Dawes is acceptable given that stage 1 classed the characters as content; it stays inside the same real referent universe."
+  ]
+ }
+]

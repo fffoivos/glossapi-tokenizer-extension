@@ -1,0 +1,41 @@
+{
+  "inputs": [
+    "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/probe_data/ancient_train.jsonl"
+  ],
+  "base_tokenizer": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/assets/apertus-tokenizer-extension/experiment-checkpoints/TokenDistil-3.5B",
+  "student_tokenizer": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/candidates/c3p_poly_added_1024",
+  "new_id_start": 148480,
+  "new_id_end": 149504,
+  "target_extended_tokens": 30000000,
+  "tokens_scanned": 30000000,
+  "docs_seen": 11607,
+  "docs_used": 11607,
+  "chars_seen": 90633206,
+  "stopped_on_budget": true,
+  "require_nfc": true,
+  "non_nfc_docs": 0,
+  "snippet_token_radius": 50,
+  "snippets_per_token": 100,
+  "status_counts": {
+    "enough_100": 925,
+    "zero": 86,
+    "enough_25": 6,
+    "low_lt20": 7
+  },
+  "action_counts": {
+    "td_100": 925,
+    "inspect": 86,
+    "td_25": 6,
+    "keep_retok": 7
+  },
+  "enough_100_fraction": 0.9033203125,
+  "enough_25_fraction": 0.9091796875,
+  "low_lt25_count": 93,
+  "recommended_next_step": "run_full_td_100",
+  "artifacts": {
+    "coverage_jsonl": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/coverage_1024/td_coverage_prepass.jsonl",
+    "summary_json": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/coverage_1024/td_coverage_summary.json",
+    "snippet_index_jsonl": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/coverage_1024/td_snippet_index/snippets.jsonl"
+  },
+  "counting_rule": "A firing means the extended tokenizer emitted the new token ID in the scanned training stream."
+}

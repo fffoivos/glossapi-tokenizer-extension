@@ -1,0 +1,110 @@
+{
+  "schema_version": "polytonic-cutoff-model-probe-v1",
+  "created_at": "2026-07-29T10:26:55Z",
+  "status": "failed",
+  "selected": null,
+  "reason": "512 failed the modern-regression guard; no production tokenizer selected",
+  "precommitted_rule": {
+    "modern_bpb_max_relative_regression": 0.005,
+    "choose_1024_only_if_ancient_bpb_relative_gain_over_512_at_least": 0.01,
+    "fallback": "512 if it passes the modern guard; otherwise select none",
+    "truncation": "zero truncated documents required in every arm"
+  },
+  "derived": {
+    "cutoff_512_modern_bpb_ratio_to_baseline": 1.2628590941871034,
+    "cutoff_1024_modern_bpb_ratio_to_baseline": 1.2660304345015223,
+    "cutoff_1024_ancient_bpb_relative_gain_over_512": -0.01373849104980418,
+    "cutoff_512_passes_modern_guard": false,
+    "cutoff_1024_passes_modern_guard": false
+  },
+  "arms": {
+    "baseline": {
+      "ancient": {
+        "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/results/baseline/ancient_metrics.json",
+        "sha256": "723ab98a6c59ba20d29bd7d70a25f4d644464bfbaa89fb445eed07d5e18c3240",
+        "vocab_size": 148480,
+        "n_docs": 311.0,
+        "n_bytes": 1094500.0,
+        "n_tokens": 221695.0,
+        "bpb": 0.8532812700995183,
+        "tokens_per_word": 2.2433088793321527,
+        "chars_per_token": 2.6712059360833575,
+        "strr": 0.2013053377181887
+      },
+      "modern": {
+        "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/results/baseline/modern_metrics.json",
+        "sha256": "913b34c4a695c7cda4c5b8ee79bda4697c49161ee2ca3999091e4a87f075c5ef",
+        "vocab_size": 148480,
+        "n_docs": 1000.0,
+        "n_bytes": 3289014.0,
+        "n_tokens": 437732.0,
+        "bpb": 0.5177814242329483,
+        "tokens_per_word": 1.5624524820011636,
+        "chars_per_token": 4.189460674568,
+        "strr": 0.44748917727302234
+      }
+    },
+    "cutoff_512": {
+      "ancient": {
+        "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/results/cutoff_0512/ancient_metrics.json",
+        "sha256": "e1be9710a61b8e8c7f31a5c1245075225dcba44fe473a691fc9a488b526984a6",
+        "vocab_size": 148992,
+        "n_docs": 311.0,
+        "n_bytes": 1094500.0,
+        "n_tokens": 204809.0,
+        "bpb": 1.0563920847189594,
+        "tokens_per_word": 2.0724411839109536,
+        "chars_per_token": 2.8914403175641694,
+        "strr": 0.41045282064254995
+      },
+      "modern": {
+        "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/results/cutoff_0512/modern_metrics.json",
+        "sha256": "a2565d4c39c9c96c2802a43cbb761ae25da4e756528b0d55e998f71d0b92dd04",
+        "vocab_size": 148992,
+        "n_docs": 1000.0,
+        "n_bytes": 3289014.0,
+        "n_tokens": 437557.0,
+        "bpb": 0.6538849803937293,
+        "tokens_per_word": 1.561827832251202,
+        "chars_per_token": 4.191136240535519,
+        "strr": 0.44864759603141713
+      }
+    },
+    "cutoff_1024": {
+      "ancient": {
+        "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/results/cutoff_1024/ancient_metrics.json",
+        "sha256": "673c47025d6cd8f6e9741cd6313c16a6c9c99998535bf1b75b71df843ae2252a",
+        "vocab_size": 149504,
+        "n_docs": 311.0,
+        "n_bytes": 1094500.0,
+        "n_tokens": 198148.0,
+        "bpb": 1.0709053179199548,
+        "tokens_per_word": 2.005039210726031,
+        "chars_per_token": 2.988639804590508,
+        "strr": 0.4322590437642297
+      },
+      "modern": {
+        "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/results/cutoff_1024/modern_metrics.json",
+        "sha256": "6058e1beae32d5faa9857306db211d985fd3d94cac9faf9f927da24b273c348d",
+        "vocab_size": 149504,
+        "n_docs": 1000.0,
+        "n_bytes": 3289014.0,
+        "n_tokens": 437409.0,
+        "bpb": 0.6555270414984565,
+        "tokens_per_word": 1.5612995570340915,
+        "chars_per_token": 4.192554337016385,
+        "strr": 0.44882735066634044
+      }
+    }
+  },
+  "tokenizers": {
+    "cutoff_512": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/candidates/c3p_poly_added_0512",
+      "sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b"
+    },
+    "cutoff_1024": {
+      "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/candidates/c3p_poly_added_1024",
+      "sha256": "3465350b74e186ce22e5aefcfb67c33ac9cab7d90bc42596b52c82c7bd93fbff"
+    }
+  }
+}

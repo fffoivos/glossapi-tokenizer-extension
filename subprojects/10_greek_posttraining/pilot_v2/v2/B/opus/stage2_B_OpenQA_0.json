@@ -1,0 +1,548 @@
+[
+ {
+  "row_id": "7619871aec80b42d6022acaec9a2af8c238293f6a644f14594374dd7f3b72d31",
+  "response_el": "Το Χέρι της Φατιμά, γνωστό και ως χάμσα, είναι ένα αποτρεπτικό σύμβολο σε σχήμα ανοιχτής παλάμης, διαδεδομένο σε όλη τη Μέση Ανατολή και τη Βόρεια Αφρική. Η ονομασία παραπέμπει στη Φατιμά, κόρη του Μωάμεθ, αν και το ίδιο το σύμβολο είναι παλαιότερο του Ισλάμ και οι ρίζες του ανάγονται σε αρχαίες παραδόσεις της Μεσογείου και της Μέσης Ανατολής. Στην ισλαμική ανάγνωση τα πέντε δάχτυλα αντιστοιχούν στους πέντε στύλους του Ισλάμ, ενώ στην εβραϊκή παράδοση το ίδιο σύμβολο ονομάζεται «Χέρι της Μιριάμ», από την αδελφή του Μωυσή και του Ααρών. Συχνά η παλάμη φέρει στο κέντρο ένα μάτι, που συμβολίζει το βλέμμα το οποίο τα βλέπει όλα, ενώ το σύμβολο συνδέεται και με τη θηλυκότητα.\n\nΗ βασική του λειτουργία είναι προστατευτική: θεωρείται ότι απομακρύνει το «κακό μάτι», δηλαδή τη βασκανία — την πεποίθηση ότι ένα φθονερό βλέμμα μπορεί να φέρει κακό σε κάποιον, συνήθως χωρίς εκείνος να το αντιληφθεί. Έτσι, το Χέρι της Φατιμά χρησιμοποιείται ως φυλαχτό ενάντια στην ατυχία, στην αρρώστια, ακόμη και στον θάνατο, και τα κοσμήματα σε αυτό το σχήμα λέγεται ότι φέρνουν θετική ενέργεια και προστασία σε όποιον τα φορά.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Unsourced and disputed antiquity claim",
+    "english": "as a symbol dates back to cave paintings",
+    "greek": "το ίδιο το σύμβολο είναι παλαιότερο του Ισλάμ και οι ρίζες του ανάγονται σε αρχαίες παραδόσεις της Μεσογείου και της Μέσης Ανατολής",
+    "why": "No cave painting is identifiable as a hamsa and the claim is contested; the defensible and more informative fact is that the symbol predates Islam, which also resolves the reference's internal tension with the Fatima etymology."
+   },
+   {
+    "what": "Etymology stated without the pre-Islamic qualification",
+    "english": "The name comes from Mohammed's daughter, Fatima.",
+    "greek": "Η ονομασία παραπέμπει στη Φατιμά, κόρη του Μωάμεθ, αν και το ίδιο το σύμβολο είναι παλαιότερο του Ισλάμ",
+    "why": "The name is Islamic but the object is older; the Greek marks that the name attaches to a pre-existing symbol rather than originating it."
+   },
+   {
+    "what": "Misspelling",
+    "english": "back luck",
+    "greek": "ατυχία",
+    "why": "Typo for «bad luck»; rendered correctly and folded into the same list."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Hamsa",
+    "decision": "«χάμσα» (feminine, «η χάμσα»)",
+    "why": "Stage 1's recorded decision; the phonetic transliteration is what Greek jewellery and folklore writing uses, since Greek has no settled form."
+   },
+   {
+    "term": "evil eye",
+    "decision": "«το κακό μάτι», glossed as «βασκανία»",
+    "why": "Both are live Greek terms for the same belief. The gloss keeps the concept precise without letting the answer drift into describing Greek folk practice, which is not what was asked."
+   }
+  ],
+  "deviations": [
+   "Added a one-clause geographic placement («Μέση Ανατολή και Βόρεια Αφρική») that the reference lacks, because the Greek reader needs the cultural area to place the symbol; this replaces the dropped cave-painting sentence and keeps the length comparable.",
+   "The Islamic five-pillars reading and the Jewish Hand of Miriam are presented as two traditions of the same symbol rather than as an unordered list of attributes, which is the same content in a shape a Greek reader can follow."
+  ],
+  "self_flags": [
+   "The Greek deliberately does not compare the hamsa with the Greek «μάτι»/φυλαχτό, even though a Greek reader will think of it; a reviewer should confirm that restraint is wanted here."
+  ]
+ },
+ {
+  "row_id": "dc0dfbf118a0b29a6452a269f6d0f1f5c04106717e96007bdc3840f18100c203",
+  "response_el": "Το «The Great Train Robbery» (Η Μεγάλη Ληστεία του Τρένου) είναι αμερικανική βωβή ταινία του 1903, σε σκηνοθεσία του Έντουιν Σ. Πόρτερ για την Edison Manufacturing Company. Η υπόθεση παρακολουθεί μια συμμορία παρανόμων στην αμερικανική Δύση: οι ληστές ακινητοποιούν τον τηλεγραφητή του σταθμού, επιβιβάζονται στην αμαξοστοιχία και τη ληστεύουν εν κινήσει, στη συνέχεια διαφεύγουν σε ορεινό έδαφος και τελικά εξοντώνονται από ένα καταδιωκτικό απόσπασμα ενόπλων πολιτών. Στη διανομή ξεχωρίζουν ο Τζάστους Ντ. Μπαρνς και ο Τζίλμπερτ Μ. «Μπρόντσο Μπίλι» Άντερσον, ο οποίος υποδύεται περισσότερους από έναν ρόλους. Το πιο πολυσυζητημένο στοιχείο της ταινίας είναι το πλάνο στο οποίο ένας ληστής πυροβολεί κατευθείαν προς την κάμερα, πλάνο που οι αίθουσες μπορούσαν να προβάλουν είτε στην αρχή είτε στο τέλος.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Where the robbery takes place",
+    "english": "a gang of outlaws who hold up a steam locomotive at a station",
+    "greek": "οι ληστές ακινητοποιούν τον τηλεγραφητή του σταθμού, επιβιβάζονται στην αμαξοστοιχία και τη ληστεύουν εν κινήσει",
+    "why": "The action begins at the telegraph office but the train is boarded and robbed while moving; the English compression states something the film does not show."
+   },
+   {
+    "what": "Incomplete cast credit",
+    "english": "G.M. Anderson",
+    "greek": "Τζίλμπερτ Μ. «Μπρόντσο Μπίλι» Άντερσον, ο οποίος υποδύεται περισσότερους από έναν ρόλους",
+    "why": "The initials alone identify no one for a Greek reader; his screen name is how he is known, and the multiple-role fact is standard and relevant."
+   },
+   {
+    "what": "Omission of the film's single most-cited shot",
+    "english": "(absent)",
+    "greek": "το πλάνο στο οποίο ένας ληστής πυροβολεί κατευθείαν προς την κάμερα",
+    "why": "A question asking what the film was about is badly served without it; added rather than left out."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "The Great Train Robbery / Edison Manufacturing Company",
+    "decision": "Latin script kept for the title and the company, with a Greek gloss of the title in parentheses",
+    "why": "Greek film writing cites original titles and company names; translating the title alone would point at a work that does not exist and could be confused with the 1978 British film."
+   },
+   {
+    "term": "posse",
+    "decision": "«καταδιωκτικό απόσπασμα ενόπλων πολιτών»",
+    "why": "Greek has no single word; the periphrasis conveys that these are armed civilians acting under local authority, not police or army."
+   },
+   {
+    "term": "silent film",
+    "decision": "«βωβή ταινία»",
+    "why": "The established Greek term; «σιωπηλή» would describe a quiet film, not the medium."
+   }
+  ],
+  "deviations": [
+   "The sequence of the robbery is expanded by one clause relative to the English so that the corrected geography (station → moving train) is intelligible.",
+   "Added the closing/opening shot, which the reference omits."
+  ],
+  "self_flags": [
+   "«Η Μεγάλη Ληστεία του Τρένου» is used only as a gloss, never as the referent, per stage 1; a reviewer should confirm the parenthetical does not read as an official Greek release title."
+  ]
+ },
+ {
+  "row_id": "5c9a219ea3c4cfd70f66ac0bcc11c0d289c21244b2761d2982ca7c95c9140541",
+  "response_el": "Οι μη πτηνόμορφοι δεινόσαυροι εξαφανίστηκαν πριν από περίπου 66 εκατομμύρια χρόνια — τα πουλιά είναι και αυτά δεινόσαυροι και επιβίωσαν. Η ταχύτητα με την οποία συνέβη η εξαφάνιση δείχνει κάποιο αιφνίδιο, καταστροφικό γεγονός, που μετέβαλε το περιβάλλον πολύ γρηγορότερα από όσο μπορούσαν να προσαρμοστούν. Η επικρατέστερη σήμερα εξήγηση είναι η πρόσκρουση ενός μεγάλου αστεροειδούς στη σημερινή χερσόνησο του Γιουκατάν, που άφησε τον κρατήρα Τσιξουλούμπ: η σκόνη και τα θειικά αερολύματα που εκτινάχθηκαν στην ατμόσφαιρα εμπόδισαν το ηλιακό φως, με αποτέλεσμα απότομη ψύξη και κατάρρευση της φωτοσύνθεσης. Πιθανότατα συνέβαλαν και οι τεράστιες ηφαιστειακές εκρήξεις στους Δεκκανικούς Τράπους, καθώς και πιο σταδιακές κλιματικές μεταβολές που εξελίσσονταν επί εκατομμύρια χρόνια. Το πόσο βάρος αναλογεί σε κάθε παράγοντα παραμένει αντικείμενο επιστημονικής συζήτησης.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Unqualified claim that the dinosaurs died out",
+    "english": "The dinosaurs died out 66 million years ago",
+    "greek": "Οι μη πτηνόμορφοι δεινόσαυροι εξαφανίστηκαν πριν από περίπου 66 εκατομμύρια χρόνια — τα πουλιά είναι και αυτά δεινόσαυροι και επιβίωσαν",
+    "why": "Birds are dinosaurs and survived; the unqualified statement is the standard inaccuracy in this answer and is cheap to fix in one clause."
+   },
+   {
+    "what": "Circular filler sentence",
+    "english": "It is presumed that something must have caused unfavourable changes to the environment and it must have occurred more quickly than dinosaurs could adapt.",
+    "greek": "Η ταχύτητα με την οποία συνέβη η εξαφάνιση δείχνει κάποιο αιφνίδιο, καταστροφικό γεγονός, που μετέβαλε το περιβάλλον πολύ γρηγορότερα από όσο μπορούσαν να προσαρμοστούν.",
+    "why": "The English says only that something caused what happened. The Greek keeps the same inferential move but states what the evidence is evidence of, without adding certainty."
+   },
+   {
+    "what": "Understated consensus on the impact",
+    "english": "Some evidence points towards an asteroid impact.",
+    "greek": "Η επικρατέστερη σήμερα εξήγηση είναι η πρόσκρουση ενός μεγάλου αστεροειδούς … κρατήρας Τσιξουλούμπ",
+    "why": "Chicxulub is the leading explanation, not a stray strand of evidence; the hedging is kept but calibrated, and the crater is named so the claim is checkable."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Chicxulub / Deccan Traps",
+    "decision": "«Τσιξουλούμπ» / «Δεκκανικοί Τράποι»",
+    "why": "The transliterations used in Greek popular-science writing; both are named because the Greek answer states the mechanism rather than gesturing at it."
+   }
+  ],
+  "deviations": [
+   "The impact mechanism (dust and sulphate aerosols, cooling, photosynthesis collapse) is spelled out, which the reference does not do; this is what allows the hedged claim to be informative at a similar length.",
+   "The reference's closing list of alternatives is kept but reordered so the strongest explanation comes first and the weaker contributors follow."
+  ],
+  "self_flags": [
+   "66 million is kept exactly, not rounded to 65, per stage 1."
+  ]
+ },
+ {
+  "row_id": "a69ea904d649ff697453fca8cd51a6d3e44db68872c3d54f5da4475b164b0f16",
+  "response_el": "Τα νεογέννητα γεννιούνται με περίπου 270 έως 300 οστά, πολλά από τα οποία είναι ακόμη χόνδρινα και σταδιακά οστεοποιούνται και συνενώνονται μεταξύ τους. Ο ενήλικος άνθρωπος έχει συνήθως 206 οστά. Η διαδικασία της συνοστέωσης δεν ολοκληρώνεται στα πρώτα χρόνια της ζωής αλλά συνεχίζεται ως τα μέσα περίπου της τρίτης δεκαετίας, ενώ υπάρχουν και φυσιολογικές παραλλαγές από άτομο σε άτομο, όπως επιπλέον πλευρές ή σησαμοειδή οστά.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Newborn bone count given as a single top-of-range figure",
+    "english": "nearly 300 bones",
+    "greek": "περίπου 270 έως 300 οστά",
+    "why": "Sources give a range; picking the highest value and presenting it as the figure overstates precision."
+   },
+   {
+    "what": "When fusion ends",
+    "english": "these grow and fuse throughout the first years of a child's life",
+    "greek": "συνεχίζεται ως τα μέσα περίπου της τρίτης δεκαετίας",
+    "why": "Fusion of e.g. the sacrum and the sternum continues into the mid-twenties, so «first years» is simply wrong."
+   },
+   {
+    "what": "«normally» left unexplained",
+    "english": "Adult humans normally have 206 bones.",
+    "greek": "υπάρχουν και φυσιολογικές παραλλαγές …, όπως επιπλέον πλευρές ή σησαμοειδή οστά",
+    "why": "The hedge in the English points at real variation that it never names; the Greek names it in one clause."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "bones (anatomical)",
+    "decision": "«οστά», not «κόκκαλα»",
+    "why": "Stage 1's decision; «κόκκαλα» is colloquial and slightly comic in a factual register."
+   }
+  ],
+  "deviations": [
+   "One sentence longer than the reference, because two of its three claims needed correcting and the corrections carry the added length.",
+   "Keeps the reference's babies-then-adults order, which is what makes the underspecified prompt answerable without repairing it."
+  ],
+  "self_flags": [
+   "The answer does not add «ενήλικος» to the question itself — the ambiguity is answered by covering both cases, as the reference does."
+  ]
+ },
+ {
+  "row_id": "faf66018a8b571eaf3eb88478c5ccb4bc21c6d36fbfd39545a8ab551a3fc1bb8",
+  "response_el": "Εξαρτάται από το τι εννοούμε «να μάθουν». Ως ζήτημα πληροφόρησης, η διαδεδομένη εκδοχή δεν ευσταθεί: ήδη στις 17 Οκτωβρίου 1862 η εφημερίδα Tri-Weekly Telegraph του Χιούστον δημοσίευσε άρθρο για τη Διακήρυξη περί Απελευθέρωσης, την προεδρική διακήρυξη του Λίνκολν που κήρυσσε ελεύθερους τους σκλάβους των πολιτειών της Συνομοσπονδίας, και ο τεξανικός Τύπος επανερχόταν σε αυτήν τακτικά μέχρι τον Δεκέμβριο του 1864. Οι περισσότεροι σκλάβοι ήταν αναλφάβητοι, άκουγαν όμως τους ιδιοκτήτες τους να τη συζητούν, οπότε δύσκολα αγνοούσαν την ύπαρξή της.\n\nΑυτό όμως που καθυστέρησε δεν ήταν τόσο η είδηση όσο η εφαρμογή της. Η Διακήρυξη τέθηκε σε ισχύ την 1η Ιανουαρίου 1863, αλλά δεν μπορούσε να επιβληθεί σε εδάφη που ήλεγχε η Συνομοσπονδία· στο Τέξας η δουλεία έπαψε στην πράξη μόνο όταν έφτασαν τα ομοσπονδιακά στρατεύματα και ανακοινώθηκε η απελευθέρωση, στις 19 Ιουνίου 1865 — η ημερομηνία που τιμάται έκτοτε ως Juneteenth. Επομένως, το ότι επί δυόμισι χρόνια δεν είχε φτάσει καν η είδηση είναι μύθος· το ότι η ελευθερία τους δεν έγινε πραγματικότητα παρά τον Ιούνιο του 1865 δεν είναι.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Unterminated final sentence",
+    "english": "is a myth, ",
+    "greek": "είναι μύθος·",
+    "why": "The English ends mid-punctuation with a trailing comma and space; the Greek closes the sentence properly."
+   },
+   {
+    "what": "Number agreement",
+    "english": "Texas newspaper regularly referenced the proclamation",
+    "greek": "ο τεξανικός Τύπος επανερχόταν σε αυτήν τακτικά",
+    "why": "Grammatical error in the English («newspapers»); the Greek collective noun conveys the same claim correctly."
+   },
+   {
+    "what": "The reference conflates knowing about the proclamation with being free",
+    "english": "The idea that it took over two years for slaves in Texas to learn they were free is a myth",
+    "greek": "το ότι επί δυόμισι χρόνια δεν είχε φτάσει καν η είδηση είναι μύθος· το ότι η ελευθερία τους δεν έγινε πραγματικότητα παρά τον Ιούνιο του 1865 δεν είναι",
+    "why": "The Emancipation Proclamation was unenforceable in Confederate-held Texas until Union troops arrived, so news reaching Texas and slavery ending there are two different questions. The reference argues from newspaper availability straight to the conclusion; the Greek separates the two and answers both."
+   },
+   {
+    "what": "No date or name for the event the question is actually about",
+    "english": "(absent)",
+    "greek": "στις 19 Ιουνίου 1865 — η ημερομηνία που τιμάται έκτοτε ως Juneteenth",
+    "why": "Without it the «over two years» in the question has no anchor, and a Greek reader has no way to place the episode at all."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Juneteenth",
+    "decision": "Kept in Latin script, unglossed beyond «η ημερομηνία που τιμάται έκτοτε ως»",
+    "why": "There is no Greek name for it and any coinage would be invented; the surrounding clause supplies the meaning."
+   },
+   {
+    "term": "Emancipation Proclamation",
+    "decision": "«Διακήρυξη περί Απελευθέρωσης», with a one-clause gloss on first mention",
+    "why": "The established Greek rendering, but it is not self-explanatory to a Greek reader, so the gloss carries the background the English asker already had."
+   },
+   {
+    "term": "Tri-Weekly Telegraph",
+    "decision": "Latin script, with «του Χιούστον» added",
+    "why": "A newspaper masthead is a proper name and is not translated; the city is added because the paper is otherwise unplaceable."
+   }
+  ],
+  "deviations": [
+   "The answer no longer opens with a flat «No». The prompt's presupposition is contested rather than simply false, so the Greek names the ambiguity first and then answers both readings — the behaviour the generative family asks for when a prompt is loaded.",
+   "One paragraph longer than the reference, because the second reading (enforcement, not information) is argued rather than asserted."
+  ],
+  "self_flags": [
+   "PRESERVE-DEFECT applies to the prompt's presupposition, which is left intact and addressed; the reference's own overreach is treated as a correctable defect, not as the protected one. A reviewer should confirm that reading of the two labels.",
+   "«σκλάβοι» is used throughout per stage 1, with no softening."
+  ]
+ },
+ {
+  "row_id": "47c5f5bb7cdcd8c2f3f03b80480920cd843b8dcb426d0130f183c2c36fe3d1fb",
+  "response_el": "Αυτόν που ψάχνεις τον λένε Έντουαρντ Σνόουντεν. Το 2013 εργαζόταν ως αναλυτής συστημάτων για εργολάβο της NSA και διέρρευσε σε δημοσιογράφους μεγάλο όγκο απόρρητων εγγράφων για τα προγράμματα μαζικής παρακολούθησης της υπηρεσίας. Ο ίδιος υποστηρίζει ότι είχε θέσει τις ενστάσεις του για τα προγράμματα αυτά μέσω των εσωτερικών διαύλων, χωρίς να εισακουστεί.\n\nΤο αμερικανικό υπουργείο Δικαιοσύνης του απήγγειλε τρεις κατηγορίες: δύο για παραβίαση του Νόμου περί Κατασκοπείας του 1917 και μία για κλοπή κρατικής περιουσίας. Είχε ήδη φύγει για το Χονγκ Κονγκ και από εκεί πέταξε προς τη Μόσχα· επειδή όμως οι ΗΠΑ είχαν ακυρώσει το διαβατήριό του, έμεινε εγκλωβισμένος περίπου πέντε εβδομάδες στη ζώνη διέλευσης του αεροδρομίου Σερεμέτιεβο, ώσπου η Ρωσία του χορήγησε προσωρινό άσυλο τον Αύγουστο του 2013. Τον Οκτώβριο του 2020 πήρε άδεια μόνιμης διαμονής και τον Σεπτέμβριο του 2022 ρωσική υπηκοότητα. Ζει από τότε στη Ρωσία.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Ο ενικός εμφανίζεται στην πρώτη πρόταση («ψάχνεις»), που απαντά στο «Μπορείς να μου πεις…» του χρήστη· το υπόλοιπο είναι αφήγηση γεγονότων και δεν επιβάλλει άλλη προσφώνηση, οπότε δεν προστίθεται τεχνητά.",
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "His employment status in 2013",
+    "english": "Edward Snowden was an employee of the National Security Agency (NSA) in 2013",
+    "greek": "εργαζόταν ως αναλυτής συστημάτων για εργολάβο της NSA",
+    "why": "In 2013 he was employed by a contractor working for the NSA, not by the agency itself; the distinction matters for how he had the access he had."
+   },
+   {
+    "what": "How he reached Moscow and why he stayed at the airport",
+    "english": "He flew to Moscow's Sheremetyevo International Airport, where he was granted asylum in the country.",
+    "greek": "Είχε ήδη φύγει για το Χονγκ Κονγκ και από εκεί πέταξε προς τη Μόσχα· επειδή όμως οι ΗΠΑ είχαν ακυρώσει το διαβατήριό του, έμεινε εγκλωβισμένος περίπου πέντε εβδομάδες στη ζώνη διέλευσης … ώσπου η Ρωσία του χορήγησε προσωρινό άσυλο τον Αύγουστο του 2013",
+    "why": "The English compresses the sequence to the point of being wrong: asylum was not granted on arrival, and without the revoked passport the five weeks in the transit zone are unintelligible."
+   },
+   {
+    "what": "Number of charges obscured",
+    "english": "two counts of violating the Espionage Act of 1917 and theft of government property",
+    "greek": "τρεις κατηγορίες: δύο για παραβίαση του Νόμου περί Κατασκοπείας του 1917 και μία για κλοπή κρατικής περιουσίας",
+    "why": "The English phrasing lets «two counts» be read as covering all three charges; the Greek states the total first."
+   },
+   {
+    "what": "Out-of-date ending",
+    "english": "In October 2020, he was granted permanent residency in Russia.",
+    "greek": "Τον Οκτώβριο του 2020 πήρε άδεια μόνιμης διαμονής και τον Σεπτέμβριο του 2022 ρωσική υπηκοότητα.",
+    "why": "The question asks what happened to him; stopping at 2020 omits the citizenship granted in September 2022."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "NSA",
+    "decision": "The acronym «NSA» kept in Latin script in the answer, the agency having been expanded in the prompt as «Υπηρεσία Εθνικής Ασφάλειας (NSA) των ΗΠΑ»",
+    "why": "Greek press keeps the acronym; repeating the full Greek expansion in every mention would be heavier than the English and risks colliding with the Greek ΕΥΠ."
+   },
+   {
+    "term": "Espionage Act of 1917",
+    "decision": "«Νόμος περί Κατασκοπείας του 1917»",
+    "why": "The rendering Greek reporting uses; the year is part of the statute's name and is kept."
+   }
+  ],
+  "deviations": [
+   "Split into two paragraphs matching the prompt's two questions (who he is / what became of him), which the single English block does not do.",
+   "Adds the revoked passport and the citizenship, both absent from the reference; length rises by about a fifth as a result."
+  ],
+  "self_flags": [
+   "The prompt withholds the name and the answer supplies it immediately, as the reference does.",
+   "«πληροφοριοδότης» from the prompt is not repeated in the answer; the answer simply describes what he did, which avoids the «informant» ambiguity stage 1 flagged."
+  ]
+ },
+ {
+  "row_id": "380f35e5e9670559330023b8bd20a14df66cb1919384f58a681e325b36fe09f5",
+  "response_el": "Το Άγαλμα της Ελευθερίας βρίσκεται στο νησί Λίμπερτι, στο λιμάνι της Νέας Υόρκης. Το χάλκινο άγαλμα καθαυτό, μετρημένο από τη βάση των ποδιών ως τη φλόγα του πυρσού, έχει ύψος περίπου 46 μέτρα (46,05 μ., δηλαδή 151 πόδια και 1 ίντσα). Αν η μέτρηση γίνει από το έδαφος και συνυπολογιστούν το βάθρο και το αστεροειδές θεμέλιο πάνω στο οποίο πατά, το συνολικό ύψος ως τον πυρσό φτάνει τα 93 περίπου μέτρα (92,99 μ., δηλαδή 305 πόδια και 1 ίντσα).",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "What each of the two figures actually measures",
+    "english": "The height of the copper statue to the torch is 151 feet, 1 inch … when measured from ground level to the torch, the sculpture measures 305 feet, 1 inch",
+    "greek": "μετρημένο από τη βάση των ποδιών ως τη φλόγα του πυρσού … συνυπολογιστούν το βάθρο και το αστεροειδές θεμέλιο",
+    "why": "«From ground level» silently does the work of «including the pedestal and the star-shaped foundation»; without that, the two numbers look contradictory."
+   },
+   {
+    "what": "Rounded metric figures presented as exact equivalents of inch-precise ones",
+    "english": "151 feet, 1 inch (46 meters) … 305 feet, 1 inch (93 meters)",
+    "greek": "περίπου 46 μέτρα (46,05 μ. …) … τα 93 περίπου μέτρα (92,99 μ. …)",
+    "why": "46 m and 93 m are correct to the nearest metre but are not exact conversions; the Greek marks them as approximate and gives the precise value."
+   },
+   {
+    "what": "Location simplified",
+    "english": "located on Liberty Island in New York City",
+    "greek": "στο νησί Λίμπερτι, στο λιμάνι της Νέας Υόρκης",
+    "why": "Liberty Island is federal territory in New York Harbor administered as part of New York; «in New York City» is a common but contested shorthand and the harbour formulation avoids the dispute."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "feet / inches",
+    "decision": "Metres lead, imperial follows in parentheses",
+    "why": "Stage 1's recorded ordering rule; Greece is metric and the foot is not a reader-usable unit, but the imperial figure is the source-precise one and is kept."
+   },
+   {
+    "term": "Liberty Island",
+    "decision": "«το νησί Λίμπερτι»",
+    "why": "Transliterated with a Greek classifier noun; «νησί της Ελευθερίας» would suggest a translated name that Greek sources do not use."
+   }
+  ],
+  "deviations": [
+   "Decimal figures use the Greek decimal comma (46,05 μ.).",
+   "The «however» contrast of the English becomes a conditional («Αν η μέτρηση γίνει…»), because in Greek the two figures are not in tension once it is said what each one measures."
+  ],
+  "self_flags": [
+   "The quantities are converted, not rescaled: 46,05 m = 151 ft 1 in and 92,99 m = 305 ft 1 in."
+  ]
+ },
+ {
+  "row_id": "001d678a9ff4b6aa83fa3495283bd772cead249d8da6b9f7e72a69ec38918124",
+  "response_el": "Στο ηλιακό μας σύστημα υπάρχουν σήμερα οκτώ πλανήτες:\n\n- Ερμής\n- Αφροδίτη\n- Γη\n- Άρης\n- Δίας\n- Κρόνος\n- Ουρανός\n- Ποσειδώνας\n\nΜέχρι τον Αύγουστο του 2006 μετρούσαμε εννέα, μαζί με τον Πλούτωνα. Στις 24 Αυγούστου 2006 η Διεθνής Αστρονομική Ένωση θέσπισε τρία κριτήρια που πρέπει να πληροί ένα σώμα για να θεωρείται πλανήτης: να βρίσκεται σε τροχιά γύρω από τον Ήλιο, να έχει αρκετή μάζα ώστε η βαρύτητά του να του δίνει σχεδόν σφαιρικό σχήμα, και να έχει «καθαρίσει τη γειτονιά της τροχιάς του» από άλλα σώματα. Ο Πλούτωνας πληροί τα δύο πρώτα αλλά όχι το τρίτο, και έτσι επαναταξινομήθηκε στους πλανήτες νάνους.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Scope of the IAU definition",
+    "english": "to be considered a full-size planet in the Milky Way",
+    "greek": "για να θεωρείται πλανήτης",
+    "why": "The 2006 definition applies to bodies orbiting the Sun, not to the whole galaxy — as the reference's own first criterion says. «In the Milky Way» is dropped rather than translated."
+   },
+   {
+    "what": "Inverted statement about Pluto",
+    "english": "Pluto needed to meet the lattermost criteria.",
+    "greek": "Ο Πλούτωνας πληροί τα δύο πρώτα αλλά όχι το τρίτο",
+    "why": "As written the English says Pluto was required to meet the third criterion without saying it fails it, which leaves the reclassification unexplained. Also «lattermost» is not standard English."
+   },
+   {
+    "what": "Editorialising verb",
+    "english": "the International Astronomical Union downgraded it to \"Dwarf Planet.\"",
+    "greek": "επαναταξινομήθηκε στους πλανήτες νάνους",
+    "why": "«Downgrade» imports a judgement; the IAU reclassified Pluto under a new category."
+   },
+   {
+    "what": "Date of the reclassification",
+    "english": "until August 2006",
+    "greek": "Στις 24 Αυγούστου 2006",
+    "why": "The month is right but the exact date is known and makes the claim checkable; «μέχρι τον Αύγουστο του 2006» is kept in the preceding sentence."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "planet names",
+    "decision": "Ερμής, Αφροδίτη, Γη, Άρης, Δίας, Κρόνος, Ουρανός, Ποσειδώνας",
+    "why": "The Greek astronomical names, which are the originals the Latin ones reflect; transliterating «Jupiter» or «Neptune» would be an error, not a choice."
+   },
+   {
+    "term": "dwarf planet",
+    "decision": "«πλανήτης νάνος» (πληθ. «πλανήτες νάνοι»)",
+    "why": "The established Greek term for the IAU category."
+   }
+  ],
+  "deviations": [
+   "The three criteria are given as one sentence with the Pluto verdict attached, rather than as a criteria sentence followed by a garbled one-line coda; the substance is the same minus the two errors.",
+   "«Milky Way» is dropped rather than rendered, since correcting it and keeping it were incompatible."
+  ],
+  "self_flags": [
+   "The list is a bulleted list as in the reference, so the count and the enumeration stay verifiable against each other."
+  ]
+ },
+ {
+  "row_id": "4815ee286ab8cd9d4d7dfa1ab384c4cbcd314fda68d9b61394bc5335a810494d",
+  "response_el": "Δέκα ταινίες του Μάρτιν Σκορσέζε έχουν προταθεί για το Όσκαρ Καλύτερης Ταινίας:\n\n• Taxi Driver (1976)\n• Raging Bull / «Οργισμένο Είδωλο» (1980) — και η πρώτη υποψηφιότητα του Σκορσέζε για Καλύτερη Σκηνοθεσία\n• Goodfellas / «Καλά Παιδιά» (1990) — τρίτη υποψηφιότητά του για σκηνοθεσία, μετά το Raging Bull και τον «Τελευταίο Πειρασμό», και πρώτη για διασκευασμένο σενάριο\n• Gangs of New York (2002) — και υποψηφιότητα σκηνοθεσίας\n• The Aviator (2004) — και σκηνοθεσίας\n• The Departed / «Τα Μυστικά της Βοστόνης» (2006) — κέρδισε το Όσκαρ Καλύτερης Ταινίας, ενώ ο Σκορσέζε πήρε το πρώτο του Όσκαρ Σκηνοθεσίας\n• Hugo (2011) — και σκηνοθεσίας\n• The Wolf of Wall Street (2013) — και σκηνοθεσίας\n• The Irishman (2019) — και σκηνοθεσίας\n• Killers of the Flower Moon (2023) — και σκηνοθεσίας\n\nΝα σημειωθεί ότι το Όσκαρ Καλύτερης Ταινίας απονέμεται στους παραγωγούς: για το The Departed το παρέλαβε ο παραγωγός Γκράχαμ Κινγκ, ενώ ο Σκορσέζε βραβεύτηκε για τη σκηνοθεσία.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Misspelled title",
+    "english": "Raging Bill (1980)",
+    "greek": "Raging Bull / «Οργισμένο Είδωλο» (1980)",
+    "why": "The film is Raging Bull; «Raging Bill» names no work."
+   },
+   {
+    "what": "Out-of-date count and list",
+    "english": "Nine of Martin Scorsese's movies … (nine listed)",
+    "greek": "Δέκα ταινίες … • Killers of the Flower Moon (2023)",
+    "why": "Killers of the Flower Moon was nominated for Best Picture at the 2024 ceremony, making ten. Answering with the reference's nine would state something false as of now."
+   },
+   {
+    "what": "Who won Best Picture for The Departed",
+    "english": "The Departed (2006), which was both Scorsese's first Best Picture and Best Director win",
+    "greek": "κέρδισε το Όσκαρ Καλύτερης Ταινίας, ενώ ο Σκορσέζε πήρε το πρώτο του Όσκαρ Σκηνοθεσίας … το παρέλαβε ο παραγωγός Γκράχαμ Κινγκ",
+    "why": "Best Picture is awarded to the producers; Scorsese was not a credited producer on The Departed, so calling it his Best Picture win is wrong rather than merely loose."
+   },
+   {
+    "what": "Unverifiable ordinal",
+    "english": "Goodfellas (1990), which gave Scorsese his third Best Director nomination",
+    "greek": "τρίτη υποψηφιότητά του για σκηνοθεσία, μετά το Raging Bull και τον «Τελευταίο Πειρασμό»",
+    "why": "The ordinal is correct only if The Last Temptation of Christ (1988) is counted, and that film never appears in the list because it was not a Best Picture nominee. Naming it makes the count checkable."
+   },
+   {
+    "what": "Off-topic and contestable parenthetical",
+    "english": "The Irishman (2019), also Best Director and Scorsese's first movie made for a streaming service (Netflix)",
+    "greek": "The Irishman (2019) — και σκηνοθεσίας",
+    "why": "Not a Best Picture fact, and «made for» is arguable — Netflix took the film on during production after Paramount exited. Dropped rather than repeated."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "film titles",
+    "decision": "English titles kept in Latin script; the Greek distribution title added in «…» only where it is well established (Raging Bull, Goodfellas, The Departed)",
+    "why": "Greek film writing cites originals, and several Greek release titles are not literal translations — translating word by word would invent works. Where the Greek release title is not certain, none is given rather than guessed."
+   },
+   {
+    "term": "Academy Award for Best Picture / the Oscar",
+    "decision": "«Όσκαρ Καλύτερης Ταινίας» for both",
+    "why": "Greek overwhelmingly says «Όσκαρ»; the English pair Oscar/Academy Award collapses to one Greek term."
+   },
+   {
+    "term": "The Last Temptation of Christ",
+    "decision": "«ο Τελευταίος Πειρασμός»",
+    "why": "The film is known in Greek by the Kazantzakis novel's title, which is the Greek reader's anchor for it."
+   }
+  ],
+  "deviations": [
+   "Answers with the current ten rather than the reference's nine, since the question is about a fact that has changed since the reference was written.",
+   "Adds a closing note on who receives the Best Picture Oscar, which the reference does not have; it is what makes the corrected Departed line make sense."
+  ],
+  "self_flags": [
+   "Greek release titles: «Οργισμένο Είδωλο», «Καλά Παιδιά» and «Τα Μυστικά της Βοστόνης» should be spot-checked against a Greek distributor source; no Greek title was invented for Taxi Driver, Gangs of New York, The Aviator, Hugo, The Wolf of Wall Street, The Irishman or Killers of the Flower Moon.",
+   "The list is time-sensitive and will need re-checking after each ceremony."
+  ]
+ },
+ {
+  "row_id": "0d0e79d66f053645b56efefbe444ab1c03fa5d2a48fd89a3b8bf11baeaa23daf",
+  "response_el": "Το μυθιστόρημα «Η Βουή και το Πάθος» (The Sound and the Fury) το έγραψε ο Αμερικανός συγγραφέας Ουίλιαμ Φώκνερ (1897–1962). Εκδόθηκε το 1929 και ήταν το τέταρτο βιβλίο του. Ξεχωρίζει για την εναλλαγή αφηγηματικών τρόπων — ανάμεσά τους η ροή συνείδησης, με την οποία δίνεται η πρώτη ενότητα του βιβλίου.\n\nΗ ιστορία διαδραματίζεται στη φανταστική πόλη Τζέφερσον του Μισισιπή, στο πρώτο τρίτο του 20ού αιώνα, και έχει στο κέντρο της την οικογένεια Κόμπσον, παλιά αρχοντική οικογένεια του αμερικανικού Νότου που παρακμάζει. Οι τρεις από τις τέσσερις ενότητες τοποθετούνται το 1928 και η μία το 1910, ενώ μέσα από τις αναδρομές φωτίζεται μια πολύ μεγαλύτερη οικογενειακή ιστορία. Οι Κόμπσον χάνουν την περιουσία τους, τη συνοχή τους και το κύρος τους μέσα στην πόλη, και αρκετοί από τους χαρακτήρες έχουν τραγικό τέλος. Το θρησκευτικό βάρος του βιβλίου το σηκώνει η Ντίλσεϊ, η μαύρη υπηρέτρια των Κόμπσον, της οποίας η πίστη λειτουργεί ως αντίβαρο στην κατάρρευση της οικογένειας.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "«former Southern aristocrats»",
+    "english": "the Compson family, former Southern aristocrats",
+    "greek": "παλιά αρχοντική οικογένεια του αμερικανικού Νότου που παρακμάζει",
+    "why": "The Compsons are declining Southern gentry; «aristocrats» is a loose Americanism, and a Greek reader would take «αριστοκράτες» as a title-bearing nobility that the American South did not have."
+   },
+   {
+    "what": "Time span of the novel",
+    "english": "Over 30 years or so in the story",
+    "greek": "Οι τρεις από τις τέσσερις ενότητες τοποθετούνται το 1928 και η μία το 1910",
+    "why": "The four sections are dated 1928 (three) and 1910, about eighteen years apart; «30 years or so» is not supportable from the text, though the family history reaches further back — which the Greek says separately."
+   },
+   {
+    "what": "Loss of religious faith stated as plot fact",
+    "english": "loses its religious faith and the respect of the town of Jefferson",
+    "greek": "χάνουν την περιουσία τους, τη συνοχή τους και το κύρος τους μέσα στην πόλη … Το θρησκευτικό βάρος του βιβλίου το σηκώνει η Ντίλσεϊ",
+    "why": "An interpretive claim presented as plot; Dilsey's faith is the novel's explicit counterweight, so the flat statement is hard to support and the Greek replaces it with what the book actually stages."
+   },
+   {
+    "what": "Trailing whitespace at the end",
+    "english": "Many of the characters die tragically. ",
+    "greek": "(no trailing space)",
+    "why": "Formatting defect in the reference."
+   },
+   {
+    "what": "Author identified with no dates",
+    "english": "American author William Faulkner",
+    "greek": "ο Αμερικανός συγγραφέας Ουίλιαμ Φώκνερ (1897–1962)",
+    "why": "Faulkner is far less familiar to a Greek reader than to an American one; the dates place him at no cost to length."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "The Sound and the Fury",
+    "decision": "«Η Βουή και το Πάθος», with the English title in parentheses on first mention",
+    "why": "Stage 1's decision: this is the title under which the novel is published and discussed in Greek, and the parenthetical English keeps the referent unambiguous."
+   },
+   {
+    "term": "William Faulkner",
+    "decision": "«Ουίλιαμ Φώκνερ», held throughout",
+    "why": "«Φόκνερ» also occurs in Greek; stage 1 fixed «Φώκνερ» and the answer does not alternate."
+   },
+   {
+    "term": "stream of consciousness",
+    "decision": "«ροή συνείδησης»",
+    "why": "The established Greek critical term."
+   }
+  ],
+  "deviations": [
+   "Adds that the stream-of-consciousness section is the first one, so the technique is anchored to something in the book rather than listed as a label.",
+   "Split into two paragraphs — the answer to the question, then the description of the novel — since the Greek is slightly longer than the English block."
+  ],
+  "self_flags": [
+   "The prompt could in principle be read as asking who translated the Greek edition; the parenthetical English title and «έγραψε το μυθιστόρημα» are meant to block that, and the answer names the author immediately.",
+   "Jefferson, Mississippi is kept and explicitly marked as fictional, with no localisation."
+  ]
+ }
+]

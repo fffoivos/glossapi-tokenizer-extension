@@ -1,0 +1,197 @@
+[
+  {
+    "row_id": "3b650507e57066726fa49fac22e8aac6d2be122f5705b4da43f75fac8a75d91f",
+    "response_el": "Μπορεί να χρησιμοποιηθεί ο ενσωματωμένος τύπος `bytearray` της Python:\n\n# Ορισμός της λίστας\nyour_list = [2, 4, 6, 8, 10]\n\n# Μετατροπή της λίστας σε bytearray\nyour_bytearray = bytearray(your_list)\n\n# Εκτύπωση του αποτελέσματος\nprint(your_bytearray)\n\nΗ `your_list` περιέχει ακέραιους, οι οποίοι μετατρέπονται στη `your_bytearray` μέσω της `bytearray()`. Η εκτέλεση του προγράμματος εμφανίζει `bytearray(b'\\x02\\x04\\x06\\x08\\n')`.\n\nΗ `bytearray()` μπορεί επίσης να δεχτεί άλλες επαναλήψιμες συλλογές ακεραίων. Κάθε ακέραιος πρέπει να βρίσκεται στο κλειστό διάστημα από 0 έως 255. Για τη μετατροπή συμβολοσειράς απαιτείται επιπλέον να δηλωθεί κωδικοποίηση, για παράδειγμα `bytearray(\"κείμενο\", \"utf-8\")`.",
+    "assistant_turns_el": [],
+    "register_used": "neutral",
+    "register_note": null,
+    "constraint_check": null,
+    "defect_note": null,
+    "reference_corrections": [
+      {
+        "what": "Διορθώθηκε το επιτρεπτό εύρος τιμών των ακεραίων.",
+        "english": "integers in the range 0-256",
+        "greek": "ακέραιοι στο κλειστό διάστημα από 0 έως 255",
+        "why": "Η bytearray() απορρίπτει την τιμή 256, καθώς κάθε στοιχείο πρέπει να χωρά σε ένα byte."
+      }
+    ],
+    "class_disagreement": null,
+    "guide_gaps": [
+      {
+        "term": "bytearray",
+        "decision": "Διατηρήθηκε ως `bytearray`.",
+        "why": "Είναι το ακριβές όνομα ενσωματωμένου τύπου της Python."
+      },
+      {
+        "term": "Python",
+        "decision": "Διατηρήθηκε στα λατινικά.",
+        "why": "Είναι η καθιερωμένη γραφή του ονόματος της γλώσσας προγραμματισμού."
+      },
+      {
+        "term": "utf-8",
+        "decision": "Διατηρήθηκε ως `utf-8`.",
+        "why": "Είναι τυποποιημένο όνομα κωδικοποίησης και κυριολεκτική τιμή του κώδικα."
+      }
+    ],
+    "deviations": [
+      "Προστέθηκε το αναμενόμενο αποτέλεσμα της εκτέλεσης, ώστε να φαίνεται άμεσα τι εκτυπώνει το πρόγραμμα.",
+      "Χρησιμοποιήθηκε ελληνική συμβολοσειρά στο παράδειγμα κωδικοποίησης, χωρίς να αλλάξει η λειτουργία του παραδείγματος."
+    ],
+    "self_flags": []
+  },
+  {
+    "row_id": "eeb18034ef729153d05de0a58c8a50bfbfbb0e6b282dcdd7c3400418f45646ba",
+    "response_el": "Μπορείς να αποθηκεύσεις τις τρεις ερωτήσεις και τις σωστές απαντήσεις σε μια λίστα και να τις επεξεργαστείς με έναν βρόχο `for`:\n\nquestions = [\n    (\"1. Το Dvorak είναι διάταξη για τι; \", \"πληκτρολόγιο\"),\n    (\"2. Ποιος θεωρείται ο πατέρας του υπολογιστή; \", \"τσαρλς μπάμπατζ\"),\n    (\"3. Τι σημαίνει το «S» στο «HTTPS»; \", \"secure\"),\n]\n\nfor question, correct_answer in questions:\n    user_answer = input(question)\n\n    if user_answer.strip().casefold() == correct_answer.casefold():\n        print(\"Σωστό\")\n    else:\n        print(\"Λάθος\")\n\nΗ λίστα `questions` περιέχει ακριβώς τρία ζεύγη: το κείμενο κάθε ερώτησης και την αναμενόμενη απάντηση. Η `input()` διαβάζει την απάντηση του χρήστη, ενώ η `strip()` αφαιρεί τυχόν περιττά κενά στην αρχή ή στο τέλος. Με την `casefold()` η σύγκριση δεν επηρεάζεται από πεζά και κεφαλαία γράμματα. Αν η απάντηση συμφωνεί με τη σωστή τιμή, εμφανίζεται «Σωστό»· διαφορετικά εμφανίζεται «Λάθος».",
+    "assistant_turns_el": [],
+    "register_used": "ενικός",
+    "register_note": null,
+    "constraint_check": "Ο κώδικας περιέχει ακριβώς τρεις ερωτήσεις, με την ίδια σειρά και το ίδιο περιεχόμενο που ορίζει η εκφώνηση. Οι μόνες ενδείξεις αποτελέσματος είναι οι ακριβείς συμβολοσειρές «Σωστό» και «Λάθος».",
+    "defect_note": null,
+    "reference_corrections": [],
+    "class_disagreement": null,
+    "guide_gaps": [
+      {
+        "term": "quiz",
+        "decision": "Αποδόθηκε ως «κουίζ» στην περιγραφή του έργου.",
+        "why": "Είναι η καθιερωμένη απόδοση στη σύγχρονη ελληνική χρήση."
+      },
+      {
+        "term": "Python",
+        "decision": "Διατηρήθηκε στα λατινικά.",
+        "why": "Είναι το όνομα της γλώσσας προγραμματισμού."
+      },
+      {
+        "term": "Secure",
+        "decision": "Διατηρήθηκε ως `secure` στην τιμή σύγκρισης.",
+        "why": "Η ερώτηση ζητά την αγγλική λέξη στην οποία αντιστοιχεί το γράμμα S του ακρωνυμίου HTTPS."
+      },
+      {
+        "term": "casefold",
+        "decision": "Χρησιμοποιήθηκε αναλλοίωτο ως όνομα μεθόδου.",
+        "why": "Είναι το ακριβές αναγνωριστικό της αντίστοιχης μεθόδου της Python."
+      }
+    ],
+    "deviations": [
+      "Ο κώδικας οργανώθηκε σε λίστα και πραγματικό βρόχο `for`, αντί να επαναλαμβάνει τρία σχεδόν όμοια τμήματα.",
+      "Χρησιμοποιήθηκε `strip().casefold()` για ανθεκτικότερη σύγκριση των ελληνικών απαντήσεων."
+    ],
+    "self_flags": []
+  },
+  {
+    "row_id": "5a53b61c06cfb11033fc7adea69160c0523216de13e89e55c5bcd5805a77a1e1",
+    "response_el": "Υπάρχει μια ασάφεια στην απαίτηση: η είσοδος `google` δεν αρχίζει από `www.`, αλλά πρέπει να γίνεται δεκτή, ενώ ζητείται τερματισμός όταν η διεύθυνση δεν έχει μορφή `www.`. Ο παρακάτω κώδικας θεωρεί έγκυρες είτε μια απλή ονομασία όπως `google` είτε μια πλήρη διεύθυνση της μορφής `www.example.com`. Οτιδήποτε άλλο τερματίζει το πρόγραμμα.\n\nimport sys\nimport webbrowser\n\nsite = input(\"Πληκτρολόγησε όνομα ιστοτόπου ή διεύθυνση www.: \").strip()\n\nif site == \"google\":\n    url_site = \"https://www.google.com\"\nelif site.startswith(\"www.\") and \".\" in site[4:]:\n    url_site = \"https://\" + site\nelif site.isalnum():\n    url_site = \"https://www.\" + site + \".com\"\nelse:\n    print(\"Η διεύθυνση δεν έχει αποδεκτή μορφή.\")\n    sys.exit(1)\n\ntry:\n    chrome = webbrowser.get(\"chrome\")\n    opened = chrome.open_new_tab(url_site)\nexcept webbrowser.Error as error:\n    print(f\"Δεν βρέθηκε διαθέσιμος Chrome: {error}\")\n    sys.exit(1)\n\nif not opened:\n    print(\"Δεν ήταν δυνατό να ανοίξει νέα καρτέλα.\")\n    sys.exit(1)\n\nΗ είσοδος `google` μετατρέπεται ακριβώς σε `https://www.google.com`. Μια ήδη σχηματισμένη διεύθυνση όπως `www.example.com` λαμβάνει μόνο το πρόθεμα `https://`, ενώ μια απλή αλφαριθμητική ονομασία μετατρέπεται σε διεύθυνση `www.<όνομα>.com`. Η `sys.exit(1)` τερματίζει έγκυρα το πρόγραμμα όταν η είσοδος ή το άνοιγμα της καρτέλας αποτύχει.\n\nΗ ονομασία με την οποία καταχωρίζεται ο Chrome στη μονάδα `webbrowser` διαφέρει ανά σύστημα. Αν το `webbrowser.get(\"chrome\")` αποτύχει, μπορεί να χρειαστεί να καταχωριστεί ρητά η διαδρομή του εκτελέσιμου αρχείου του Chrome.",
+    "assistant_turns_el": [],
+    "register_used": "ενικός",
+    "register_note": null,
+    "constraint_check": "Η είσοδος `google` αντιστοιχίζεται σε `www.google.com`, χρησιμοποιείται νέα καρτέλα του Chrome και κάθε μη αποδεκτή μορφή οδηγεί σε τερματισμό μέσω `sys.exit(1)`.",
+    "defect_note": null,
+    "reference_corrections": [
+      {
+        "what": "Αντικαταστάθηκε το μη έγκυρο `break` με κανονικό τερματισμό του προγράμματος.",
+        "english": "break",
+        "greek": "sys.exit(1)",
+        "why": "Το `break` επιτρέπεται μόνο μέσα σε βρόχο και στο πρόγραμμα αναφοράς προκαλεί SyntaxError."
+      },
+      {
+        "what": "Προστέθηκε πραγματικός έλεγχος της μορφής της εισόδου.",
+        "english": "The try/except block ensures it will only work for websites that follow the www.sitename.com format.",
+        "greek": "Η μορφή ελέγχεται πριν δημιουργηθεί και ανοιχτεί το URL.",
+        "why": "Το try/except της αναφοράς δεν επικυρώνει τη διεύθυνση και ο αρχικός κώδικας προσθέτει άκριτα πρόθεμα και κατάληξη."
+      },
+      {
+        "what": "Ελέγχεται και η επιστρεφόμενη τιμή της open_new_tab().",
+        "english": "If the opening attempt is unsuccessful, it will notify the user of that and end the program.",
+        "greek": "Αν η open_new_tab() επιστρέψει ψευδή τιμή, εμφανίζεται μήνυμα και το πρόγραμμα τερματίζεται.",
+        "why": "Μια αποτυχία ανοίγματος δεν εκδηλώνεται υποχρεωτικά ως εξαίρεση."
+      },
+      {
+        "what": "Διευκρινίστηκε ότι η εύρεση του Chrome δεν είναι φορητή σε όλα τα συστήματα.",
+        "english": "webbrowser.get(\"chrome\")",
+        "greek": "Η καταχώριση `chrome` μπορεί να χρειάζεται ρύθμιση ανά σύστημα.",
+        "why": "Η μονάδα webbrowser δεν εγγυάται ότι υπάρχει πρόγραμμα περιήγησης καταχωρισμένο με αυτό ακριβώς το όνομα."
+      }
+    ],
+    "class_disagreement": null,
+    "guide_gaps": [
+      {
+        "term": "Chrome",
+        "decision": "Διατηρήθηκε ως Chrome.",
+        "why": "Είναι το επίσημο όνομα του συγκεκριμένου προγράμματος περιήγησης."
+      },
+      {
+        "term": "webbrowser",
+        "decision": "Διατηρήθηκε ως `webbrowser`.",
+        "why": "Είναι το ακριβές όνομα μονάδας της Python."
+      },
+      {
+        "term": "URL",
+        "decision": "Διατηρήθηκε ως URL.",
+        "why": "Είναι καθιερωμένο τεχνικό ακρωνύμιο."
+      },
+      {
+        "term": "www.google.com",
+        "decision": "Διατηρήθηκε αναλλοίωτο.",
+        "why": "Είναι η ακριβής διεύθυνση που απαιτεί η εκφώνηση."
+      }
+    ],
+    "deviations": [
+      "Η ασαφής απαίτηση ερμηνεύτηκε ρητά και υλοποιήθηκε με αποδοχή απλών ονομάτων και διευθύνσεων που αρχίζουν από `www.`.",
+      "Προστέθηκε χειρισμός της περίπτωσης όπου ο Chrome δεν είναι καταχωρισμένος με το όνομα `chrome`."
+    ],
+    "self_flags": [
+      "Η ακριβής καταχώριση του Chrome στη μονάδα webbrowser εξαρτάται από το λειτουργικό σύστημα και την τοπική εγκατάσταση."
+    ]
+  },
+  {
+    "row_id": "6359f0f00690473e3446e1d092aa4f58720fe059d9e3b3c3572d9b195c649f18",
+    "response_el": "Η εκφώνηση δεν καθορίζει βιβλιοθήκη, αριθμό καναλιών ή τιμές κατωφλίων. Το ακόλουθο παράδειγμα χρησιμοποιεί OpenCV, δέχεται μονόχρωμες, BGR και BGRA εικόνες και επιστρέφει τη μονόχρωμη δυαδική εικόνα ακμών που παράγει ο Canny:\n\n#include <opencv2/opencv.hpp>\n#include <stdexcept>\n\ncv::Mat applyCannyEdgeDetection(\n    const cv::Mat& inputImage,\n    double threshold1,\n    double threshold2)\n{\n    if (inputImage.empty()) {\n        throw std::invalid_argument(\"Η εικόνα εισόδου είναι κενή.\");\n    }\n\n    cv::Mat grayImage;\n\n    if (inputImage.channels() == 1) {\n        grayImage = inputImage.clone();\n    } else if (inputImage.channels() == 3) {\n        cv::cvtColor(inputImage, grayImage, cv::COLOR_BGR2GRAY);\n    } else if (inputImage.channels() == 4) {\n        cv::cvtColor(inputImage, grayImage, cv::COLOR_BGRA2GRAY);\n    } else {\n        throw std::invalid_argument(\"Μη υποστηριζόμενος αριθμός καναλιών.\");\n    }\n\n    cv::Mat blurredImage;\n    cv::GaussianBlur(grayImage, blurredImage, cv::Size(5, 5), 0);\n\n    cv::Mat edges;\n    cv::Canny(blurredImage, edges, threshold1, threshold2);\n\n    return edges;\n}\n\nint main()\n{\n    cv::Mat inputImage = cv::imread(\"input.jpg\", cv::IMREAD_UNCHANGED);\n\n    if (inputImage.empty()) {\n        std::cerr << \"Αποτυχία φόρτωσης της εικόνας εισόδου.\" << std::endl;\n        return 1;\n    }\n\n    try {\n        cv::Mat outputImage = applyCannyEdgeDetection(\n            inputImage,\n            50.0,\n            150.0);\n\n        cv::imshow(\"Εικόνα εισόδου\", inputImage);\n        cv::imshow(\"Ακμές Canny\", outputImage);\n        cv::waitKey(0);\n    } catch (const std::exception& error) {\n        std::cerr << error.what() << std::endl;\n        return 1;\n    }\n\n    return 0;\n}\n\nΗ `applyCannyEdgeDetection()` μετατρέπει την είσοδο σε αποχρώσεις του γκρι όταν χρειάζεται, εφαρμόζει ένα Gaussian blur για περιορισμό του θορύβου και κατόπιν εκτελεί τον `cv::Canny()`. Τα `threshold1` και `threshold2` είναι το χαμηλό και το υψηλό κατώφλι του αλγορίθμου. Η επιστρεφόμενη `cv::Mat` είναι η πραγματική εικόνα ακμών και όχι ένα έγχρωμο αντίγραφο της αρχικής εικόνας με μάσκα.",
+    "assistant_turns_el": [],
+    "register_used": "ενικός",
+    "register_note": null,
+    "constraint_check": null,
+    "defect_note": null,
+    "reference_corrections": [
+      {
+        "what": "Η συνάρτηση επιστρέφει απευθείας την εικόνα ακμών του Canny.",
+        "english": "inputImage.copyTo(outputImage, mask); return outputImage;",
+        "greek": "return edges;",
+        "why": "Ο κώδικας αναφοράς χρησιμοποιεί τις ακμές ως μάσκα και επιστρέφει έγχρωμα εικονοστοιχεία της αρχικής εικόνας, όχι τη συνήθη δυαδική έξοδο ανίχνευσης ακμών."
+      },
+      {
+        "what": "Προστέθηκε χειρισμός μονόχρωμων και τετρακάναλων εικόνων.",
+        "english": "cv::cvtColor(inputImage, grayImage, cv::COLOR_BGR2GRAY);",
+        "greek": "Η μετατροπή επιλέγεται με βάση την τιμή της inputImage.channels().",
+        "why": "Η άνευ όρων μετατροπή BGR σε γκρι αποτυγχάνει για είσοδο ενός ή τεσσάρων καναλιών."
+      }
+    ],
+    "class_disagreement": null,
+    "guide_gaps": [
+      {
+        "term": "OpenCV",
+        "decision": "Διατηρήθηκε ως OpenCV.",
+        "why": "Είναι το επίσημο όνομα της βιβλιοθήκης."
+      },
+      {
+        "term": "Canny",
+        "decision": "Διατηρήθηκε ως Canny.",
+        "why": "Είναι το καθιερωμένο όνομα του αλγορίθμου ανίχνευσης ακμών."
+      },
+      {
+        "term": "BGR/BGRA",
+        "decision": "Διατηρήθηκαν ως BGR και BGRA.",
+        "why": "Είναι καθιερωμένες τεχνικές ονομασίες της σειράς των καναλιών χρώματος."
+      },
+      {
+        "term": "Gaussian blur",
+        "decision": "Διατηρήθηκε ως Gaussian blur μέσα στην τεχνική επεξήγηση.",
+        "why": "Η λατινική ονομασία αντιστοιχεί άμεσα στη μέθοδο `cv::GaussianBlur` του κώδικα και χρησιμοποιείται ευρέως στον προγραμματισμό."
+      }
+    ],
+    "deviations": [
+      "Προστέθηκε ρητή παραδοχή χρήσης της OpenCV, επειδή η εκφώνηση δεν ορίζει βιβλιοθήκη.",
+      "Προστέθηκαν έλεγχος κενής εικόνας, υποστήριξη διαφορετικού αριθμού καναλιών και διαχείριση εξαιρέσεων.",
+      "Οι συμβολοσειρές που εμφανίζονται στον χρήστη αποδόθηκαν στα ελληνικά."
+    ],
+    "self_flags": []
+  }
+]

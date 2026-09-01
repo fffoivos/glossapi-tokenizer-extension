@@ -1,0 +1,45 @@
+{
+  "schema_version": "apertus_1p5b_tokenizer_compatibility_v1",
+  "status": "frozen",
+  "source": {
+    "repo_id": "swiss-ai/Apertus-v1.1-1.5B",
+    "revision": "dbe8919b2f0389888bada6b3a19e81e0ef4286c1",
+    "tokenizer_sha256": "be12f4375d655cc740864e3a9041bcddd8477942f209d9e7f27f6c8767162638"
+  },
+  "target": {
+    "tokenizer_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394"
+  },
+  "base_vocab_size": 131072,
+  "expected_content_differences": [
+    {"id": 3, "source": "[INST]", "target": "<pad>"},
+    {"id": 10, "source": "<pad>", "target": "<SPECIAL_10>"},
+    {"id": 61, "source": "<SPECIAL_61>", "target": "<|system_start|>"},
+    {"id": 62, "source": "<SPECIAL_62>", "target": "<|system_end|>"},
+    {"id": 63, "source": "<SPECIAL_63>", "target": "<|developer_start|>"},
+    {"id": 64, "source": "<SPECIAL_64>", "target": "<|developer_end|>"},
+    {"id": 65, "source": "<SPECIAL_65>", "target": "<|user_start|>"},
+    {"id": 66, "source": "<SPECIAL_66>", "target": "<|user_end|>"},
+    {"id": 67, "source": "<SPECIAL_67>", "target": "<|assistant_start|>"},
+    {"id": 68, "source": "<SPECIAL_68>", "target": "<|assistant_end|>"},
+    {"id": 69, "source": "<SPECIAL_69>", "target": "<|inner_prefix|>"},
+    {"id": 70, "source": "<SPECIAL_70>", "target": "<|inner_suffix|>"},
+    {"id": 71, "source": "<SPECIAL_71>", "target": "<|tools_prefix|>"},
+    {"id": 72, "source": "<SPECIAL_72>", "target": "<|tools_suffix|>"}
+  ],
+  "expected_added_token_record_difference_ids": [
+    3, 10, 14, 15, 16, 17, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72
+  ],
+  "required_identical_tokenizer_components": [
+    "version", "truncation", "padding", "normalizer", "pre_tokenizer", "post_processor", "decoder"
+  ],
+  "base_merge_policy": "target_merges_must_start_with_the_complete_source_merge_list",
+  "row_policy": {
+    "preserve_every_base_input_and_output_row_by_id": true,
+    "permute_base_rows": false,
+    "model_config_pad_token_id": 3,
+    "source_declared_pad_token_id": null,
+    "source_pad_surface_vocab_id": 10,
+    "target_declared_pad_token_id": 3,
+    "reason": "The source HF tokenizer metadata disagrees with its model config at the reserved special-token slots. The target tokenizer agrees with model pad_token_id=3; all ordinary base token ids and the complete base merge prefix are identical. Preserve weights by id and disclose the exact reserved-slot overlay."
+  }
+}

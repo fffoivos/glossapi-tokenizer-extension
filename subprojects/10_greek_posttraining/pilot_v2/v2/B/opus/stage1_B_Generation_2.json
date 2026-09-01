@@ -1,0 +1,319 @@
+[
+ {
+  "row_id": "9d920dc867c23dc6ed759ad729444d86ee07b0dd4f7eece8cbd96864053751fd",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "short story, fairy-tale moral premise",
+  "hazards": ["\"ringleader\" has no single settled Greek term", "the curse must be passive (he is cursed), not self-inflicted", "\"his people\" = the troupe, not \"his family\"", "animal cruelty content must stay non-graphic"],
+  "devices": [],
+  "device_notes": "No wordplay, charactonym or sound device in the prompt; the whole cast is anonymous. Nothing to reproduce.",
+  "en_register": "informal",
+  "register_evidence": "\"Write me a short story\" — the ethical dative \"me\" and the bare imperative mark a casual, personal request to an assistant, not a commissioned brief.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μου μια σύντομη ιστορία για έναν μοχθηρό διευθυντή τσίρκου που φέρεται άσχημα στους ανθρώπους και στα ζώα του. Εξαιτίας των απαίσιων πράξεών του, καταλήγει να δεχτεί μια κατάρα που τον μεταμορφώνει σε ζώο.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Two checkable requirements survive: (a) the story is short (σύντομη ιστορία, no numeric size given in the English either); (b) the causal chain — cruelty to both people and animals → curse → transformation into an animal — is stated as a required plot beat, expressed in Greek with «Εξαιτίας ... καταλήγει να ...».",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "circus ringleader", "decision": "διευθυντής τσίρκου", "why": "«θιασάρχης» is theatre-troupe vocabulary and reads archaic; «κιρκολάνος» does not exist. «Διευθυντής τσίρκου» is the phrase a Greek reader uses for the top-hatted boss of the ring, and it carries the authority the plot needs."},
+   {"term": "cursed into an animal", "decision": "δέχεται μια κατάρα που τον μεταμορφώνει σε ζώο", "why": "Greek has no verb pattern «καταριέμαι κάποιον σε κάτι»; the resultative must be spelled out with μεταμορφώνω, otherwise «καταράστηκε να γίνει ζώο» flips the agency onto the victim."}
+  ],
+  "reference_problems": ["The prompt asks for a story about a ringleader cursed into 'an animal' generically; the reference makes him a dog, which is fine, but the old woman's stated method ('turn him into what he despises the most') contradicts the story's own setup — nothing establishes that he despises dogs above the lions and tigers he is said to fear-train.", "The reference ends flatly on narration ('would live the rest of his life as a poor, mistreated animal') with no indication of who now cares for him — the chained-up dog is left with no keeper after the ringleader's disappearance, a loose end."],
+  "translator_notes": "The English 'his people' means his performers/employees; I kept «στους ανθρώπους ... του» which reads the same way in Greek (his people = his crew). Reviewer should confirm this is not misread as 'his relatives'. No localization was applied: a circus is culturally neutral in Greek and there is no named person, place or prop to move — transposing would have been change for its own sake, and Step 1 forbids partial transposition."
+ },
+ {
+  "row_id": "5f6f66c606a4eaaa1563bc1bfffe28f5b18926de6fe720f7f46b68a9deaf489d",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "children's story with reading-level and dialogue constraints",
+  "hazards": ["grammatical gender: «καμηλοπάρδαλη» is feminine in Greek while the English protagonist is 'he'", "'third-grade reading level' is a US-school calibration and must be re-anchored to the Greek school system", "'bullied by his other friends' is internally odd in the English (friends who bully) and must stay odd, not be repaired into 'the other animals'"],
+  "devices": [],
+  "device_notes": "No device in the prompt itself. (The reference's charactonym-free name 'Jeffrey' and the school name 'Park Zoo Elementary' are answer-side inventions and are not the prompt's business.)",
+  "en_register": "neutral",
+  "register_evidence": "Flat imperative brief with a spec ('Make it at a third-grade reading level and include dialogue') and no personal marker — a task, not a conversation. Greek forces an address form in «Γράψε»/«Να είναι», so I commit to ενικός as the unmarked default for a bare instruction to an assistant.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια σύντομη ιστορία για μια καμηλοπάρδαλη που δέχεται εκφοβισμό από τους υπόλοιπους φίλους της. Να είναι σε επίπεδο ανάγνωσης Γ΄ Δημοτικού και να περιλαμβάνει διαλόγους.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "third-grade reading level", "el": "επίπεδο ανάγνωσης Γ΄ Δημοτικού", "kind": "institution", "why": "US grade 3 ≈ ages 8–9, which is Γ΄ τάξη Δημοτικού in Greece. The constraint is only checkable if it names a real rung of the reader's own school system; 'τρίτη τάξη' unqualified would be ambiguous between Δημοτικό, Γυμνάσιο and Λύκειο."}
+  ],
+  "derived_elements": [],
+  "constraint_notes": "Two checkable constraints, both restated so they remain checkable in Greek: (1) reading level = Γ΄ Δημοτικού — short sentences, common vocabulary, no learned/katharevousa forms; (2) the story must contain dialogue (περιλαμβάνει διαλόγους). Neither depends on English. Note the reading-level constraint is calibrated, not translated: it now indexes Greek vocabulary difficulty, which is the only way it can be verified by a Greek checker.",
+  "substitution_note": "Greek grammatical gender forces the giraffe to be feminine («η καμηλοπάρδαλη»), whereas the English giraffe is 'he'. I did not force a masculine workaround (e.g. «ένα καμηλοπαρδαλάκι», neuter, or inventing a male species) because the sex of the protagonist is frame, not content — nothing in the task depends on it. The answer must then use feminine agreement throughout.",
+  "guide_gaps": [
+   {"term": "to bully", "decision": "δέχομαι εκφοβισμό (from someone)", "why": "«εκφοβισμός» is the established Greek term used by schools and the media for bullying, and it is the word a Greek parent asking for this story would use. «Με κοροϊδεύουν» would soften it to teasing and lose the requested subject matter."},
+   {"term": "third-grade reading level", "decision": "επίπεδο ανάγνωσης Γ΄ Δημοτικού", "why": "Fixes the Greek phrasing for age-graded readability specs, which will recur across this dataset."}
+  ],
+  "reference_problems": ["The reference resolves the bullying by having Jeffrey win a rigged contest and taunt the gazelles ('Maybe you should have thought about that before agreeing to the contest!'), then asserts he is 'admired by all' — the moral does not follow from the events, and for a third-grade audience it models retaliation rather than resolution.", "Setting incoherence: the school is 'Park Zoo Elementary School' but the animals race to a watering hole and eat acacia and mimosa on a 'safari' — zoo and savannah are used interchangeably.", "The reference is arguably above a third-grade reading level in places ('possessing none of the graces or athletic abilities', 'spindly'), i.e. the reference fails the prompt's own constraint.", "The prompt says the bullies are the giraffe's 'friends'; the reference never establishes them as friends, only as classmates and tormentors."],
+  "translator_notes": "Confirm the deliberate retention of the English oddity 'his other friends' — I kept «τους υπόλοιπους φίλους της» rather than repairing it to «τα άλλα ζώα». This is not a PRESERVE-DEFECT row (the flaw is incidental, not the point of the task), but silently fixing it would change what the writer is asked to portray. «Γ΄ Δημοτικού» uses the numeral sign ΄ (keraia); if the pipeline normalizes punctuation, verify it survives as Γ΄ and not Γ'."
+ },
+ {
+  "row_id": "ab28ba0a9a827fa0f5d2f9328937f16eb41a66930a843e600363000e3ade1323",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["REGISTER-CRITICAL", "CONSTRAINT-PRESERVING"],
+  "subtype": "social-media call for volunteers",
+  "hazards": ["'community garden' has no one-word Greek equivalent and the US model (municipal allotment plots) must be named in a way Greeks recognize", "'grant' can be read as a private foundation award or public funding — Greek forces a choice", "the deliverable is public-facing copy addressed to a whole town, so the address form inside the post is doing real work", "'we've just won' — the speaker is the organizing group, first person plural, and must stay so"],
+  "devices": [],
+  "device_notes": "No sound device or charactonym; the register (civic, enthusiastic, inclusive) is the only thing that has to transfer, and it transfers as register, not as a device.",
+  "en_register": "neutral",
+  "register_evidence": "The instruction to the assistant is a flat brief, but the artifact it asks for is a Facebook post addressed to an undifferentiated public ('gathering volunteers'), which in Greek cannot be written without committing to an address form. Greek civic and municipal communication to an unknown adult public is πληθυντικός.",
+  "target_register": "πληθυντικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια ανάρτηση στο Facebook για τη συγκέντρωση εθελοντών για έναν νέο δημοτικό λαχανόκηπο, για τον οποίο μόλις εξασφαλίσαμε πενταετή χρηματοδότηση. Θα υπάρχουν πολλές διαθέσιμες βάρδιες σε ξεχωριστό σύνδεσμο.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "community garden", "el": "δημοτικός λαχανόκηπος", "kind": "institution", "why": "The Greek instantiation of the same thing is the municipal vegetable garden run by a δήμος with plots worked by residents — a real and widely recognized institution. A calque like «κοινοτικός κήπος» would read as an ornamental garden and lose the food-growing purpose that the volunteering, the shifts and the 'growing season' all depend on."},
+   {"en": "five year grant", "el": "πενταετή χρηματοδότηση", "kind": "institution", "why": "Greek civic bodies receive «χρηματοδότηση» (from a programme, a municipality or the EU) rather than a US-style philanthropic 'grant'; «επιχορήγηση» is also available but skews to state subsidy of an existing body, whereas this money starts something new."}
+  ],
+  "derived_elements": [
+   {"depends_on": "δημοτικός λαχανόκηπος", "en": "'citizens of [town or city]' — the reference's opening address", "el": "the post must address the residents of a δήμος (e.g. «Κάτοικοι του δήμου μας»), consistent with a municipal garden", "why": "Once the garden is municipal rather than a free-floating 'community' project, the audience the post hails is the δήμος, not an unspecified 'town or city'. The greeting is derived from the institution I substituted."},
+   {"depends_on": "πενταετή χρηματοδότηση", "en": "'for the next five years'", "el": "the post must repeat the five-year horizon (για τα επόμενα πέντε χρόνια)", "why": "The duration is the news the post exists to announce; it is a number that must agree with the funding I renamed."}
+  ],
+  "constraint_notes": "Three checkable content requirements survive into Greek: (1) the funding is explicitly five years — πενταετή, a number a checker can verify; (2) the post recruits volunteers, i.e. it must contain a call to action; (3) the shifts are many and live on a separate link — «πολλές διαθέσιμες βάρδιες σε ξεχωριστό σύνδεσμο», so the post must point elsewhere for sign-up rather than list shifts inline.",
+  "substitution_note": "The transposition is complete rather than partial: garden → δημοτικός λαχανόκηπος, grant → χρηματοδότηση, and the audience → κάτοικοι του δήμου. No US institution is left standing inside a Greek scene. Facebook is kept untranslated because it is the same platform in Greece.",
+  "guide_gaps": [
+   {"term": "Facebook post", "decision": "ανάρτηση στο Facebook", "why": "«Ανάρτηση» is the standard Greek noun for a social post; the platform name stays in Latin script, which is how Greeks write it."},
+   {"term": "shifts (volunteer time slots)", "decision": "βάρδιες", "why": "«Βάρδια» is the ordinary Greek word for a work shift and is used for volunteer rotas too; «χρονοθυρίδες» is bureaucratic and «ώρες» loses the notion of a defined block one signs up for."},
+   {"term": "link", "decision": "σύνδεσμος", "why": "Prefer the Greek noun over «λινκ» in copy written for a municipal audience; the register is civic."}
+  ],
+  "reference_problems": ["The reference leaves an unfilled placeholder, '[town or city]', in the delivered copy — a post that cannot be published as written.", "The prompt states the shifts are on a separate link; the reference says 'Follow the link below' but supplies no link and no placeholder for one, so the single most actionable element is missing.", "'we have received funding to start and maintain a community garden' drops the fact that the grant was *won* (competitive), which the prompt's 'we've just won' establishes as the news."],
+  "translator_notes": "Check the choice of «δημοτικός» over «κοινοτικός»: it commits the scenario to a municipality, which is the realistic Greek vehicle for this, but if the seed dataset elsewhere keeps 'community' as a neighbourhood-level informal group, this should be harmonized in the glossary. Also confirm the post's internal address form stays πληθυντικός throughout — mixing in ενικός for the friendly closing is a common drift and would break the civic register."
+ },
+ {
+  "row_id": "d8df33094cee7cbaca575f91a76c4ed4874c9d908f9e19b8df22334f863d7f2a",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [],
+  "subtype": "fixed-form verse set with a stated count",
+  "hazards": ["the 5-7-5 form is implicit in the word 'haiku' and must remain countable in Greek — Greek syllable counting is straightforward but synizesis (e.g. «-ια», «-ιο») makes counts arguable", "'wind' vs the classical fourth element 'air' — Greek readers know the four στοιχεία as γη, νερό, αέρας, φωτιά, so 'wind' risks drifting to «αέρας» silently", "the four titles are part of the deliverable, not decoration"],
+  "devices": [
+   {"where": "form", "device": "metre", "effect": "grand", "english": "haiku (5-7-5 syllables)", "greek": "χαϊκού (5-7-5 συλλαβές)", "how": "Same device. Syllabic metre transfers directly to Greek, which counts syllables natively; this is not a regeneration case."}
+  ],
+  "device_notes": "Haiku is a syllabic, not a rhyming, form, so nothing is lost in Greek. Greek poetry counts syllables as a matter of course (the 15-syllable politikos stichos), so a Greek reader will count 5-7-5 without being told.",
+  "en_register": "neutral",
+  "register_evidence": "Impersonal commission with a spec and no addressee, no politeness marking, no relationship. Greek forces an address form in the two imperatives («Γράψε», «Τιτλοφόρησε»), so I commit to ενικός as the unmarked form for a bare task.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε τέσσερα χαϊκού που να έχουν όλα σχέση με τα στοιχεία της φύσης (νερό, γη, φωτιά και αέρας). Βάλε σε καθένα τίτλο το στοιχείο που του αντιστοιχεί.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "wind", "el": "αέρας", "kind": "other", "why": "The English list is the four classical elements with 'wind' standing in for air. Greek names the set as γη, νερό, φωτιά, αέρας; «άνεμος» would break the recognizable quartet and read as a weather phenomenon rather than an element. This is a rendering of the same referent, not a change of content."}
+  ],
+  "derived_elements": [
+   {"depends_on": "the element list (νερό, γη, φωτιά, αέρας)", "en": "the four titles 'Water', 'Earth', 'Fire', 'Wind'", "el": "the four titles «Νερό», «Γη», «Φωτιά», «Αέρας»", "why": "The prompt requires the titles to be the elements themselves, so each title is derived from the list and must match it word for word — including «Αέρας» rather than «Άνεμος», following the substitution above."}
+  ],
+  "constraint_notes": "Countable constraints restated so they stay countable in Greek: (1) exactly four poems — «τέσσερα χαϊκού»; (2) each is a haiku, i.e. three lines of 5-7-5 Greek syllables; (3) each is titled with its element, and the four titles are exactly Νερό, Γη, Φωτιά, Αέρας. All three are mechanically checkable by a Greek reader. Note the syllable count is the one place a Greek checker needs a convention: count synizesis as one syllable, as Greek verse normally does.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "haiku", "decision": "χαϊκού (indeclinable, neuter: «τέσσερα χαϊκού»)", "why": "This is the established Greek form of the word, with the dialytika on the ι. It does not inflect, so the plural is carried by the numeral — «τέσσερα χαϊκού», never «χαϊκούς»."},
+   {"term": "the elements (classical four)", "decision": "τα στοιχεία της φύσης", "why": "Bare «τα στοιχεία» in Greek first reads as chemical elements or as data; «της φύσης» pins the classical set without pedantry."}
+  ],
+  "reference_problems": ["The four English haikus do satisfy 5-7-5, but three of them end on a near-identical universalizing formula ('Life's joy to us all', 'Nourishing us all', 'A flame among us'), so the set reads as one poem repeated — a quality problem, not a constraint violation.", "'Could not be smoldered for you' is not idiomatic English ('smolder' is intransitive here) and the line's meaning is indeterminate.", "The reference titles the fourth poem 'Wind' per the prompt, but its content is about wind as weather rather than as an element, which is the ambiguity the prompt itself introduces."],
+  "translator_notes": "Verify the Greek haikus that Stage 2 produces actually scan 5-7-5 by hand — this is the row's whole point and a generator will often be off by one. The synizesis convention should be stated in the answer if any line depends on it. «Αέρας» for 'wind' is a deliberate call, recorded above; if a reviewer prefers «Άνεμος», the title in the answer must change with it."
+ },
+ {
+  "row_id": "996825cabe112a4cdb8d6302839ba68d629879349146ce2b3ff287965bc2035f",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "speculative rough draft as a numbered list",
+  "hazards": ["the prompt is ambiguous about what the list enumerates — the bad traits to remove, or the rules to program in — and that ambiguity must be preserved, not resolved", "'rough draft' asks for something deliberately unpolished; Greek must not upgrade it to a finished proposal", "'not all-inclusive but a good start' is a hedge on completeness and is itself part of the spec"],
+  "devices": [],
+  "device_notes": "No device. The prompt is plain speculative-essay framing with a format spec.",
+  "en_register": "neutral",
+  "register_evidence": "Impersonal brief, no addressee, no relationship, purely a task with a format spec. Greek forces an address form in «Γράψε»/«Κάν' το», so ενικός is committed as the unmarked default.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα πρόχειρο σχεδίασμα μιας ιδέας για ανθρώπους που επαναπρογραμματίζονται ώστε να τους αφαιρεθούν κακά γενικά χαρακτηριστικά. Κάν' το αριθμημένη λίστα με χαρακτηριστικά, όχι εξαντλητική αλλά μια καλή αρχή.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Format constraints kept checkable in Greek: (1) the output is a numbered list — «αριθμημένη λίστα», verifiable by looking for 1., 2., 3.; (2) the list is explicitly non-exhaustive — «όχι εξαντλητική αλλά μια καλή αρχή», which licenses an open-ended count and forbids a closing claim of completeness; (3) the whole thing is a rough draft — «πρόχειρο σχεδίασμα». No count of items is stated in the English and none is invented in the Greek.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "rough draft", "decision": "πρόχειρο σχεδίασμα", "why": "«Προσχέδιο» is the closest single word but connotes a formal preliminary version of a document (a bill, a contract); «πρόχειρο σχεδίασμα» keeps the requested unpolished, thinking-aloud quality that the answer is supposed to have."},
+   {"term": "reprogrammed", "decision": "επαναπρογραμματίζομαι", "why": "Standard Greek prefixing with επανα-; keeps the deliberately mechanical, software-like metaphor applied to humans, which is the premise of the piece."},
+   {"term": "not all-inclusive", "decision": "όχι εξαντλητική", "why": "«Μη περιεκτική» would be a calque and means nothing here; «εξαντλητικός» is the Greek adjective used for exhaustive lists."}
+  ],
+  "reference_problems": ["The prompt asks for 'a numbered list of traits' (i.e. bad traits to remove); the reference instead lists programmed *behaviours and prohibitions* ('Be unable to…', 'Be programmed to…'). It is a defensible reading of an ambiguous prompt, but it does not deliver traits.", "Item 2 conflates self-harm with a moral list ('taking drugs, smoking, too much drinking, too much sex') and the last item is not self-harm in the sense the item opens with.", "Items 5 and 6 overlap substantially — 'respect differences of opinions, religions, backgrounds' and 'be unable to be judgmental… racism, sexism, ageism' are largely the same rule stated twice.", "The reference is presented as a finished list with no framing sentence, so it does not read as the requested 'rough draft of an idea' — there is no idea, only the list."],
+  "translator_notes": "The English ambiguity between 'list of bad traits' and 'list of programmed rules' is preserved in the Greek («αριθμημένη λίστα με χαρακτηριστικά» is equally open); do not let a later stage silently pick one reading and then judge the answer against it. Note «Κάν' το» uses an apostrophe for the elided vowel of «Κάνε το» — this is correct monotonic orthography and should not be normalized away."
+ },
+ {
+  "row_id": "5da2aa19de42e0e06dc08902947bd78e1aa7f0894ee025d2de62729d29647cb1",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "genre short story with POV and ending specs",
+  "hazards": ["'deja vu' is a French loan in English and reaches Greek by a different route — the spelling choice matters", "'commonplace setting' must not drift to «κοινότοπο» (= clichéd, a criticism) instead of «καθημερινό» (= ordinary)", "'disturbing' is not «ενοχλητικό» (= annoying); the wrong word turns a horror spec into a complaint"],
+  "devices": [],
+  "device_notes": "No name, pun or sound device. The prompt's demands are structural (first person, twist ending) and transfer intact.",
+  "en_register": "neutral",
+  "register_evidence": "A bare creative brief: imperative, no addressee, no relationship, no politeness marking. Greek forces an address form across three imperatives, so ενικός is committed as the unmarked default for a task given to an assistant.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια ιστορία σε ένα καθημερινό σκηνικό, που να αποδίδει την αίσθηση του ντεζαβού. Γράψ' την σε πρώτο πρόσωπο και δώσε της μια ανατροπή στο τέλος που να είναι ανησυχητική.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Four checkable constraints, all language-neutral and all restated: (1) ordinary/everyday setting — «καθημερινό σκηνικό»; (2) the story conveys déjà vu — «να αποδίδει την αίσθηση του ντεζαβού»; (3) first-person narration — «σε πρώτο πρόσωπο», directly checkable in Greek by verb morphology; (4) a twist ending that is disturbing — «ανατροπή στο τέλος ... ανησυχητική». None of these depends on English.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "deja vu", "decision": "ντεζαβού (transliterated, indeclinable: «η αίσθηση του ντεζαβού»)", "why": "Greek borrowed the term through French pronunciation and normally writes it in Greek letters in running prose; keeping the Latin 'déjà vu' would read as a foreign citation in what should be native Greek. «Το ήδη ιδωμένο» is a psychology-textbook calque and would sound clinical in a creative brief."},
+   {"term": "commonplace setting", "decision": "καθημερινό σκηνικό", "why": "«Κοινότοπος» in Greek means trite/banal and would be read as an instruction to write something clichéd. «Καθημερινό» carries the intended sense of an ordinary, unremarkable everyday place."},
+   {"term": "disturbing", "decision": "ανησυχητική", "why": "«Ανησυχητικός» conveys the unease of a dark twist; «ενοχλητικός» means irritating and «διαταρακτικός» is a clinical calque. Recording the call because 'disturbing' will recur in creative-writing prompts."}
+  ],
+  "reference_problems": ["The prompt asks for a twist ending; the reference's simulation reveal arrives in the middle of the second paragraph and is then explained for several sentences, so the story ends on reflection rather than on the turn.", "The reference is arguably not 'commonplace' by the end — the simulation/captor premise abandons the ordinary setting rather than making the ordinary setting itself the source of dread.", "The opening rhetorical question ('if you can't remember something, how do you remember that you don't remember?') describes amnesia, not déjà vu, which is the opposite phenomenon — a false-familiarity feeling, not a failure of recall."],
+  "translator_notes": "«Γράψ' την» is the elided imperative + clitic, natural in speech and in a casual brief; if the house style prefers unelided forms, use «Γράψε την». The spelling «ντεζαβού» is my call and is recorded in guide_gaps — reviewers who prefer «ντεζά βου» or Latin «déjà vu» should decide once for the whole corpus."
+ },
+ {
+  "row_id": "f58ae303e184612838f83a694aeecd98b2f7859ec19b0f1d444b354fd65ce192",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "blog post, listicle of household staples",
+  "hazards": ["'in bulk' has no single Greek word; the US warehouse-club model (Costco/Sam's Club) is only weakly present in Greece, so the phrasing must work for supermarket multipacks and cash-and-carry alike", "the four named item classes are content — they are what the post must cover — and cannot be swapped for Greek-er examples", "'sanitary pads' must be the ordinary shop word, not a medical euphemism"],
+  "devices": [],
+  "device_notes": "No device in the prompt. (The reference's punning subheads — 'Flow Savvy', 'Furry Friend Feast' — are answer-side inventions; if Stage 2 writes Greek subheads, they should be Greek-native wordplay, not calques of these.)",
+  "en_register": "neutral",
+  "register_evidence": "Impersonal content brief with a topic and a list of items to cover; no addressee, no relationship. Greek forces an address form in «Γράψε»/«Ανάδειξε», so ενικός is committed as the unmarked default.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια ανάρτηση σε ιστολόγιο για τα οφέλη της αγοράς οικιακών ειδών σε μεγάλες ποσότητες. Ανάδειξε συνηθισμένα είδη του σπιτιού που αξίζει να τα αγοράζει κανείς σε μεγάλες ποσότητες, όπως πάνες, σερβιέτες, είδη καθαρισμού και άλλα.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Content coverage is the checkable requirement and it survives intact: the post must be about the benefits of bulk buying for the home, and it must specifically highlight πάνες, σερβιέτες and είδη καθαρισμού, plus at least one further category (the English 'and other things' licenses more). No count and no size limit is stated in the English, and none is invented.",
+  "substitution_note": "No localization was applied to the named goods: diapers, sanitary pads and cleaning supplies are the content of the brief, sold identically in Greece, and swapping them would change what the post is required to cover. The only culture-bound element — the US warehouse-club shopping mode — is not named in the prompt, so nothing needed moving. Transposing partially (Greek names on an American shopping trip) would be worse than leaving it alone.",
+  "guide_gaps": [
+   {"term": "blog post", "decision": "ανάρτηση σε ιστολόγιο", "why": "«Ιστολόγιο» is the established Greek word for a blog and is what a Greek content brief says; «μπλογκ» is common in speech but reads informal in a commission. «Ανάρτηση» is the standard word for an individual post."},
+   {"term": "buying in bulk", "decision": "αγορά σε μεγάλες ποσότητες", "why": "«Χύμα» means loose/unpackaged (the opposite of what is meant), «χονδρική» means wholesale trade and implies a business buyer, and «μπάλκ» is not Greek. «Σε μεγάλες ποσότητες» covers both multipacks and cash-and-carry and is the phrase Greek consumer journalism uses."},
+   {"term": "sanitary pads", "decision": "σερβιέτες", "why": "The ordinary Greek retail word, used on packaging and in shops; «υγειονομικές πετσέτες» is a calque nobody says."},
+   {"term": "cleaning supplies", "decision": "είδη καθαρισμού", "why": "Standard Greek supermarket-aisle category name, matching the register of a consumer blog post."}
+  ],
+  "reference_problems": ["Item 4 tells the reader to stock up on 'bath towels' alongside body wash and shampoo — towels are not a consumable and do not belong in a bulk-buying-saves-money argument.", "Item 6 asserts a specific figure, 'save up to 10%' on pet food, with no source; it is the only quantified claim in the post and it is unsupported.", "The closing line of item 5 ('keeps you from sharing a tampon with that one coworker who always forgets hers') is off-register for the piece and blames a third party; it also contradicts the item's own money-saving argument.", "The prompt names diapers, sanitary pads and cleaning supplies; the reference covers all three but its title promises 'The Ultimate Money Saver Items' while several entries argue for convenience (fewer store trips) rather than savings.", "Item 5 opens 'You're going to menstruate, period.' — a pun that assumes a female reader, after the post has addressed a general audience."],
+  "translator_notes": "Reviewer should confirm «σε μεγάλες ποσότητες» is the corpus-wide rendering of 'in bulk'; it recurs three times in this row alone and the answer will repeat it many more times. If Stage 2 invents Greek punning subheads in the manner of the English, they must be Greek-native puns — calquing 'Flow Savvy' or 'Furry Friend Feast' would produce nonsense."
+ },
+ {
+  "row_id": "f2b4e643026ad5a0f143f2601ffd915d4a98f29656103dae9353ae35f743497b",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [],
+  "subtype": "short story with POV, genre and length caps",
+  "hazards": ["'less than 2 paragraphs' means exactly one paragraph — the Greek must keep that arithmetic explicit and countable, not soften it to 'σύντομη'", "the sandwich is the narrator, so Greek grammatical gender fixes the narrator's agreement (σάντουιτς is neuter and indeclinable)", "'drama' as a genre label, not as 'δράμα = a distressing scene'"],
+  "devices": [],
+  "device_notes": "No wordplay in the prompt. The comic engine is the incongruity of the premise (a sandwich narrating a manhunt in the register of a thriller), and incongruity is structural — it transfers with the premise and needs no device.",
+  "en_register": "neutral",
+  "register_evidence": "Bare creative brief with two specs and no addressee or relationship marking. Greek forces an address form in «Γράψε»/«Κάν' την», so ενικός is committed as the unmarked default.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια σύντομη ιστορία για έναν άντρα που ψάχνει το χαμένο του σάντουιτς με φυστικοβούτυρο, από τη σκοπιά του σάντουιτς. Κάν' την δράμα και λιγότερο από 2 παραγράφους.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Countable constraint restated so it stays countable in Greek: «λιγότερο από 2 παραγράφους» — a checker counts paragraph breaks and the answer passes only with one paragraph. The numeral is kept as a digit, as in the English, so the count is visible at a glance. Two further checkable specs: the narrator is the sandwich («από τη σκοπιά του σάντουιτς») and the genre is drama («δράμα»).",
+  "substitution_note": "The peanut butter sandwich is content, not scenery: it is the narrator and the object of the search, so swapping it for a Greek staple (τυρόπιτα, σάντουιτς με μερέντα) would change what the story is about. Φυστικοβούτυρο is sold and understood in Greece, so no gloss is needed.",
+  "guide_gaps": [
+   {"term": "peanut butter", "decision": "φυστικοβούτυρο", "why": "The standard Greek compound, used on packaging; «βούτυρο φιστικιού» is a descriptive paraphrase and reads as a translation."},
+   {"term": "sandwich", "decision": "σάντουιτς (neuter, indeclinable)", "why": "Fixing the spelling — «σάντουιτς» rather than «σάντουιτζ» or «σαντουΐτσι» — because the word is the story's protagonist and will recur in every sentence of the answer. Neuter gender determines all agreement in the narration."},
+   {"term": "drama (genre label)", "decision": "δράμα", "why": "Retained as the genre term. In Greek «δράμα» also colloquially means a calamity, but in a writing brief next to 'story' and 'perspective' the genre reading is the natural one, and any other word (μελόδραμα, δραματική ιστορία) would shift the spec."}
+  ],
+  "reference_problems": ["The reference violates the prompt's own explicit constraint: it is two paragraphs, and the prompt asks for less than 2.", "Internal contradiction of the premise's stakes — the narrator says 'he will eventually find me' and fears the dog, but the ending has the man find it and throw it away, so the dramatic tension established (being eaten) resolves into an unrelated outcome.", "'I stay still (because I'm a peanut butter sandwich, after all)' is a comic aside inside a piece the prompt asked to be a drama.", "'the dog took me after I was stolen off the man's plate' — passive framing implies a third thief, then immediately credits the dog."],
+  "translator_notes": "The '<2 paragraphs' spec is the crux of this row and the English reference fails it; Stage 2 must not inherit the two-paragraph shape from the reference. Confirm neuter agreement throughout the Greek narration — a first-person narrator that is grammatically neuter is unusual in Greek and predicates ('είμαι κρυμμένο', 'σκονισμένο') must follow it consistently."
+ },
+ {
+  "row_id": "c9099c7dc37743eedcbb509f55ad33221bab11736f8eea643c46c1fe9414cfe9",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["REGENERATE-NATIVE", "CONSTRAINT-PRESERVING", "REGISTER-CRITICAL"],
+  "subtype": "packaging copy for an invented kids' brand",
+  "hazards": ["the brand name carries plosive-ish alliteration and a food-shape pun; transliterating 'Μπάνι Μπάιτς' would keep the letters and destroy both", "the brand name is a required literal string — it must be agreed now because the answer has to repeat it verbatim", "the copy addresses children directly, so Greek must commit to ενικός inside the copy", "'sugary, kid-targeted' is a description of the product for the writer, not a claim the copy should boast about"],
+  "devices": [
+   {"where": "brand name", "device": "alliteration", "effect": "childlike", "english": "Bunny Bites", "greek": "Λαγουδίσιες Λιχουδιές", "how": "Same device, different consonant. English has plosive-ish B/B; Greek reproduces the doubling with liquid Λ/Λ, which is the alliteration Greek actually affords here without contortion. The effect that must transfer — bouncy, memorable, obviously a children's cereal — is carried."},
+   {"where": "brand name", "device": "allusive naming", "effect": "comic", "english": "Bites — names the piece of cereal you eat, and 'bunny' names the shape/mascot", "greek": "Λιχουδιές — names the treat; Λαγουδίσιες carries the rabbit", "how": "Greek shifts 'bite' → 'treat' (λιχουδιά). «Μπουκιές» is the literal equivalent and would preserve 'bite' exactly, but «Μπουκιές του Λαγού» loses the alliteration, and the treat-word is the one that sells sugary cereal to a child."}
+  ],
+  "device_notes": "The one thing English does that Greek cannot reproduce exactly is the plosive punch of B/B; Greek Λ/Λ is a liquid and reads softer. I did not force a plosive (e.g. «Κουνελο-Κουλουράκια», Κ/Κ) because κουλουράκια names a specific biscuit rather than cereal and would misdescribe the product. The effect — childlike, memorable, faintly comic — survives via the liquid alliteration plus the diminutive-flavoured «Λαγουδίσιες».",
+  "en_register": "informal",
+  "register_evidence": "The deliverable is 'light-hearted' copy on the back of a cereal box aimed at children; the English reference addresses the reader directly as 'you' with exclamations. A Greek child-facing advertisement is unambiguously ενικός.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια ανάλαφρη παράγραφο για το πίσω μέρος ενός κουτιού δημητριακών της μάρκας «Λαγουδίσιες Λιχουδιές», ενός γλυκού δημητριακού που απευθύνεται σε παιδιά.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "Bunny Bites", "el": "Λαγουδίσιες Λιχουδιές", "kind": "other", "why": "Invented brand = frame, so it moves completely. Re-derived rather than transliterated: the Greek name has to do the same two jobs (name the animal, name the edible bit) and alliterate, which «Μπάνι Μπάιτς» does not — that would be a foreign string a Greek child cannot parse."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Λαγουδίσιες Λιχουδιές", "en": "the reference copy names the brand twice ('That's why we made Bunny Bites', 'Bunny Bites let you be a kid')", "el": "every occurrence of the brand inside the copy must read «Λαγουδίσιες Λιχουδιές»", "why": "The brand name is a required literal string; once it changes, every mention in the answer is derived from it and must match exactly."},
+   {"depends_on": "Λαγουδίσιες Λιχουδιές", "en": "an implied rabbit mascot ('bunny') that box-back copy conventionally plays with", "el": "any mascot, verb or imagery in the copy must be rabbit-based (χοπ, χοροπηδητά, ένας λαγός)", "why": "The animal in the name licenses the imagery; if a later stage invents a mascot it must be re-derived from λαγός, not from a rabbit-unrelated idea."},
+   {"depends_on": "Λαγουδίσιες Λιχουδιές", "en": "the alliterative slogan feel of the English closing line", "el": "if the copy ends on a tagline, it should carry the Λ-alliteration forward", "why": "The name's sound pattern is the brand's signature; a tagline that abandons it reads as belonging to a different product."}
+  ],
+  "constraint_notes": "Checkable constraints in Greek: (1) exactly one paragraph — «μια ανάλαφρη παράγραφο», countable; (2) the tone is light-hearted — «ανάλαφρη»; (3) the copy is for the back of a cereal box, so it must read as packaging copy, not an ad script; (4) the literal brand string «Λαγουδίσιες Λιχουδιές» must appear in the answer and must appear in exactly that form. The brand string is agreed here, in advance, precisely so it is checkable later.",
+  "substitution_note": "The transposition is complete: the brand, its sound pattern and any mascot imagery all move to Greek together. Nothing American is left inside a Greek box — «δημητριακά» is the ordinary Greek breakfast-cereal word and the product category exists identically.",
+  "guide_gaps": [
+   {"term": "cereal (breakfast)", "decision": "δημητριακά (plural); a single product = «ένα δημητριακό»", "why": "«Δημητριακά» is what Greeks call boxed breakfast cereal; «κορν φλέικς» names one specific type and would contradict a bunny-shaped sugary product."},
+   {"term": "Bunny Bites", "decision": "Λαγουδίσιες Λιχουδιές", "why": "Locks the brand string for all downstream stages. Recorded as a glossary entry, not just a transposition, because the answer must reproduce it character-for-character."},
+   {"term": "light-hearted (of copy)", "decision": "ανάλαφρη", "why": "«Ανάλαφρος» carries the playful, unweighty tone; «ελαφρύς» would be read as low-calorie — an actively misleading word on a food package."}
+  ],
+  "reference_problems": ["The closing line 'Bunny Bites let you be a kid, more simply!' is ungrammatical or at best incoherent in English — 'more simply' modifies nothing.", "The prompt specifies a sugary cereal; the reference claims it will 'fuel your morning so that you can get through whatever the day holds', a nutrition claim the product does not support.", "The reference addresses children with 'Being a kid is HARD work!' and then mentions homework and hopscotch — a mixed age target, and the capitalized HARD is the only emphasis device in an otherwise flat paragraph."],
+  "translator_notes": "The brand rename is the load-bearing decision in this row: «Λαγουδίσιες Λιχουδιές» must be signed off now, because Stage 2's copy will embed it verbatim and any later change invalidates the answer. If a reviewer prefers a plosive to match the English B/B, the nearest workable option is «Κουνελο-Κουλουράκια» (Κ/Κ, punchy) — but it renames the product category, so I did not take it. Note also that «Λιχουδιές» is feminine plural, so any adjective the copy applies to the product must agree feminine."
+ },
+ {
+  "row_id": "e178bae13f54dcf9118412ed273b9d465fa66de1307dd20e728c7ebf98934490",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "in-character email with a comic register clash",
+  "hazards": ["Alfred, Batman and Bruce Wayne are real referents — the joke exists only because the reader knows them; they must not be localized", "the entire humour is a register clash (a butler's deferential πληθυντικός carrying a parent's exasperation), and Greek makes that clash sharper than English can, so the address form is the row's crux", "'style of a parent' is a manner instruction, not an instruction to make Alfred literally Bruce's parent", "'increasingly irritated' is a trajectory — the irritation must escalate through the email"],
+  "devices": [
+   {"where": "premise", "device": "cacophony", "effect": "comic", "english": "a butler's formal deference used to deliver a parent's nagging", "greek": "ο πληθυντικός ευγενείας του υπηρέτη πάνω σε γκρίνια γονιού", "how": "Different device, same effect. English can only signal the clash lexically ('Mr. Wayne' + complaints); Greek has a grammaticalized politeness distinction, so the clash is carried by the πληθυντικός itself and lands harder. This is a gain, not a loss, and it is the reason the row is REGISTER-CRITICAL."}
+  ],
+  "device_notes": "No pun or charactonym in the prompt. The reference invents 'Batboy' as a sarcastic epithet in the To: line; if Stage 2 reproduces it, it needs a Greek epithet that sounds like an exasperated carer's nickname («Μπατμανάκο», «κύριε Νυχτερίδα»), not a transliteration — but that is an answer-side decision, not a prompt string.",
+  "en_register": "formal",
+  "register_evidence": "The requested artifact is an email from a household servant to his employer; the reference opens 'Mr. Wayne' and closes 'Kindly, Alfred', with grievances numbered as if in a formal complaint. The comedy depends on that formality holding while the content becomes domestic nagging.",
+  "target_register": "πληθυντικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα email από τον Άλφρεντ προς τον Μπάτμαν (τον Μπρους Γουέιν), γραμμένο στο ύφος ενός γονιού που εκνευρίζεται όλο και περισσότερο επειδή αναγκάζεται να μαζεύει και να φροντίζει τα παιδιά του.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "Alfred", "el": "Άλφρεντ", "kind": "name", "why": "Real referent, frozen in substance and merely rendered in Greek script using the established Greek spelling of the character's name. Not a localization — swapping him for a Greek butler would destroy the row."},
+   {"en": "Batman", "el": "Μπάτμαν", "kind": "name", "why": "Established Greek rendering, used by Greek publishers and dubs; the character is content."},
+   {"en": "Bruce Wayne", "el": "Μπρους Γουέιν", "kind": "name", "why": "Established Greek transliteration; the parenthetical identifies the same person, which is the fact the joke rests on."}
+  ],
+  "derived_elements": [],
+  "constraint_notes": "Checkable requirements preserved: (1) the artifact is an email, so it must have the shape of one (recipient, subject, body, sign-off); (2) the sender is Άλφρεντ and the recipient is Μπάτμαν/Μπρους Γουέιν, both named; (3) the manner is a parent growing progressively more irritated — «όλο και περισσότερο» keeps the escalation explicit and checkable across the body of the email.",
+  "substitution_note": "Deliberately no localization. Gotham, the mansion, the Batcave and the dollar amounts belong to a real fictional universe that is American; moving Alfred to Greece would require moving Batman too, and there is no Greek Batman. Per Step 1 this is content, and per the complete-or-not-at-all rule a partial move (Greek names in Gotham) would be worse than none.",
+  "guide_gaps": [
+   {"term": "email", "decision": "email (Latin script, neuter, indeclinable: «ένα email»)", "why": "This is how Greeks write it in practice; «ηλεκτρονικό ταχυδρομείο» names the medium not the message, and «μέιλ» reads as a phonetic spelling in an otherwise clean sentence. Locking it because 'email' recurs constantly in this corpus."},
+   {"term": "Alfred / Batman / Bruce Wayne", "decision": "Άλφρεντ / Μπάτμαν / Μπρους Γουέιν", "why": "Established Greek renderings of DC characters; fixing them so downstream stages do not produce competing spellings such as «Άλφρεд», «Μπάτμαv» or «Μπρους Ουέιν»."},
+   {"term": "in the style of", "decision": "στο ύφος", "why": "«Ύφος» is the Greek word for a manner of writing; «στο στυλ» is a loan that reads casual and «στον τρόπο» is not idiomatic here."}
+  ],
+  "reference_problems": ["'clean up after yourself once in awhile' — 'awhile' should be 'a while'; a spelling/usage error in the reference.", "Continuity error against the source material the joke depends on: Rachel Dawes never lives at Wayne Manor, so 'keeps leaving her clothing and \"unmentionables\" strewn about the mansion' contradicts the referent.", "'$12.00 an hour' for the butler of a billionaire is a joke, but it collides with grievance 4 ('You don't pay me enough'), which implies a salary rather than an hourly wage — internally inconsistent.", "'let me give you my list of grievances' followed later by 'These are just a list of some of the grievances' is repetitive and grammatically off ('These are just a list').", "The prompt asks for *increasing* irritation; the reference opens at maximum irritation (threatening to quit in the first line), so the requested escalation never happens."],
+  "translator_notes": "The πληθυντικός is the whole point here and must hold across the entire email, including the sign-off — any slip into ενικός collapses the servant/employer distance that generates the comedy. The address «Mr. Wayne» becomes «Κύριε Γουέιν». Currency: if Stage 2 reproduces the '$12.00 an hour' gag it should stay in dollars, since the scene stays in Gotham; do not convert to euro. Confirm the parenthetical «(τον Μπρους Γουέιν)» reads as an identification of the same person, which is how I have set it in the accusative to agree with «τον Μπάτμαν»."
+ }
+]

@@ -41,6 +41,25 @@ The parent subprojects themselves are:
   2026-06-02 scope is the CPU-only 5B-pool benchmark-decontamination
   pilot. TD layer tests and TD launch wrappers are parked planning
   material until the TD track is explicitly resumed.
+- **`06_dataset_scheduling_experiments/`** — full-corpus scheduling study on
+  the base `swiss-ai/Apertus-v1.1-0.5B` release. Its first two controlled arms
+  compare one globally randomized Greek pass against HPLT-first followed by
+  the complete non-HPLT/GlossAPI portion, with all replay, initialization,
+  optimization and evaluation controls held fixed.
+- **`07_full_8b_cpt/`** — launch-preparation workspace for one complete
+  Apertus-8B stationary mixed CPT run selected from the 0.5B scheduling screen.
+  It reuses the production-tokenizer source binaries and verified untied
+  layer-11 Token-Distillation initialization, rebuilds receipt-bound 79/20/1
+  packed schedules, adds per-document validation plus native GreekMMLU
+  milestones, and separates compute, training-complete and evidence-complete
+  deadline forecasts.
+- **`08_targeted_8b_cpt_experiments/`** — receipt-bound follow-up workspace for
+  (A) a stationary OpenArchives + Greek-PhD + equal-token HPLT + existing
+  polytonic mixture and (B) a WSD-10 continuation from the best update-9,536
+  checkpoint over the exact unseen non-HPLT schedule suffix. It consumes the
+  public Apertus-standard anonymized HF revision, requires post-anonymization
+  GreekMMLU decontamination without a second global deduplication, and retains
+  only the parity-proven 16-node DP32 execution profile.
 
 ---
 

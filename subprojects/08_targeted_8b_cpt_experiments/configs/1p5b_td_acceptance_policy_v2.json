@@ -1,0 +1,54 @@
+{
+  "schema_version": "apertus_1p5b_td_acceptance_policy_v2",
+  "status": "proposal_pending_owner_approval",
+  "amendment_id": "1p5b-td-architecture-local-safety-v1",
+  "replaces": "apertus_td_row_norm_contract_v1_for_1p5b_only",
+  "reason": "The frozen 8B absolute added-row norm band rejects the untouched 1.5B ReTok reference before Token Distillation and therefore does not isolate TD safety at 1.5B.",
+  "scientific_constants_unchanged": {
+    "parent_model_revision": "dbe8919b2f0389888bada6b3a19e81e0ef4286c1",
+    "tokenizer_revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+    "target_layer_hidden_state_index": 6,
+    "epochs": 1,
+    "batch_size": 8,
+    "learning_rate": 0.0001,
+    "snippets_per_token": 25,
+    "seed": 20260523,
+    "dtype": "bfloat16",
+    "tie_word_embeddings": false
+  },
+  "coverage": {
+    "minimum_trained_token_fraction": 0.99,
+    "base_rows_must_be_byte_exact": true,
+    "skipped_rows_must_be_byte_exact": true,
+    "every_trained_row_must_change": true,
+    "non_embedding_tensors_must_be_byte_exact": true
+  },
+  "architecture_local_row_safety": {
+    "reference": "same-row norm in the frozen 1.5B ReTok initialization",
+    "all_rows_finite_and_nonzero": true,
+    "trained_row_ratio_absolute_interval": [0.25, 4.0],
+    "trained_row_ratio_core_interval": [0.5, 2.0],
+    "minimum_fraction_in_core_interval": 0.99,
+    "trained_row_ratio_median_interval": [0.8, 1.25]
+  },
+  "objective_probe": {
+    "selection": "lowest SHA256(salt + NUL + decimal token id)",
+    "salt": "apertus-1p5b-td-objective-probe-v1",
+    "token_groups": 512,
+    "snippets_per_group": 2,
+    "batch_size": 8,
+    "target_layer_hidden_state_index": 6,
+    "hidden_mse_maximum_final_over_initial": 0.99,
+    "output_ce_maximum_absolute_regression": 0.0,
+    "finite_losses_required": true,
+    "probe_uses_training_examples": true,
+    "interpretation": "The probe establishes that the frozen TD optimization improves its two explicit training objectives; it is an intrinsic initialization gate, not a generalization benchmark."
+  },
+  "rerun_policy": {
+    "fresh_output_root_required": true,
+    "failed_3086780_output_is_not_adoptable": true,
+    "approval_must_predate_new_td_job": true,
+    "no_alternate_layer_search": true,
+    "no_benchmark_based_selection": true
+  }
+}

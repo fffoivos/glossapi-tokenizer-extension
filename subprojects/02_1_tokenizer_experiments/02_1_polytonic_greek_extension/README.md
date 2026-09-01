@@ -16,13 +16,19 @@ cutoff/eval grid, and specified the report plots expected from the sweep.
 Current implementation report:
 [`analysis/c3p_polytonic_20260518T_impl/report/FULL_REPORT.md`](analysis/c3p_polytonic_20260518T_impl/report/FULL_REPORT.md).
 
-Current candidate tokenizer:
+Production decision for the next cleaned Greek CPT dataset (2026-07-29):
 
 ```text
-analysis/c3p_polytonic_20260518T_impl/variants/c3p_poly_added_5120/tokenizer.json
-sha256: b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad
-vocab: 153,600 = 256 x 600
+../../03_apertus_extension_and_embedding_adaptation/03_3_cscs_experiments_kickoff/ship/apertus_greek_modern_polytonic_148992/tokenizer.json
+sha256: bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b
+vocab: 148,992 = 256 x 582
 ```
+
+The selected continuation is **+512**, not the historical +5,120 ceiling.
+It reduces held-out ancient token count by 7.62%, more than doubles the
+single-token word rate, stays within the 0.5% modern-BPB guard after calibrated
+row adaptation, and outperforms the +1,024 arm on ancient BPB. See
+[`../../03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/polytonic_cutoff_probe/PRODUCTION_DECISION_20260729.md`](../../03_apertus_extension_and_embedding_adaptation/03_4_implementation_experiments/polytonic_cutoff_probe/PRODUCTION_DECISION_20260729.md).
 
 ## Current Pipeline
 
@@ -155,9 +161,11 @@ Headline result:
 - Modern C3 validation polytonic-id firing at +5,120 remains low:
   `0.0031` of tokens.
 
-Current recommendation: keep the +5,120 candidate for downstream fertility
-and continuation testing. The measured grid is still improving at the
-budget edge, and the final size is cleanly aligned at `256 x 600`.
+Historical recommendation at the end of the 2026-05-18 sweep: keep the +5,120
+candidate for downstream fertility and continuation testing. That recommendation
+was superseded by the 2026-07-29 production probe, which selected +512 for the
+next cleaned Greek CPT dataset. The +5,120 tokenizer remains an experiment
+artifact.
 
 ## Scripts
 
@@ -172,6 +180,9 @@ budget edge, and the final size is cleanly aligned at `256 x 600`.
 - `scripts/build_polytonic_cutoff_variants.py` — appends the full
   Ancient/Polytonic continuation to C3 and materializes 512-token cutoff
   variants through 5,120 additions.
+- `scripts/audit_polytonic_cutoff_tokens.py` — verifies append-only merge
+  dependencies and resolves suspicious ByteLevel fragments through valid UTF-8
+  descendants and real runtime round trips.
 - `scripts/evaluate_polytonic_variants.py` — held-out fertility,
   compression, utilization, UTF-8, and polytonic-specific metric runner.
 - `scripts/render_polytonic_eval_report.py` — plot/report renderer for the

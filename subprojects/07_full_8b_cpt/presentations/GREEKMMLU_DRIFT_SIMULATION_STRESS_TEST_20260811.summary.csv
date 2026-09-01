@@ -1,0 +1,17 @@
+scenario,label,family,expected,raw_hdi,adjusted_hdi,residual_hdi,residual_secular_drift,raw_path,adjusted_path,residual_path,accuracy_start,accuracy_end,accuracy_range
+static,Static null,No identity drift,none,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.625,0.625,0.000
+nested_gain,Nested competence gain,No identity drift,none,1.000,0.000,0.000,0.000,0.234,0.000,0.000,0.508,0.742,0.234
+nested_loss,Nested competence loss,No identity drift,none,1.000,0.000,0.000,0.000,0.234,0.000,0.000,0.742,0.508,0.234
+periodic_ability,Periodic competence,No identity drift,none,0.062,0.000,0.000,0.000,0.891,0.000,0.000,0.625,0.625,0.223
+monotonic_swap,Monotonic identity replacement,Secular drift,high,1.000,1.000,1.000,0.187,0.188,0.188,0.188,0.625,0.625,0.000
+periodic_swap,Periodic identity reversal,Periodic redistribution,low,0.062,0.062,0.062,0.000,0.750,0.750,0.750,0.625,0.625,0.000
+quasi_periodic,Near-periodic redistribution,Periodic redistribution,low-medium,0.058,0.058,0.058,0.000,1.074,1.074,1.074,0.625,0.625,0.000
+travelling_window,Travelling error window,Periodic redistribution,medium,0.075,0.075,0.075,0.000,0.750,0.750,0.750,0.625,0.625,0.000
+independent_churn,Independent checkpoint churn,Interference,low,0.023,0.023,0.023,0.000,1.895,1.895,1.895,0.625,0.625,0.000
+markov_churn,Persistent random churn,Interference,low-medium,0.129,0.129,0.129,0.052,0.969,0.969,0.969,0.625,0.625,0.000
+abrupt_shift,Abrupt permanent replacement,Secular drift,high,1.000,1.000,1.000,0.133,0.188,0.188,0.188,0.625,0.625,0.000
+gain_plus_monotonic,Gain + monotonic replacement,Overlapping,high,1.000,1.000,1.000,0.187,0.422,0.188,0.188,0.508,0.742,0.234
+periodic_ability_plus_monotonic,Periodic ability + monotonic replacement,Overlapping,high,0.268,1.000,1.000,0.187,1.078,0.188,0.188,0.625,0.625,0.223
+gain_plus_periodic,Gain + periodic replacement,Overlapping,low-medium,0.347,0.062,0.062,0.000,0.984,0.750,0.750,0.508,0.742,0.234
+mono_plus_periodic,Monotonic + periodic transformations,Overlapping,medium-high,0.306,0.306,0.306,0.112,0.938,0.938,0.938,0.625,0.625,0.000
+two_axis_loop,Closed two-transformation loop,Overlapping periodic,low,0.324,0.324,0.324,0.000,0.750,0.750,0.750,0.625,0.625,0.000

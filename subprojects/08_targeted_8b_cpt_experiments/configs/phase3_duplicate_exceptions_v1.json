@@ -1,0 +1,16 @@
+{
+  "authorizing_user_direction": "2026-08-19: just drop it",
+  "exceptions": [
+    {
+      "document_text_sha256": "ea0c42d024657de6c2a2153bdf5e37417f31d19cd7b28f456e05455d341c4c32",
+      "exclude_document_key_sha256": "9ed2a5cc16acc4946962d354d52bcd12e9d2b71a8feff54298c1d83333b48cee",
+      "exclude_input_row_index": 410272,
+      "pool": "foreign_replay",
+      "reason": "Byte-identical replay_t1_english_edu row; retain the earlier source-order occurrence and exclude only this later occurrence.",
+      "retain_document_key_sha256": "732ca4c892053d66a656ef5728898c1ff4bef77f4645cf59b8bb02115221a116",
+      "retain_input_row_index": 200486
+    }
+  ],
+  "schema_version": "apertus_hard_h_to_g_phase3_duplicate_exceptions_v1",
+  "status": "frozen"
+}

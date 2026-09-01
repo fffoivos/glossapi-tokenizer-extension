@@ -1,0 +1,71 @@
+[
+ {
+  "row_id": "454531ade945a64fec386377c4a42cd8453ffac196d38c00e5d6e0800649dfcc",
+  "family": "generative",
+  "translation_class": "REGENERATE-NATIVE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "advertising slogans for a product",
+  "hazards": [
+   "The English reference leans on 'Taste the rainbow', the Skittles slogan; Greek has no equivalent well-known ad line, so a translated version alludes to nothing and the joke dies.",
+   "Slogans are wordplay artifacts: any Greek answer must be authored natively, not translated, or it will read as calqued advertising copy.",
+   "'Sherbet' is a lexical gap in Greek retail: παγωτό, σορμπέ and γρανίτα are all near-misses; choosing wrong changes what product is being advertised.",
+   "'Rainbow' carries a distinct pride/LGBTQ+ reading in Greek too; the answer should keep it on the flavour-colour axis as the English does.",
+   "No item count is stated, so a Greek answer must still land in the category's normal 3-5 item shape without a constraint to anchor it."
+  ],
+  "devices": [
+   {
+    "where": "product name",
+    "device": "polysemy (colour spectrum ↔ variety of flavours)",
+    "effect": "memorable, childlike, appetising",
+    "english": "rainbow sherbet",
+    "greek": "σορμπέ ουράνιο τόξο",
+    "how": "Greek keeps the same polysemy: 'ουράνιο τόξο' works simultaneously as colour imagery and as 'many flavours at once', exactly as in English, so no device substitution is needed in the prompt itself."
+   }
+  ],
+  "device_notes": "The prompt carries no rhetorical device of its own — it is a bare request. The device work sits in the answer to come: the English reference's flagship slogan is allusive naming (an allusion to the Skittles line 'Taste the rainbow'). That allusion has no Greek counterpart — 'Δοκίμασε το ουράνιο τόξο' points at nothing for a Greek reader — so the Greek slogans must be re-derived from the rainbow/flavour polysemy with native Greek wordplay rather than reproduce the English lines. This is why the row is REGENERATE-NATIVE rather than LITERAL: the prompt translates cleanly, the deliverable does not.",
+  "en_register": "informal",
+  "register_evidence": "First-person casual phrasing ('What are some slogans I could use'), no honorifics, no business framing; a person asking a tool for ideas about their own ad.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Τι σλόγκαν θα μπορούσα να χρησιμοποιήσω σε μια διαφήμιση για σορμπέ ουράνιο τόξο;",
+  "user_turns_el": [],
+  "transpositions": [
+   {
+    "en": "rainbow sherbet",
+    "el": "σορμπέ ουράνιο τόξο",
+    "kind": "food",
+    "why": "The product is content, not frame — every slogan is about it, so it is frozen in substance. Only its Greek surface is chosen: 'σορμπέ' is the established Greek term for the frozen fruit dessert (unlike 'παγωτό', which would make it an ice cream, or 'γρανίτα', which is icier and drinkable), and 'ουράνιο τόξο' is kept because the rainbow is precisely what the slogans exploit."
+   }
+  ],
+  "derived_elements": [],
+  "constraint_notes": "No number is stated in the prompt, so nothing numeric has to survive. The two checkable constraints are: (1) the plural 'Τι σλόγκαν' requires more than one slogan, matching the English plural 'some slogans'; (2) every slogan must be usable Greek advertising copy for this specific product — i.e. it must actually mention or evoke σορμπέ/ουράνιο τόξο, not generic sweetness. Both are checkable in Greek. Note that 'σλόγκαν' is invariable in Greek, so the plural is carried by the question word and the expected answer shape, not by the noun's ending; this is slightly weaker than the English plural marking.",
+  "substitution_note": "Only one substitution was made (the product's Greek surface form). It has no dependents anywhere in the row: there is no system prompt, no persona, no title, no subject line, no sign-off, and no number computed from the product. The derived_elements list is therefore empty as a positive claim, not an omission.",
+  "guide_gaps": [
+   {
+    "term": "slogan",
+    "decision": "σλόγκαν",
+    "why": "The standard word in Greek advertising practice, invariable. 'Σύνθημα' is the alternative but reads political/protest ('συνθήματα' are what you chant or spray on a wall), which would misdirect a commercial-copy request."
+   },
+   {
+    "term": "sherbet",
+    "decision": "σορμπέ",
+    "why": "Greek has no retail category matching US sherbet. 'Σορμπέ' is the recognised loan for the fruit-based frozen dessert and keeps it distinct from 'παγωτό' (dairy ice cream) and 'γρανίτα' (coarser ice)."
+   },
+   {
+    "term": "ad",
+    "decision": "διαφήμιση",
+    "why": "Unmarked Greek for a commercial advertisement across media; 'ρεκλάμα' is dated/colloquial and 'αγγελία' means a classified listing."
+   }
+  ],
+  "reference_problems": [
+   "Typo in the third gloss: 'will will make you happy' — the word 'will' is duplicated.",
+   "The second slogan is presented as usable copy while the gloss itself admits it is 'a take on the slogan \"Taste the rainbow\"', which is Skittles' registered slogan; recommending it for an actual ad is a trademark hazard the reference does not flag.",
+   "Missing sentence-final period on the first and third glosses, and trailing whitespace after the first and third items — inconsistent with the second.",
+   "The prompt asks for slogans generally but the answer gives only three; not wrong, but the reference sits below the category's median of five items.",
+   "The first two slogans are near-duplicates of one another (both are 'rainbow' + 'scoop'), so the set has less variety than a brainstorm should deliver."
+  ],
+  "translator_notes": "Checks for a human reviewer: (1) Confirm 'σορμπέ ουράνιο τόξο' is the right product read — if the intended product is closer to a multicoloured children's ice cream sold in Greece, 'πολύχρωμο παγωτό' would be the alternative, but that changes the product and I judged the rainbow-flavour dessert to be content that must be frozen. (2) target_register is 'neutral' and this is a commitment, not an evasion: the Greek sentence contains no second-person verb or pronoun at all ('θα μπορούσα' is first person), so no ενικός/πληθυντικός choice is forced by the prompt. The answer stage will have to commit, though — Greek slogans in the imperative ('Δοκίμασε…' vs 'Δοκιμάστε…') do force an address form, and advertising copy in Greek conventionally uses ενικός for a young/mass-market sweet; that call belongs to the next stage. (3) The answer must not translate the English slogans; it must author Greek ones. Flag any answer containing 'Δοκίμασε το ουράνιο τόξο' as a calque of the Skittles line. (4) I deliberately did not add the item count the English lacks."
+ }
+]

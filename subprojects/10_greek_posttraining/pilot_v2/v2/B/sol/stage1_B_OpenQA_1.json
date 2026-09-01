@@ -1,0 +1,85 @@
+[
+  {
+    "row_id": "796c216b7cb8f960c0116c166ebb69b24a97d405a256029383924aa70c021766",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "career-options question",
+    "hazards": [
+      "Να μη συνδεθεί το πτυχίο με διαφορετικό ελληνικό γνωστικό αντικείμενο.",
+      "Η απάντηση πρέπει να διακρίνει τις άμεσα διαθέσιμες επαγγελματικές επιλογές από τα επαγγέλματα που απαιτούν πρόσθετες σπουδές ή άδεια."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Bare, impersonal factual question with no direct address or interpersonal relationship.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Τι μπορεί να κάνει κανείς με πτυχίο κινησιολογίας;",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": null,
+    "guide_gaps": [
+      {
+        "term": "kinesiology",
+        "decision": "κινησιολογία",
+        "why": "Καθιερωμένος ελληνικός επιστημονικός όρος."
+      }
+    ],
+    "reference_problems": [
+      "The English answer conflates careers accessible with a kinesiology degree with regulated professions such as physician, orthopedic surgeon, occupational therapist and physical therapist, which require substantial additional education, clinical training and often licensure.",
+      "The wording may misleadingly imply that the degree alone qualifies someone for every profession in the list."
+    ],
+    "translator_notes": "Το απρόσωπο «κανείς» διατηρεί το ουδέτερο ύφος και το ανοιχτό εύρος της ερώτησης."
+  },
+  {
+    "row_id": "23eae30a6086da0783bdc1eac89ba7317e947e5943547afe1870e84c24959564",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "biographical identification question",
+    "hazards": [
+      "Ο Τζο Χισαΐσι είναι το πραγματικό αντικείμενο της ερώτησης και δεν πρέπει να αντικατασταθεί ή να εξελληνιστεί ως διαφορετικό πρόσωπο.",
+      "Η μεταγραφή του ονόματος πρέπει να παραμένει αναγνωρίσιμη."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "Bare factual questions about a public figure, with no direct address or socially marked tone.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Ποιος είναι ο Τζο Χισαΐσι και για τι είναι κυρίως γνωστός;",
+    "user_turns_el": [],
+    "transpositions": [
+      {
+        "en": "Joe Hisaishi",
+        "el": "Τζο Χισαΐσι",
+        "kind": "name",
+        "why": "Φωνητική μεταγραφή του ονόματος με ελληνικούς χαρακτήρες, χωρίς αλλαγή του αναφερομένου."
+      }
+    ],
+    "derived_elements": [],
+    "constraint_notes": null,
+    "substitution_note": "Έγινε μόνο μεταγραφή του πραγματικού ονόματος· το πρόσωπο και το πραγματολογικό πλαίσιο παραμένουν αμετάβλητα.",
+    "guide_gaps": [
+      {
+        "term": "Joe Hisaishi",
+        "decision": "Τζο Χισαΐσι",
+        "why": "Αναγνωρίσιμη ελληνική φωνητική απόδοση που αποδίδει τη χασμωδία στο επώνυμο."
+      }
+    ],
+    "reference_problems": [
+      "The English reference repeats “conductor” in the list of occupations.",
+      "It omits “composer,” although film composition is central to Hisaishi's identity and fame.",
+      "Calling him a “director” and describing his Miyazaki work chiefly as musical direction is vague or misleading; he is principally known for composing film scores.",
+      "The description “violinist” overstates an instrument he studied but for which he is not principally known professionally."
+    ],
+    "translator_notes": "Να ελεγχθεί η συνέπεια της γραφής «Χισαΐσι» σε μελλοντικές εμφανίσεις του ίδιου ονόματος."
+  }
+]

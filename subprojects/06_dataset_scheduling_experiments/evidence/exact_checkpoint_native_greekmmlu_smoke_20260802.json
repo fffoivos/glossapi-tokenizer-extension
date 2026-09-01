@@ -1,0 +1,37 @@
+{
+  "schema_version": "apertus_mini_exact_checkpoint_native_greekmmlu_smoke_v1",
+  "status": "passed",
+  "scientific_result": false,
+  "purpose": "Prove the exact SwissAI torch_dist checkpoint to Hugging Face to full native GreekMMLU receipt path before the five-arm campaign",
+  "source_checkpoint": {
+    "training_job_id": "2982658",
+    "iteration": 48,
+    "source_tree_manifest_sha256": "dc4b8305ac1aea46fe76d58a9b199bb941950ca4b154933f98ec1d50dc302c67",
+    "initialization": "FVT runtime-only initialization",
+    "training_data": "Megatron mock data"
+  },
+  "canonical_conversion": {
+    "conversion_job_id": "2982857",
+    "export_receipt_finalizer_job_id": "2982866",
+    "export_receipt_sha256": "04bda21c669ec9ac811cca0b67c2100550641a2b71abcb1606664c089c118646",
+    "hf_tree_manifest_sha256": "c2d377d1d72e05f209afeeb96a65cbcf025e3a78f35c4ea31f3b93a8aa820293",
+    "prediction_agreement_percent": 99.99,
+    "logits_close_percent": 99.88,
+    "tokenizer_semantically_identical_to_frozen_overlay": true
+  },
+  "native_greekmmlu": {
+    "evaluation_job_id": "2982867",
+    "receipt_job_id": "2982892",
+    "dataset": "dascim/GreekMMLU",
+    "benchmark_origin": "natively_authored_greek",
+    "examples": 16632,
+    "metrics": {
+      "accuracy": 0.32371332371332373,
+      "choice_nll": 1.2298272497704221,
+      "correct_answer_bpb": 2.446336018452789
+    },
+    "predictions_sha256": "511bab8111103d2024ec06b395d49b042b273f7100f182837735eb6f7a59eed3",
+    "receipt_path": "/capstor/scratch/cscs/fffoivos/runs/06_dataset_scheduling_experiments/eval_runtime/20260802T154100Z-checkpoint48-greekmmlu-v4/exact_checkpoint_native_greekmmlu_receipt.json"
+  },
+  "interpretation": "The metrics are not a model-quality result because the checkpoint used FVT initialization and mock training data; only the conversion, evaluator, and receipt plumbing are promoted."
+}

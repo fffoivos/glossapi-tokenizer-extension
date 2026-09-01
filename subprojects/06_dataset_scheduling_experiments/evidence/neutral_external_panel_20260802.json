@@ -1,0 +1,94 @@
+{
+  "schema_version": "apertus_mini_neutral_external_evidence_v1",
+  "status": "passed",
+  "source": {
+    "id": "zenodo_greek_parliament_proceedings_2587904",
+    "license": "cc-by-4.0",
+    "cluster_unit": "complete_parliamentary_sitting",
+    "archive_bytes": 471233955,
+    "archive_md5": "461dc78146a0386a6a99b4f647710a37",
+    "archive_sha256": "2690dd5fb1e26df75d5766db3c7e46544a13879bc24d13c45310e13cd896f680"
+  },
+  "diagnosis": {
+    "job_id": "2986761",
+    "receipt": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T221000Z-neutral-gpp-v4/final-cross-dedup-diagnostic-v3/insufficient_reserve_receipt.json",
+    "exact_training_overlap_clusters": 0,
+    "verified_minhash_training_overlap_clusters": 106,
+    "verified_minhash_training_documents_by_type": {
+      "complete_sitting": 0,
+      "speech_fragment": 106
+    },
+    "verified_training_overlap_clusters_with_fragment_characters_at_least_1000": 106,
+    "verified_training_overlap_clusters_with_fragment_characters_at_least_2000": 105,
+    "candidate_internal_pairs_at_or_above_0_85": 22758117,
+    "candidate_internal_documents_by_type": {
+      "complete_sitting": 0,
+      "speech_fragment": 28534
+    },
+    "largest_erroneous_internal_component_clusters": 512,
+    "root_cause": [
+      "candidate-internal dedup linked whole sitting clusters through repeated speech fragments instead of comparing complete sitting aggregates",
+      "empty five-token shingle sets were incorrectly assigned Jaccard 1.0 instead of 0.0"
+    ]
+  },
+  "fix": {
+    "candidate_internal_comparison_unit": "complete_sitting",
+    "candidate_to_training_comparison_units": [
+      "speech_fragment",
+      "complete_sitting"
+    ],
+    "empty_shingle_jaccard": 0.0,
+    "training_overlap_policy_relaxed": false,
+    "scientific_bundle": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260802T231500Z-scientific-bundle-v22",
+    "scientific_bundle_tree_sha256": "13ae27344a682c781faa1dc4425f44b738f15abd823b24217c2d504a4ed2e067",
+    "local_unittest_count": 97
+  },
+  "cross_dedup": {
+    "job_id": "2986780",
+    "status": "passed",
+    "receipt": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T221000Z-neutral-gpp-v4/final-cross-dedup-corrected-v1/neutral_external_dedup_receipt.json",
+    "receipt_sha256": "0e10663117383b3d8fe7abcebb23c6b219d10e5f7e7d7ce4e582381756b756c0",
+    "reserve_clusters": 512,
+    "externally_matched_clusters_removed": 106,
+    "eligible_clusters": 406,
+    "selected_clusters": 345,
+    "selected_tokens_including_eos": 15057527,
+    "surviving_exact_training_matches": 0,
+    "surviving_verified_minhash_training_matches": 0,
+    "candidate_jsonl": {
+      "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T221000Z-neutral-gpp-v4/final-cross-dedup-corrected-v1/neutral_external_candidates.jsonl",
+      "bytes": 121724993,
+      "sha256": "8e5ee2a6cb6352078c7ea861df02865f6a762b536f6681864bf2bff26a81382d"
+    }
+  },
+  "heldout": {
+    "job_id": "2986781",
+    "status": "completed_manifest_present",
+    "manifest": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T221000Z-neutral-gpp-v4/heldout-corrected-v1/neutral_external_modern_greek.manifest.json",
+    "documents": 345,
+    "tokens": 15057527,
+    "tokenizer_json_sha256": "cc3f544817da0e8d1623e3f7484df7f67464aeb00867aece956880e9b407ef8f",
+    "vocab_size": 148992,
+    "bin": {
+      "bytes": 60230108,
+      "sha256": "744a9151193b9852b7bbb519a0ee911b4466ad4497c9d56964a9f38330602b1f"
+    },
+    "idx": {
+      "bytes": 6942,
+      "sha256": "928700fa55f182fb793e036196fdaa7c6d9b194939a8a548ac2ef4fd1f87bf13"
+    }
+  },
+  "validation_manifest": {
+    "cluster": "bristen",
+    "job_id": "77096",
+    "status": "frozen",
+    "path": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/dataset_scheduling_0p5b/20260802T221000Z-neutral-gpp-v4/validation-frozen-v1/validation_manifest.json",
+    "bytes": 10759,
+    "sha256": "2ab4bea027b47a1ba206a2cc16310b3835ebfd107ec6171596f642b485784009",
+    "panel_count": 13,
+    "fast_loss_active_tokens_per_panel": 2097152,
+    "same_examples_every_checkpoint": true,
+    "goldfish_masking": false
+  },
+  "gpu_training_jobs_submitted": 0
+}

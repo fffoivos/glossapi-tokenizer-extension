@@ -1,0 +1,24 @@
+diff --git a/tools/checkpoint/loader_core.py b/tools/checkpoint/loader_core.py
+--- a/tools/checkpoint/loader_core.py
++++ b/tools/checkpoint/loader_core.py
+@@ -454,6 +454,6 @@ def _load_checkpoint(queue, args):
+         position_ids = data["position_ids"].to(device)
+         attention_mask = data["attention_mask"].to(device)
+-        model = model.to(device).float()
++        model = model.to(device).bfloat16()
+         with torch.no_grad():
+             output = model(tokens, position_ids, attention_mask)
+         del model
+diff --git a/tools/checkpoint/saver_swissai_hf.py b/tools/checkpoint/saver_swissai_hf.py
+--- a/tools/checkpoint/saver_swissai_hf.py
++++ b/tools/checkpoint/saver_swissai_hf.py
+@@ -396,7 +396,8 @@ def save_checkpoint(queue, args):
+         print("Testing final logits")
+         message = queue_get("logits_check")
+         ref_output = message["output"].cuda()
+-        model = model.cuda().float()
++        model = model.cuda().bfloat16()
++        print("Converted semantic parity dtype: bfloat16")
+         with torch.no_grad():
+             output = model(input_ids=message["tokens"].cuda(), position_ids=message["position_ids"].cuda()).logits
+         del model

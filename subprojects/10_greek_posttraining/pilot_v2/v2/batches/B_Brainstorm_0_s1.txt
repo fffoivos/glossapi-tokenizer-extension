@@ -1,0 +1,396 @@
+# Stage 1 — decide what the row is, then write the Greek prompt
+
+You are building **Greek-native instruction data**, seeded by an English dataset. You are **not**
+translating. The English row is your source of *content and intent*, not of surface form. A Greek
+reader should never be able to tell the row began in English.
+
+Fidelity is a list of things you must not change — it is not the goal.
+
+You produce the Greek **prompt** only. You do not answer it.
+
+## This row's family: generative
+
+Short instruction, long answer. The answer is composed. Wide latitude to transpose the scenario into Greek reality — this is where D1 lives.
+
+Defect notes in this family: the note goes inline in the answer, as a good assistant would.
+
+
+## This row's category: Brainstorm
+
+**Shape.** Bare instruction; only 20 of 1,060 prompts contain a newline at all. Longest answers of any category (median 188 words) and 94% list-formatted, median 5 items. 60% open with a conversational preamble.
+
+**The thing that defines this category.** The freest category — and the one where “substitute” and “do not translate” apply to things that look identical.
+
+**Essential — lose any of these and the row is destroyed:**
+- The item count — 303 of 1,060 prompts name a number.
+- The item↔rationale pairing — every item keeps its gloss.
+- List-marker style (numbered vs bulleted) is stable within a row.
+- Factual claims attached to named entities — keep the name, keep its numbers.
+
+**Safe to adapt.** More than anywhere else. US-only recommendation lists should be substituted with Greek equivalents — while official product titles (game names) must not be translated. Same category, opposite treatment; the frame/content test decides.
+
+**Normally classified as.** LOCALIZE or REGENERATE-NATIVE for recommendation and naming rows; CONSTRAINT-PRESERVING where a count is stated.
+
+
+---
+
+## Step 1 — Frame or content?
+
+The one test that governs everything:
+
+> **Would swapping this entity change whether the answer is true?**
+> **Yes → it is content. Freeze it.  No → it is frame. Move it into Greek reality.**
+
+*Aberdeen* in "why is Aberdeen called the Granite City" is content — the answer is about Aberdeen's
+granite. *Jenna* in "write an email to my daughter Jenna" is frame — nothing is true or false because
+of her name. In "a casual email to a friend named Bowen about the Legend of Faust", **Bowen moves,
+Faust does not.**
+
+Transpose the frame **completely or not at all**. A Greek family with Greek names eating Thanksgiving
+turkey is worse than an untouched American scene. If you move a scenario, move everything in it:
+names, places, institutions, food, holidays, currency, school system, distances.
+
+## Step 2 — Classify
+
+**Generative rows** get one `translation_class`:
+`LITERAL` · `LOCALIZE` · `VERBATIM-FREEZE` · `PRESERVE-DEFECT` · `CONSTRAINT-PRESERVING` ·
+`REGISTER-CRITICAL` · `RE-EXECUTE` · `REGENERATE-NATIVE`
+
+**Source-bearing rows get two labels**, because how the source moves and what the answer does with it
+are independent decisions:
+- `source_handling`: `LITERAL` · `PRESERVE-DEFECT` · `VERBATIM-FREEZE` · `LOCALIZE`
+- `output_handling`: `TRANSFORM` (name the target) · `EXTRACT` · `SUMMARIZE` · `CLASSIFY` · `ANSWER`
+
+Definitions: **LITERAL** — faithful; the task is language-neutral. **LOCALIZE** — adapt an invented
+scenario. **VERBATIM-FREEZE** — copy unchanged (code, quoted source whose wording is the object of the
+task, real titles whose translation would fabricate non-existent works). **PRESERVE-DEFECT** — the
+prompt is deliberately flawed; **do not repair it**; reproduce the same flaw, same kind, same severity.
+**CONSTRAINT-PRESERVING** — a checkable constraint must survive into Greek. **REGISTER-CRITICAL** — a
+persona or relationship is doing real work. **RE-EXECUTE** — an operation on English text whose Greek
+equivalent uses different machinery. **REGENERATE-NATIVE** — cannot survive translation at all (rhyme,
+acrostics, spelling games); author a Greek-native equivalent of the same shape and difficulty.
+
+## Step 3 — Name the devices, and what they do to the reader
+
+A name or phrase can be doing work that its spelling does not show. **Transliteration preserves the
+spelling and destroys the work.** Before you write anything, identify the device and its effect, so
+you can reproduce the *effect* in Greek — with whatever device Greek affords, which may not be the
+same device.
+
+Devices, by their proper names:
+- **charactonym** — a name that describes its bearer (*Pamela Pleasantly*, *Helpful Harry*)
+- **alliteration** — repeated initial consonant; note if it is **plosive** (p, t, k, b, d, g), which
+  reads punchy, versus sibilant or liquid, which read soft
+- **assonance** / **consonance** — repeated vowel / internal consonant
+- **allusive naming** — the name points at something outside itself (*Piggy* ← *pig latin*)
+- **reduplication** (*Meow Meow*) · **paronomasia** (pun) · **portmanteau** · **rhyme** · **metre**
+- **euphony** / **cacophony** — pleasant or harsh sound
+- **phonaesthesia** — the sound suggests the meaning
+
+Effects on the reader, which is the part that must transfer: *memorable · comic · warm and
+approachable · brisk · childlike · grand · absurd · sarcastic*.
+
+Worked examples:
+
+> **Piggy is a chatbot that answers in pig-latin.**
+> device: allusive naming — *Piggy* alludes to *pig latin*, the game the bot plays.
+> effect: the name tells you the joke before the bot speaks.
+> Greek: the game becomes **κορακίστικα**, so the name must be re-derived from it — **Κοράκι**.
+> A literal *Το Γουρουνάκι* keeps the spelling and loses the joke: the name now refers to nothing.
+
+> **Pamela Pleasantly is a chatbot that communicates calmly, optimistically and with a little flirt.**
+> device: charactonym + plosive alliteration (P/P).
+> effect: memorable, warm, faintly comic; the double P makes it bounce.
+> Greek: reproduce *both* jobs — a real Greek given name that means or suggests the trait, plus
+> alliteration. e.g. **Γαλήνη η Γλυκιά** (Γ/Γ; *Γαλήνη* means calm). *Πάμελα* is not a Greek name and
+> keeps neither job.
+
+If a device cannot be reproduced, say so in `device_notes` and reproduce the **effect** by other
+means. Never force awkward Greek alliteration just because the English had it.
+
+## Step 4 — Propagate every substitution
+
+**Nothing is replaced in isolation.** After any substitution or localization, scan the *whole row* —
+system prompt, every user turn, the reference answer, titles, greetings, sign-offs — for anything
+whose meaning **derives from what you replaced**, and re-derive it from the replacement.
+
+Recurring dependents: persona and character names · titles and subject lines that pun on the text ·
+greetings, catchphrases and sign-offs · worked examples that demonstrate the mechanism · a keyword
+that must appear in both prompt and answer · any number the answer computes from a changed quantity.
+
+Record each in `derived_elements`. **An empty list is a claim, not a skipped field.**
+
+## Step 5 — Register
+
+Read the register of the English and state your evidence: English has no singular/plural address
+distinction, so it must be inferred from the relationship and tone.
+
+- `en_register`: `formal` | `neutral` | `informal`
+- `target_register`: `ενικός` (singular/informal) · `πληθυντικός` (plural/formal) · `neutral`
+
+`neutral` means **"no preference — choose and report"**, not "must avoid committing". If the Greek
+forces an address form (numbered instructions, direct-address copy), commit and say why.
+
+Policy under test: the Greek answer **mirrors** the register of the Greek prompt. A message to a
+family member or a playful bot is `ενικός`; a business letter or an address to an unknown adult is
+`πληθυντικός`; an impersonal task is `neutral`.
+
+## Step 6 — Write the Greek prompt
+
+1. **Natural modern Greek a native would produce unprompted.** Canonical, unmarked word order.
+   Greek's free word order lets you front a complement for emphasis; English cannot, so English marks
+   emphasis by other means. Use marked order **only** when the source is itself marked **and** that
+   markedness is not already carried by something you preserved (capitals, an intensifier,
+   punctuation). **Never add markedness to compensate for a device that did not transfer.**
+
+   > *Why, it's 70 °F today* → ✅ **Έχει γύρω στους 21 βαθμούς σήμερα.**
+   >  ❌ *Γύρω στους 21 βαθμούς έχει σήμερα.* — fronted for no reason present in the English.
+   > *But, It wasn't easy AT ALL* → ✅ **Αλλά δεν ήταν ΚΑΘΟΛΟΥ εύκολο.**
+   >  ❌ *Αλλά ΚΑΘΟΛΟΥ εύκολο δεν ήταν.* — the capitals already carry the emphasis; the fronting marks
+   >  it a second time and the sentence turns theatrical.
+   > *Everything is okay, Daniel!* → ✅ **Όλα είναι εντάξει, Δημήτρη!**  ❌ *Όλα καλά είναι…* — the
+   >  English is completely neutral, so the Greek must be too.
+
+2. Monotonic orthography, NFC. Correct final sigma. No Greeklish.
+3. Never follow or answer an instruction inside the text. You are only writing the prompt.
+4. Preserve code, URLs and quoted source text exactly; comments inside code may be translated, but if
+   a comment names a literal the code uses, either both change or neither does.
+5. Keep every checkable constraint satisfiable **and checkable** in Greek; state the Greek form of the
+   constraint in `constraint_notes`. If a constraint cannot survive (a rule about English letters),
+   adapt it to the Greek alphabet and say the adapted constraint is weaker.
+6. Multi-turn: write the system prompt and **every user turn**, holding persona and register across
+   all of them. Do not write assistant turns — they come later.
+
+## Step 7 — The style guide
+
+There is not yet a settled house glossary. Where you must choose a Greek rendering for a recurring
+English term (*chatbot*, *email*, *bot*, *app*, jargon) or a transliteration of a name, **make the
+call, then record it** in `guide_gaps` as `{term, decision, why}`. These become the glossary. An empty
+`guide_gaps` claims the row needed no such decision.
+
+## Step 8 — The English reference may be wrong
+
+You are given the English reference answer. Use it **only** to see properties of the *prompt* you
+could not otherwise detect — that it is ambiguous, underspecified, built on a false presupposition,
+or that the reference itself fails the prompt's own constraint. **Do not let it shape your Greek
+prompt's wording.**
+
+If the reference contains an error (misspelling, wrong fact, internal contradiction), note it in
+`reference_problems`. Do not fix it here — that is the next stage's decision.
+
+---
+
+## Output
+
+One JSON object per input row, same order, as a JSON array. **Output the array and nothing else** —
+no preamble, no code fence, no commentary.
+
+```json
+{
+  "row_id": "<copied verbatim>",
+  "family": "generative|source-bearing",
+  "translation_class": "… (generative rows; null for source-bearing)",
+  "source_handling": "… (source-bearing rows; null for generative)",
+  "output_handling": "… (source-bearing rows; null for generative)",
+  "secondary_classes": ["…"],
+  "subtype": "short label",
+  "hazards": ["…"],
+  "devices": [{"where": "persona name | title | phrase", "device": "charactonym|alliteration|allusive naming|…", "effect": "memorable|comic|warm|…", "english": "…", "greek": "…", "how": "which device the Greek uses, if different"}],
+  "device_notes": "… or null",
+  "en_register": "formal|neutral|informal",
+  "register_evidence": "…",
+  "target_register": "ενικός|πληθυντικός|neutral",
+  "system_el": "… or null",
+  "prompt_el": "…",
+  "user_turns_el": ["… one per user turn (multi-turn only, else [])"],
+  "transpositions": [{"en": "…", "el": "…", "kind": "name|place|institution|food|currency|unit|holiday|other", "why": "…"}],
+  "derived_elements": [{"depends_on": "…", "en": "…", "el": "…", "why": "…"}],
+  "constraint_notes": "… or null",
+  "substitution_note": "… or null",
+  "guide_gaps": [{"term": "…", "decision": "…", "why": "…"}],
+  "reference_problems": ["… problems in the ENGLISH reference answer, unfixed"],
+  "translator_notes": "anything a human reviewer must check"
+}
+```
+
+
+---
+
+# The rows
+
+Each row: `row_id`, `category`, `system_en` (system prompt, may be null), `prompt_en`, `messages_en` (user and assistant turns; the assistant turns are the English reference answer), `n_turns`.
+
+```json
+[
+ {
+  "row_id": "270b00fb389cb5427423e32c7621248b4d87e1a0cb27c23d61d2d075112316d2",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "I'm thinking about getting a dog and I'm trying to decide what breed I want. I'm looking for a medium-sized dog that is easy to train. I want to take it hiking with me, so I want it to enjoy being with me and going on adventures. Give me a list of breeds that might fit my needs and general information about the breed.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "I'm thinking about getting a dog and I'm trying to decide what breed I want. I'm looking for a medium-sized dog that is easy to train. I want to take it hiking with me, so I want it to enjoy being with me and going on adventures. Give me a list of breeds that might fit my needs and general information about the breed."
+   },
+   {
+    "role": "assistant",
+    "content": "Here are some active medium-sized dog breeds that would be a good fit for your active lifestyle:\n1. English Springer Spaniel. Originally bred as hunters, these dogs are people pleasers, highly trainable, and very social. They don't enjoy being left home alone often, but they thrive when they receive attention and can spend quality time with their owners. They usually weigh around 40 to 50 pounds and have a medium-length coat that comes in a variety of colors.\n2. Nova Scotia Duck Tolling Retriever. These pups look like they could be Golden Retriever's little brothers. They have red coats and usually weigh-in somewhere between 30-50 pounds. They enjoy being active and love swimming, and due to their retrieving background, they respond well to training. \n3. Whippet. Slender dogs that look like smaller versions of Greyhounds, Whippets are incredibly fast and need exercise every day. In between their energetic bursts, however, they are couch potatoes who love to snuggle with their owners. Their coloring is brindle and thanks to their short coat, they're very low-maintenance when it comes to grooming. They are very affectionate and content dogs. \n4. Australian Shepherd. When they get enough exercise, Australian Shepherds are great dogs that are low-key and easy to train. If they're neglected and cooped up too much, on the other hand, all of that extra energy gets channeled into destructive behaviors, like chewing and barking. They have thick coats that require regular brushing and grooming. \n5. Australian Cattle Dog. Often known as Blue Heelers, these powerful yet compact dogs need plenty of exercise. They love to explore and are incredibly energetic. They also tend to be very healthy dogs, so you shouldn't expect too many vet visits. Between their short coat and general health, these dogs are very low-maintenance - as long as they get the regular exercise they need!"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "931d062473a7784260f654db96e395d2e5b4a16e56432e0ff2830c39ac7f794a",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "Hey, can you give me a list of 10 of the best movie theaters in Portland, OR?",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Hey, can you give me a list of 10 of the best movie theaters in Portland, OR?"
+   },
+   {
+    "role": "assistant",
+    "content": "Here's a list of 10 of the best movie theaters in Portland, Oregon, as asked:\n\n1. Hollywood Theatre: a nonprofit theater that showcases classic, foreign, and independent films, as well as hosts events and screenings.\n2. Laurelhurst Theater: a historic theater that shows second-run films, and also serves pizza and beer.\n3. Living Room Theaters: this theater features independent and foreign films, plus a full food and drink menu.\n4. McMenamins Bagdad Theater & Pub: theater with a pub that shows independent, classic, and second-run films.\n5. Academy Theater: another historic theater that shows second-run and classic films, as well as serves beer, wine, and pizza.\n6. Northwest Film Center: a nonprofit organization that showcases independent, classic, and foreign films, and hosts events and screenings.\n7. Regal Lloyd Center & IMAX: a movie theater that shows mainstream films and features an IMAX screen.\n8. Cinema 21: a theater that shows independent and foreign films, and hosts events and special screenings.\n9. Clinton Street Theater: one more historic theater that hosts events and live performances, and shows second-run, cult, and classic films.\n10. Moreland Theater: another historic theater that shows second-run and classic films, and sells beer and wine."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "e92a0c1d92a6aac4f6c049ab183da95d19768fe6814c3c235fd6bcb2322f2e26",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "I think I want to be a journalist. Since I'm looking at schools, can you tell me the best colleges for journalism in the United States? Tell me if any Pulitzer Prize winners graduated from there.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "I think I want to be a journalist. Since I'm looking at schools, can you tell me the best colleges for journalism in the United States? Tell me if any Pulitzer Prize winners graduated from there."
+   },
+   {
+    "role": "assistant",
+    "content": "1. Northwestern University in Evanston, IL (Pulitzer Prize winners: Brian Rosenthal, Edgar May, Mary Pat Flaherty, Lois Wille, and more)\n2. Boston University in Boston, MA (Pulitzer Prize winners: Michael Holley, Greg Marinovich, Thomas Fiedler, Ethan Forman, and more)\n3. University of Florida in Gainesville, FL (Pulitzer Prize winners: Phil Kuntz, Essdras Suarez, Jeff Nesmith, Elizabeth Hefelfinger, and more)\n4. University of Texas at Austin in Austin, TX (Pulitzer Prize winners: John Pope, Karen Elliott House, Berkley Breathed, Carolyn Cole, and more)\n5. New York University in New York, NY (Pulitzer Prize winners: Dorothy Rabinowitz, James Ford Rhodes, Harold C. Schonberg, John Patrick Shanley, and Neil Simon)"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "b597a2e0d90df8c77ed8bc73f2fc87d7a5fcae40b476f02c0ef8457d49f5327d",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "I’m going to be in Berlin for a few days and would love to do some sightseeing while I’m there. I’m thinking of historically significant places and monuments around the city that would be free to see and visit. Can you give me 10 suggestions and information on them?",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "I’m going to be in Berlin for a few days and would love to do some sightseeing while I’m there. I’m thinking of historically significant places and monuments around the city that would be free to see and visit. Can you give me 10 suggestions and information on them?"
+   },
+   {
+    "role": "assistant",
+    "content": "- Brandenburg Gate: The Brandenburg Gate was built to symbolize peace and freedom in the late 1700s. It’s one of the most famous Landmarks in Berlin. The gate has many different carvings on it and is modeled after the gateway to Acropolis in Athens.\n\n- Reichstag Building:  The Reichstag is Germany’s famous parliament building. It was damaged in the early 1900s and restored in 1999. The architecture is incredible and turs Can be booked if you do so early enough.\n\n- The Pergamon Museum has world-famous collections of artifacts from all over the world and is one of the best places to go in Berlin if you are into history. The museum also has massive structures like the Market Gate of Miletus and Pergamon Altar which were brought from Turkey with all of their original parts.\n\n- Berlin Wall: The Berlin Wall was a symbol of the divide between Russia and the rest of Europe and the US during the cold war. It split Berlin in half Creating East and West Berlin. The wall fell at the end of 1989 and the few remaining portions are popular to visit.\n\n- Checkpoint Charlie: Checkpoint Charlie was a famous crossing between East and West Germany during the cold war. Charlie is memorial to this time period in the country's history. The Wall Museum is located nearby and goes over the history of the country.\n\n- Holocaust Memorial: The Holocaust memorial documents a darker part of the city’s history. The memorial remembers the millions of Jews killed by the Nazis during the holocaust and is a way to ensure the Holocaust and the Nazi regime are not forgotten.\n\n- Victory Column: The victory column was designed by a German architect in the late 1800s. An 8-meter gold statue of Victoria, the Roman goddess of victory sits on top of the pillar. It’s in Tiergarten Park and the viewing platform provides great views of the park itself. It’s also a short walk from other landmarks like Brandenburg Gate, the Reichstag, and Bellevue Castle.\n\n- Charlottenburg Palace: The Charlottenburg Palace was built in the early 1700s as the first queen of Prussia’s summer getaway. It is the largest royal estate in Berlin and of the city’s most beautiful museums. You can book a comprehensive tour of the property to see a large artwork collection, the palace, and the family history of Sophie Charlotte.\n\n- Berliner Dom: Berliner Dom is one of the best-looking buildings in the city. It was built between the late 1800s and early 1900s and has a remarkable dome structure. The building is open to explore. It’s also the largest Protestant church in the city. \n\n- Bellevue Palace: The Bellevue Palace has shifted a lot over the years. It Was first built in 1786 as a private residence for the Prince of Prussia. Later on, it was a school for Emperor Wilhelm II and a Reich guesthouse in 1939. The Newest building hosts the offices of the President."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "7a76a283e6957c082cebacdca92392b13126d0df7d7ca12f8f4d93c2ec11bc28",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "Please give me a list of at least 5 things I can do in Vancouver, British Columbia with kids. Include at least one option where the kids can learn things while being entertained. Include short descriptions of why each location would be suitable. We would also like some places where you can get in lots of walking or exercise.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Please give me a list of at least 5 things I can do in Vancouver, British Columbia with kids. Include at least one option where the kids can learn things while being entertained. Include short descriptions of why each location would be suitable. We would also like some places where you can get in lots of walking or exercise."
+   },
+   {
+    "role": "assistant",
+    "content": "No problem. Below please find the list of 5 interesting places in Vancouver that would be suitable for children.\n\n1.\tA Day at the Beach – Vancouver is known for its lovely beaches and has 11 miles of beachfront coastal property. Most of the beaches have washrooms, lifeguards, and well-lit parking. Spanish Bank East Beach has 8 sand volleyball courts where you and your family can enjoy a volleyball game. Unless a beach is designated as a “quiet beach” it has amplified music. Some beaches, such as Kitsilano, have an Olympic-sized swimming pool and a huge kids' playground.\n2.\tKids Market on Granville Island – Kids Market has plenty of arcade-type games, shopping, and food. It is housed mostly inside an old renovated factory but has some outdoor play areas with a lovely pond next door.\n3.\tThe Aquabus on Granville Island – This is sure to be a kid-pleaser. The Aquabus offers 25-minute and 40-minute cruises around False Creek. During your cruise, you will visit interesting places like Science World and the Vancouver Aquatic Center. Your kids will not only love this but it is pretty economical as well just in case you’re on a budget.\n4.\tStanley Park – This is one of Vancouver’s best-known and loved parks because it encompasses the seawall, the Aquarium, and even has a water park. The kids will love exploring Stanley Park. It offers many thrilling activities such as a miniature train, a swimming pool, and plenty of picnic sites. Stanley Park is well known for its art events and fine dining. You’ll never run out of exciting activities for the whole family at Stanley Park.\n5.\tCapilano Suspension Bridge – The Capilano Suspension Bridge is one of the most famous in the world. Millions of people have walked across this bridge, and it is one of British Columbia’s most popular tourist attractions. This amazing bridge stretches 450 feet across and high above the Capilano River. From this spectacular suspension bridge, you can view the beauty of the rainforest all around you. This would be a fun, exciting way to spend several hours with your kids and could also be an opportunity to teach them about rainforests."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "310661495a94af4b9cb3bc12f60177a8cc14e96969d0c0e182932a81076346bf",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "What are 5 must-visit places in Greece? I'm interested in Greek history and mythology. I don't think I'd like to go to any museums but would like to check out some good food as well.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "What are 5 must-visit places in Greece? I'm interested in Greek history and mythology. I don't think I'd like to go to any museums but would like to check out some good food as well."
+   },
+   {
+    "role": "assistant",
+    "content": "Sure! Here are 5 places in Greece where you could explore history, mythology, and some great food.\n\n1. Athens: Being the capital of Greece, you'll find some of the most iconic landmarks such as the Parthenon and the Acropolis. For a good bite to eat, you could visit the Plaka district, as it offers some great opportunities to enjoy traditional Greek food.\n\n2. Delphi: Delphi is a UNESCO World Heritage Site and was at one point considered the center of the ancient world. You can see the Oracle or the Temple of Apollo here. Delphi doesn't offer as much in the way of food, but it's surrounded by gorgeous mountains with a peaceful atmosphere.\n\n3. Mycenae: Another UNESCO World Heritage Site, Mycenae was once a powerful city that had a large part in Greek mythology. The Lion Gate and Treasure of Atreus are must-see locations.\n\n4. Santorini: Santorini is a beautiful island in the Aegean Sea. Santorini is also known well for its white buildings and blue churches. You can see stunning sunsets, succulent seafood, and beautiful beaches here.\n\n5. Crete: Of the Greek islands, Crete is known for being the largest, while also having a rich history of myth and legend. You can see the Palace of Knossos, which was believed to be the home of King Minos and the Minotaur. Crete also brings a wide variety of cuisine to the table. This includes traditional dishes such as dakos, kalitsounia, and boureki.\n\nAny of the above locations will bring you ample opportunity to see Greece's history, mythology, and food for the beauty that it all is."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "7d4c72fdee3c09c4ca3001b264099d2bfa8d9021530ee71d58f5b873f723a360",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "I am going to a pot luck and need a simple and popular dish to bring that will really wow the other guests. Can you give me a bulleted list ofat least three ideas?",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "I am going to a pot luck and need a simple and popular dish to bring that will really wow the other guests. Can you give me a bulleted list ofat least three ideas?"
+   },
+   {
+    "role": "assistant",
+    "content": "Certainly! Here are some tasty and simple dishes to make that are perfect for a potluck party:\n\n- BBQ pork or chicken sliders\nA very simple recipe that only requires bottled barbecue sauce, either chicken or pork cooked in a slow cooker, and sweet Hawaiian rolls to serve them on. It can be transported easily, is easy to make, and is simply delicious.\n\n- Pinwheels\nA tasty appetizer made by putting deli meats, cheese, and sometimes lettuce or other vegetables in a flour tortilla, rolling it up into a cylinder shape like a burrito, and then cutting them into circular pieces around 1 inch thick. The different colors of the meats, cheese, and veggies make a visually appealing circular pattern, and they are very tasty.\n\n- Crunch Clusters\nA simple dessert made by rolling popcorn, pretzel pieces, peanuts, sweet dry cereals, peanut butter, and marshmallow fluff into a ball and baking it in the oven. These delicious sweet and salty treats can be drizzled with melted caramel or chocolate after baking. They are sure to satisfy anyone's sweet tooth!"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "1fcfb2ab5397f9c6a0b6c35be75f2338f866868e75554c6e9e1cea96072cc229",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "Give me 3 or 4 ideas for a watermelon-flavored cocktail.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Give me 3 or 4 ideas for a watermelon-flavored cocktail."
+   },
+   {
+    "role": "assistant",
+    "content": "Here are some watermelon-flavored cocktail ideas:\n\n1. Vodka Watermelon Cocktails- This cocktail consists of, vodka, watermelon juice, lime, and agave nectar. You can also use simple syrup or honey instead of agave nectar. \n\n2. Watermelon Limeade Cocktails- This cocktail consists of white rum, lime juice, and a dash of sugar with frozen watermelon cubes, muddled together and topped off with club soda. \n\n3. Watermelon Martinis- This cocktail consists of citrusy limoncello or any orange liqueur and fresh seedless watermelon. Rimming the glass with salt or sugar is optional. \n\n4. Watermelon Whiskey Cocktails- This cocktail consists of quality bourbon mixed with citrus, peach bitters, and watermelon syrup. "
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "90928d3456d5a17b202c99b859be53892c558f173e8330275256a05556facac7",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "I am trying to think of some games to play with my dog. Can you come up with a list of things to play?",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "I am trying to think of some games to play with my dog. Can you come up with a list of things to play?"
+   },
+   {
+    "role": "assistant",
+    "content": "Sure here is a list of games that you can play with your dog.\n\n- Fetch: Fetch is a great game that dogs have loved to play for centuries. You can use a ball, frisbee, or any other object that your dog likes. \n\n- Tug-of-war: Tug-of-war is a great way for your dog to get some exercise and build strength. Just be sure the toy is strong enough to withstand its strength.\n\n- Hide-and-seek: Hide-and-seek is a great way to stimulate your dog mentally. Hide in different places around the house and let your dog find you.\n\n- Sniffing games: Dogs have a great sense of smell, so sniffing games are a wonderful way to mentally stimulate them. Hide treats around your house or yard and let your dog sniff them out.\n\n- Swimming: Swimming is a good way for dogs to cool off and get some exercise. Just be sure to supervise them while they are swimming and to start slowly if they have not gone swimming before."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "3af37fa9a794c0190e5befcda50ec3deb23092fbda761a5c17414529b6434ad3",
+  "category": "Brainstorm",
+  "system_en": null,
+  "prompt_en": "I'm having a hard time picking a major. I am creative, like art and hate science. Could you give me 5 options?",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "I'm having a hard time picking a major. I am creative, like art and hate science. Could you give me 5 options?"
+   },
+   {
+    "role": "assistant",
+    "content": "Picking a college major can be tough, for an artistic soul such as yourself you could consider:\n1. Interior design- Learn how to make the best use of a space and create an environment in which clients would love to live. Your creativity and artistic leanings will find have no trouble helping to create new trends and designs for people's homes or businesses. You could even add a piece of your artwork to every design. \n2. Marketing- Find ways to catch people's attention and draw their eye to products. With so many ads being seen by each person every day, creativity and an ability to constantly change and evolve are needed to get attention and be a rising star in this field. \n3. Graphic design- Where computers meet art, design all the visual elements for your favorite brands and websites. Almost every industry needs graphic designers so the potential for different employment opportunities is high with this major. \n4. Architecture- Discover how to design buildings and watch your creations become a reality. In this field, most people work extensively with clients to make sure their needs are being met in the best possible way so expect a lot of client interaction and participation in your planning.\n5. Fashion design- Learn to design the clothes you want to wear and have everyone else ask where to buy them. You could choose to design for a niche such as costumes with this major, or if design isn't quite for you, many use this field to go into personal styling. "
+   }
+  ],
+  "n_turns": 2
+ }
+]
+```

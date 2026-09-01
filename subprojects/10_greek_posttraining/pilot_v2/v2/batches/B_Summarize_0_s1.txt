@@ -1,0 +1,294 @@
+# Stage 1 — decide what the row is, then write the Greek prompt
+
+You are building **Greek-native instruction data**, seeded by an English dataset. You are **not**
+translating. The English row is your source of *content and intent*, not of surface form. A Greek
+reader should never be able to tell the row began in English.
+
+Fidelity is a list of things you must not change — it is not the goal.
+
+You produce the Greek **prompt** only. You do not answer it.
+
+## This row's family: source-bearing
+
+Long prompt containing a source block, short answer. The answer is derived. The source is ground truth; latitude is near zero.
+
+Defect notes in this family: the note goes in a separate field, so the answer keeps the reference’s shape.
+
+
+## This row's category: Summarize
+
+**Shape.** 100% embedded source, 386/395 with a blank-line separator. Answer is free prose, 85% a single paragraph, median 54 words. Only 3% have a preamble.
+
+**The thing that defines this category.** No new facts. The summary must be entailed by the source — and regenerating it from a truncated Greek source is where hallucination enters.
+
+**Essential — lose any of these and the row is destroyed:**
+- No new facts — the defining constraint.
+- Named entities, numbers, dates and money — 330/395 answers reuse a proper noun from the prompt; stated arithmetic must stay consistent.
+- Length constraints stated in the prompt. Note the English answers honour explicit sentence counts in only 48/73 rows, so compliance cannot be a pass criterion — only “must not get worse”.
+- The instruction’s focus scope — “what does it say about X” is a scoped summary.
+
+**Safe to adapt.** Very little. The instruction wrapper phrasing and register. You may translate source and summary together; you may not swap the source’s subject and keep the summary.
+
+**Normally classified as.** LITERAL on the source; the summary regenerated from the Greek source.
+
+
+---
+
+## Step 1 — Frame or content?
+
+The one test that governs everything:
+
+> **Would swapping this entity change whether the answer is true?**
+> **Yes → it is content. Freeze it.  No → it is frame. Move it into Greek reality.**
+
+*Aberdeen* in "why is Aberdeen called the Granite City" is content — the answer is about Aberdeen's
+granite. *Jenna* in "write an email to my daughter Jenna" is frame — nothing is true or false because
+of her name. In "a casual email to a friend named Bowen about the Legend of Faust", **Bowen moves,
+Faust does not.**
+
+Transpose the frame **completely or not at all**. A Greek family with Greek names eating Thanksgiving
+turkey is worse than an untouched American scene. If you move a scenario, move everything in it:
+names, places, institutions, food, holidays, currency, school system, distances.
+
+## Step 2 — Classify
+
+**Generative rows** get one `translation_class`:
+`LITERAL` · `LOCALIZE` · `VERBATIM-FREEZE` · `PRESERVE-DEFECT` · `CONSTRAINT-PRESERVING` ·
+`REGISTER-CRITICAL` · `RE-EXECUTE` · `REGENERATE-NATIVE`
+
+**Source-bearing rows get two labels**, because how the source moves and what the answer does with it
+are independent decisions:
+- `source_handling`: `LITERAL` · `PRESERVE-DEFECT` · `VERBATIM-FREEZE` · `LOCALIZE`
+- `output_handling`: `TRANSFORM` (name the target) · `EXTRACT` · `SUMMARIZE` · `CLASSIFY` · `ANSWER`
+
+Definitions: **LITERAL** — faithful; the task is language-neutral. **LOCALIZE** — adapt an invented
+scenario. **VERBATIM-FREEZE** — copy unchanged (code, quoted source whose wording is the object of the
+task, real titles whose translation would fabricate non-existent works). **PRESERVE-DEFECT** — the
+prompt is deliberately flawed; **do not repair it**; reproduce the same flaw, same kind, same severity.
+**CONSTRAINT-PRESERVING** — a checkable constraint must survive into Greek. **REGISTER-CRITICAL** — a
+persona or relationship is doing real work. **RE-EXECUTE** — an operation on English text whose Greek
+equivalent uses different machinery. **REGENERATE-NATIVE** — cannot survive translation at all (rhyme,
+acrostics, spelling games); author a Greek-native equivalent of the same shape and difficulty.
+
+## Step 3 — Name the devices, and what they do to the reader
+
+A name or phrase can be doing work that its spelling does not show. **Transliteration preserves the
+spelling and destroys the work.** Before you write anything, identify the device and its effect, so
+you can reproduce the *effect* in Greek — with whatever device Greek affords, which may not be the
+same device.
+
+Devices, by their proper names:
+- **charactonym** — a name that describes its bearer (*Pamela Pleasantly*, *Helpful Harry*)
+- **alliteration** — repeated initial consonant; note if it is **plosive** (p, t, k, b, d, g), which
+  reads punchy, versus sibilant or liquid, which read soft
+- **assonance** / **consonance** — repeated vowel / internal consonant
+- **allusive naming** — the name points at something outside itself (*Piggy* ← *pig latin*)
+- **reduplication** (*Meow Meow*) · **paronomasia** (pun) · **portmanteau** · **rhyme** · **metre**
+- **euphony** / **cacophony** — pleasant or harsh sound
+- **phonaesthesia** — the sound suggests the meaning
+
+Effects on the reader, which is the part that must transfer: *memorable · comic · warm and
+approachable · brisk · childlike · grand · absurd · sarcastic*.
+
+Worked examples:
+
+> **Piggy is a chatbot that answers in pig-latin.**
+> device: allusive naming — *Piggy* alludes to *pig latin*, the game the bot plays.
+> effect: the name tells you the joke before the bot speaks.
+> Greek: the game becomes **κορακίστικα**, so the name must be re-derived from it — **Κοράκι**.
+> A literal *Το Γουρουνάκι* keeps the spelling and loses the joke: the name now refers to nothing.
+
+> **Pamela Pleasantly is a chatbot that communicates calmly, optimistically and with a little flirt.**
+> device: charactonym + plosive alliteration (P/P).
+> effect: memorable, warm, faintly comic; the double P makes it bounce.
+> Greek: reproduce *both* jobs — a real Greek given name that means or suggests the trait, plus
+> alliteration. e.g. **Γαλήνη η Γλυκιά** (Γ/Γ; *Γαλήνη* means calm). *Πάμελα* is not a Greek name and
+> keeps neither job.
+
+If a device cannot be reproduced, say so in `device_notes` and reproduce the **effect** by other
+means. Never force awkward Greek alliteration just because the English had it.
+
+## Step 4 — Propagate every substitution
+
+**Nothing is replaced in isolation.** After any substitution or localization, scan the *whole row* —
+system prompt, every user turn, the reference answer, titles, greetings, sign-offs — for anything
+whose meaning **derives from what you replaced**, and re-derive it from the replacement.
+
+Recurring dependents: persona and character names · titles and subject lines that pun on the text ·
+greetings, catchphrases and sign-offs · worked examples that demonstrate the mechanism · a keyword
+that must appear in both prompt and answer · any number the answer computes from a changed quantity.
+
+Record each in `derived_elements`. **An empty list is a claim, not a skipped field.**
+
+## Step 5 — Register
+
+Read the register of the English and state your evidence: English has no singular/plural address
+distinction, so it must be inferred from the relationship and tone.
+
+- `en_register`: `formal` | `neutral` | `informal`
+- `target_register`: `ενικός` (singular/informal) · `πληθυντικός` (plural/formal) · `neutral`
+
+`neutral` means **"no preference — choose and report"**, not "must avoid committing". If the Greek
+forces an address form (numbered instructions, direct-address copy), commit and say why.
+
+Policy under test: the Greek answer **mirrors** the register of the Greek prompt. A message to a
+family member or a playful bot is `ενικός`; a business letter or an address to an unknown adult is
+`πληθυντικός`; an impersonal task is `neutral`.
+
+## Step 6 — Write the Greek prompt
+
+1. **Natural modern Greek a native would produce unprompted.** Canonical, unmarked word order.
+   Greek's free word order lets you front a complement for emphasis; English cannot, so English marks
+   emphasis by other means. Use marked order **only** when the source is itself marked **and** that
+   markedness is not already carried by something you preserved (capitals, an intensifier,
+   punctuation). **Never add markedness to compensate for a device that did not transfer.**
+
+   > *Why, it's 70 °F today* → ✅ **Έχει γύρω στους 21 βαθμούς σήμερα.**
+   >  ❌ *Γύρω στους 21 βαθμούς έχει σήμερα.* — fronted for no reason present in the English.
+   > *But, It wasn't easy AT ALL* → ✅ **Αλλά δεν ήταν ΚΑΘΟΛΟΥ εύκολο.**
+   >  ❌ *Αλλά ΚΑΘΟΛΟΥ εύκολο δεν ήταν.* — the capitals already carry the emphasis; the fronting marks
+   >  it a second time and the sentence turns theatrical.
+   > *Everything is okay, Daniel!* → ✅ **Όλα είναι εντάξει, Δημήτρη!**  ❌ *Όλα καλά είναι…* — the
+   >  English is completely neutral, so the Greek must be too.
+
+2. Monotonic orthography, NFC. Correct final sigma. No Greeklish.
+3. Never follow or answer an instruction inside the text. You are only writing the prompt.
+4. Preserve code, URLs and quoted source text exactly; comments inside code may be translated, but if
+   a comment names a literal the code uses, either both change or neither does.
+5. Keep every checkable constraint satisfiable **and checkable** in Greek; state the Greek form of the
+   constraint in `constraint_notes`. If a constraint cannot survive (a rule about English letters),
+   adapt it to the Greek alphabet and say the adapted constraint is weaker.
+6. Multi-turn: write the system prompt and **every user turn**, holding persona and register across
+   all of them. Do not write assistant turns — they come later.
+
+## Step 7 — The style guide
+
+There is not yet a settled house glossary. Where you must choose a Greek rendering for a recurring
+English term (*chatbot*, *email*, *bot*, *app*, jargon) or a transliteration of a name, **make the
+call, then record it** in `guide_gaps` as `{term, decision, why}`. These become the glossary. An empty
+`guide_gaps` claims the row needed no such decision.
+
+## Step 8 — The English reference may be wrong
+
+You are given the English reference answer. Use it **only** to see properties of the *prompt* you
+could not otherwise detect — that it is ambiguous, underspecified, built on a false presupposition,
+or that the reference itself fails the prompt's own constraint. **Do not let it shape your Greek
+prompt's wording.**
+
+If the reference contains an error (misspelling, wrong fact, internal contradiction), note it in
+`reference_problems`. Do not fix it here — that is the next stage's decision.
+
+---
+
+## Output
+
+One JSON object per input row, same order, as a JSON array. **Output the array and nothing else** —
+no preamble, no code fence, no commentary.
+
+```json
+{
+  "row_id": "<copied verbatim>",
+  "family": "generative|source-bearing",
+  "translation_class": "… (generative rows; null for source-bearing)",
+  "source_handling": "… (source-bearing rows; null for generative)",
+  "output_handling": "… (source-bearing rows; null for generative)",
+  "secondary_classes": ["…"],
+  "subtype": "short label",
+  "hazards": ["…"],
+  "devices": [{"where": "persona name | title | phrase", "device": "charactonym|alliteration|allusive naming|…", "effect": "memorable|comic|warm|…", "english": "…", "greek": "…", "how": "which device the Greek uses, if different"}],
+  "device_notes": "… or null",
+  "en_register": "formal|neutral|informal",
+  "register_evidence": "…",
+  "target_register": "ενικός|πληθυντικός|neutral",
+  "system_el": "… or null",
+  "prompt_el": "…",
+  "user_turns_el": ["… one per user turn (multi-turn only, else [])"],
+  "transpositions": [{"en": "…", "el": "…", "kind": "name|place|institution|food|currency|unit|holiday|other", "why": "…"}],
+  "derived_elements": [{"depends_on": "…", "en": "…", "el": "…", "why": "…"}],
+  "constraint_notes": "… or null",
+  "substitution_note": "… or null",
+  "guide_gaps": [{"term": "…", "decision": "…", "why": "…"}],
+  "reference_problems": ["… problems in the ENGLISH reference answer, unfixed"],
+  "translator_notes": "anything a human reviewer must check"
+}
+```
+
+
+---
+
+# The rows
+
+Each row: `row_id`, `category`, `system_en` (system prompt, may be null), `prompt_en`, `messages_en` (user and assistant turns; the assistant turns are the English reference answer), `n_turns`.
+
+```json
+[
+ {
+  "row_id": "de4f496b88a53ddbe42cce1d085ed334df138af3828e5dcd4cc4c38e2be8aa56",
+  "category": "Summarize",
+  "system_en": null,
+  "prompt_en": "But journalists’ most stubborn instinct—the one they share with Holmes—is to lean into a good story. It’s the human side of science that attracts readers. Every technical advance must be contextualized with a tale of suffering or triumph. Holmes knew this as well as anyone. She hardly dwelled on how her devices worked—she couldn’t, because they didn’t. Instead, she repeatedly told the world about her fear of needles and of losing loved ones to diseases that might have been caught earlier by a convenient blood test. Of course reporters were taken in. The next entrepreneur to come along and tell a tale like that may also get a sympathetic hearing in the press.\nHolmes understood that almost everyone—journalists, investors, patients, doctors—can be swayed by a pat narrative. She’s still trying to get ahead by telling stories. In offering herself up to the Times as a reformed idealist and a wonderful mother, Holmes adds to a story that was started by her partner, Billy Evans. As part of Holmes’s sentencing proceedings last fall, Evans wrote a multipage letter to the judge pleading for mercy, which was accompanied by numerous photos of Holmes posing with animals and children. “She is gullible, overly trusting, and simply naive,” Evans wrote about one of the great corporate hucksters of our era.\n\nHow did Elizabeth Holmes use emotions to convince people her device worked? How is Holmes portrayed now by The Times and her current partner? Summarize those points in 150 words or less.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "But journalists’ most stubborn instinct—the one they share with Holmes—is to lean into a good story. It’s the human side of science that attracts readers. Every technical advance must be contextualized with a tale of suffering or triumph. Holmes knew this as well as anyone. She hardly dwelled on how her devices worked—she couldn’t, because they didn’t. Instead, she repeatedly told the world about her fear of needles and of losing loved ones to diseases that might have been caught earlier by a convenient blood test. Of course reporters were taken in. The next entrepreneur to come along and tell a tale like that may also get a sympathetic hearing in the press.\nHolmes understood that almost everyone—journalists, investors, patients, doctors—can be swayed by a pat narrative. She’s still trying to get ahead by telling stories. In offering herself up to the Times as a reformed idealist and a wonderful mother, Holmes adds to a story that was started by her partner, Billy Evans. As part of Holmes’s sentencing proceedings last fall, Evans wrote a multipage letter to the judge pleading for mercy, which was accompanied by numerous photos of Holmes posing with animals and children. “She is gullible, overly trusting, and simply naive,” Evans wrote about one of the great corporate hucksters of our era.\n\nHow did Elizabeth Holmes use emotions to convince people her device worked? How is Holmes portrayed now by The Times and her current partner? Summarize those points in 150 words or less."
+   },
+   {
+    "role": "assistant",
+    "content": "Elizabeth Holmes avoided discussing how the devices worked because she knew that they didn't. Instead, she told the world about her fear of needles and how she may have saved loved ones if their ailments had been caught earlier by the blood test that she developed. Holmes knew that journalists, investors, patients, and doctors alike Almost everyone can be swayed by a narrative that pulls at the heartstrings.\n\nHolmes's current partner, Billy Evans, says, \"She is gullible, overly trusting, and simply naive.\" The Times has portrayed Holmes as a person who is now an idealist and a wonderful mother, as if she were not the same person who deceived millions of people with her false claims."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "d401835b72025cf387d6f3be725d82a1386b5b7751f87a05a843d89bd462b5ab",
+  "category": "Summarize",
+  "system_en": null,
+  "prompt_en": "In short, what did this scientist actually discover and why does it matter?  Sum this up for me.\n\nAfter lightning struck a tree in a New Port Richey neighborhood, a University of South Florida professor discovered the strike led to the formation of a new phosphorus material. It was found in a rock – the first time in solid form on Earth – and could represent a member of a new mineral group. \n\n“We have never seen this material occur naturally on Earth – minerals similar to it can be found in meteorites and space, but we've never seen this exact material anywhere,” said geoscientist Matthew Pasek. \nIn a recent study published in Communications Earth & Environment, Pasek examines how high-energy events, such as lightning, can cause unique chemical reactions, and in this instance, result in a new material  – one that is transitional between space minerals and minerals found on Earth. \n\n“When lightning strikes a tree, the ground typically explodes out and the surrounding grass dies, forming a scar and sending electric discharge through nearby rock, soil and sand, forming fulgurites, also known as ‘fossilized lightning’,” Pasek said. \n\nWhen the New Port Richey homeowners discovered the ‘lightning scar’, they found a fulgurite and decided to sell it, assuming it had value. Pasek purchased it, and later began a collaboration with Luca Bindi, a professor of mineralogy and crystallography at the University of Florence in Italy. \n\nTogether, the team set out to investigate unusual minerals that bear the element phosphorus, especially those formed by lightning, to better understand high-energy phenomena.\n“It’s important to understand how much energy lightning has because then we know how much damage a lightning strike can cause on average and how dangerous it is,” Pasek said. “Florida is the lightning capital of the world and lightning safety is important – if lightning is strong enough to melt rock, it can certainly melt people too.”\n\nIn wet environments, such as in Florida, Pasek says iron will often accumulate and encrust tree roots. In this case, not only did the lightning strike combust the iron on the tree roots, but it combusted the naturally occurring carbon in the tree as well. The two elements led to a chemical reaction that created a fulgurite that looked like a metal ‘glob.’ \n\nInside the fulgurite, a colorful, crystal-like matter revealed a material never before discovered. \n\nCo-principal investigator Tian Feng, a graduate of USF’s geology program, attempted to remake the material in a lab. The experiment was unsuccessful and indicates the material likely forms quickly under precise conditions, and if heated too long, will turn into the mineral found in meteorites. \n\n“Previous researchers indicate that lightning reduction of phosphate to have been a widespread phenomenon on the early Earth,” Feng said. “However, there is an environmental phosphite reservoir issue in Earth that these solid phosphite materials are hard to restore.”\n\nFeng says this research may reveal other forms of reduced minerals are plausible and many could have been important in the development of life on Earth.\n\nAccording to Pasek, it’s unlikely this material could be mined for uses similar to other phosphates, such as fertilizer, given the rarity of it occurring naturally. However, Pasek and Bindi plan to further investigate the material to determine if it could be officially declared a mineral and bring additional awareness to the scientific community. ",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "In short, what did this scientist actually discover and why does it matter?  Sum this up for me.\n\nAfter lightning struck a tree in a New Port Richey neighborhood, a University of South Florida professor discovered the strike led to the formation of a new phosphorus material. It was found in a rock – the first time in solid form on Earth – and could represent a member of a new mineral group. \n\n“We have never seen this material occur naturally on Earth – minerals similar to it can be found in meteorites and space, but we've never seen this exact material anywhere,” said geoscientist Matthew Pasek. \nIn a recent study published in Communications Earth & Environment, Pasek examines how high-energy events, such as lightning, can cause unique chemical reactions, and in this instance, result in a new material  – one that is transitional between space minerals and minerals found on Earth. \n\n“When lightning strikes a tree, the ground typically explodes out and the surrounding grass dies, forming a scar and sending electric discharge through nearby rock, soil and sand, forming fulgurites, also known as ‘fossilized lightning’,” Pasek said. \n\nWhen the New Port Richey homeowners discovered the ‘lightning scar’, they found a fulgurite and decided to sell it, assuming it had value. Pasek purchased it, and later began a collaboration with Luca Bindi, a professor of mineralogy and crystallography at the University of Florence in Italy. \n\nTogether, the team set out to investigate unusual minerals that bear the element phosphorus, especially those formed by lightning, to better understand high-energy phenomena.\n“It’s important to understand how much energy lightning has because then we know how much damage a lightning strike can cause on average and how dangerous it is,” Pasek said. “Florida is the lightning capital of the world and lightning safety is important – if lightning is strong enough to melt rock, it can certainly melt people too.”\n\nIn wet environments, such as in Florida, Pasek says iron will often accumulate and encrust tree roots. In this case, not only did the lightning strike combust the iron on the tree roots, but it combusted the naturally occurring carbon in the tree as well. The two elements led to a chemical reaction that created a fulgurite that looked like a metal ‘glob.’ \n\nInside the fulgurite, a colorful, crystal-like matter revealed a material never before discovered. \n\nCo-principal investigator Tian Feng, a graduate of USF’s geology program, attempted to remake the material in a lab. The experiment was unsuccessful and indicates the material likely forms quickly under precise conditions, and if heated too long, will turn into the mineral found in meteorites. \n\n“Previous researchers indicate that lightning reduction of phosphate to have been a widespread phenomenon on the early Earth,” Feng said. “However, there is an environmental phosphite reservoir issue in Earth that these solid phosphite materials are hard to restore.”\n\nFeng says this research may reveal other forms of reduced minerals are plausible and many could have been important in the development of life on Earth.\n\nAccording to Pasek, it’s unlikely this material could be mined for uses similar to other phosphates, such as fertilizer, given the rarity of it occurring naturally. However, Pasek and Bindi plan to further investigate the material to determine if it could be officially declared a mineral and bring additional awareness to the scientific community. "
+   },
+   {
+    "role": "assistant",
+    "content": "University of South Florida professor Matthew Pasek believes he has discovered a new type of phosphorous mineral that formed from lightning striking a tree in New Port Richey, Florida. He says that the mineral is similar to what is found in meteorites, but nothing like this has been found developing from natural causes on Earth.\n\nWhen lightning strikes a tree, the ground usually explodes and nearby grass dies.  As it does this, the electric charge forms fulgurites as it passes through the soil, sand, and rock. After the lightning strike, the homeowners found a fulgurite at the scene and sold it to Pasek who teamed up with Luca Bindi from the University of Florence in Italy to study it. Inside the fulgurite, they found colorful crystals like nothing they'd seen before.\n\nAnother researcher attempted to recreate the material, but was unable to do so, which indicates the material only occurs under precise conditions. It is believed that lightning interacting with phosphates happened often during the early development of the Earth, so minerals like the one Pasek found could have played a role in the development of life. Because it is so rare it is unlikely that this mineral could be mined, but further research into this material adds to our scientific knowledge."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "450928f692e6cd0d36a44249af6b2345ebcc8c4114de4435a85fc6ea0929b5d2",
+  "category": "Summarize",
+  "system_en": null,
+  "prompt_en": "In short, why does the article say second terms are terrible?\n\nWarning: second terms are terrible. Now, the bad news for Democrats. Beginning with George Washington, second terms are a litany of troubles. No modern president has had a good time of it. Work backwards: George Bush’s second term started with Katrina and ended in financial disaster; Clinton met Monica and was impeached; Reagan ran into Iran Contra, saw his approval plummet, lost the Senate, had a bout with cancer, and grew deeply despondent. Richard Nixon resigned. Eisenhower suffered a heart attack, a stroke, and became enmeshed in civil rights. FDR lost his coalition in Congress, saw the economy falter, and was humiliated when he tried to intervene in the midterm elections. Of course, history is not destiny. But it offers second-termers a gloomy warning. It gets only harder and the burdens of office take a personal toll.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "In short, why does the article say second terms are terrible?\n\nWarning: second terms are terrible. Now, the bad news for Democrats. Beginning with George Washington, second terms are a litany of troubles. No modern president has had a good time of it. Work backwards: George Bush’s second term started with Katrina and ended in financial disaster; Clinton met Monica and was impeached; Reagan ran into Iran Contra, saw his approval plummet, lost the Senate, had a bout with cancer, and grew deeply despondent. Richard Nixon resigned. Eisenhower suffered a heart attack, a stroke, and became enmeshed in civil rights. FDR lost his coalition in Congress, saw the economy falter, and was humiliated when he tried to intervene in the midterm elections. Of course, history is not destiny. But it offers second-termers a gloomy warning. It gets only harder and the burdens of office take a personal toll."
+   },
+   {
+    "role": "assistant",
+    "content": "In short, second terms have been historically tough for a lot of past presidents. Many of the events were out of the control of the president at the time, but nevertheless, they ran into problems that impeded the second term of their presidency. Events such as natural disasters, scandals, sickness, economic collapse, and more have all been issues during the second term of presidencies."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "7cb4fa6b7d0c9ef00b233e02c4a1f5fa1ce997c74610db030e07aea051e83704",
+  "category": "Summarize",
+  "system_en": null,
+  "prompt_en": "Write a summary of this biography of Konstantin Stanislavski by reducing it to its essential facts about his influence on the art of theatre in less than 150 words.\n\nKonstantin Sergeyevich Stanislavski (né Alekseyev; Russian: Константин Сергеевич Станиславский; 17 January [O.S. 5 January] 1863 – 7 August 1938) was a seminal Soviet Russian theatre practitioner. He was widely recognized as an outstanding character actor and the many productions that he directed garnered him a reputation as one of the leading theatre directors of his generation. His principal fame and influence, however, rests on his \"system\" of actor training, preparation, and rehearsal technique.\n\nStanislavski (his stage name) performed and directed as an amateur until the age of 33, when he co-founded the world-famous Moscow Art Theatre (MAT) company with Vladimir Nemirovich-Danchenko, following a legendary 18-hour discussion. Its influential tours of Europe (1906) and the US (1923–24), and its landmark productions of The Seagull (1898) and Hamlet (1911–12), established his reputation and opened new possibilities for the art of the theatre. By means of the MAT, Stanislavski was instrumental in promoting the new Russian drama of his day—principally the work of Anton Chekhov, Maxim Gorky, and Mikhail Bulgakov—to audiences in Moscow and around the world; he also staged acclaimed productions of a wide range of classical Russian and European plays.\n\nHe collaborated with the director and designer Edward Gordon Craig and was formative in the development of several other major practitioners, including Vsevolod Meyerhold (whom Stanislavski considered his \"sole heir in the theatre\"), Yevgeny Vakhtangov, and Michael Chekhov. At the MAT's 30-year anniversary celebrations in 1928, a massive heart attack on-stage put an end to his acting career (though he waited until the curtain fell before seeking medical assistance). He continued to direct, teach, and write about acting until his death a few weeks before the publication of the first volume of his life's great work, the acting manual An Actor's Work (1938). He was awarded the Order of the Red Banner of Labour and the Order of Lenin and was the first to be granted the title of People's Artist of the USSR.\n\nStanislavski wrote that \"there is nothing more tedious than an actor's biography\" and that \"actors should be banned from talking about themselves\". At the request of a US publisher, however, he reluctantly agreed to write his autobiography, My Life in Art (first published in English in 1924 and in a revised, Russian-language edition in 1926), though its account of his artistic development is not always accurate. Three English-language biographies have been published: David Magarshack's Stanislavsky: A Life (1950) ; Jean Benedetti's Stanislavski: His Life and Art (1988, revised and expanded 1999). and Nikolai M Gorchakov's \"Stanislavsky Directs\" (1954). An out-of-print English translation of Elena Poliakova's 1977 Russian biography of Stanislavski was also published in 1982.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a summary of this biography of Konstantin Stanislavski by reducing it to its essential facts about his influence on the art of theatre in less than 150 words.\n\nKonstantin Sergeyevich Stanislavski (né Alekseyev; Russian: Константин Сергеевич Станиславский; 17 January [O.S. 5 January] 1863 – 7 August 1938) was a seminal Soviet Russian theatre practitioner. He was widely recognized as an outstanding character actor and the many productions that he directed garnered him a reputation as one of the leading theatre directors of his generation. His principal fame and influence, however, rests on his \"system\" of actor training, preparation, and rehearsal technique.\n\nStanislavski (his stage name) performed and directed as an amateur until the age of 33, when he co-founded the world-famous Moscow Art Theatre (MAT) company with Vladimir Nemirovich-Danchenko, following a legendary 18-hour discussion. Its influential tours of Europe (1906) and the US (1923–24), and its landmark productions of The Seagull (1898) and Hamlet (1911–12), established his reputation and opened new possibilities for the art of the theatre. By means of the MAT, Stanislavski was instrumental in promoting the new Russian drama of his day—principally the work of Anton Chekhov, Maxim Gorky, and Mikhail Bulgakov—to audiences in Moscow and around the world; he also staged acclaimed productions of a wide range of classical Russian and European plays.\n\nHe collaborated with the director and designer Edward Gordon Craig and was formative in the development of several other major practitioners, including Vsevolod Meyerhold (whom Stanislavski considered his \"sole heir in the theatre\"), Yevgeny Vakhtangov, and Michael Chekhov. At the MAT's 30-year anniversary celebrations in 1928, a massive heart attack on-stage put an end to his acting career (though he waited until the curtain fell before seeking medical assistance). He continued to direct, teach, and write about acting until his death a few weeks before the publication of the first volume of his life's great work, the acting manual An Actor's Work (1938). He was awarded the Order of the Red Banner of Labour and the Order of Lenin and was the first to be granted the title of People's Artist of the USSR.\n\nStanislavski wrote that \"there is nothing more tedious than an actor's biography\" and that \"actors should be banned from talking about themselves\". At the request of a US publisher, however, he reluctantly agreed to write his autobiography, My Life in Art (first published in English in 1924 and in a revised, Russian-language edition in 1926), though its account of his artistic development is not always accurate. Three English-language biographies have been published: David Magarshack's Stanislavsky: A Life (1950) ; Jean Benedetti's Stanislavski: His Life and Art (1988, revised and expanded 1999). and Nikolai M Gorchakov's \"Stanislavsky Directs\" (1954). An out-of-print English translation of Elena Poliakova's 1977 Russian biography of Stanislavski was also published in 1982."
+   },
+   {
+    "role": "assistant",
+    "content": "Konstantin Sergeyevich Stanislavski was born in 1863. Known as a character actor and director, his greatest fame comes from his \"system\" of actor training. As a co-founder of the Moscow Art Theatre (MAT) his influential tours of Europe (1906) and the US (1923–24), opened new ground for the art of the theatre. Through MAT, Stanislavski promoted the Russian drama of Anton Chekhov and Maxim Gorky. He was a major influence on scenic artist Edward Gordon Craig and the acting teachers who followed him, Vsevolod Meyerhold, Yevgeny Vakhtangov, and Michael Chekhov. In 1928, Stanislavski suffered a massive heart attack while on stage that ended his acting career. He continued to direct, teach, and write about acting until he died in 1938. His two books, the acting manual, An Actor's Work (1938) and an autobiography, My Life in Art (1924) are still read by students of acting."
+   }
+  ],
+  "n_turns": 2
+ }
+]
+```

@@ -1,0 +1,201 @@
+{
+  "schema_version": "glossapi_hf_v2_anonymized_release_config_v1",
+  "input": {
+    "repository_id": "fffoivos/glossapi-greek-nanochat-pretraining-dataset-v2",
+    "revision": "3f97cec48af502f4996cf8ff20b02660e2dd3d31",
+    "rows": 51839746,
+    "shards": 431,
+    "deduplicated_manifest_sha256": "2368c479a31341d042e8dfca8ab991dfe02bff85efbc65f8c5db29ca2418e659"
+  },
+  "tokenizer": {
+    "repository_id": "fffoivos/apertus-tokenizer-extension",
+    "revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+    "subfolder": "greek-modern-polytonic-tokenizer",
+    "tokenizer_json_sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+    "vocab_size": 148992,
+    "eod_tokens_per_document": 1
+  },
+  "glossapi_cutoff": {
+    "timestamp": "2026-01-01T00:00:00Z",
+    "semantics": "Audit every current glossAPI dataset repository created on or after the cutoff, and separately compare material payload blobs in older repositories before and after the cutoff. README-only, metadata-only, and gating-only changes are not material publications."
+  },
+  "hplt_filter": {
+    "source_dataset": "HPLT/ell_Grek_ge8_no_mt_clean60",
+    "pre_dedup_rows": 48728774,
+    "post_dedup_rows": 48629460,
+    "quality_bins": [8, 9, 10],
+    "mt_register_filter": "applied before the Wave4 release",
+    "greek_badness_score_max": 60,
+    "cleaning": "Wave4 Greek re-cleaning and normalization"
+  },
+  "deduplication": {
+    "receipt_sha256": "ada134e524d3e8a147e2b72813f2b1fa1337efd5d5af921e65926270c7b70b8c",
+    "source_breakdown_sha256": "80c785db0f816460359da1b4000120f1635ae407b2d76873c0833cbf77668e26",
+    "input_rows": 53046533,
+    "retained_rows": 51839746,
+    "removed_rows": 1206787,
+    "clusters": 551819,
+    "strict_exact_groups": 56647,
+    "strict_exact_union_edges": 85554,
+    "normalized_exact_groups": 86077,
+    "normalized_exact_union_edges": 30740,
+    "verified_minhash_edges": 1932241,
+    "verified_minhash_union_edges": 1090493,
+    "normalization": "Unicode NFC, casefold, punctuation to spaces, and whitespace collapse; Greek accents and numbers preserved",
+    "minhash": {
+      "token_shingles": 5,
+      "permutations": 128,
+      "bands": 32,
+      "hashes_per_band": 4,
+      "verified_jaccard_threshold": 0.85,
+      "max_bucket_documents": 5000
+    },
+    "representative_order": [
+      "original Nanochat base before added candidates",
+      "lower Greek plus mojibake badness",
+      "smaller cleaner character loss",
+      "longer retained text",
+      "source_dataset",
+      "source_doc_id",
+      "stable input position"
+    ]
+  },
+  "anonymization": {
+    "standard": "Apertus pretrain-data PIIFormatter",
+    "upstream_commit": "8af990b9401101cf95acd02b066ed0c449789126",
+    "fields": ["text"],
+    "replacements": {
+      "email": "<email-pii>",
+      "ip": "<ip-pii>",
+      "iban": "<iban-pii>"
+    },
+    "iban_extension": "country-length matching plus ISO 7064 mod-97 validation, including 27-character Greek IBANs",
+    "row_policy": "preserve every row, row order, source identity, multiplicity, schema, and all non-text values"
+  },
+  "source_categories": [
+    {
+      "id": "hplt_web",
+      "label": "Broad Greek web (HPLT)",
+      "sources": ["HPLT/ell_Grek_ge8_no_mt_clean60"]
+    },
+    {
+      "id": "academic_research",
+      "label": "Academic and research repositories",
+      "sources": [
+        "Apothetirio_Kallipos",
+        "Apothetirio_Pergamos",
+        "greek_phd",
+        "openarchives.gr",
+        "glossAPI/psepheda",
+        "glossAPI/elocus",
+        "glossAPI/libduth",
+        "glossAPI/libiep"
+      ]
+    },
+    {
+      "id": "education_reference",
+      "label": "Education and reference",
+      "sources": [
+        "HuggingFaceFW/finewiki",
+        "Sxolika_vivlia",
+        "glossAPI/modern-greek-dictionary"
+      ]
+    },
+    {
+      "id": "law_government_civic",
+      "label": "Law, government and civic proceedings",
+      "sources": [
+        "AI-team-UoA/greek_legal_code",
+        "ellinika_dedomena_europaikou_koinovouliou",
+        "eurlex-greek-legislation",
+        "opengov.gr-diaboyleuseis",
+        "glossAPI/diavgeia",
+        "glossAPI/OpenCouncil",
+        "glossAPI/heinrich_boell_stiftung"
+      ]
+    },
+    {
+      "id": "news_general_interest",
+      "label": "News, technology and general interest",
+      "sources": [
+        "glossAPI/amna-press",
+        "glossAPI/ert-press",
+        "glossAPI/eellak-articles",
+        "glossAPI/e-nautilia",
+        "glossAPI/new-sociology"
+      ]
+    },
+    {
+      "id": "books_literature_arts",
+      "label": "Books, literature and performing arts",
+      "sources": [
+        "1000_prwta_xronia_ellhnikhs",
+        "Ellinika_Keimena_Project_Gutenberg",
+        "Wikisource_Greek_texts",
+        "openbook_gr",
+        "dimodis_logotexnia",
+        "klasikh_arx_ell_grammateia",
+        "glossAPI/greek-national-theatre-corpus"
+      ]
+    },
+    {
+      "id": "religion_theology",
+      "label": "Religion and theology",
+      "sources": [
+        "Ekklisiastika_Keimena",
+        "glossAPI/ecclesia",
+        "glossAPI/archetai",
+        "glossAPI/artos-zois"
+      ]
+    },
+    {
+      "id": "oral_history",
+      "label": "Oral history",
+      "sources": ["glossAPI/istorima"]
+    },
+    {
+      "id": "dialogue_subtitles",
+      "label": "Dialogue and subtitles",
+      "sources": ["OPUS/OpenSubtitles-el-v2018"]
+    }
+  ],
+  "expected_source_rows": {
+    "1000_prwta_xronia_ellhnikhs": 1007,
+    "AI-team-UoA/greek_legal_code": 47386,
+    "Apothetirio_Kallipos": 4784,
+    "Apothetirio_Pergamos": 11071,
+    "Ekklisiastika_Keimena": 673,
+    "Ellinika_Keimena_Project_Gutenberg": 174,
+    "HPLT/ell_Grek_ge8_no_mt_clean60": 48629460,
+    "HuggingFaceFW/finewiki": 231452,
+    "OPUS/OpenSubtitles-el-v2018": 82531,
+    "Sxolika_vivlia": 123,
+    "Wikisource_Greek_texts": 4598,
+    "dimodis_logotexnia": 11,
+    "ellinika_dedomena_europaikou_koinovouliou": 26686,
+    "eurlex-greek-legislation": 18822,
+    "glossAPI/OpenCouncil": 3291,
+    "glossAPI/amna-press": 209378,
+    "glossAPI/archetai": 659,
+    "glossAPI/artos-zois": 43,
+    "glossAPI/diavgeia": 2275176,
+    "glossAPI/e-nautilia": 25,
+    "glossAPI/ecclesia": 3538,
+    "glossAPI/eellak-articles": 5690,
+    "glossAPI/elocus": 7699,
+    "glossAPI/ert-press": 12722,
+    "glossAPI/greek-national-theatre-corpus": 9328,
+    "glossAPI/heinrich_boell_stiftung": 8,
+    "glossAPI/istorima": 13203,
+    "glossAPI/libduth": 9254,
+    "glossAPI/libiep": 6005,
+    "glossAPI/modern-greek-dictionary": 46697,
+    "glossAPI/new-sociology": 45,
+    "glossAPI/psepheda": 14294,
+    "greek_phd": 31692,
+    "klasikh_arx_ell_grammateia": 810,
+    "openarchives.gr": 126597,
+    "openbook_gr": 3527,
+    "opengov.gr-diaboyleuseis": 1287
+  }
+}
