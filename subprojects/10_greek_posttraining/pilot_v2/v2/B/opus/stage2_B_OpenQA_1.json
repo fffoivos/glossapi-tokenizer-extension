@@ -1,0 +1,146 @@
+[
+ {
+  "row_id": "796c216b7cb8f960c0116c166ebb69b24a97d405a256029383924aa70c021766",
+  "response_el": "Με πτυχίο κινησιολογίας ανοίγονται αρκετοί διαφορετικοί επαγγελματικοί δρόμοι. Η κινησιολογία είναι η επιστήμη της ανθρώπινης κίνησης· περιλαμβάνει κλάδους όπως η εμβιομηχανική και η φυσιολογία της άσκησης και στηρίζεται σε βάσεις από τη φυσική, τη βιολογία και τη χημεία. Επειδή το αντικείμενο είναι τόσο ευρύ, μπορείς να το αξιοποιήσεις με πολλούς τρόπους.\n\nΈνα μεγάλο μέρος των αποφοίτων συνεχίζει σε μεταπτυχιακές σπουδές: στη φυσικοθεραπεία, στην εργοθεραπεία ή στη δημόσια υγεία. Άλλοι στρέφονται απευθείας στην αγορά εργασίας, ως προπονητές ατομικής άσκησης ή ως υπεύθυνοι προγραμμάτων ευεξίας σε επιχειρήσεις. Θα βρεις αποφοίτους κινησιολογίας στον χώρο της γυμναστικής και του fitness, σε δομές υγείας και αποκατάστασης, σε σχολεία και σε κοινοτικά κέντρα άθλησης.\n\nΕπαγγέλματα στα οποία οδηγεί ή συμβάλλει ένα τέτοιο πτυχίο:\n\n- Φυσικοθεραπευτής\n- Εργοθεραπευτής\n- Θεραπευτής αποκατάστασης\n- Φυσιολόγος της άσκησης\n- Γυμναστής ή εκπαιδευτής φυσικής κατάστασης\n- Προπονητής ατομικής άσκησης\n- Προπονητής δύναμης και φυσικής κατάστασης\n- Αθλητικός εκπαιδευτής/υπεύθυνος αθλητικών κακώσεων\n- Καθηγητής φυσικής αγωγής\n- Κινησιολόγος\n- Διδασκαλία και έρευνα στο πεδίο της κινησιολογίας\n\nΔύο διευκρινίσεις. Πρώτον, ορισμένα από τα παραπάνω δεν προκύπτουν από το πτυχίο και μόνο: η φυσικοθεραπεία, η εργοθεραπεία και ιδίως η ιατρική εξειδίκευση στην αθλητιατρική ή στην ορθοπεδική απαιτούν ξεχωριστές σπουδές και άδεια άσκησης επαγγέλματος — η κινησιολογία λειτουργεί ως υπόβαθρο, όχι ως διαβατήριο. Δεύτερον, η ερώτηση δεν προσδιορίζει χώρα, και οι προϋποθέσεις αδειοδότησης διαφέρουν σημαντικά από κράτος σε κράτος· αν σε ενδιαφέρει συγκεκριμένη χώρα, καλό είναι να ελέγξεις τι ισχύει εκεί.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Stage 1 committed to γενικευτικό β΄ ενικό because Greek forces an address form; the answer keeps «μπορείς / θα βρεις / να ελέγξεις» throughout and never slips into πληθυντικός or «κανείς».",
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "Physics, biology and chemistry presented as components of kinesiology",
+    "english": "It includes physics, biomechanics, physiology, biology and chemistry.",
+    "greek": "περιλαμβάνει κλάδους όπως η εμβιομηχανική και η φυσιολογία της άσκησης και στηρίζεται σε βάσεις από τη φυσική, τη βιολογία και τη χημεία",
+    "why": "The reference contradicts its own definition: physics, biology and chemistry are foundational sciences the field draws on, not subfields of the study of movement. Biomechanics and exercise physiology genuinely are subfields."
+   },
+   {
+    "what": "Orthopaedic surgeon / sports medicine physician listed as jobs a kinesiology degree leads to",
+    "english": "Sports medicine physician. … Orthopedic surgeon.",
+    "greek": "η ιατρική εξειδίκευση στην αθλητιατρική ή στην ορθοπεδική απαιτούν ξεχωριστές σπουδές και άδεια άσκησης επαγγέλματος",
+    "why": "Both require a medical degree, which the reference never states; listing them flatly alongside «fitness instructor» is misleading about what the degree does."
+   },
+   {
+    "what": "Duplicated list entries",
+    "english": "'personal trainer' and 'physical therapist' appear both in the prose and again in the list",
+    "greek": "each profession named once, in the list",
+    "why": "Straight duplication with no informational gain; the Greek list carries every distinct profession from the reference."
+   },
+   {
+    "what": "Near-tautological padding entries",
+    "english": "Kinesiologist. Kinesiology professor. Kinesiology researcher.",
+    "greek": "Κινησιολόγος / Διδασκαλία και έρευνα στο πεδίο της κινησιολογίας",
+    "why": "Professor and researcher are one academic route, not two professions; merged so the list stays informative rather than padded."
+   },
+   {
+    "what": "Unstated US scope",
+    "english": "physical therapy graduate programs, Master of Public Health, corporate wellness program administrators",
+    "greek": "μεταπτυχιακές σπουδές … στη δημόσια υγεία· υπεύθυνοι προγραμμάτων ευεξίας σε επιχειρήσεις + explicit note that licensure differs by country",
+    "why": "The prompt is geographically unscoped, so US-specific credential names are rendered as generic study routes and the country-dependence is named inline instead of being smuggled in."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "fitness",
+    "decision": "«στον χώρο της γυμναστικής και του fitness» (Latin script retained)",
+    "why": "«Fitness» is the ordinary word in Greek for the commercial sector; «ευρωστία» is not used in this sense. Paired with a Greek term so the sentence is not carried by the loanword alone."
+   },
+   {
+    "term": "athletic trainer",
+    "decision": "«αθλητικός εκπαιδευτής/υπεύθυνος αθλητικών κακώσεων»",
+    "why": "The US 'athletic trainer' is an injury-prevention and first-response clinician, not a coach; a bare «αθλητικός εκπαιδευτής» would read as προπονητής in Greek, so the function is spelled out."
+   },
+   {
+    "term": "kinesiology",
+    "decision": "κινησιολογία (per stage 1)",
+    "why": "Referent frozen; not converted to ΤΕΦΑΑ or «φυσική αγωγή», which would change which career paths are correct."
+   }
+  ],
+  "deviations": [
+   "The prose was recomposed rather than translated: the reference's loose run-on enumeration was reorganised into definition → study routes → work settings → list, at comparable length.",
+   "Two caveats were added inline (credentialing beyond the degree; unscoped country) because this is a generative row and the reference's defect is exactly an unstated scope.",
+   "US programme names (Master of Public Health, physical therapy graduate programs) are rendered as generic postgraduate routes."
+  ],
+  "self_flags": [
+   "Check the reviewer accepts the inline country caveat in a row otherwise classified LITERAL — the referent and the facts are unchanged, only the unstated scope is disclosed.",
+   "«Αθλητικός εκπαιδευτής/υπεύθυνος αθλητικών κακώσεων» is a descriptive rendering, not an established Greek job title; there is no exact Greek equivalent of the US 'athletic trainer'.",
+   "The list is slightly shorter than the reference's fourteen items because duplicates and tautologies were merged."
+  ]
+ },
+ {
+  "row_id": "23eae30a6086da0783bdc1eac89ba7317e947e5943547afe1870e84c24959564",
+  "response_el": "Ο Τζο Χισάισι είναι Ιάπωνας συνθέτης, πιανίστας και μαέστρος. Γεννήθηκε το 1950 στο Νακάνο του νομού Ναγκάνο, στην Ιαπωνία, και το πραγματικό του όνομα είναι Μαμόρου Φουτζισάουα· το «Τζο Χισάισι» είναι καλλιτεχνικό ψευδώνυμο. Είναι κυρίως γνωστός για τη μουσική που έχει γράψει για τον κινηματογράφο, και ιδιαίτερα για τις ταινίες του Χαγιάο Μιγιαζάκι, με τον οποίο συνεργάζεται επί δεκαετίες. Δίνει επίσης συναυλίες διευθύνοντας ορχήστρα σε έργα του.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Third-person exposition throughout; no address form is forced, matching stage 1's neutral target.",
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "'conductor' listed twice in the same enumeration",
+    "english": "a Japanese conductor, director, conductor, pianist and violinist",
+    "greek": "συνθέτης, πιανίστας και μαέστρος",
+    "why": "Plain duplication in the reference; also 'director' is redundant with 'conductor' here."
+   },
+   {
+    "what": "'composer' missing as a descriptor",
+    "english": "conductor, director, conductor, pianist and violinist",
+    "greek": "Ιάπωνας συνθέτης, πιανίστας και μαέστρος",
+    "why": "Composing is what Hisaishi is primarily known for; omitting it while the answer goes on to mention film scoring is the reference's central factual gap."
+   },
+   {
+    "what": "'violinist'",
+    "english": "pianist and violinist",
+    "greek": "πιανίστας (violin dropped)",
+    "why": "Hisaishi is known as a pianist and studied composition; he is not generally described as a violinist."
+   },
+   {
+    "what": "Role in Miyazaki's films",
+    "english": "working as a musical director for Hayao Miyazaki movies",
+    "greek": "τη μουσική που έχει γράψει … για τις ταινίες του Χαγιάο Μιγιαζάκι",
+    "why": "He composes the scores; 'musical director' is a different job and misstates the collaboration."
+   },
+   {
+    "what": "Birthplace conflates city and prefecture",
+    "english": "born in Nagano, Japan",
+    "greek": "στο Νακάνο του νομού Ναγκάνο",
+    "why": "He was born in Nakano, in Nagano Prefecture; the reference's phrasing reads as the city of Nagano."
+   },
+   {
+    "what": "Answer opens with the birth name rather than the name asked about",
+    "english": "Mamoru Fujisawa, best known as Joe Hisaishi, is …",
+    "greek": "Ο Τζο Χισάισι είναι … το πραγματικό του όνομα είναι Μαμόρου Φουτζισάουα",
+    "why": "The question asks about 'Joe Hisaishi'; leading with the birth name inverts the referent the reader supplied."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Joe Hisaishi / Mamoru Fujisawa / Hayao Miyazaki",
+    "decision": "Τζο Χισάισι, Μαμόρου Φουτζισάουα, Χαγιάο Μιγιαζάκι — Greek transliteration, no Latin gloss",
+    "why": "Consistent with the transliteration stage 1 used in the prompt; Greek music and film writing transliterates Japanese names, and a Latin-script form inside the answer would read as an untranslated leftover."
+   },
+   {
+    "term": "Nagano Prefecture",
+    "decision": "«νομού Ναγκάνο»",
+    "why": "«Νομός» is the familiar Greek term for a prefecture-level unit and disambiguates the prefecture from the city of the same name."
+   },
+   {
+    "term": "conductor",
+    "decision": "μαέστρος",
+    "why": "Unmarked Greek word for an orchestral conductor; «διευθυντής ορχήστρας» is the formal equivalent and was used in verbal form later to avoid repetition."
+   }
+  ],
+  "deviations": [
+   "Recomposed rather than translated: name asked about first, birth name second, then what he is known for — the reference's inverted order was not reproduced.",
+   "Added a short closing sentence about his concert conducting, which keeps the answer at roughly the reference's length after the duplicated and dubious descriptors were removed.",
+   "'Director' was dropped as redundant with 'conductor'."
+  ],
+  "self_flags": [
+   "Transliteration «Χισάισι» (stress on the second syllable, no diaeresis) is stage 1's choice and should be checked against whatever house standard the dataset settles on for Japanese names.",
+   "«Μαμόρου Φουτζισάουα» transliteration is my own rendering of 藤澤守; alternative Greek spellings exist (Φουτζισάβα).",
+   "The closing sentence about conducting his own works is true and widely reported but is not in the English reference."
+  ]
+ }
+]

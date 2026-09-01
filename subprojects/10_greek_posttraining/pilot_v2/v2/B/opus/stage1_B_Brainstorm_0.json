@@ -1,0 +1,378 @@
+[
+ {
+  "row_id": "270b00fb389cb5427423e32c7621248b4d87e1a0cb27c23d61d2d075112316d2",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [],
+  "subtype": "recommendation list — dog breeds for an active owner",
+  "hazards": ["breed names in the answer must use established Greek breed conventions, not ad-hoc translation", "weights in the reference are in pounds; the Greek answer must use kilograms", "no named entity in the prompt, so the whole row hangs on the criteria list (medium size, easy to train, hiking companion) surviving intact"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "informal",
+  "register_evidence": "Contractions ('I'm'), first-person hobby talk, bare imperative 'Give me a list' — a casual personal request with no social distance.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Σκέφτομαι να πάρω σκύλο και προσπαθώ να αποφασίσω τι ράτσα θέλω. Ψάχνω έναν σκύλο μεσαίου μεγέθους που να εκπαιδεύεται εύκολα. Θέλω να τον παίρνω μαζί μου στην πεζοπορία, οπότε θέλω να του αρέσει να είναι μαζί μου και να πηγαίνει σε εξορμήσεις. Δώσε μου μια λίστα με ράτσες που μπορεί να ταιριάζουν στις ανάγκες μου και γενικές πληροφορίες για την κάθε ράτσα.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Three checkable criteria survive verbatim into Greek: μεσαίο μέγεθος, εύκολη εκπαίδευση, καταλληλότητα για πεζοπορία/εξορμήσεις. Plus the item↔gloss pairing: every ράτσα must carry γενικές πληροφορίες. No item count is named in the English and none is added.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "hiking", "decision": "πεζοπορία (and 'εξορμήσεις' for 'adventures')", "why": "'Πεζοπορία' is the unmarked Greek word for recreational walking in nature; 'χάικινγκ' is Greeklish-flavoured and marked."},
+   {"term": "breed", "decision": "ράτσα", "why": "'Ράτσα' is what a Greek speaker actually says about dogs; 'φυλή' reads zoological/technical."},
+   {"term": "easy to train", "decision": "εκπαιδεύεται εύκολα", "why": "Verbal construction is the natural Greek; 'εύκολο στην εκπαίδευση' is a calque."}
+  ],
+  "reference_problems": [
+   "'Golden Retriever's little brothers' — misplaced apostrophe (should be plural 'Retrievers').",
+   "'weigh-in somewhere between 30-50 pounds' — 'weigh in' hyphenated as a noun.",
+   "Whippet: 'Their coloring is brindle' is factually wrong as stated — whippets come in a wide range of colours; brindle is only one.",
+   "Australian Shepherd described as 'low-key', which contradicts the breed's standard description and the same paragraph's account of its surplus energy.",
+   "All weights are given in pounds only, unusable for a Greek reader without conversion.",
+   "Australian Cattle Dog: 'you shouldn't expect too many vet visits' overstates a breed generalisation as an individual prediction."
+  ],
+  "translator_notes": "Nothing to transpose: the scenario is a person choosing a dog, which is the same in Greece. Check that the Greek answer names the breeds the way Greek breeders/kennel clubs do (e.g. Αγγλικό Σπρίνγκερ Σπάνιελ, Ουίπετ, Αυστραλιανό Τσοπανόσκυλο) rather than word-for-word translating them, and that pounds become kilograms in the answer stage."
+ },
+ {
+  "row_id": "931d062473a7784260f654db96e395d2e5b4a16e56432e0ff2830c39ac7f794a",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "local recommendation list — cinemas in a city",
+  "hazards": ["the count 10 must remain satisfiable: the substituted city must actually have ten nameable cinemas", "cinema names are official titles and must not be translated in the answer", "if the answer keeps US venues while the prompt says a Greek city, the row is destroyed"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "informal",
+  "register_evidence": "Opens with 'Hey', uses 'can you' rather than 'could you' — a resident asking a quick everyday question, no social distance.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γεια σου, μπορείς να μου δώσεις μια λίστα με τους 10 καλύτερους κινηματογράφους στη Θεσσαλονίκη;",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "Portland, OR", "el": "Θεσσαλονίκη", "kind": "place", "why": "This is a resident's everyday local-recommendation question, not a travel question — nothing in the prompt frames the asker as a visitor. A US-only recommendation list is exactly what the category says to substitute. Thessaloniki is the closest Greek analogue: a large non-capital second city with a dense independent-cinema culture (Φεστιβάλ Κινηματογράφου Θεσσαλονίκης), so ten nameable cinemas genuinely exist there."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Portland, OR → Θεσσαλονίκη", "en": "the ten named Portland venues in the reference answer", "el": "ten real Thessaloniki cinemas (e.g. Ολύμπιον, Μακεδονικόν, Αλέξανδρος, Άστορ, Βακούρα, Νατάλι, Απόλλων, Odeon, Village, Cinemax)", "why": "Every list item derives from the city; leaving Portland venues under a Greek city name would make the answer false."},
+   {"depends_on": "Portland, OR → Θεσσαλονίκη", "en": "'in Portland, Oregon, as asked' in the answer's preamble", "el": "the preamble must name Θεσσαλονίκη", "why": "The answer's opening line restates the city and derives from it."}
+  ],
+  "constraint_notes": "Checkable count: exactly 10 items (10 κινηματογράφοι). Preserved literally as the numeral '10' in Greek, so it stays machine-checkable. The item↔gloss pairing (each cinema gets a one-line description) also survives.",
+  "substitution_note": "City substituted, not the task. The venue names themselves are official titles and must stay untranslated in the Greek answer (Ολύμπιον stays Ολύμπιον; 'Village' stays Latin-script).",
+  "guide_gaps": [
+   {"term": "movie theater", "decision": "κινηματογράφος (colloquially 'σινεμά' for the activity, but 'κινηματογράφοι' for the venues in a list)", "why": "'Σινεμά' is uncountable-ish in casual Greek ('πάμε σινεμά'); a numbered list of venues wants 'κινηματογράφοι'."},
+   {"term": "Hey (greeting to an assistant)", "decision": "Γεια σου", "why": "Unmarked informal Greek opener; matches the ενικός choice and does not add warmth the English lacks."}
+  ],
+  "reference_problems": [
+   "'Northwest Film Center' is outdated — the organisation was renamed (PAM CUT, the Portland Art Museum's film centre); it is also an organisation rather than a movie theater, and screens at the Whitsell Auditorium.",
+   "Heavy phrasal repetition ('another historic theater', 'one more historic theater') that reads as filler.",
+   "Item 1 and item 6 give near-identical descriptions (nonprofit; classic, foreign, independent films; hosts events and screenings)."
+  ],
+  "translator_notes": "Reviewer must confirm the ten Thessaloniki cinemas named at the answer stage are currently open — this is the row's main factual risk. Note the deliberate split with the Berlin and Vancouver rows in this batch: those keep their city because the asker is explicitly a traveller (the destination is the object of the question); here there is no travel frame, so the city is frame and moves."
+ },
+ {
+  "row_id": "e92a0c1d92a6aac4f6c049ab183da95d19768fe6814c3c235fd6bcb2322f2e26",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["REGENERATE-NATIVE"],
+  "subtype": "recommendation list — where to study journalism, with an award-winner check",
+  "hazards": ["the prize must be one whose winners plausibly graduated from the substituted schools, or the second sentence becomes unanswerable", "the US 'college' system does not map onto Greek σχολές/τμήματα admitted through the Πανελλήνιες", "named winners in the answer carry factual claims that must be real people"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "informal",
+  "register_evidence": "Contraction 'I'm', hedged self-talk ('I think I want to be'), 'can you tell me' — a student thinking aloud, no distance.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Νομίζω ότι θέλω να γίνω δημοσιογράφος. Επειδή ψάχνω σχολές, μπορείς να μου πεις ποιες είναι οι καλύτερες σχολές δημοσιογραφίας στην Ελλάδα; Πες μου αν έχουν αποφοιτήσει από εκεί δημοσιογράφοι που έχουν πάρει βραβείο Μπότση.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "the United States", "el": "η Ελλάδα", "kind": "place", "why": "A prospective student picking where to study is pure frame; the scenario is transposed completely, so the country of study, the institutions and the professional prize all move together."},
+   {"en": "colleges", "el": "σχολές (πανεπιστημιακά τμήματα)", "kind": "institution", "why": "Greece has no 'college major' system; the equivalent unit a prospective student chooses is a σχολή/τμήμα (ΑΠΘ Δημοσιογραφίας και ΜΜΕ, ΕΚΠΑ Επικοινωνίας και ΜΜΕ, Πάντειο, Πανεπιστήμιο Πατρών)."},
+   {"en": "Pulitzer Prize", "el": "βραβείο Μπότση (Ίδρυμα Προαγωγής Δημοσιογραφίας Αθ. Β. Μπότση)", "kind": "institution", "why": "The prize's job in the prompt is 'the national top honour for journalists whose alumni you can check'. Keeping 'Πούλιτζερ' after moving the schools to Greece makes the second sentence unanswerable — essentially no Pulitzer winner graduated from a Greek journalism department — so the frame must move with the rest of the scenario."}
+  ],
+  "derived_elements": [
+   {"depends_on": "the United States → Ελλάδα", "en": "the five US universities with their state locations (Evanston IL, Boston MA, …)", "el": "Greek departments with their cities (Θεσσαλονίκη, Αθήνα, Πάτρα …)", "why": "Each list item and its parenthetical location derive from the country."},
+   {"depends_on": "Pulitzer Prize → βραβείο Μπότση", "en": "the named Pulitzer winners in each parenthesis", "el": "named Μπότση-award journalists per department", "why": "The winner names exist only as evidence for the prize claim; they must be re-derived from the substituted prize, not transliterated."}
+  ],
+  "constraint_notes": "No count is stated in the English (the reference volunteers five). None is invented in the Greek. The checkable structure that must survive: each school is paired with a named-winner claim, i.e. the item↔gloss pairing is a factual assertion the answer must be able to back.",
+  "substitution_note": "Complete transposition: country, institutions and prize all move together. Partial movement (Greek schools + Pulitzer, or US schools + Μπότση) would break the row.",
+  "guide_gaps": [
+   {"term": "journalism school / college for journalism", "decision": "σχολή δημοσιογραφίας (covering the university τμήματα Δημοσιογραφίας και ΜΜΕ / Επικοινωνίας και ΜΜΕ)", "why": "'Σχολή δημοσιογραφίας' is what a Greek student says colloquially, even though the formal unit is a τμήμα; using the formal name in the prompt would sound like a brochure."},
+   {"term": "Pulitzer Prize", "decision": "βραβείο Μπότση", "why": "Functional equivalence, recorded here because it is a substitution of a real institution and a reviewer must be able to see and challenge the call."}
+  ],
+  "reference_problems": [
+   "The answer is a bare list with no reasons — the prompt asked for the 'best' colleges but the reference never says why any of them is best.",
+   "James Ford Rhodes (NYU entry) did not graduate from NYU; he was a historian associated with it as a benefactor/trustee, so the alumnus claim is false.",
+   "Several attributions are unverifiable or wrong as alumni claims (e.g. Ethan Forman, Elizabeth Hefelfinger listed as Pulitzer winners); Neil Simon and John Patrick Shanley attended NYU only briefly and Simon did not graduate.",
+   "Berkley Breathed's Pulitzer is for editorial cartooning, which sits oddly in a list of journalism-school outcomes without a note.",
+   "The list mixes institutions with and without a dedicated journalism school (NYU) without saying so."
+  ],
+  "translator_notes": "The Pulitzer→Μπότση substitution is the reviewable decision in this row: it is a real named institution being swapped, justified because the prompt uses it as a satisfiability check on Greek graduates. If house policy is to freeze real award names, the alternative is to keep 'Πούλιτζερ' and keep the US schools — but then the whole row stops being Greek-native. At the answer stage, every named journalist must be a real Μπότση award recipient; do not carry over transliterated American names."
+ },
+ {
+  "row_id": "b597a2e0d90df8c77ed8bc73f2fc87d7a5fcae40b476f02c0ef8457d49f5327d",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "travel list — free historic sights in a foreign city",
+  "hazards": ["'free to see and visit' is a hard filter that the English reference itself violates (Pergamon, Charlottenburg, Berliner Dom, Bellevue all charge or are closed to visitors)", "Berlin place names have settled Greek forms (Πύλη του Βρανδεμβούργου, Ράιχσταγκ) and must not be re-invented", "the count 10 must be met — the reference gives exactly 10"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "neutral",
+  "register_evidence": "Full sentences, no contractions beyond 'I'm', polite 'would love to' and 'Can you give me' — a traveller's planning question, friendly but not chatty; no relationship marked either way.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Θα βρεθώ στο Βερολίνο για λίγες μέρες και θα ήθελα πολύ να δω κάποια αξιοθέατα όσο θα είμαι εκεί. Σκέφτομαι ιστορικά σημαντικά μέρη και μνημεία μέσα στην πόλη που να μπορεί κανείς να τα δει και να τα επισκεφθεί δωρεάν. Μπορείς να μου δώσεις 10 προτάσεις και πληροφορίες γι' αυτά;",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Two checkable constraints survive: the count (ακριβώς 10 προτάσεις, kept as the numeral '10') and the free-admission filter (δωρεάν επίσκεψη). Each suggestion must also carry πληροφορίες — the item↔gloss pairing. The Greek 'δωρεάν' is exactly as checkable as 'free'.",
+  "substitution_note": "Berlin is content, not frame: the answer is true only of Berlin's monuments, and the asker is explicitly a visitor, so a Greek speaker can occupy this scenario unchanged. Nothing moved.",
+  "guide_gaps": [
+   {"term": "sightseeing", "decision": "να δω αξιοθέατα", "why": "Greek has no single noun for the activity; the verbal phrase is the unmarked native form and avoids the calque 'κάνω σαϊτσίινγκ' / 'περιήγηση'."},
+   {"term": "Brandenburg Gate / Reichstag (for the answer stage)", "decision": "Πύλη του Βρανδεμβούργου / Ράιχσταγκ", "why": "These have settled Greek forms — one translated, one transliterated; the choice is per-name convention, not a rule."}
+  ],
+  "reference_problems": [
+   "The Pergamon Museum, Charlottenburg Palace and Berliner Dom all charge admission, so at least three of the ten items violate the prompt's 'free' constraint; the Victory Column viewing platform also charges.",
+   "Bellevue Palace is the President's residence and is not open to visitors, so it fails 'free to see and visit' in a different way.",
+   "'It was damaged in the early 1900s and restored in 1999' (Reichstag) — the damage was the 1933 fire and the 1945 fighting; the Foster reconstruction reopened in 1999.",
+   "Typo and broken sentence: 'The architecture is incredible and turs Can be booked if you do so early enough.'",
+   "Stray mid-sentence capitals throughout: 'Landmarks', 'Creating East and West Berlin', 'Charlie is memorial', 'It Was first built', 'The Newest building'.",
+   "'Charlie is memorial to this time period' — missing article.",
+   "Checkpoint Charlie is described as a crossing 'between East and West Germany'; it was a crossing point between East and West Berlin.",
+   "'The Berlin Wall was a symbol of the divide between Russia and the rest of Europe and the US' — the divide was between the Soviet bloc and the West; 'Russia' is anachronistic.",
+   "The Pergamon Museum item is a museum, which sits oddly in a list of 'places and monuments'; the Pergamon Altar hall has also been closed for renovation for years.",
+   "'brought from Turkey with all of their original parts' — the Market Gate of Miletus was substantially reconstructed, so 'all original parts' is false.",
+   "The list is bulleted while the prompt asked for '10 suggestions'; the count is met but never numbered, making it harder to verify."
+  ],
+  "translator_notes": "The prompt's free-admission constraint is the thing to police at the answer stage — the English reference fails it repeatedly, and the Greek answer must not inherit those items. Berlin monument names should follow existing Greek usage rather than fresh translation."
+ },
+ {
+  "row_id": "7a76a283e6957c082cebacdca92392b13126d0df7d7ca12f8f4d93c2ec11bc28",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "travel list — family activities in a foreign city, with sub-requirements",
+  "hazards": ["three stacked constraints (≥5 items, ≥1 educational-while-entertaining, short why-descriptions, plus walking/exercise options) are easy to drop when rephrasing into Greek", "'at least 5' is an open lower bound, not an exact count — it must stay open", "imperial distances in the reference need metric conversion for a Greek reader"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "neutral",
+  "register_evidence": "'Please give me', full unelided sentences, a first-person plural 'We would also like' — a parent planning a family trip; polite and businesslike but not distant.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Δώσε μου, σε παρακαλώ, μια λίστα με τουλάχιστον 5 πράγματα που μπορώ να κάνω με παιδιά στο Βανκούβερ της Βρετανικής Κολομβίας. Βάλε τουλάχιστον μία επιλογή όπου τα παιδιά μαθαίνουν πράγματα ενώ διασκεδάζουν. Βάλε και σύντομες περιγραφές για το γιατί ταιριάζει το κάθε μέρος. Θα θέλαμε επίσης κάποια μέρη όπου μπορεί κανείς να περπατήσει πολύ ή να ασκηθεί.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Four checkable constraints survive: (1) τουλάχιστον 5 προτάσεις — an open lower bound, kept open with 'τουλάχιστον'; (2) τουλάχιστον μία επιλογή που συνδυάζει μάθηση και διασκέδαση; (3) σύντομη περιγραφή για το γιατί ταιριάζει το κάθε μέρος (the item↔gloss pairing, made explicit); (4) κάποια μέρη με πολύ περπάτημα ή άσκηση. All four are as checkable in Greek as in English.",
+  "substitution_note": "Vancouver stays: the asker is explicitly a visitor and the answer's truth is entirely a property of Vancouver. The 'we' is a family travelling together — no names, so nothing to transpose.",
+  "guide_gaps": [
+   {"term": "kids", "decision": "παιδιά", "why": "Greek has no register split matching kids/children; 'παιδιά' is unmarked and covers both."},
+   {"term": "get in lots of walking or exercise", "decision": "να περπατήσει κανείς πολύ ή να ασκηθεί", "why": "The English 'get in' (fit exercise into a schedule) has no Greek counterpart; the impersonal 'κανείς' construction keeps it natural and avoids inventing a fitness register the English does not have."}
+  ],
+  "reference_problems": [
+   "'Unless a beach is designated as a \"quiet beach\" it has amplified music' — garbled and effectively false; Vancouver's bylaws restrict amplified music on beaches rather than defaulting it on.",
+   "'Spanish Bank East Beach has 8 sand volleyball courts' — the specific count is dubious and unsourced.",
+   "'11 miles of beachfront coastal property' — imperial only, and the figure is unsourced.",
+   "Capilano Suspension Bridge: 'stretches 450 feet across and high above the Capilano River' conflates its length (~140 m) with its height (~70 m) in one clause.",
+   "The Capilano Suspension Bridge is a paid attraction and the answer never says so, while item 3 volunteers budget advice — inconsistent treatment of cost.",
+   "The prompt asked for at least one option where children learn while entertained; the reference only gestures at this in item 5 ('could also be an opportunity to teach them about rainforests') and never flags which item satisfies the requirement.",
+   "'Stanley Park is well known for its art events and fine dining' — irrelevant to a list of children's activities and weakly true.",
+   "Item 1 ('A Day at the Beach') is a category rather than a place, unlike the other four."
+  ],
+  "translator_notes": "The 'at least' must stay an open lower bound in Greek — do not harden it to exactly five. At the answer stage, distances must be metric and the educational item should be identified explicitly, since the English reference leaves that constraint effectively unmet."
+ },
+ {
+  "row_id": "310661495a94af4b9cb3bc12f60177a8cc14e96969d0c0e182932a81076346bf",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "travel list — Greek sites for history and mythology, museums excluded",
+  "hazards": ["the row is already about Greece: the risk is over-localizing — turning an outsider's question into an insider's and losing the 'must-visit in Greece' framing", "the negative constraint (no museums) is the easiest thing to violate, since most of the candidate sites have museums attached", "site names must use their real Greek forms, never back-translation from English"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "neutral",
+  "register_evidence": "Direct question, mild hedging ('I don't think I'd like'), no greeting or sign-off — an impersonal planning question with no relationship in play.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Ποια είναι 5 μέρη στην Ελλάδα που πρέπει οπωσδήποτε να επισκεφθεί κανείς; Με ενδιαφέρει η ελληνική ιστορία και μυθολογία. Δεν νομίζω ότι θα ήθελα να πάω σε μουσεία, θα ήθελα όμως να δοκιμάσω και καλό φαγητό.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Three checkable constraints survive: (1) ακριβώς 5 μέρη — the numeral is kept; (2) the negative filter χωρίς μουσεία, which is checkable item by item; (3) each item must address ιστορία/μυθολογία and, where possible, φαγητό — the item↔gloss pairing. The Greek 'μουσεία' is exactly as checkable as 'museums'.",
+  "substitution_note": "Nothing to substitute — the destination is already Greece. The asker is not marked as a foreigner anywhere in the English, so the Greek reads naturally as a Greek speaker planning domestic travel; no frame had to move.",
+  "guide_gaps": [
+   {"term": "must-visit places", "decision": "μέρη που πρέπει οπωσδήποτε να επισκεφθεί κανείς", "why": "Greek has no adjectival compound matching 'must-visit'; the relative clause with 'οπωσδήποτε' carries the same force without sounding like tourist-brochure Greek."},
+   {"term": "check out some good food", "decision": "να δοκιμάσω καλό φαγητό", "why": "'Δοκιμάζω' is the natural Greek for sampling cuisine; a literal 'να τσεκάρω' would be Greeklish-flavoured slang the English does not carry."}
+  ],
+  "reference_problems": [
+   "'the Parthenon and the Acropolis' are listed as two separate landmarks; the Parthenon stands on the Acropolis.",
+   "'Treasure of Atreus' — the monument is the Treasury of Atreus (Θησαυρός του Ατρέα).",
+   "'You can see the Oracle or the Temple of Apollo here' conflates the oracle (an institution, long defunct) with the temple that housed it; you cannot 'see' the Oracle.",
+   "'Delphi doesn't offer as much in the way of food' is doubtful and, more importantly, quietly fails the user's food request rather than substituting nearby Arachova.",
+   "Mycenae was 'once a powerful city that had a large part in Greek mythology' — vague, and no food option is offered, so item 3 satisfies neither of the two stated interests fully.",
+   "Santorini is offered mainly for sunsets, white buildings and beaches — the item barely serves the history-and-mythology criterion (Akrotiri is never mentioned).",
+   "Several recommendations (Delphi, Mycenae, Knossos) are archaeological sites with attached museums, which brushes against the user's 'no museums' preference without acknowledging it.",
+   "'Santorini is a beautiful island… Santorini is also known well for' — repetition and awkward adverb order."
+  ],
+  "translator_notes": "The trap here is inverse localization: because the subject is already Greek, there is a temptation to rewrite it as an insider's itinerary question. The English is a generic 'top 5 in Greece' request and the Greek keeps exactly that scope. At the answer stage use the real Greek names (Δελφοί, Μυκήνες, Κνωσός, Θησαυρός του Ατρέα, Πύλη των Λεόντων) and check the no-museums constraint item by item."
+ },
+ {
+  "row_id": "7d4c72fdee3c09c4ca3001b264099d2bfa8d9021530ee71d58f5b873f723a360",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "recipe ideas for a bring-a-dish gathering",
+  "hazards": ["'pot luck' has no Greek noun; a transliteration would name nothing a Greek reader recognises", "the format constraint is a bulleted list, not numbered — list-marker style must be stable", "the reference dishes are entirely US supermarket food (Hawaiian rolls, marshmallow fluff, deli pinwheels) and must not survive into the Greek answer"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "informal",
+  "register_evidence": "'I am going to a pot luck', 'really wow the other guests', 'Can you give me' — casual social talk about friends and food; no distance.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Θα πάω σε ένα τραπέζι με φίλους όπου ο καθένας φέρνει κι από ένα φαγητό και θέλω να πάω κάτι απλό και δημοφιλές που θα εντυπωσιάσει τους υπόλοιπους καλεσμένους. Μπορείς να μου δώσεις μια λίστα με κουκκίδες με τουλάχιστον τρεις ιδέες;",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "a pot luck", "el": "ένα τραπέζι με φίλους όπου ο καθένας φέρνει κι από ένα φαγητό", "kind": "other", "why": "Greek has no lexical item for 'potluck'. The institution itself does exist socially, so the frame is preserved by describing it in one clause — which is what a Greek speaker would actually write. A transliteration ('ποτ λακ') would name nothing."}
+  ],
+  "derived_elements": [
+   {"depends_on": "pot luck → τραπέζι όπου ο καθένας φέρνει ένα φαγητό", "en": "BBQ sliders on Hawaiian rolls, deli pinwheels, marshmallow-fluff crunch clusters", "el": "dishes that travel well and are recognisable at a Greek table (e.g. τυρόπιτα/κουρού, γεμιστά, ντάκος, μακαρονόπιτα, γλυκό ψυγείου)", "why": "Every suggested dish derives from the food culture of the gathering; US convenience products have no counterpart in a Greek kitchen and would break the 'simple and popular' criterion."}
+  ],
+  "constraint_notes": "Two checkable constraints survive: (1) τουλάχιστον τρεις ιδέες — an open lower bound, kept open; (2) the format, λίστα με κουκκίδες (bulleted, not numbered) — the Greek names the marker style explicitly, so it stays checkable. Each item must also keep its explanatory gloss.",
+  "substitution_note": "The occasion is localized by description rather than by name-swap; the dishes it implies must be re-derived at the answer stage.",
+  "guide_gaps": [
+   {"term": "pot luck", "decision": "τραπέζι όπου ο καθένας φέρνει κι από ένα φαγητό (descriptive, no coined noun)", "why": "No established Greek term exists; coining one ('συνεισφορικό τραπέζι') would sound institutional. Recording this so the corpus stays consistent across rows."},
+   {"term": "bulleted list", "decision": "λίστα με κουκκίδες", "why": "'Κουκκίδες' is the standard Greek word for bullet points in word processors; it keeps the format constraint checkable, unlike a vague 'λίστα'."},
+   {"term": "wow the guests", "decision": "θα εντυπωσιάσει τους καλεσμένους", "why": "'Εντυπωσιάζω' carries the same effect without the English interjection-verb's informality, which Greek cannot reproduce lexically."}
+  ],
+  "reference_problems": [
+   "Crunch Clusters: rolling popcorn, pretzels, peanuts, cereal, peanut butter and marshmallow fluff into balls and then baking them is not a workable method — marshmallow-fluff clusters are set, not baked.",
+   "The prompt asks for dishes that are 'simple', but the pinwheels entry spends its whole gloss on appearance and never gives quantities or a method.",
+   "'BBQ pork or chicken sliders' relies on 'sweet Hawaiian rolls', a US-brand-specific product presented as a generic ingredient.",
+   "Two of the three items are appetisers/dessert rather than the 'dish' the prompt asks to bring."
+  ],
+  "translator_notes": "The English prompt contains a spacing typo ('a bulleted list ofat least three ideas'). I read it as an incidental typing slip, not a task-relevant deliberate defect, so I did not reproduce it in Greek; flagging it here so a reviewer can overrule and re-introduce an equivalent slip if house policy treats all source defects as preservable. Also confirm the Greek answer uses κουκκίδες and not numbers, and that dish suggestions are genuinely portable."
+ },
+ {
+  "row_id": "1fcfb2ab5397f9c6a0b6c35be75f2338f866868e75554c6e9e1cea96072cc229",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LITERAL"],
+  "subtype": "idea list — cocktails on a flavour theme",
+  "hazards": ["the count is a range ('3 or 4'), not a single number; flattening it to one value destroys the constraint", "spirit and liqueur names are product categories that stay in their conventional Greek transliterations, not translations", "'watermelon-flavored' is the theme every item must satisfy — the checkable thread"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "neutral",
+  "register_evidence": "A bare eight-word imperative with no greeting, no politeness marker and no relationship cue — a terse task request.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Δώσε μου 3 ή 4 ιδέες για κοκτέιλ με γεύση καρπούζι.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "The count is a range and stays a range: '3 ή 4' — an answer with 2 or 5 items fails, exactly as in English. The flavour theme (γεύση καρπούζι) must hold for every item, and each item keeps its ingredient gloss.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "cocktail", "decision": "κοκτέιλ", "why": "Established Greek loanword in Greek script; 'cocktail' in Latin script would be a foreign body in an otherwise Greek prompt."},
+   {"term": "watermelon-flavored", "decision": "με γεύση καρπούζι", "why": "Greek forms flavour compounds with 'με γεύση + noun in the nominative'; a hyphenated adjective ('καρπουζένιο') exists but reads folksy and marks the register upward in playfulness, which the flat English does not."}
+  ],
+  "reference_problems": [
+   "Item 3 calls limoncello a citrusy option alongside 'any orange liqueur', but limoncello is a lemon liqueur — the two are not interchangeable as written.",
+   "'This cocktail consists of, vodka, watermelon juice…' — stray comma after 'of'.",
+   "Item 3 lists no base spirit at all (limoncello and watermelon only), so it is not really a martini.",
+   "The items are numbered although the prompt did not specify a format — harmless, but the em-dash-free 'Cocktails- This cocktail' punctuation is sloppy throughout.",
+   "Every gloss opens with the identical formula 'This cocktail consists of', which is filler rather than description."
+  ],
+  "translator_notes": "Watch the range constraint: the Greek must not be normalised to 'τρεις ιδέες'. Spirit names at the answer stage should follow common Greek bar usage (βότκα, λευκό ρούμι, μπέρμπον, λιμοντσέλο)."
+ },
+ {
+  "row_id": "90928d3456d5a17b202c99b859be53892c558f173e8330275256a05556facac7",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [],
+  "subtype": "idea list — games to play with a pet",
+  "hazards": ["the game names in the answer are the localizable part: 'tug-of-war' and 'hide-and-seek' have real Greek names and must not be described around", "no count is stated and none must be invented", "the row is short — any added politeness or warmth would mark it above the English"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "informal",
+  "register_evidence": "'I am trying to think of…', 'Can you come up with' — chatty, first-person, about a pet; no distance, no formality markers.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Προσπαθώ να σκεφτώ κάποια παιχνίδια για να παίζω με τον σκύλο μου. Μπορείς να μου φτιάξεις μια λίστα με πράγματα που μπορούμε να παίξουμε;",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "No count is named in the English and none is added. The only structural requirement is the list form and the item↔gloss pairing (each game gets its explanation of why it works).",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "fetch (the game)", "decision": "το φέρε / 'πέτα και φέρε'", "why": "Greek names this by the command rather than by a noun; recorded now so the answer stage does not invent 'φετς' or a paraphrase."},
+   {"term": "tug-of-war", "decision": "διελκυστίνδα (colloquially 'τραβηγματάκι με το παιχνίδι')", "why": "The formal Greek noun exists but is stiff for a dog game; the answer may use the formal noun with a plain gloss."},
+   {"term": "hide-and-seek", "decision": "κρυφτό", "why": "Exact, universally known Greek equivalent — a real game name, not a description."}
+  ],
+  "reference_problems": [
+   "'Fetch is a great game that dogs have loved to play for centuries' — an unverifiable filler claim presented as fact.",
+   "Every item opens with the same 'X is a great way to…' formula, so the glosses read as template rather than description.",
+   "'Just be sure the toy is strong enough to withstand its strength' — 'its' used of the dog, and the sentence repeats 'strong/strength'.",
+   "The safety caveat about swimming supervision is given, but no caveat is given for tug-of-war (dental/behavioural cautions), which is the item that usually carries one."
+  ],
+  "translator_notes": "Deliberately kept short and plain — the English is a two-sentence throwaway and the Greek must not become more polished than it. Check that the answer names κρυφτό and 'το φέρε' as games rather than describing them."
+ },
+ {
+  "row_id": "3af37fa9a794c0190e5befcda50ec3deb23092fbda761a5c17414529b6434ad3",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "advice list — choosing a field of study from a personality profile",
+  "hazards": ["'major' has no Greek equivalent: Greek students choose a whole σχολή/τμήμα at admission, not a major inside a degree", "the speaker's gender is unknown, so any predicate adjective would invent information", "the profile (creative / likes art / hates science) is the filter every suggestion must satisfy — several reference items violate it"],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "informal",
+  "register_evidence": "'I'm having a hard time', 'hate science', 'Could you give me' — a student venting mildly; personal, unguarded, no distance despite the 'could'.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Δυσκολεύομαι πολύ να διαλέξω σχολή. Έχω δημιουργική φύση, μου αρέσει η τέχνη και σιχαίνομαι τα θετικά μαθήματα. Μπορείς να μου δώσεις 5 επιλογές;",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "picking a major", "el": "να διαλέξω σχολή", "kind": "institution", "why": "The US 'major' is chosen inside an already-started degree; in Greece the equivalent decision is which σχολή/τμήμα to enter, made before admission. Keeping 'κατεύθυνση' or coining 'μέιτζορ' would describe a system Greek students do not have."},
+   {"en": "science (as a school subject block)", "el": "τα θετικά μαθήματα", "kind": "other", "why": "Greek secondary education splits subjects into θετικά and θεωρητικά; 'θετικά μαθήματα' is precisely the block an art-leaning Greek student would name as the thing they dislike, where a bare 'επιστήμη' would mean scholarship in general."}
+  ],
+  "derived_elements": [
+   {"depends_on": "picking a major → να διαλέξω σχολή", "en": "the five majors (Interior design, Marketing, Graphic design, Architecture, Fashion design)", "el": "Greek σχολές/τμήματα that actually exist and admit through the Πανελλήνιες (e.g. Εσωτερικής Αρχιτεκτονικής, Γραφιστικής και Οπτικής Επικοινωνίας, Μάρκετινγκ, Αρχιτεκτόνων Μηχανικών, Σχεδιασμού Μόδας)", "why": "Each list item must name a real Greek department, since the whole point of the answer is a menu the student can actually apply to."},
+   {"depends_on": "science → θετικά μαθήματα", "en": "'Architecture' as a suggestion", "el": "the answer must acknowledge that Αρχιτεκτόνων Μηχανικών is a θετικών-πεδίου school", "why": "The dislike stated in the prompt is now a specific Greek subject block, so any suggestion inside that block has to be flagged rather than silently offered."}
+  ],
+  "constraint_notes": "Checkable constraints: exactly 5 επιλογές (numeral kept), each carrying its rationale, and every option consistent with the stated profile — δημιουργικός χαρακτήρας, αγάπη για την τέχνη, απέχθεια για τα θετικά μαθήματα. The profile is as checkable in Greek as in English.",
+  "substitution_note": "The education system moves completely: 'major' becomes σχολή and 'science' becomes the Greek θετικά/θεωρητικά subject split, so the whole scenario sits inside Greek schooling rather than half in each.",
+  "guide_gaps": [
+   {"term": "major (US college)", "decision": "σχολή (the department a student picks at admission)", "why": "No Greek equivalent for the US concept; 'σχολή' is the decision Greek students actually agonise over and preserves the row's situation."},
+   {"term": "I am creative", "decision": "Έχω δημιουργική φύση", "why": "A predicate adjective would force grammatical gender ('δημιουργικός'/'δημιουργική') and invent a fact the English does not supply; the noun phrase keeps the speaker ungendered."},
+   {"term": "hate science", "decision": "σιχαίνομαι τα θετικά μαθήματα", "why": "'Σιχαίνομαι' matches the bluntness of 'hate' in a student's mouth; 'μισώ' is available but reads more literary here."}
+  ],
+  "reference_problems": [
+   "'Your creativity and artistic leanings will find have no trouble helping to create…' — ungrammatical, two verbs collide.",
+   "Architecture is recommended to someone who explicitly hates science, yet architecture degrees are built on physics, statics and mathematics; the contradiction is never acknowledged.",
+   "Marketing is likewise heavy on statistics and analytics, which sits awkwardly with the stated profile.",
+   "Item 5 undercuts its own recommendation ('if design isn't quite for you'), advising against the major it is proposing.",
+   "'for an artistic soul such as yourself' is flattery that the prompt does not invite.",
+   "Item 3's 'Where computers meet art' is a fragment used as a sentence."
+  ],
+  "translator_notes": "Two calls worth a reviewer's eye: keeping the speaker ungendered (Greek would otherwise force a gender the English never states), and rendering 'science' as the Greek θετικά-μαθήματα block rather than 'επιστήμη'. At the answer stage the five options must be real Greek departments, and the architecture-style contradiction in the English reference should not be reproduced."
+ }
+]

@@ -503,6 +503,7 @@ def main() -> int:
             update=args.start_update,
             checkpoint_root=checkpoint_root,
             source_phase_cache_receipt=args.source_phase_cache_receipt,
+            accepted_producers=accepted_producers,
         )
         permit_audit_binding = permit.get("checkpoint_audit")
         if args.canonical_resume:

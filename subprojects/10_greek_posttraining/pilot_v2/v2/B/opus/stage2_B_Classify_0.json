@@ -1,0 +1,102 @@
+[
+  {
+    "row_id": "5328c63fb7ec32ab6d74b12765ec0f28dcf8cfe4c78ecf3fa8dfe894c84d5796",
+    "response_el": "Το είδος του λόγου με τον οποίο περιγράφεται ο Πανταλόνε, χαρακτήρας της Commedia dell'arte, μπορεί να χαρακτηριστεί περιγραφικός και αξιολογικός. Ο λόγος τον παρουσιάζει ως σύνθετο χαρακτήρα με πλήθος αρνητικών γνωρισμάτων και συνθέτει μια ζωντανή και επικριτική εικόνα του.",
+    "assistant_turns_el": [],
+    "register_used": "neutral",
+    "register_note": "Stage 1 set target_register «ενικός», but the answer is a metalinguistic statement with no addressee, so no address form is forced anywhere in it; the impersonal phrasing is consistent with the prompt's bare imperative and does not clash with a singular reading.",
+    "constraint_check": null,
+    "defect_note": "The reference asserts the label without citing any evidence from the passage, although the passage supplies an adjective chain that is exactly the basis for «αξιολογικός». The answer keeps the reference's shape and does not add a justification the reference lacks.",
+    "reference_corrections": [
+      {
+        "what": "Internal repetition of the same claim",
+        "english": "The language portrays Pantalone as a complex character ... and the language paints a vivid and critical picture of Pantalone as a character.",
+        "greek": "Ο λόγος τον παρουσιάζει ως σύνθετο χαρακτήρα με πλήθος αρνητικών γνωρισμάτων και συνθέτει μια ζωντανή και επικριτική εικόνα του.",
+        "why": "The English repeats «Pantalone ... as a character» twice in one sentence and restates the subject «the language» redundantly. Greek would not tolerate the double naming; the second mention is pronominalized and the redundant «as a character» dropped. No content is lost."
+      }
+    ],
+    "class_disagreement": null,
+    "guide_gaps": [
+      {
+        "term": "Commedia dell'arte",
+        "decision": "Kept in Latin script, as stage 1 set it",
+        "why": "Real Italian title of a real tradition; Greek scholarship uses the Italian form and a Greek rendering would name a non-existent work."
+      },
+      {
+        "term": "descriptive and evaluative",
+        "decision": "περιγραφικός και αξιολογικός",
+        "why": "«αξιολογικός» is the standard Greek term in stylistic/discourse analysis for judgement-laden language; «αξιολογητικός» is not established and «κριτικός» would pre-empt the second clause."
+      }
+    ],
+    "deviations": [
+      "The reference's two overlapping clauses are compressed into one sentence with a pronoun, per the correction above; length is essentially unchanged (two sentences, same substance)."
+    ],
+    "self_flags": [
+      "Check that «περιγραφικός και αξιολογικός» is the label wording a Greek reviewer would expect for 'descriptive and evaluative'.",
+      "The answer inherits the reference's lack of cited evidence; if the project prefers evidence-bearing answers, this row would need a shape change agreed at the family level."
+    ]
+  },
+  {
+    "row_id": "a9575bb9e4bc90cf7bfd7e3ab5d87f9d3ae7cd46bb273bbb3ab43584d0fd9c3b",
+    "response_el": "Είδη κουζίνας",
+    "assistant_turns_el": [],
+    "register_used": "neutral",
+    "register_note": "A bare label; no verb, no address form. Stage 1's «ενικός» applies to the prompt's imperative only and cannot surface in a one-noun-phrase answer.",
+    "constraint_check": "The answer string «Είδη κουζίνας» is byte-identical to the third option as spelled in the Greek prompt («Επιλογές κατηγοριών: Μπάνιο, Έπιλα, Είδη κουζίνας, Περιοδικά»), capitalization included. Exactly one option is emitted, no surrounding prose, matching the reference's single-token shape.",
+    "defect_note": "The prompt's option list carries a deliberately preserved misspelling, «Έπιλα» for «Έπιπλα», mirroring the English 'Funiture'. It is a distractor, not the answer, so it does not affect the label; it is left unrepaired by design and must not be corrected by a later pass.",
+    "reference_corrections": [],
+    "class_disagreement": null,
+    "guide_gaps": [],
+    "deviations": [],
+    "self_flags": [
+      "Verify no spell-check pass rewrites «Έπιλα» in the prompt; the answer would still be correct, but the row's preserved defect would be lost."
+    ]
+  },
+  {
+    "row_id": "586d18d65cfc4651de4468e3012a1d8d747dbb89ef2a2cf9dddb223a12a61672",
+    "response_el": "1. Ανδρικό\n2. Ανδρικό\n3. Γυναικείο\n4. Ανδρικό\n5. Γυναικείο\n6. Ανδρικό\n7. Γυναικείο\n8. Ανδρικό\n9. Γυναικείο\n10. Γυναικείο",
+    "assistant_turns_el": [],
+    "register_used": "neutral",
+    "register_note": "Ten bare labels; no verb and no addressee, so no address form is realized. Consistent with the prompt's imperative.",
+    "constraint_check": "Exactly ten numbered labels, numbered 1–10 in the same order as the prompt's items, one per line, drawn from the binary closed set {«Ανδρικό», «Γυναικείο»} and used consistently throughout (no mixing with «Άνδρας»/«Γυναίκα»). Position-by-position check against the Greek names: 1 Γιάννης=Ανδρικό, 2 Θεόδωρος=Ανδρικό, 3 Ελένη=Γυναικείο, 4 Μιχάλης=Ανδρικό, 5 Μιχαέλα=Γυναικείο, 6 Χρήστος=Ανδρικό, 7 Αφροδίτη=Γυναικείο, 8 Νίκος=Ανδρικό, 9 Νίκη=Γυναικείο, 10 Ξανθή=Γυναικείο. The sequence Α,Α,Γ,Α,Γ,Α,Γ,Α,Γ,Γ reproduces the English M,M,F,M,F,M,F,M,F,F exactly.",
+    "defect_note": "The reference labels are bare and positional, so a single insertion or deletion would misalign every later item without looking wrong; the Greek answer keeps the explicit numbering the reference uses, which is the only guard available. Also, the English pair Bobby/Bobbi is attested for both genders, so the reference states as fact a genuinely ambiguous assignment; the Greek pair Νίκος/Νίκη is unambiguous, which removes that ambiguity but, as stage 1 flagged, makes item 9 easier than the English.",
+    "reference_corrections": [],
+    "class_disagreement": null,
+    "guide_gaps": [
+      {
+        "term": "Male / Female (as labels for names)",
+        "decision": "Ανδρικό / Γυναικείο (neuter, agreeing with «όνομα»)",
+        "why": "Greek classifies the name, not the person; the neuter adjectives are the natural answer form. «Άνδρας»/«Γυναίκα» would read as classifying people. Stage 1 licensed either, requiring one to be used for all ten — «Ανδρικό»/«Γυναικείο» chosen and applied throughout."
+      }
+    ],
+    "deviations": [
+      "The labels are re-derived from the substituted Greek names rather than translated from the English list; the resulting sequence is identical position by position."
+    ],
+    "self_flags": [
+      "Acknowledged difficulty drop at items 8/9: Νίκος/Νίκη differ audibly, whereas Bobby/Bobbi differ only orthographically, so the Greek row is easier there.",
+      "Confirm the reviewer accepts «Ανδρικό»/«Γυναικείο» over «Άνδρας»/«Γυναίκα»; both are defensible and the choice must stay uniform across the batch."
+    ]
+  },
+  {
+    "row_id": "41414834dc92e99f00e16af99da40b51959e2945f179a122e4a5118d8bf1f86a",
+    "response_el": "Αυτό το κείμενο λέει κάτι αρνητικό για την Tesla.",
+    "assistant_turns_el": [],
+    "register_used": "neutral",
+    "register_note": "The prompt is informal second-person singular («Πιστεύεις…»), but the answer is a statement about the text with no addressee, so no address form surfaces; nothing in it clashes with the singular of the question.",
+    "constraint_check": "The label word «αρνητικό» is reused verbatim from the prompt's own option triple {«θετικό», «ουδέτερο», «αρνητικό»}, in the neuter singular form fixed by «κάτι» in the question. Exactly one of the three options appears; the sentence frame mirrors the reference's single declarative line.",
+    "defect_note": "The prompt does not disambiguate tone from content: the item is neutrally-worded reporting of unflattering content, so «ουδέτερο» is defensible under a tone-based reading. The reference commits to «αρνητικό» without acknowledging this, and the answer keeps the reference's shape and directness rather than hedging.",
+    "reference_corrections": [],
+    "class_disagreement": null,
+    "guide_gaps": [
+      {
+        "term": "Tesla",
+        "decision": "Kept in Latin script, feminine («την Tesla»), as stage 1 set it",
+        "why": "Real company in a real reported item; Greek press keeps the Latin brand form and the feminine follows the implicit «εταιρεία»."
+      }
+    ],
+    "deviations": [],
+    "self_flags": [
+      "Check that the answer's «αρνητικό» matches the prompt's option string exactly (neuter singular, lowercase mid-sentence)."
+    ]
+  }
+]

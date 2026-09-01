@@ -1,0 +1,270 @@
+{
+  "schema_version": "polytonic-suspicious-token-review-v1",
+  "created_at": "2026-07-29T10:11:01Z",
+  "status": "passed",
+  "scope": "all historically flagged byte-fragment IDs that occur in the +512 or +1024 production cutoffs",
+  "corpus_evidence": {
+    "source": "FineWeb-2 grc_Grek train",
+    "tokens_scanned_per_candidate": 30000000,
+    "ancient_train_jsonl": {
+      "bytes": 365864270,
+      "sha256": "0586962eb64ae57cbb8c47686f860c5cdd2e159c84a364593d566616f1841cd5"
+    }
+  },
+  "decision": "keep all flagged cutoff tokens; none is mojibake or an unresolved fragment, and all fire on valid polytonic surfaces",
+  "cutoffs": {
+    "512": {
+      "candidate_tokenizer_sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+      "audit_path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/candidates/c3p_poly_added_0512/byte_fragment_audit.json",
+      "coverage_path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/coverage_0512/td_coverage_prepass.jsonl",
+      "reviewed_count": 3,
+      "unresolved_count": 0,
+      "tokens": [
+        {
+          "id": 148924,
+          "raw_bytes_hex": "b7 cf 82",
+          "decision": "keep",
+          "classification": "structural ByteLevel merge component",
+          "valid_utf8_descendants": [
+            {
+              "depth": 1,
+              "result_id": 149542,
+              "decoded": " εἷς",
+              "raw_bytes_hex": "20 ce b5 e1 bc b7 cf 82",
+              "merge_path": [
+                287913
+              ]
+            },
+            {
+              "depth": 1,
+              "result_id": 150287,
+              "decoded": "ἷς",
+              "raw_bytes_hex": "e1 bc b7 cf 82",
+              "merge_path": [
+                288658
+              ]
+            },
+            {
+              "depth": 1,
+              "result_id": 151427,
+              "decoded": " αἷς",
+              "raw_bytes_hex": "20 ce b1 e1 bc b7 cf 82",
+              "merge_path": [
+                289798
+              ]
+            },
+            {
+              "depth": 2,
+              "result_id": 153181,
+              "decoded": "οἷς",
+              "raw_bytes_hex": "ce bf e1 bc b7 cf 82",
+              "merge_path": [
+                288658,
+                291552
+              ]
+            }
+          ],
+          "actual_firings_in_30m_token_scan": 3568,
+          "docs_with_firing": 1475,
+          "coverage_status": "enough_100",
+          "actual_surfaces": [
+            "ἷς"
+          ],
+          "training_policy": "retain and merge-chain initialize; exclude from standalone token-distillation targets"
+        },
+        {
+          "id": 148979,
+          "raw_bytes_hex": "93 cf 82",
+          "decision": "keep",
+          "classification": "structural ByteLevel merge component",
+          "valid_utf8_descendants": [
+            {
+              "depth": 1,
+              "result_id": 149074,
+              "decoded": " οὓς",
+              "raw_bytes_hex": "20 ce bf e1 bd 93 cf 82",
+              "merge_path": [
+                287445
+              ]
+            }
+          ],
+          "actual_firings_in_30m_token_scan": 3619,
+          "docs_with_firing": 1414,
+          "coverage_status": "enough_100",
+          "actual_surfaces": [
+            "ὓς"
+          ],
+          "training_policy": "retain and merge-chain initialize; exclude from standalone token-distillation targets"
+        },
+        {
+          "id": 148987,
+          "raw_bytes_hex": "ae cf 87 ce bf cf 82",
+          "decision": "keep",
+          "classification": "structural ByteLevel merge component",
+          "valid_utf8_descendants": [
+            {
+              "depth": 1,
+              "result_id": 149100,
+              "decoded": "Ἦχος",
+              "raw_bytes_hex": "e1 bc ae cf 87 ce bf cf 82",
+              "merge_path": [
+                287471
+              ]
+            }
+          ],
+          "actual_firings_in_30m_token_scan": 438,
+          "docs_with_firing": 57,
+          "coverage_status": "enough_100",
+          "actual_surfaces": [
+            "Ἦχος",
+            "Ὦχος"
+          ],
+          "training_policy": "retain and merge-chain initialize; exclude from standalone token-distillation targets"
+        }
+      ]
+    },
+    "1024": {
+      "candidate_tokenizer_sha256": "3465350b74e186ce22e5aefcfb67c33ac9cab7d90bc42596b52c82c7bd93fbff",
+      "audit_path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/candidates/c3p_poly_added_1024/byte_fragment_audit.json",
+      "coverage_path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/coverage_1024/td_coverage_prepass.jsonl",
+      "reviewed_count": 4,
+      "unresolved_count": 0,
+      "tokens": [
+        {
+          "id": 148924,
+          "raw_bytes_hex": "b7 cf 82",
+          "decision": "keep",
+          "classification": "structural ByteLevel merge component",
+          "valid_utf8_descendants": [
+            {
+              "depth": 1,
+              "result_id": 149542,
+              "decoded": " εἷς",
+              "raw_bytes_hex": "20 ce b5 e1 bc b7 cf 82",
+              "merge_path": [
+                287913
+              ]
+            },
+            {
+              "depth": 1,
+              "result_id": 150287,
+              "decoded": "ἷς",
+              "raw_bytes_hex": "e1 bc b7 cf 82",
+              "merge_path": [
+                288658
+              ]
+            },
+            {
+              "depth": 1,
+              "result_id": 151427,
+              "decoded": " αἷς",
+              "raw_bytes_hex": "20 ce b1 e1 bc b7 cf 82",
+              "merge_path": [
+                289798
+              ]
+            },
+            {
+              "depth": 2,
+              "result_id": 153181,
+              "decoded": "οἷς",
+              "raw_bytes_hex": "ce bf e1 bc b7 cf 82",
+              "merge_path": [
+                288658,
+                291552
+              ]
+            }
+          ],
+          "actual_firings_in_30m_token_scan": 3695,
+          "docs_with_firing": 1528,
+          "coverage_status": "enough_100",
+          "actual_surfaces": [
+            "ἷς"
+          ],
+          "training_policy": "retain and merge-chain initialize; exclude from standalone token-distillation targets"
+        },
+        {
+          "id": 148979,
+          "raw_bytes_hex": "93 cf 82",
+          "decision": "keep",
+          "classification": "structural ByteLevel merge component",
+          "valid_utf8_descendants": [
+            {
+              "depth": 1,
+              "result_id": 149074,
+              "decoded": " οὓς",
+              "raw_bytes_hex": "20 ce bf e1 bd 93 cf 82",
+              "merge_path": [
+                287445
+              ]
+            }
+          ],
+          "actual_firings_in_30m_token_scan": 102,
+          "docs_with_firing": 86,
+          "coverage_status": "enough_100",
+          "actual_surfaces": [
+            "ὓς"
+          ],
+          "training_policy": "retain and merge-chain initialize; exclude from standalone token-distillation targets"
+        },
+        {
+          "id": 148987,
+          "raw_bytes_hex": "ae cf 87 ce bf cf 82",
+          "decision": "keep",
+          "classification": "structural ByteLevel merge component",
+          "valid_utf8_descendants": [
+            {
+              "depth": 1,
+              "result_id": 149100,
+              "decoded": "Ἦχος",
+              "raw_bytes_hex": "e1 bc ae cf 87 ce bf cf 82",
+              "merge_path": [
+                287471
+              ]
+            }
+          ],
+          "actual_firings_in_30m_token_scan": 469,
+          "docs_with_firing": 57,
+          "coverage_status": "enough_100",
+          "actual_surfaces": [
+            "Ἦχος",
+            "Ὦχος"
+          ],
+          "training_policy": "retain and merge-chain initialize; exclude from standalone token-distillation targets"
+        },
+        {
+          "id": 149436,
+          "raw_bytes_hex": "a9 cf 82",
+          "decision": "keep",
+          "classification": "structural ByteLevel merge component",
+          "valid_utf8_descendants": [
+            {
+              "depth": 1,
+              "result_id": 150436,
+              "decoded": " Ὡς",
+              "raw_bytes_hex": "20 e1 bd a9 cf 82",
+              "merge_path": [
+                288807
+              ]
+            },
+            {
+              "depth": 1,
+              "result_id": 150615,
+              "decoded": "Ὡς",
+              "raw_bytes_hex": "e1 bd a9 cf 82",
+              "merge_path": [
+                288986
+              ]
+            }
+          ],
+          "actual_firings_in_30m_token_scan": 1229,
+          "docs_with_firing": 461,
+          "coverage_status": "enough_100",
+          "actual_surfaces": [
+            "Ὡς"
+          ],
+          "training_policy": "retain and merge-chain initialize; exclude from standalone token-distillation targets"
+        }
+      ]
+    }
+  }
+}

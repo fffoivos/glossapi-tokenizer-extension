@@ -1,0 +1,304 @@
+[
+ {
+  "row_id": "35b5cd9f131a301e3c9917615f851782cfe1d523a05374e077298b3b89dc3785",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "personal letter, son to mother, warm tone",
+  "hazards": ["the deliverable is a message to a family member, so the answer's address form is load-bearing", "the English reference is full of US-specific props (varsity sports, dog walker, movie gag) that must not leak into the Greek answer", "'casual letter' in Greek risks drifting into επιστολή/formal register"],
+  "devices": [],
+  "device_notes": "The prompt itself carries no name, pun or sound device. The devices in the English reference (the invented cast Ricky/Lisa/Rob) belong to the answer stage, not to the prompt.",
+  "en_register": "informal",
+  "register_evidence": "'Write me', 'casual letter', 'positive vibe' — the request to the assistant is colloquial; the deliverable is a son writing to his own mother, the most intimate relationship in the row.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μου ένα ανεπίσημο γράμμα που στέλνει ένας γιος στη μητέρα του για να της πει τα νέα του. Δώσ' του θετικό τόνο.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": null,
+  "substitution_note": "No substitution was needed in the prompt: the English prompt names no person, place or institution. The whole cast is invented inside the reference answer, so localization is entirely a Stage-2 decision.",
+  "guide_gaps": [
+   {"term": "casual letter", "decision": "ανεπίσημο γράμμα (not επιστολή)", "why": "γράμμα is the everyday word; επιστολή is bureaucratic/literary and would flip the register the row depends on."},
+   {"term": "positive vibe", "decision": "θετικό τόνο", "why": "'βάιμπ' is Greeklish-adjacent slang; θετικός τόνος is what a Greek speaker would say unprompted and keeps the instruction checkable."}
+  ],
+  "reference_problems": ["The letter says 'I have to cut this letter a little short' but no reason is given and nothing earlier in the letter sets up a time pressure.", "'I would hate for Ricky to do you like those dogs in the movies do' is ungrammatical/dialectal ('do you like')."],
+  "translator_notes": "Stage 2 must localize the invented cast completely or not at all: if the mother becomes Greek, then the dog name, the grandchildren's names and the school-sport detail must all become Greek too. 'Varsity sports' has no Greek equivalent — the natural transposition is ακαδημίες/σχολικές ομάδες or a club (σύλλογος), since Greek schools do not run varsity athletics."
+ },
+ {
+  "row_id": "8073ef0ec7dd4010d3dcfb4f805a59dc09fa78bee23bc9e69b6d4f3fb902a5ca",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "short mantra with a tonal turn",
+  "hazards": ["the checkable property is the ORDER of the two tones — self-loathing first, positive at the end — and it must stay checkable in Greek", "'mantra' collides with the ordinary Greek noun η μάντρα (a walled yard / scrapyard)"],
+  "devices": [],
+  "device_notes": "No name or sound device in the prompt. The reference answer leans on the ironic 'king of failure / king of something' repetition; that is an answer-stage device, and Greek reproduces it easily with βασιλιάς.",
+  "en_register": "neutral",
+  "register_evidence": "A bare imperative task with no addressee and no relationship; nothing in the wording is either polite or intimate.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα μάντρα που να είναι γεμάτο αυτοαπαξίωση και μελαγχολία, αλλά να καταλήγει θετικά.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "The tonal constraint survives literally: αυτοαπαξίωση + μελαγχολία throughout, θετική κατάληξη at the end. 'να καταλήγει θετικά' keeps the position of the turn checkable (it must be the final sentence), exactly as 'positive at the end' does.",
+  "substitution_note": "Nothing was substituted; the row contains no culture-bound referent.",
+  "guide_gaps": [
+   {"term": "mantra", "decision": "μάντρα, used as a NEUTER noun ('ένα μάντρα')", "why": "The transliteration is the established Greek form, but as a feminine noun it is homographic with η μάντρα (yard/pen). The neuter article disambiguates it in the first two words; a paraphrase such as 'ρητό αυτοπαρακίνησης' would lose the spiritual-practice flavour the row is playing with."},
+   {"term": "self-loathing", "decision": "αυτοαπαξίωση", "why": "αυτομίσος exists but is clinical and too violent for the wry tone; αυτοαπαξίωση is the ordinary word for running yourself down."}
+  ],
+  "reference_problems": ["'the nothingness that is my life' contradicts the mantra's own closing claim 'I believe in me!' only rhetorically, but 'I might be the king of failure, but at least I'm the king of something' is already a positive turn in the first sentence, so the reference arguably violates the prompt's 'positive at the END' placement."],
+  "translator_notes": "Check that the Greek answer does not place its positive turn in the first sentence, which is the flaw the English reference has. Also confirm the reviewer is comfortable with 'ένα μάντρα' as the house form."
+ },
+ {
+  "row_id": "a16979b07edb296e5c12338204023194b450ed4b295cf22ca562800b507d6624",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "explain a modern technology to a 1970s listener, capped length",
+  "hazards": ["the explicit size limit (maximum two paragraphs) is the checkable constraint and is easy to lose", "anachronism control: the explanation must not use loanwords a 1970s Greek listener could not have", "the Greek technical vocabulary of the 1970s is genuinely different — 'υπολογιστής' existed, 'διαδίκτυο' did not"],
+  "devices": [],
+  "device_notes": "No name or sound device. The rhetorical device is the analogy chain (TV, letters, telephone → internet), which transfers to Greek unchanged since all three referents existed in 1970s Greece.",
+  "en_register": "informal",
+  "register_evidence": "'Okay, so you know how...' in the reference and the explicit 'keep a casual tone' in the prompt; the imagined listener is a peer being talked to over a kitchen table.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Εξήγησε σε κάποιον τι είναι το ίντερνετ, σαν να βρισκόμαστε στη δεκαετία του 1970. Κράτα χαλαρό ύφος και μην ξεπεράσεις τις δύο παραγράφους.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "the 1970s", "el": "η δεκαετία του 1970", "kind": "other", "why": "Kept, not moved: the decade is content — the whole task is defined by what a listener in that decade could not know. Greece in the 1970s had television, post and telephones, so the analogy chain survives intact."}
+  ],
+  "derived_elements": [
+   {"depends_on": "the 1970s setting", "en": "email / \"electronic mail\"", "el": "ηλεκτρονικό ταχυδρομείο (και μετά «ιμέιλ»)", "why": "The reference introduces the English coinage as a novelty being explained. The Greek answer must mirror that move: give the descriptive Greek term first, because a 1970s listener has no loanword to hang it on."}
+  ],
+  "constraint_notes": "The countable constraint is 'μην ξεπεράσεις τις δύο παραγράφους' — paragraphs count identically in Greek, so the checker is unchanged (≤2 paragraphs). The tone constraint (χαλαρό ύφος) is preserved as a second, softer requirement.",
+  "substitution_note": "Nothing was localized in the prompt itself; the only culture-bound item is the decade, which is content and stays. Stage 2 must keep the props (τηλεόραση, γράμματα, τηλέφωνο) period-plausible for Greece, and should not import YouTube-era US brand history uncritically.",
+  "guide_gaps": [
+   {"term": "the internet", "decision": "το ίντερνετ in the prompt; the answer may use διαδίκτυο once it has been introduced", "why": "The prompt's casual register calls for the everyday spoken form ίντερνετ; διαδίκτυο is the formal/official term and would clash with 'χαλαρό ύφος'. Recording both so the pair is consistent across the corpus."}
+  ],
+  "reference_problems": ["It substantially exceeds a casual two-paragraph cap in spirit — each paragraph is very long, and the second one runs from email to websites to video to YouTube to live streaming to online chess.", "Anachronism inside the fiction: it names YouTube and China/Britain examples to a 1970s listener, which is fine as future-telling but is presented as if the listener could evaluate it.", "'much smaller than the ones you have' assumes the listener personally owns a computer, which almost no 1970s listener did."],
+  "translator_notes": "Verify the Greek answer stays at two paragraphs — this is the row's whole point and the English reference is the weak model here."
+ },
+ {
+  "row_id": "484a7383586712f559c98eed43c9e4c43816c8a4a3385bf148819db174dde1b7",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [],
+  "subtype": "fixed-form miniature poem (haiku)",
+  "hazards": ["the 5-7-5 syllable count is the checkable constraint and must be counted in Greek syllables", "Greek words are longer, so three lines of 5-7-5 hold far less content than in English", "'for kids' is ambiguous in the English — exercise suitable for kids, or a haiku written for a child audience"],
+  "devices": [
+   {"where": "form", "device": "metre", "effect": "childlike, brisk", "english": "haiku (5-7-5 syllables)", "greek": "χάικου (5-7-5 συλλαβές)", "how": "Same device. Greek scans by syllable just as haiku requires, so the form transfers directly; no regeneration needed."}
+  ],
+  "device_notes": "Syllable counting in Greek must respect συνίζηση (e.g. «γειά» one syllable, «παιδιά» two): the checker must count as a Greek reader would read aloud, not by vowel letters.",
+  "en_register": "neutral",
+  "register_evidence": "Four-word bare imperative with no addressee, no politeness marker and no relationship.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα χάικου για τη γυμναστική, για παιδιά.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "The form constraint is the haiku itself: three lines of 5, 7 and 5 syllables. It is left implicit in Greek exactly as it is in English (the word χάικου carries it), so the row's difficulty is unchanged. If the Greek answer cannot hit 5-7-5, the row fails — the count is not negotiable.",
+  "substitution_note": "No substitution: the prompt has no name, place or culture-bound prop. 'Exercise' is a universal referent and needs no localization.",
+  "guide_gaps": [
+   {"term": "haiku", "decision": "χάικου (indeclinable neuter)", "why": "Established Greek form; χαϊκού with diaeresis also occurs, but χάικου is the more common monotonic spelling and I am fixing it for the corpus."},
+   {"term": "exercise", "decision": "γυμναστική", "why": "άσκηση alone is ambiguous (it also means a school exercise/drill); γυμναστική is unambiguously physical activity and is what a child would be told to go and do."}
+  ],
+  "reference_problems": ["The reference haiku is metrically correct in English (5-7-5) but 'Have fun with it too' is a fourth idea grafted on; more importantly the reference resolves the prompt's ambiguity silently by writing FOR children rather than ABOUT exercise for children."],
+  "translator_notes": "I deliberately preserved the English ambiguity ('για τη γυμναστική, για παιδιά' is ambiguous in the same way). If the project wants ambiguity removed, that is a Stage-2 decision, not mine. Human reviewer must recount the syllables of the Greek answer with συνίζηση applied."
+ },
+ {
+  "row_id": "43eca3ee2e00067fdfa6b229e006a19be89a04bee5c9af4c17f0c9fb74940d6d",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "narrative comic poem, animal detectives",
+  "hazards": ["the prompt looks trivially literal but sets up an answer with rhyme and a charactonym, which are the real work", "the detective-duo genre is Anglo-American; the Greek answer must not read as a translated cartoon"],
+  "devices": [
+   {"where": "answer-stage character name", "device": "alliteration", "effect": "comic, memorable", "english": "Sean the Shark", "greek": "e.g. Κώστας ο Καρχαρίας", "how": "Greek reproduces the same device — a real Greek given name whose initial matches καρχαρίας (Κ). The name is not in the prompt, so this is guidance for Stage 2, recorded here so the device is not lost."}
+  ],
+  "device_notes": "The prompt itself contains no device. I record the reference's alliterative charactonym because Step 4 requires that whatever Stage 2 invents be re-derived from Greek sound, not transliterated ('Σον ο Καρχαρίας' keeps the spelling and loses the alliteration).",
+  "en_register": "neutral",
+  "register_evidence": "Bare imperative, no addressee, no politeness marker; the playfulness is in the subject matter, not the address.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα ποίημα για έναν καρχαρία και ένα σαλάχι που συνεργάζονται για να εξιχνιάσουν εγκλήματα στον βυθό.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "the Greek shark's name (Stage 2)", "en": "Sean the Shark", "el": "a Greek given name alliterating with καρχαρίας", "why": "If Stage 2 picks a name, every later mention in the poem and any rhyme built on it must be re-derived from the Greek name, not carried over from Sean."}
+  ],
+  "constraint_notes": "No countable constraint is stated. Rhyme is not required by the prompt (the reference volunteers an ABCB scheme); Greek rhymes freely, so if Stage 2 rhymes, that is a bonus, not an obligation, and the row must not be graded as if rhyme were required.",
+  "substitution_note": "Nothing in the prompt required substitution — a shark, a stingray and underwater crime are culture-neutral. The reference's 'failed to pay all his tax' is a US-flavoured but universally legible crime; a Greek answer may keep tax evasion (φοροδιαφυγή) which is, if anything, more idiomatic in Greek.",
+  "guide_gaps": [
+   {"term": "stingray", "decision": "σαλάχι", "why": "The everyday Greek word; τρυγόνα is the precise zoological name for the stingray genus but reads as the bird (turtle dove) to a lay reader, which would wreck a comic poem."},
+   {"term": "solve crime", "decision": "εξιχνιάζω εγκλήματα", "why": "The standard Greek collocation for detective work; 'λύνω εγκλήματα' is a calque of the English."}
+  ],
+  "reference_problems": ["The rhyme scheme breaks in stanza 3: 'ocean' / 'relax' does not rhyme with anything, and the line 'Until they found him, they could not relax' is metrically far longer than its neighbours.", "'a seahorse who had failed to pay all his tax' — 'all his tax' is odd English for tax evasion."],
+  "translator_notes": "Do not let the Greek answer transliterate the shark's name. Confirm the Greek poem does not force rhyme at the cost of natural word order (Step 6.1)."
+ },
+ {
+  "row_id": "da798799889da7005a5860020c4f796f07aa2e38fcc4352299bfed4d826f8adb",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [],
+  "subtype": "fixed-form miniature poem (haiku)",
+  "hazards": ["5-7-5 syllable count is the checkable constraint and must be counted in Greek", "Greek words for 'awakening' and 'morning sun' are long; the temptation is to cheat the count"],
+  "devices": [
+   {"where": "form", "device": "metre", "effect": "brisk, calm", "english": "haiku (5-7-5 syllables)", "greek": "χάικου (5-7-5 συλλαβές)", "how": "Same device; syllabic form transfers to Greek directly."}
+  ],
+  "device_notes": "As with the other haiku row, syllables must be counted with συνίζηση (e.g. «ήλιος» = 2 syllables in normal speech), i.e. as read aloud.",
+  "en_register": "neutral",
+  "register_evidence": "Bare imperative, no addressee; the capitalised 'Haiku' is orthographic noise, not register.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα χάικου για το ξύπνημα με τον πρωινό ήλιο.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Three lines of 5-7-5 syllables, counted as spoken Greek. Left implicit through the word χάικου, exactly as in the English prompt, so the difficulty is unchanged.",
+  "substitution_note": "No substitution needed: sunrise and waking up are culture-neutral, and there is no name, place or prop in the row.",
+  "guide_gaps": [
+   {"term": "haiku", "decision": "χάικου (indeclinable neuter)", "why": "Same call as the other haiku row in this batch; fixing one spelling for the corpus."}
+  ],
+  "reference_problems": [],
+  "translator_notes": "Recount the Greek syllables aloud. Note that a literal 'ξύπνημα με τον πρωινό ήλιο' would already consume most of a 7-syllable line, so the Greek answer will have to compress differently from the English — that is expected and is not infidelity."
+ },
+ {
+  "row_id": "de2a2f97af74465ecbd03e4f9292662eb49de9b212c1dd57f2040a093048652d",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "factual enumeration of real entities",
+  "hazards": ["strong pull to localize the cities to Greek ones — that would change what is TRUE and destroys the row", "team names are real proper nouns: translating 'Chicago Bears' as «Αρκούδες του Σικάγου» fabricates a name no organisation uses", "'major professional' is a criterion the answer must apply, and it is fuzzy"],
+  "devices": [],
+  "device_notes": "No devices. The only naming question is transliteration policy for the two cities, which is a glossary decision, not a device.",
+  "en_register": "neutral",
+  "register_evidence": "'Can you make a list...' — a polite but impersonal request to a tool; no relationship, no intimacy markers.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Μπορείς να μου φτιάξεις μια λίστα με τις μεγάλες επαγγελματικές αθλητικές ομάδες του Σικάγου και του Μιλγουόκι;",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "Chicago", "el": "Σικάγο", "kind": "place", "why": "Transliterated, NOT replaced. Swapping the city would change whether the answer is true, so by the Step-1 test it is content and is frozen. Only its Greek spelling is chosen."},
+   {"en": "Milwaukee", "el": "Μιλγουόκι", "kind": "place", "why": "Same reasoning: content, frozen, transliterated only."}
+  ],
+  "derived_elements": [],
+  "constraint_notes": "No count is stated. The only checkable requirement is the criterion 'μεγάλες επαγγελματικές' (major professional), which the Greek preserves word for word so the answer can still be graded against it.",
+  "substitution_note": "Deliberately NO localization: this is a real-world factual row. The team names in the answer must stay in their English form (Chicago Bears, Milwaukee Bucks…), optionally with a Greek gloss of the sport, since translated versions would name organisations that do not exist.",
+  "guide_gaps": [
+   {"term": "Chicago / Milwaukee", "decision": "Σικάγο (gen. του Σικάγου) / Μιλγουόκι (indeclinable)", "why": "Σικάγο is the established Greek form and does inflect in the genitive; Μιλγουόκι has no settled inflection and stays indeclinable."},
+   {"term": "professional sports team names", "decision": "keep in Latin script, untranslated", "why": "They are real registered names; translating them would fabricate non-existent entities (VERBATIM-FREEZE)."}
+  ],
+  "reference_problems": ["The prompt asks for MAJOR professional teams, but the list mixes major leagues (NFL/NBA/MLB/NHL/MLS/WNBA/NWSL) with minor-league and indoor sides — Milwaukee Admirals is AHL (minor-league hockey) and Milwaukee Wave is indoor soccer, neither of which is a major league.", "The criterion is applied inconsistently across the two cities: Chicago's AHL team (Chicago Wolves) is omitted while Milwaukee's AHL team is included.", "The list is bare — no sport or league is given for any team, so a reader cannot check the 'major professional' claim at all."],
+  "translator_notes": "Reviewer must confirm the answer does not translate any team name and does not swap the cities for Greek ones. If Stage 2 wants the list to be checkable, adding the sport/league per team would fix the reference's worst defect — but that is a Stage-2 call, not a repair I made here."
+ },
+ {
+  "row_id": "5564c3c307a4cbc9cd2b04f577fa65a220a0097c85e56a861ba7b865a7f9fd14",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "numbered idea list with an explicit count",
+  "hazards": ["two constraints stack: exactly 10 items AND numbered format", "the setting constraint 'it will be outside' must survive as a filter on the items", "the reference's items are US party props (cornhole, jump house, capture the flag) that must be re-derived for a Greek outdoor children's party, not transliterated"],
+  "devices": [],
+  "device_notes": "No naming or sound device in the prompt; the row is purely structural.",
+  "en_register": "informal",
+  "register_evidence": "'a kid's birthday party', clipped follow-up sentence 'It will be outside.' — a parent talking quickly, not a formal brief.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια αριθμημένη λίστα με 10 ιδέες για δραστηριότητες σε ένα παιδικό πάρτι γενεθλίων. Θα γίνει σε εξωτερικό χώρο.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "the outdoor setting", "en": "Cornhole / Rent a jump house / Capture the flag", "el": "e.g. σακουλάκι-στόχος → κουτσό, φουσκωτό κάστρο, κυνηγητό με σημαία / σκυταλοδρομία", "why": "These are US party props. Under Step 1 they are frame, so they move — but they must move to games Greek children actually play outdoors (κυνηγητό, μήλα, σχοινάκι, σκυταλοδρομία, κρυφτό, φουσκωτό κάστρο), not be transliterated."}
+  ],
+  "constraint_notes": "The countable constraint is preserved verbatim and stays trivially checkable in Greek: exactly 10 items, presented as an αριθμημένη λίστα (1.–10.). The second constraint — every activity must be doable σε εξωτερικό χώρο — is also preserved and checkable item by item.",
+  "substitution_note": "The prompt itself needed no substitution (it names no props). All localization pressure sits in the answer, and Step 1 says it must be done completely: a Greek outdoor birthday party, with Greek games throughout — no half-translated cornhole.",
+  "guide_gaps": [
+   {"term": "jump house / bouncy castle", "decision": "φουσκωτό κάστρο", "why": "The standard Greek term for the rented inflatable; 'σπίτι με τραμπολίνο' would describe something else."},
+   {"term": "outside (of the party)", "decision": "σε εξωτερικό χώρο", "why": "'έξω' alone is ambiguous in Greek (out of the house vs. out on the town); σε εξωτερικό χώρο is the unambiguous event-planning phrase and keeps the constraint checkable."}
+  ],
+  "reference_problems": ["'Painting' (item 4) is not specifically an outdoor activity and only weakly satisfies the stated constraint.", "The numbering style '1.)' is nonstandard — it mixes a period and a closing parenthesis.", "Several items overlap as the same game family (Tag, Capture the flag, Scavenger hunt are all chasing/searching games), so the list is less varied than a list of 10 distinct ideas implies."],
+  "translator_notes": "Count the Greek items — exactly 10 — and check each one is genuinely outdoor and genuinely played by Greek children. Watch for κόρνχολ or other transliterated US games slipping through."
+ },
+ {
+  "row_id": "8ff9633d0c181dc09cdfd8684f638f68f2d699ebef0217e5a2a8051ed2bbe961",
+  "family": "generative",
+  "translation_class": "REGENERATE-NATIVE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "acrostic poem on a keyword",
+  "hazards": ["an acrostic is spelled out of the letters of an English word; W-A-R cannot survive into Greek at all", "the Greek keyword ΠΟΛΕΜΟΣ has 7 letters against WAR's 3, so the task gets materially longer and harder", "if the keyword is left implicit, the constraint stops being checkable — the answer stage could pick any word"],
+  "devices": [
+   {"where": "form", "device": "acrostic", "effect": "memorable; the form itself names the subject", "english": "the initials of the three lines spell WAR", "greek": "τα αρχικά των στίχων σχηματίζουν τη λέξη ΠΟΛΕΜΟΣ", "how": "Same device, re-derived from the Greek word for the subject. The English letters have no counterpart, so the acrostic must be rebuilt on the Greek keyword — this is exactly the REGENERATE-NATIVE case."}
+  ],
+  "device_notes": "Transliterating WAR (Ο-Υ-Ο-Ρ) would preserve the spelling and destroy the device: the initials would spell nothing a Greek reader recognises. I therefore name the Greek keyword explicitly in the prompt so the constraint stays checkable in advance, as Step 6.5 requires.",
+  "en_register": "neutral",
+  "register_evidence": "'Give me an acrostic poem about war.' — bare imperative to a tool, no addressee or relationship.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μου ένα ποίημα-ακροστιχίδα για τον πόλεμο, με τα αρχικά γράμματα των στίχων να σχηματίζουν τη λέξη ΠΟΛΕΜΟΣ.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "WAR (the acrostic keyword)", "el": "ΠΟΛΕΜΟΣ", "kind": "other", "why": "The keyword is not scenery — it is the mechanism. It must be the Greek word for the same subject, so the acrostic still names what the poem is about."}
+  ],
+  "derived_elements": [
+   {"depends_on": "the keyword ΠΟΛΕΜΟΣ", "en": "3 lines (W, A, R)", "el": "7 στίχοι (Π, Ο, Λ, Ε, Μ, Ο, Σ)", "why": "The line count is derived from the keyword's length, not stated independently. Changing the keyword changes the poem's length, and the checker must count 7 lines, not 3."}
+  ],
+  "constraint_notes": "Greek form of the constraint: exactly 7 lines, whose initial letters read Π-Ο-Λ-Ε-Μ-Ο-Σ in order, and the poem must be about war. This is STRONGER and longer than the English (7 lines vs 3) — the adapted constraint is harder, not weaker, and the row's difficulty is therefore not identical to the source. I chose the faithful keyword over a shorter one (e.g. ΜΑΧΗ, 4 letters) because ΜΑΧΗ means 'battle', not 'war', and would change the subject to keep the length.",
+  "substitution_note": "The only substitution is the acrostic keyword itself, and everything downstream (line count, the letters each line must start with) has been re-derived from it. No other element in the row depends on the English word.",
+  "guide_gaps": [
+   {"term": "acrostic poem", "decision": "ποίημα-ακροστιχίδα", "why": "ακροστιχίδα alone is normally understood as the puzzle/word-game; the compound makes clear it is a poem whose initials spell a word. Fixing this form for the corpus."},
+   {"term": "keyword capitalisation", "decision": "write the keyword in CAPITALS (ΠΟΛΕΜΟΣ) inside the prompt", "why": "Greek capitals drop accents, so the spelled-out keyword is unambiguous and the checker never has to decide whether Ό counts as Ο."}
+  ],
+  "reference_problems": ["The reference is only marginally a poem — the third line ('Rest in peace to each soldier who comes back home and those who never did.') is a full prose sentence far longer than the two lines above it, so the form collapses.", "'Winning in the mind, / Above all else,' is left syntactically unfinished; the three lines do not form a coherent statement."],
+  "translator_notes": "The line count changes from 3 to 7 — flag this to the owner if the corpus needs source/target difficulty matched. Reviewer must check the initials letter by letter, including that the sixth line starts with Ο and the seventh with Σ (not ς)."
+ },
+ {
+  "row_id": "04e43910a6d6284b0650d8c013de55b0022e2f21e78fa1547263f195e4e05079",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "factual list of five real species with short descriptions",
+  "hazards": ["the count 'five' is a checkable constraint", "the species are real-world content and must be frozen — no localizing to Mediterranean fauna, which would change what is true", "English distinguishes venomous (injects) from poisonous (toxic if eaten); Greek δηλητηριώδης covers both, so the prompt's precision is genuinely lost unless glossed"],
+  "devices": [],
+  "device_notes": "No naming or sound device. The row's difficulty is terminological, not rhetorical.",
+  "en_register": "neutral",
+  "register_evidence": "'Are there any...? Name five... and tell me a bit about them.' — an information request to a tool, with a mildly conversational opener ('tell me a bit') but no relationship or politeness formula.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Υπάρχουν δηλητηριώδη θαλάσσια πλάσματα; Ανάφερέ μου πέντε δηλητηριώδη ζώα του βυθού και πες μου λίγα λόγια για το καθένα.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "The countable constraint survives directly: exactly five animals (πέντε), each with a short description. It is trivially checkable in Greek. The secondary constraint 'λίγα λόγια για το καθένα' preserves the English 'a bit about them' — every one of the five must get a description, not just some.",
+  "substitution_note": "Deliberately no localization. Lionfish, sea snakes, cone snails, stonefish and flower urchins are real species and are content by the Step-1 test — swapping them for Mediterranean animals would change whether the answer is true. Their Greek names (λεοντόψαρο, θαλάσσια φίδια, κωνοσαλίγκαρα, πετρόψαρο, ανθοαχινός) are established zoological terms, not inventions.",
+  "guide_gaps": [
+   {"term": "venomous", "decision": "δηλητηριώδη (with 'ιοβόλα' available as the precise term if Stage 2 needs the distinction)", "why": "Greek has no everyday word that separates venomous from poisonous — δηλητηριώδης covers both. ιοβόλος is the technical term for an animal that injects venom, but it is unusual enough that putting it in a casual question would mark the prompt as translated. I keep δηλητηριώδη in the prompt and record the loss."},
+   {"term": "underwater animals", "decision": "ζώα του βυθού", "why": "'υποθαλάσσια ζώα' is a calque that Greek uses for installations, not animals; ζώα του βυθού is what a native would say and avoids repeating θαλάσσια twice in two sentences."},
+   {"term": "flower urchin", "decision": "ανθοαχινός (Toxopneustes pileolus)", "why": "No settled Greek common name; ανθοαχινός is the transparent calque and should be given with the Latin binomial on first use so it is identifiable."}
+  ],
+  "reference_problems": ["'One dose of harpoon venom has the potential to internally damage, or even kill, hundreds of people' — this popular claim is a wild overstatement of cone snail venom quantity and is presented as fact.", "The claim about flower urchins that 'the pain diminishes quickly, typically in 15 minutes or less' contradicts the same paragraph's 'paralysis of muscles, lips, and eyes' and the standard clinical description.", "Lionfish are described as needing venom because they are 'slow swimmers'; the stated causal reasoning is invented, and diarrhea is not a typical lionfish envenomation symptom.", "The answer never actually answers the yes/no question that opens the prompt — it jumps straight into the list.", "Terminology: several of these (all five, in fact) are venomous rather than poisonous, so the English is correct here, but 'stonefish... shove venom into whatever it comes into contact with' is imprecise for a passive spine-based envenomation."],
+  "translator_notes": "Watch that the Greek answer does not swap in Mediterranean species (σκορπίνα, δράκαινα) to feel more local — the species list is content and must stay. Also check that δηλητηριώδη is not used in the answer for animals that are poisonous-if-eaten rather than venomous; if that distinction is needed, ιοβόλα is the term to use."
+ }
+]

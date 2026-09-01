@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Receipt-verified five-checkpoint native-Greek benchmark analysis for the Apertus 8B CPT run.">
+  <title>Native-Greek peak window · Apertus 8B</title>
+  <style>
+    :root{
+      --paper:#f5f0e7;--panel:#fffdf8;--ink:#17242d;--muted:#66747d;--rule:#d7cec0;
+      --red:#9b3438;--blue:#315f78;--teal:#39766e;--gold:#b38730;--green:#47734e;
+      --orange:#b65e33;--purple:#725a8f;--shadow:0 16px 42px rgba(42,38,31,.08)
+    }
+    *{box-sizing:border-box}[hidden]{display:none!important}
+    html{scroll-behavior:smooth}
+    body{margin:0;overflow-x:hidden;color:var(--ink);background:radial-gradient(circle at 93% 1%,rgba(179,135,48,.13),transparent 27rem),linear-gradient(135deg,var(--paper),#fbf8f1 74%,#efe7da);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .page{width:min(1740px,100%);margin:auto;padding:0 clamp(24px,5vw,86px) 96px}
+    h1,h2,h3,p{margin-top:0}h1,h2,h3{font-family:Georgia,"Times New Roman",serif;letter-spacing:-.032em}
+    h1{max-width:1520px;font-size:clamp(52px,7vw,108px);line-height:.94;margin-bottom:25px}
+    h2{max-width:1390px;font-size:clamp(35px,4.5vw,70px);line-height:1.01;margin-bottom:16px}
+    h3{font-size:clamp(21px,2vw,31px)}p,li,td,th{font-size:clamp(14px,1vw,18px);line-height:1.5}
+    .hero{min-height:min(91vh,1120px);display:grid;align-content:center;position:relative;padding:70px 0}
+    .hero:before{content:"";position:absolute;left:calc(-1 * clamp(24px,5vw,86px));top:0;bottom:0;width:10px;background:var(--red)}
+    .eyebrow{display:flex;justify-content:space-between;gap:22px;color:var(--muted);font-size:12px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;margin-bottom:30px}
+    .title-rule{width:112px;height:8px;background:var(--red);margin-bottom:27px}
+    .lede{max-width:1260px;color:#364650;font-size:clamp(20px,2vw,31px);line-height:1.42}
+    .finding{max-width:1510px;margin:38px 0 0;padding:22px 0 0 28px;border-left:7px solid var(--gold);font:700 clamp(24px,2.6vw,42px)/1.2 Georgia,serif}
+    .nav{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:42px;padding-top:18px;border-top:1px solid var(--rule)}
+    .nav a{color:var(--muted);font-size:13px;font-weight:780;text-decoration:none}
+    .section{padding:clamp(75px,9vw,138px) 0 0}
+    .head{display:grid;grid-template-columns:8px minmax(0,1fr);gap:24px;margin-bottom:32px}.bar{background:var(--accent,var(--red));min-height:84px}
+    .kicker{color:var(--accent,var(--red));font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:9px}.intro{max-width:1260px;color:var(--muted)}
+    .metric-strip{display:grid;grid-template-columns:repeat(4,1fr);margin:34px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+    .metric-strip article{padding:24px;border-left:1px solid var(--rule)}.metric-strip article:first-child{border-left:0;padding-left:0}.metric-strip .n{font:700 clamp(31px,3vw,52px)/1 Georgia,serif}.metric-strip .l{color:var(--muted);font-size:12px;margin-top:8px}
+    .figure{margin:0 0 30px;padding:clamp(16px,2vw,28px);border:1px solid var(--rule);background:rgba(255,253,248,.86);box-shadow:var(--shadow)}
+    .figure svg{display:block;width:100%;height:auto}.hero-chart svg{min-height:610px}
+    .figure figcaption{display:flex;justify-content:space-between;gap:25px;color:var(--muted);font-size:12px;line-height:1.45;margin-top:12px}
+    .pair{display:grid;grid-template-columns:1fr 1fr;gap:28px}.notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+    .note{padding:23px;border-top:7px solid var(--blue);background:rgba(255,253,248,.72)}.note.good{border-color:var(--green)}.note.caution{border-color:var(--gold)}.note.risk{border-color:var(--red)}.note h3{font-size:23px;margin-bottom:8px}
+    .method{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin:30px 0}.method article{padding:22px;border-top:7px solid var(--teal);background:rgba(255,253,248,.72)}.method h3{font-size:22px}
+    .chart-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}.chart-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .mini{padding:17px 17px 13px;margin:0;min-width:0;border:1px solid var(--rule);background:rgba(255,253,248,.88);box-shadow:var(--shadow)}.mini h3{font-size:22px;margin:0 0 4px}.mini .sub{min-height:36px;margin:0 0 8px;color:var(--muted);font-size:11px}.mini svg{display:block;width:100%;height:auto;overflow:visible}.mini figcaption{min-height:34px;color:var(--muted);font-size:11px;line-height:1.35}
+    .checkpoint-key{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 18px}.checkpoint-key span{padding:8px 12px;border:1px solid var(--rule);font-size:12px;font-weight:800}.checkpoint-key b{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;background:var(--c)}
+    .callout{margin:30px 0;padding:26px 28px;border-left:8px solid var(--gold);background:rgba(255,253,248,.72);font:700 clamp(20px,2vw,31px)/1.32 Georgia,serif}
+    .table-wrap{width:100%;max-width:100%;overflow:auto;border:1px solid var(--rule);background:rgba(255,255,255,.28)}table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--rule);border-right:1px solid rgba(215,206,192,.48);vertical-align:top}th{position:sticky;top:0;z-index:3;background:#eee7dc;color:var(--muted);font-size:11px;letter-spacing:.055em;text-transform:uppercase;text-align:right}th:first-child,td:first-child{position:sticky;left:0;z-index:2;background:#f7f2e9;text-align:left;min-width:245px;font-weight:750}th:first-child{z-index:4;background:#e9e1d5}td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}.small{font-size:12px;color:var(--muted)}
+    .legend{display:flex;flex-wrap:wrap;gap:10px 24px;margin:0 0 18px;color:var(--muted);font-size:13px}.legend span:before{content:"";display:inline-block;width:24px;height:5px;margin-right:8px;transform:translateY(-2px);background:var(--legend)}
+    .evidence{display:grid;grid-template-columns:1fr 1fr;gap:24px}.evidence article{padding-top:15px;border-top:6px solid var(--teal);min-width:0}.evidence code{display:inline;max-width:100%;font-size:12px;overflow-wrap:anywhere;word-break:break-all}
+    .status{display:inline-block;border-radius:999px;padding:5px 10px;background:#dce9dc;color:#355b3b;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
+    @media(max-width:1120px){.chart-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pair,.notes,.evidence,.method{grid-template-columns:1fr}.metric-strip{grid-template-columns:1fr 1fr}.hero-chart svg{min-height:auto}}
+    @media(max-width:700px){.hero{min-height:auto}.eyebrow,.figure figcaption{flex-direction:column}.metric-strip,.chart-grid,.chart-grid.two{grid-template-columns:1fr}.metric-strip article{border-left:0;border-top:1px solid var(--rule);padding:18px 0}.page{padding-bottom:56px}.section{padding-top:75px}.figure{padding:12px}.mini .sub,.mini figcaption{min-height:0}}
+    @page{size:A3 landscape;margin:12mm}@media print{body{background:white}.page{width:100%;max-width:none;padding:0}.hero{min-height:auto;padding:24px 0}.hero:before{left:-12px}.section{padding-top:38px;break-before:page}.figure,.mini{box-shadow:none;break-inside:avoid}.head,.metric-strip,.note,.method article,.evidence article{break-inside:avoid}.chart-grid{grid-template-columns:repeat(3,1fr)}.chart-grid.two{grid-template-columns:repeat(2,1fr)}.table-wrap{overflow:visible}.table-wrap table{width:100%;table-layout:auto}.table-wrap th,.table-wrap td{padding:6px 7px;font-size:9px}.table-wrap th:first-child,.table-wrap td:first-child{position:static;min-width:118px}.table-wrap th{position:static}.nav{display:none}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <header class="hero">
+    <div class="eyebrow"><span>Apertus 8B · native-Greek peak-window study</span><span>Evidence frozen 17 August 2026</span></div>
+    <div class="title-rule"></div>
+    <h1>The best checkpoint depends on what Greek ability you care about.</h1>
+    <p class="lede">Five checkpoints between 30B and 50B tokens were evaluated on the same 73,894 contamination-filtered native-Greek examples. The screen asks whether the GreekMMLU peak at 40B is a broad capability peak or one benchmark’s local optimum.</p>
+    <div class="finding">It is a local optimum. GreekMMLU peaks at 40B; GPCR and ASEP improve later; metaphor judgment degrades earlier; NLI and WiC reveal strong answer-label effects. No checkpoint dominates every task.</div>
+    <div class="nav"><a href="#contract">Contract</a><a href="#anchor">GreekMMLU anchor</a><a href="#accuracy">Accuracy</a><a href="#loss">Choice NLL</a><a href="#balance">Class balance</a><a href="#tables">Exact tables</a><a href="#reading">Interpretation</a><a href="#evidence">Evidence</a></div>
+  </header>
+
+  <section class="section" id="contract" style="--accent:var(--purple)">
+    <div class="head"><div class="bar"></div><div><div class="kicker">01 · Experimental contract</div><h2>One trajectory, five checkpoints, one frozen clean subset.</h2><p class="intro">Nothing in the model, data order, tokenizer, prompt, answer ordering or scorer changes between rows. The 40B checkpoint is reused from the authoritative three-checkpoint screen; the other four are new evaluations.</p></div></div>
+    <div class="metric-strip">
+      <article><div class="n">5</div><div class="l">checkpoints · 30B to 50B</div></article>
+      <article><div class="n">73,894</div><div class="l">retained examples per checkpoint</div></article>
+      <article><div class="n">10,076</div><div class="l">strong-match examples excluded</div></article>
+      <article><div class="n">84</div><div class="l">unique shard receipts verified</div></article>
+    </div>
+    <figure class="figure hero-chart"><svg id="timeline" role="img" aria-labelledby="timeline-title timeline-desc"><title id="timeline-title">Five evaluated checkpoints in the 30B to 50B token window</title><desc id="timeline-desc">The same model trajectory is measured every five billion token slots. Forty billion tokens is highlighted as the GreekMMLU-selected checkpoint.</desc></svg><figcaption><span>Exact token slots: 29.998B, 34.997B, 39.997B, 44.996B and 49.996B.</span><span>The vertical marker identifies the GreekMMLU peak—not a phase boundary.</span></figcaption></figure>
+    <div class="method">
+      <article><h3>Frozen examples</h3><p>83,970 source examples were audited against the training corpus. Only the 73,894 examples retained by the strong two-surface contamination rule are scored here.</p></article>
+      <article><h3>Base-model scoring</h3><p>Each offered answer is scored by continuation likelihood. Accuracy is paired with choice NLL; binary OYXOY views also report balanced accuracy and macro F1.</p></article>
+      <article><h3>Reading the window</h3><p>Five points expose local shape around the GreekMMLU maximum. They do not establish statistical significance, causality or a globally optimal stopping point.</p></article>
+    </div>
+  </section>
+
+  <section class="section" id="anchor" style="--accent:var(--red)">
+    <div class="head"><div class="bar"></div><div><div class="kicker">02 · Why this window</div><h2>GreekMMLU supplies the anchor—and peaks sharply at 40B.</h2><p class="intro">The five new checkpoint positions were chosen around the best decontaminated GreekMMLU checkpoint. Accuracy and continuous choice loss agree on the location of that local optimum.</p></div></div>
+    <div class="pair">
+      <figure class="figure"><svg id="greekmmlu-accuracy" role="img" aria-labelledby="gm-acc-title gm-acc-desc"><title id="gm-acc-title">GreekMMLU clean accuracy between 30B and 50B tokens</title><desc id="gm-acc-desc">Accuracy peaks at 56.81 percent at 40B tokens.</desc></svg><figcaption><span>Clean GreekMMLU accuracy · higher is better.</span><span>40B: 56.81%</span></figcaption></figure>
+      <figure class="figure"><svg id="greekmmlu-nll" role="img" aria-labelledby="gm-nll-title gm-nll-desc"><title id="gm-nll-title">GreekMMLU clean choice NLL between 30B and 50B tokens</title><desc id="gm-nll-desc">Choice negative log likelihood reaches its minimum of 1.0740 at 40B tokens.</desc></svg><figcaption><span>Clean GreekMMLU choice NLL · lower is better.</span><span>40B: 1.0740</span></figcaption></figure>
+    </div>
+    <div class="callout">A broader evaluation should reproduce this 40B optimum if GreekMMLU is tracking a general capability peak. It does not: the surrounding tasks fan out in different directions.</div>
+  </section>
+
+  <section class="section" id="accuracy" style="--accent:var(--blue)">
+    <div class="head"><div class="bar"></div><div><div class="kicker">03 · Accuracy trajectories</div><h2>Nine tasks, five points, several different optima.</h2><p class="intro">Each panel uses its own y-scale so the local trajectory remains legible. Exact values are printed at every checkpoint. The dashed red line marks 40B; it is a reference, not a claim of superiority.</p></div></div>
+    <div class="checkpoint-key"><span style="--c:var(--blue)"><b></b>observed clean accuracy</span><span style="--c:var(--red)"><b></b>GreekMMLU-selected checkpoint</span><span>Higher is better</span></div>
+    <div class="chart-grid" id="accuracy-grid"></div>
+  </section>
+
+  <section class="section" id="loss" style="--accent:var(--gold)">
+    <div class="head"><div class="bar"></div><div><div class="kicker">04 · Continuous evidence</div><h2>Choice NLL distinguishes probability movement hidden by accuracy.</h2><p class="intro">Lower NLL means the model assigns more probability to the correct offered answer. Eight views have choice NLL; the exact-set NLI metric is a structured set match and has no corresponding NLL.</p></div></div>
+    <div class="checkpoint-key"><span style="--c:var(--gold)"><b></b>observed clean choice NLL</span><span style="--c:var(--red)"><b></b>GreekMMLU-selected checkpoint</span><span>Lower is better</span></div>
+    <div class="chart-grid" id="nll-grid"></div>
+  </section>
+
+  <section class="section" id="balance" style="--accent:var(--teal)">
+    <div class="head"><div class="bar"></div><div><div class="kicker">05 · Class-balance diagnostics</div><h2>WiC and NLI raw accuracy partly measure answer-label preference.</h2><p class="intro">Balanced accuracy gives equal weight to both classes. GPCR shows a coherent learning trajectory; metaphor declines toward chance; NLI improves in balanced terms even while raw accuracy falls; WiC’s dramatic raw spike largely disappears after balancing.</p></div></div>
+    <div class="chart-grid two" id="balanced-grid"></div>
+    <div class="notes" style="margin-top:26px">
+      <article class="note good"><h3>GPCR: a credible late gain</h3><p>Raw and balanced accuracy rise together from roughly 58% to 64%, peaking at 45B. Choice NLL continues improving at 50B, so the signal is not merely a threshold crossing.</p></article>
+      <article class="note caution"><h3>NLI: capability and label bias move differently</h3><p>Raw item accuracy falls from 63.4% to 59.9%, but balanced accuracy rises from 50.1% to 56.8% at 45B and exact-set accuracy rises from 2.2% to 26.5%.</p></article>
+      <article class="note risk"><h3>WiC: the 45B spike is fragile</h3><p>Raw accuracy jumps to 67.9% and then collapses to 33.8%. Balanced accuracy only moves between 50.1% and 55.0%, consistent with checkpoint-dependent answer-label preference.</p></article>
+      <article class="note risk"><h3>Metaphor: a real regression</h3><p>Balanced accuracy falls from 60.6% at 30B to chance at 50B, while choice NLL worsens from 0.719 to 1.355. Both discrete and continuous evidence agree.</p></article>
+    </div>
+  </section>
+
+  <section class="section" id="tables" style="--accent:var(--green)">
+    <div class="head"><div class="bar"></div><div><div class="kicker">06 · Exact comparison</div><h2>Row-relative heatmaps make every task’s local optimum visible.</h2><p class="intro">Color is relative to that row’s own five-checkpoint mean. Green and a green border mark the observed best; red and a red border mark the observed worst. This compares checkpoints within a task, never difficulty across tasks.</p></div></div>
+    <h3>Clean accuracy</h3>
+    <div class="legend"><span style="--legend:rgba(155,52,56,.55)">below row mean</span><span style="--legend:#f7f2e9">near row mean</span><span style="--legend:rgba(71,115,78,.58)">above row mean</span><span>Green border = best · red border = worst</span></div>
+    <div class="table-wrap"><table id="accuracy-table"></table></div>
+    <h3 style="margin-top:42px">Clean choice NLL</h3>
+    <p class="small">For NLL, low values receive green and high values receive red. Exact-set NLI is omitted because it has no choice-NLL definition.</p>
+    <div class="table-wrap"><table id="nll-table"></table></div>
+    <h3 style="margin-top:42px">Class-balanced accuracy</h3>
+    <div class="table-wrap"><table id="balanced-table"></table></div>
+  </section>
+
+  <section class="section" id="reading" style="--accent:var(--orange)">
+    <div class="head"><div class="bar"></div><div><div class="kicker">07 · Scientific reading</div><h2>The trajectory is multi-objective, not uniformly improving or forgetting.</h2></div></div>
+    <div class="notes">
+      <article class="note good"><h3>Later training still teaches useful behavior</h3><p>ASEP accuracy and NLL improve through 50B. GPCR accuracy peaks at 45B and NLL at 50B. Medical accuracy is noisy, but its NLL improves substantially by 50B.</p></article>
+      <article class="note risk"><h3>Later training also damages specific behavior</h3><p>Metaphor judgment declines across the entire window. GreekMMLU also moves away from its 40B optimum, so continued reduction of the language-model objective is not a guarantee of downstream improvement.</p></article>
+      <article class="note caution"><h3>Raw binary accuracy can mislead</h3><p>WiC and NLI change their answer-label preference across checkpoints. Balanced accuracy, macro F1 and NLL are required before interpreting a dramatic raw score as capability.</p></article>
+      <article class="note"><h3>There is no defensible macro winner yet</h3><p>Benchmark sizes range from 194 to 54,217 examples and measure different constructs. A pooled or unweighted average would create an arbitrary objective and hide the trade-offs.</p></article>
+      <article class="note caution"><h3>Observed best is not statistical significance</h3><p>These are paired deterministic evaluations of one training seed. Confidence intervals and additional seeds are needed before treating small differences—especially on GPCR, DemosQA or Medical—as stable.</p></article>
+      <article class="note"><h3>Checkpoint selection should follow intended use</h3><p>Preserve 30B for metaphor, 40B for GreekMMLU, 45B for GPCR/WiC diagnostics and 50B for ASEP/NLI exact-set. A single export discards evidence that is useful for later mixture and LR experiments.</p></article>
+    </div>
+  </section>
+
+  <section class="section" id="evidence" style="--accent:var(--teal)">
+    <div class="head"><div class="bar"></div><div><div class="kicker">08 · Evidence and limitations</div><h2>Receipt-bound results, explicit exclusions, no hidden averaging.</h2><p class="intro"><span class="status">Completed and verified</span> The report is rendered from the frozen result table and the existing clean GreekMMLU receipts. No smoothed series, composite score or post-hoc task weighting is used.</p></div></div>
+    <div class="evidence">
+      <article><h3>Peak-window result</h3><p><code>/iopsstor/scratch/cscs/fffoivos/evals/full8_native_greek_peak_window_20260817/matrix_v1_issue94/peak_window_results.json</code></p><p class="small">SHA-256 <code>9d618e7325b5b751b2c748f6f1152ad0d7b553c6141fb9f33eff70e91c546f81</code></p></article>
+      <article><h3>Clean population</h3><p>83,970 source examples · 10,076 strong-match exclusions · 73,894 retained examples at each checkpoint.</p><p class="small">Dataset revision <code>987b8955fcd395c6219e39df9e64715457f69065</code> · policy: strong two-surface match.</p></article>
+      <article><h3>Shard integrity</h3><p>84 unique shard receipts and all referenced artifact hashes were reverified. The final segment receipt is frozen separately.</p><p class="small">Final segment receipt SHA-256 <code>d9c2cf1f3a06efafe0dd1c67cbc5a8f547d6b82ca3f333b2671056f8fda2fef8</code></p></article>
+      <article><h3>GreekMMLU context</h3><p>Five clean GreekMMLU rows are taken from the receipt-bound 19-checkpoint trajectory used to select update 9,536.</p><p class="small">n = 16,159 at every row; the clean GreekMMLU audit is independent of the 73,894-example native-Greek suite.</p></article>
+      <article><h3>Execution recovery</h3><p>A four-node segment timed out with two shards missing. Completed receipts were preserved; only the missing shards were resumed on the verified two-node profile.</p><p class="small">A receipt-filter bug was then corrected and finalization rerun with zero model inference. Examples and predictions did not change.</p></article>
+      <article><h3>Limits</h3><p>One model seed, five local checkpoints, uneven task sizes, no paired bootstrap in this report and post-hoc contamination filtering of an already-trained model.</p><p class="small">Differences are descriptive effect sizes, not claims of statistical significance or causal data-source attribution.</p></article>
+    </div>
+  </section>
+</main>
+
+<script type="application/json" id="report-data">
+{
+  "checkpoints":[
+    {"label":"30B","iteration":7152,"tokens":29.997662208},{"label":"35B","iteration":8344,"tokens":34.997272576},{"label":"40B","iteration":9536,"tokens":39.996882944},{"label":"45B","iteration":10728,"tokens":44.996493312},{"label":"50B","iteration":11920,"tokens":49.996103680}
+  ],
+  "greekmmlu":{"label":"GreekMMLU","n":16159,"accuracy":[0.5505910019,0.5465065908,0.5681044619,0.5659384863,0.5592549044],"nll":[1.1298543489,1.1213435063,1.0739880684,1.0845756949,1.1036910777]},
+  "benchmarks":[
+    {"id":"demosqa","label":"DemosQA","family":"community questions","n":599,"accuracy":[0.4774624374,0.4641068447,0.4641068447,0.4641068447,0.4691151920],"nll":[1.2900243922,1.2899748127,1.2855035886,1.2877963016,1.2855015393]},
+    {"id":"medical","label":"Medical MCQA","family":"medical knowledge","n":419,"accuracy":[0.4176610979,0.3961813842,0.4081145585,0.4152744630,0.4152744630],"nll":[1.5087645784,1.5138617759,1.5030448575,1.4992389061,1.4863055602]},
+    {"id":"asep","label":"ASEP MCQA","family":"civil-service examinations","n":1180,"accuracy":[0.5432203390,0.5398305085,0.5483050847,0.5508474576,0.5550847458],"nll":[1.2560221110,1.2601808430,1.2547738279,1.2522308947,1.2463528709]},
+    {"id":"gpcr","label":"GPCR","family":"causal commonsense","n":194,"accuracy":[0.5824742268,0.5979381443,0.6134020619,0.6340206186,0.6288659794],"nll":[0.6765078492,0.6773822071,0.6697642662,0.6683209601,0.6588202500],"balanced":[0.5877474585,0.6063135367,0.6180310326,0.6405029428,0.6348849652]},
+    {"id":"nli","label":"OYXOY · NLI raw","family":"natural-language inference","n":5244,"accuracy":[0.6344393593,0.6395881007,0.6222349352,0.6235697941,0.5993516400],"nll":[0.6675712848,0.6575017241,0.6662917722,0.6681713113,0.6796139944],"balanced":[0.5008004614,0.5095663260,0.5520991007,0.5682936508,0.5649806433]},
+    {"id":"nli_exact","label":"OYXOY · NLI exact set","family":"structured exact-set match","n":1748,"accuracy":[0.0223112128,0.0366132723,0.1830663616,0.2534324943,0.2648741419]},
+    {"id":"wsd","label":"OYXOY · WSD","family":"word-sense definition","n":9999,"accuracy":[0.3863386339,0.3795379538,0.3867386739,0.3832383238,0.3890389039],"nll":[1.3045615641,1.3242444595,1.2973741159,1.3123770342,1.3095519281]},
+    {"id":"wic","label":"OYXOY · WiC","family":"word in context","n":54217,"accuracy":[0.5642510652,0.4210671929,0.3931054835,0.6789567848,0.3376985078],"nll":[0.6766816832,0.7309122254,0.7443873619,0.6334703250,0.7823415189],"balanced":[0.5006408985,0.5404381592,0.5244121155,0.5500433502,0.5148293445]},
+    {"id":"metaphor","label":"OYXOY · metaphor","family":"metaphor recognition","n":2042,"accuracy":[0.4916748286,0.3932419197,0.3545543585,0.3408423115,0.3388834476],"nll":[0.7186758617,0.7445811417,0.8420218935,0.9888590466,1.3553207194],"balanced":[0.6056947121,0.5393502462,0.5118518519,0.5014814815,0.5]}
+  ]
+}
+</script>
+<script>
+  const D=JSON.parse(document.getElementById('report-data').textContent);
+  const C={ink:'#17242d',muted:'#66747d',rule:'#d7cec0',red:'#9b3438',blue:'#315f78',teal:'#39766e',gold:'#b38730',green:'#47734e',panel:'#fffdf8'};
+  const NS='http://www.w3.org/2000/svg';
+  const el=(tag,attrs={},text='')=>{const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));if(text!=='')n.textContent=text;return n};
+  const fmtPct=v=>(100*v).toFixed(2)+'%';
+  const fmtNll=v=>v.toFixed(4);
+  const extent=(a,pad=.12)=>{const lo=Math.min(...a),hi=Math.max(...a),span=Math.max(hi-lo,Math.abs(hi)*.008,1e-5);return[lo-span*pad,hi+span*pad]};
+  const path=pts=>'M'+pts.map(p=>p.join(',')).join(' L');
+
+  function drawLine(svg,values,{color=C.blue,percent=true,large=false,mark40=true,domain=null}={}){
+    const W=large?760:480,H=large?410:300,m=large?{l:78,r:30,t:42,b:61}:{l:62,r:22,t:28,b:52};
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const dom=domain||extent(values),x=i=>m.l+i/(values.length-1)*(W-m.l-m.r),y=v=>H-m.b-(v-dom[0])/(dom[1]-dom[0])*(H-m.t-m.b);
+    for(let j=0;j<4;j++){const v=dom[0]+j*(dom[1]-dom[0])/3;svg.append(el('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v),stroke:C.rule,'stroke-width':1}));svg.append(el('text',{x:m.l-9,y:y(v)+4,'text-anchor':'end',fill:C.muted,'font-size':large?12:10},percent?(100*v).toFixed(1)+'%':v.toFixed(3)))}
+    if(mark40){svg.append(el('line',{x1:x(2),x2:x(2),y1:m.t-6,y2:H-m.b,stroke:C.red,'stroke-width':2,'stroke-dasharray':'6 5'}));svg.append(el('text',{x:x(2)+6,y:m.t-11,fill:C.red,'font-size':large?12:10,'font-weight':850},'40B'))}
+    const pts=values.map((v,i)=>[x(i),y(v)]);svg.append(el('path',{d:path(pts),fill:'none',stroke:color,'stroke-width':large?5:4,'stroke-linecap':'round','stroke-linejoin':'round'}));
+    values.forEach((v,i)=>{svg.append(el('circle',{cx:x(i),cy:y(v),r:large?5.5:4.5,fill:color,stroke:C.panel,'stroke-width':2}));const dy=i%2===0?-11:17;svg.append(el('text',{x:x(i),y:y(v)+dy,'text-anchor':'middle',fill:color,'font-size':large?12:10,'font-weight':850},percent?fmtPct(v):fmtNll(v)));svg.append(el('text',{x:x(i),y:H-m.b+25,'text-anchor':'middle',fill:C.muted,'font-size':large?12:10},D.checkpoints[i].label))});
+    svg.append(el('line',{x1:m.l,x2:W-m.r,y1:H-m.b,y2:H-m.b,stroke:C.ink,'stroke-width':1.2}));
+  }
+
+  function drawTimeline(){
+    const svg=document.getElementById('timeline'),W=1540,H=610,m={l:125,r:95,t:115,b:110},x=v=>m.l+(v-28)/(52-28)*(W-m.l-m.r),y=290;
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    svg.append(el('line',{x1:x(30),x2:x(50),y1:y,y2:y,stroke:C.ink,'stroke-width':5,'stroke-linecap':'round'}));
+    svg.append(el('rect',{x:x(30),y:y-36,width:x(50)-x(30),height:72,fill:'rgba(49,95,120,.08)',stroke:C.blue,'stroke-width':1.5}));
+    D.checkpoints.forEach((q,i)=>{const xx=x(q.tokens),best=i===2;svg.append(el('line',{x1:xx,x2:xx,y1:y-82,y2:y+82,stroke:best?C.red:C.blue,'stroke-width':best?5:3,'stroke-dasharray':best?'':'5 4'}));svg.append(el('circle',{cx:xx,cy:y,r:best?14:11,fill:best?C.red:C.blue,stroke:C.panel,'stroke-width':4}));svg.append(el('text',{x:xx,y:y-112,'text-anchor':'middle',fill:best?C.red:C.ink,'font-family':'Georgia','font-size':26,'font-weight':800},q.label));svg.append(el('text',{x:xx,y:y+122,'text-anchor':'middle',fill:C.muted,'font-size':13},`update ${q.iteration.toLocaleString()}`));svg.append(el('text',{x:xx,y:y+147,'text-anchor':'middle',fill:C.muted,'font-size':12},q.tokens.toFixed(3)+'B exact'));if(best)svg.append(el('text',{x:xx,y:78,'text-anchor':'middle',fill:C.red,'font-size':14,'font-weight':900},'GreekMMLU peak'))});
+    svg.append(el('text',{x:(x(30)+x(50))/2,y:H-30,'text-anchor':'middle',fill:C.muted,'font-size':15,'font-weight':750},'Cumulative training token slots · same D0 trajectory'));
+  }
+
+  function makeGrid(nodeId,field,color,percent=true){
+    const node=document.getElementById(nodeId);
+    D.benchmarks.filter(b=>Array.isArray(b[field])).forEach(b=>{const fig=document.createElement('figure');fig.className='mini';const h=document.createElement('h3');h.textContent=b.label;const sub=document.createElement('p');sub.className='sub';sub.textContent=`${b.family} · n=${b.n.toLocaleString()}`;const svg=document.createElementNS(NS,'svg');const title=document.createElementNS(NS,'title');title.textContent=`${b.label} ${field} from 30B to 50B`;const desc=document.createElementNS(NS,'desc');const values=b[field];const best=field==='nll'?Math.min(...values):Math.max(...values);desc.textContent=`Five measured points. Observed best ${percent?fmtPct(best):fmtNll(best)}.`;svg.append(title,desc);drawLine(svg,values,{color,percent});const cap=document.createElement('figcaption');const bestI=field==='nll'?values.indexOf(Math.min(...values)):values.indexOf(Math.max(...values));cap.textContent=`Observed best: ${D.checkpoints[bestI].label} · ${percent?fmtPct(values[bestI]):fmtNll(values[bestI])}`;fig.append(h,sub,svg,cap);node.append(fig)});
+  }
+
+  function heatCell(values,i,lowerBetter=false,format=fmtPct){
+    const mean=values.reduce((a,b)=>a+b,0)/values.length,best=lowerBetter?Math.min(...values):Math.max(...values),worst=lowerBetter?Math.max(...values):Math.min(...values),v=values[i];
+    const good=lowerBetter?mean-v:v-mean,scale=Math.max(...values.map(x=>Math.abs((lowerBetter?mean-x:x-mean))),1e-12),strength=Math.min(1,Math.abs(good)/scale),alpha=.06+.34*strength,color=good>=0?`rgba(71,115,78,${alpha})`:`rgba(155,52,56,${alpha})`,isBest=Math.abs(v-best)<1e-12,isWorst=Math.abs(v-worst)<1e-12,border=isBest?`inset 0 0 0 3px ${C.green}`:isWorst?`inset 0 0 0 3px ${C.red}`:'none';
+    return `<span title="row mean ${format(mean)} · ${good>=0?'+':''}${lowerBetter?(mean-v).toFixed(4):(100*(v-mean)).toFixed(2)+(format===fmtPct?' pp':'')}" style="display:block;margin:-12px -14px;padding:12px 14px;background:${color};box-shadow:${border};font-weight:${isBest||isWorst?850:500}">${format(v)}</span>`;
+  }
+  function table(node,headers,rows){node.innerHTML=`<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>`}
+  function metricTable(id,field,{lowerBetter=false,format=fmtPct}={}){const bs=D.benchmarks.filter(b=>Array.isArray(b[field]));table(document.getElementById(id),['benchmark','n',...D.checkpoints.map(q=>q.label)],bs.map(b=>[b.label,b.n.toLocaleString(),...b[field].map((_,i)=>heatCell(b[field],i,lowerBetter,format))]))}
+
+  drawTimeline();
+  drawLine(document.getElementById('greekmmlu-accuracy'),D.greekmmlu.accuracy,{color:C.red,percent:true,large:true});
+  drawLine(document.getElementById('greekmmlu-nll'),D.greekmmlu.nll,{color:C.blue,percent:false,large:true});
+  makeGrid('accuracy-grid','accuracy',C.blue,true);
+  makeGrid('nll-grid','nll',C.gold,false);
+  makeGrid('balanced-grid','balanced',C.teal,true);
+  metricTable('accuracy-table','accuracy');
+  metricTable('nll-table','nll',{lowerBetter:true,format:fmtNll});
+  metricTable('balanced-table','balanced');
+  const requestedSection=new URLSearchParams(location.search).get('section');
+  if(requestedSection){
+    const target=document.getElementById(requestedSection);
+    if(target){
+      [...document.querySelector('main').children].forEach(child=>child.hidden=child!==target);
+      target.style.paddingTop='36px';
+    }
+  }
+</script>
+</body>
+</html>

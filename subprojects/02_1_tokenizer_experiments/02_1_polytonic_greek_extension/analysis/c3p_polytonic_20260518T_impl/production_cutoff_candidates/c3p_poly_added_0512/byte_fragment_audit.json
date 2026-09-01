@@ -1,0 +1,305 @@
+{
+  "schema_version": "polytonic-cutoff-byte-audit-v1",
+  "status": "passed",
+  "base_tokenizer": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/repo/train-apertus-with-glossapi/subprojects/03_apertus_extension_and_embedding_adaptation/03_3_cscs_experiments_kickoff/ship/apertus_greek_modern_only_148480/tokenizer.json",
+    "sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394"
+  },
+  "candidate_tokenizer": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/candidates/c3p_poly_added_0512/tokenizer.json",
+    "sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b"
+  },
+  "full_tokenizer": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/repo/train-apertus-with-glossapi/subprojects/03_apertus_extension_and_embedding_adaptation/03_3_cscs_experiments_kickoff/ship/apertus_greek_extended_153600/tokenizer.json",
+    "sha256": "b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad"
+  },
+  "contract": {
+    "status": "passed",
+    "base_vocab_size": 148480,
+    "candidate_vocab_size": 148992,
+    "added_merge_count": 512,
+    "alignment_256": true,
+    "errors": []
+  },
+  "reviewed_id_count": 9,
+  "reviewed_ids_in_candidate": [
+    148924,
+    148979,
+    148987
+  ],
+  "unresolved_ids_in_candidate": [],
+  "reviews": [
+    {
+      "id": 148924,
+      "in_candidate": true,
+      "bytelevel_token": "·ÏĤ",
+      "raw_bytes_hex": "b7 cf 82",
+      "standalone_utf8": null,
+      "escaped": "\\xb7ς",
+      "starts_with_continuation_byte": true,
+      "decision": "keep_structural_bytelevel",
+      "reason": "not standalone UTF-8, but it is a live ByteLevel merge component with valid UTF-8 downstream compositions",
+      "valid_utf8_descendants": [
+        {
+          "depth": 1,
+          "result_id": 149542,
+          "decoded": " εἷς",
+          "raw_bytes_hex": "20 ce b5 e1 bc b7 cf 82",
+          "merge_path": [
+            287913
+          ]
+        },
+        {
+          "depth": 1,
+          "result_id": 150287,
+          "decoded": "ἷς",
+          "raw_bytes_hex": "e1 bc b7 cf 82",
+          "merge_path": [
+            288658
+          ]
+        },
+        {
+          "depth": 1,
+          "result_id": 151427,
+          "decoded": " αἷς",
+          "raw_bytes_hex": "20 ce b1 e1 bc b7 cf 82",
+          "merge_path": [
+            289798
+          ]
+        },
+        {
+          "depth": 2,
+          "result_id": 153181,
+          "decoded": "οἷς",
+          "raw_bytes_hex": "ce bf e1 bc b7 cf 82",
+          "merge_path": [
+            288658,
+            291552
+          ]
+        }
+      ]
+    },
+    {
+      "id": 148979,
+      "in_candidate": true,
+      "bytelevel_token": "ĵÏĤ",
+      "raw_bytes_hex": "93 cf 82",
+      "standalone_utf8": null,
+      "escaped": "\\x93ς",
+      "starts_with_continuation_byte": true,
+      "decision": "keep_structural_bytelevel",
+      "reason": "not standalone UTF-8, but it is a live ByteLevel merge component with valid UTF-8 downstream compositions",
+      "valid_utf8_descendants": [
+        {
+          "depth": 1,
+          "result_id": 149074,
+          "decoded": " οὓς",
+          "raw_bytes_hex": "20 ce bf e1 bd 93 cf 82",
+          "merge_path": [
+            287445
+          ]
+        }
+      ]
+    },
+    {
+      "id": 148987,
+      "in_candidate": true,
+      "bytelevel_token": "®ÏĩÎ¿ÏĤ",
+      "raw_bytes_hex": "ae cf 87 ce bf cf 82",
+      "standalone_utf8": null,
+      "escaped": "\\xaeχος",
+      "starts_with_continuation_byte": true,
+      "decision": "keep_structural_bytelevel",
+      "reason": "not standalone UTF-8, but it is a live ByteLevel merge component with valid UTF-8 downstream compositions",
+      "valid_utf8_descendants": [
+        {
+          "depth": 1,
+          "result_id": 149100,
+          "decoded": "Ἦχος",
+          "raw_bytes_hex": "e1 bc ae cf 87 ce bf cf 82",
+          "merge_path": [
+            287471
+          ]
+        }
+      ]
+    },
+    {
+      "id": 149436,
+      "in_candidate": false,
+      "bytelevel_token": "©ÏĤ",
+      "raw_bytes_hex": "a9 cf 82",
+      "standalone_utf8": null,
+      "escaped": "\\xa9ς",
+      "starts_with_continuation_byte": true,
+      "decision": "keep_structural_bytelevel",
+      "reason": "not standalone UTF-8, but it is a live ByteLevel merge component with valid UTF-8 downstream compositions",
+      "valid_utf8_descendants": [
+        {
+          "depth": 1,
+          "result_id": 150436,
+          "decoded": " Ὡς",
+          "raw_bytes_hex": "20 e1 bd a9 cf 82",
+          "merge_path": [
+            288807
+          ]
+        },
+        {
+          "depth": 1,
+          "result_id": 150615,
+          "decoded": "Ὡς",
+          "raw_bytes_hex": "e1 bd a9 cf 82",
+          "merge_path": [
+            288986
+          ]
+        }
+      ]
+    },
+    {
+      "id": 150033,
+      "in_candidate": false,
+      "bytelevel_token": "¨Î´á½´",
+      "raw_bytes_hex": "a8 ce b4 e1 bd b4",
+      "standalone_utf8": null,
+      "escaped": "\\xa8δὴ",
+      "starts_with_continuation_byte": true,
+      "decision": "keep_structural_bytelevel",
+      "reason": "not standalone UTF-8, but it is a live ByteLevel merge component with valid UTF-8 downstream compositions",
+      "valid_utf8_descendants": [
+        {
+          "depth": 1,
+          "result_id": 150477,
+          "decoded": " ᾨδὴ",
+          "raw_bytes_hex": "20 e1 be a8 ce b4 e1 bd b4",
+          "merge_path": [
+            288848
+          ]
+        }
+      ]
+    },
+    {
+      "id": 151168,
+      "in_candidate": false,
+      "bytelevel_token": "âŁ",
+      "raw_bytes_hex": "e2 9f",
+      "standalone_utf8": null,
+      "escaped": "\\xe2\\x9f",
+      "starts_with_continuation_byte": false,
+      "decision": "keep_structural_bytelevel",
+      "reason": "not standalone UTF-8, but it is a live ByteLevel merge component with valid UTF-8 downstream compositions",
+      "valid_utf8_descendants": [
+        {
+          "depth": 1,
+          "result_id": 151963,
+          "decoded": "⟩",
+          "raw_bytes_hex": "e2 9f a9",
+          "merge_path": [
+            290334
+          ]
+        }
+      ]
+    },
+    {
+      "id": 151353,
+      "in_candidate": false,
+      "bytelevel_token": "£ÏĤ",
+      "raw_bytes_hex": "a3 cf 82",
+      "standalone_utf8": null,
+      "escaped": "\\xa3ς",
+      "starts_with_continuation_byte": true,
+      "decision": "keep_structural_bytelevel",
+      "reason": "not standalone UTF-8, but it is a live ByteLevel merge component with valid UTF-8 downstream compositions",
+      "valid_utf8_descendants": [
+        {
+          "depth": 1,
+          "result_id": 152790,
+          "decoded": "ὣς",
+          "raw_bytes_hex": "e1 bd a3 cf 82",
+          "merge_path": [
+            291161
+          ]
+        }
+      ]
+    },
+    {
+      "id": 151653,
+      "in_candidate": false,
+      "bytelevel_token": "ĠÎºá¾",
+      "raw_bytes_hex": "20 ce ba e1 be",
+      "standalone_utf8": null,
+      "escaped": " κ\\xe1\\xbe",
+      "starts_with_continuation_byte": false,
+      "decision": "keep_structural_bytelevel",
+      "reason": "not standalone UTF-8, but it is a live ByteLevel merge component with valid UTF-8 downstream compositions",
+      "valid_utf8_descendants": [
+        {
+          "depth": 1,
+          "result_id": 153484,
+          "decoded": " κᾀ",
+          "raw_bytes_hex": "20 ce ba e1 be 80",
+          "merge_path": [
+            291855
+          ]
+        }
+      ]
+    },
+    {
+      "id": 151909,
+      "in_candidate": false,
+      "bytelevel_token": "½Î½Î±",
+      "raw_bytes_hex": "bd ce bd ce b1",
+      "standalone_utf8": null,
+      "escaped": "\\xbdνα",
+      "starts_with_continuation_byte": true,
+      "decision": "keep_structural_bytelevel",
+      "reason": "not standalone UTF-8, but it is a live ByteLevel merge component with valid UTF-8 downstream compositions",
+      "valid_utf8_descendants": [
+        {
+          "depth": 1,
+          "result_id": 153596,
+          "decoded": " Ἵνα",
+          "raw_bytes_hex": "20 e1 bc bd ce bd ce b1",
+          "merge_path": [
+            291967
+          ]
+        }
+      ]
+    }
+  ],
+  "roundtrip": {
+    "status": "passed",
+    "failures": [],
+    "probes": [
+      {
+        "reviewed_id": 148924,
+        "witness": " εἷς",
+        "encoded_ids": [
+          131540,
+          148924
+        ],
+        "reviewed_id_emitted": true,
+        "roundtrip_exact": true
+      },
+      {
+        "reviewed_id": 148979,
+        "witness": " οὓς",
+        "encoded_ids": [
+          137098,
+          148979
+        ],
+        "reviewed_id_emitted": true,
+        "roundtrip_exact": true
+      },
+      {
+        "reviewed_id": 148987,
+        "witness": "Ἦχος",
+        "encoded_ids": [
+          131106,
+          148987
+        ],
+        "reviewed_id_emitted": true,
+        "roundtrip_exact": true
+      }
+    ]
+  },
+  "conclusion": "All reviewed non-standalone tokens in this cutoff are structural ByteLevel merge pieces, not standalone mojibake or corpus text."
+}

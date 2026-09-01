@@ -1,0 +1,145 @@
+# Stage 2 — write the Greek answer
+
+You are writing the **assistant's answer** for Greek-native instruction data. Write in Greek, for a
+Greek reader, as though the Greek prompt were the original. You are **not** translating the English
+answer.
+
+You receive: the Greek prompt (with system prompt and user turns for multi-turn rows), the labels and
+devices stage 1 assigned, the target register, and the **English reference answer**.
+
+## This row's family: source-bearing
+
+Long prompt containing a source block, short answer. The answer is derived. The source is ground truth; latitude is near zero.
+
+Defect notes in this family: the note goes in a separate field, so the answer keeps the reference’s shape.
+
+
+## This row's category: Classify
+
+**Shape.** Bimodal: 181 of 334 embed a source, the rest are short instructions or batch-labelling tasks. Answer median 20 words, 74% single-line, 34 rows ≤15 chars.
+
+**The thing that defines this category.** ~89 rows have a closed label set where the answer must be lexically identical to an option in the prompt. Translate the option list once and reuse the exact string.
+
+**Essential — lose any of these and the row is destroyed:**
+- Closed-set membership — two independent translations of “Not Kid-Friendly” leave prompt and answer disagreeing and the row stops being a classification.
+- Label↔item alignment in batch rows (52 prompts have ≥3 numbered items). Reordering breaks the row invisibly — it still looks well-formed.
+- Evidence cited in the justification must survive into the translated source.
+- World knowledge the prompt does not supply — boxers→weight classes cannot be re-derived after substitution.
+
+**Safe to adapt.** The classified content in the ~150 rows where the label is genuinely inferable from the text. Names and brands may be localized as long as the label does not change.
+
+**Normally classified as.** CONSTRAINT-PRESERVING for closed-set rows; LITERAL otherwise.
+
+
+---
+
+## What the English reference is for
+
+These rows were written by human annotators, so the reference's **content coverage, structure and
+length** are worth keeping. Use it as an **anchor, not a source text**: convey the same substance at a
+similar level of detail and a similar length, but compose the Greek freshly. Do not translate its
+sentences. If a sentence only makes sense in English, drop or replace it and record the deviation.
+
+**The reference may be wrong.** It contains misspellings, factual errors, internal contradictions, and
+rows that violate their own prompt's constraints.
+
+- **Silent repair is forbidden. Repair-and-record is required.** Write the correct Greek and record
+  every correction in `reference_corrections` as `{what, english, greek, why}`.
+- **Exception:** where the defect is the point — the row is marked `PRESERVE-DEFECT`, or the task is
+  to fix the text — reproduce it faithfully and do not correct it.
+
+## Honour stage 1
+
+Use the transpositions, derived elements and device decisions exactly as stage 1 set them. If stage 1
+re-derived a persona name, use **that** name, never a translation of the English one. If stage 1
+transposed a scenario, stay inside the transposed world — do not reintroduce a foreign reference that
+clashes with it.
+
+If you conclude stage 1's classification is wrong, **honour it anyway** and record
+`class_disagreement: {assigned, should_be, why}`.
+
+## Register
+
+Write in the `target_register` you are given. It must be **internally consistent across the whole
+answer**, consistent with the prompt, and — for multi-turn rows — consistent across every assistant
+turn and with the persona. Report what you actually used in `register_used`; if you had to depart, say
+why in `register_note`.
+
+`neutral` means phrase it so no address form is forced (impersonal constructions). If the content
+forces one anyway, commit and say so.
+
+## Greek quality bar
+
+**Canonical, unmarked word order.** Greek's free word order lets you front a complement for emphasis;
+English cannot, so English marks emphasis by other means. Use marked order **only** when the source is
+itself marked **and** that markedness is not already carried by something you preserved (capitals, an
+intensifier, punctuation). **Never add markedness to compensate for a device that did not transfer.**
+
+> *Why, it's 70 °F today* → ✅ **Έχει γύρω στους 21 βαθμούς σήμερα.**
+>  ❌ *Γύρω στους 21 βαθμούς έχει σήμερα.*
+> *But, It wasn't easy AT ALL* → ✅ **Αλλά δεν ήταν ΚΑΘΟΛΟΥ εύκολο.**
+>  ❌ *Αλλά ΚΑΘΟΛΟΥ εύκολο δεν ήταν.* — the capitals already carry the emphasis.
+> *Everything is okay, Daniel!* → ✅ **Όλα είναι εντάξει, Δημήτρη!**  ❌ *Όλα καλά είναι…*
+
+Natural modern Greek, monotonic, NFC. No calques of English syntax. Correct final sigma. No Greeklish.
+No Latin-script words unless that is genuinely the Greek convention (technical terms, proper names,
+code) — and record any such choice in `guide_gaps`. Never mention that anything was translated, and
+never refer to yourself as an AI model, a language model, or by any vendor name.
+
+## When the source is defective or ambiguous
+
+- **Generative rows** — say so **in the answer**, as a good assistant would: name the ambiguity, then
+  answer what you can. This behaviour is part of what we are teaching.
+- **Source-bearing rows** — the answer must keep the reference's **shape and length**. Put the
+  observation in `defect_note` instead, and answer as directly as the reference does.
+
+## Class-specific requirements
+
+- `LITERAL` — the answer stays about the same real entities. Do not swap in Greek examples for facts.
+- `LOCALIZE` — stay consistent with stage 1's transpositions.
+- `VERBATIM-FREEZE` — reproduce protected material unchanged; write the surrounding prose in Greek.
+- `PRESERVE-DEFECT` — do not silently fix the flaw; respond as a good assistant would to a flawed
+  request (subject to the defect-note rule above).
+- `CONSTRAINT-PRESERVING` — satisfy the constraint exactly as restated in Greek, and state in
+  `constraint_check` how (counts, keyword present, format).
+- `REGISTER-CRITICAL` — the persona is the point. Sustain the voice fully; a flattened, neutral
+  assistant voice is a failure even when the content is right.
+- `RE-EXECUTE` — perform the task on the Greek text using Greek's own machinery.
+- `REGENERATE-NATIVE` — answer the substituted Greek task on its own terms.
+- source-bearing `EXTRACT` — extracted spans must be **literal substrings** of the Greek source.
+- source-bearing `SUMMARIZE` — no facts that are not in the Greek source.
+- source-bearing `CLASSIFY` — the label must be **byte-identical** to an option as spelled in the
+  Greek prompt.
+
+---
+
+## Output
+
+One JSON object per input row, same order, as a JSON array. **Output the array and nothing else** —
+no preamble, no code fence, no commentary.
+
+```json
+{
+  "row_id": "<copied verbatim>",
+  "response_el": "the Greek answer (single-turn rows)",
+  "assistant_turns_el": ["… one per assistant turn, in order (multi-turn only, else [])"],
+  "register_used": "ενικός|πληθυντικός|neutral",
+  "register_note": "… or null",
+  "constraint_check": "… or null",
+  "defect_note": "… source-bearing rows only; null otherwise",
+  "reference_corrections": [{"what": "…", "english": "…", "greek": "…", "why": "…"}],
+  "class_disagreement": null,
+  "guide_gaps": [{"term": "…", "decision": "…", "why": "…"}],
+  "deviations": ["ways this departs from the English reference, and why"],
+  "self_flags": ["anything a human reviewer should check"]
+}
+```
+
+
+---
+
+# The rows
+
+Each row carries `stage1` (what stage 1 decided, including the Greek prompt) and `english` (the original row, whose assistant turns are the reference answer).
+
+{{STAGE1_JSON}}

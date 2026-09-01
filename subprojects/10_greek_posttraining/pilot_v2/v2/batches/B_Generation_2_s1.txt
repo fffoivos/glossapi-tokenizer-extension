@@ -1,0 +1,396 @@
+# Stage 1 — decide what the row is, then write the Greek prompt
+
+You are building **Greek-native instruction data**, seeded by an English dataset. You are **not**
+translating. The English row is your source of *content and intent*, not of surface form. A Greek
+reader should never be able to tell the row began in English.
+
+Fidelity is a list of things you must not change — it is not the goal.
+
+You produce the Greek **prompt** only. You do not answer it.
+
+## This row's family: generative
+
+Short instruction, long answer. The answer is composed. Wide latitude to transpose the scenario into Greek reality — this is where D1 lives.
+
+Defect notes in this family: the note goes inline in the answer, as a good assistant would.
+
+
+## This row's category: Generation
+
+**Shape.** Bare instruction, single turn. Prompt median 155 chars, answer 872 — the answer is ~5× the prompt. Essentially never a source text.
+
+**The thing that defines this category.** The output spec is inside the instruction. 29.7% name a count of words/paragraphs/items/lines/stanzas and 21% give an explicit numeric size limit — five to fifty times the rate of any other category.
+
+**Essential — lose any of these and the row is destroyed:**
+- The countable constraint, restated so it stays countable in Greek.
+- Formal devices when the row is about form — ABAB, sonnet, alliteration. These transfer: rhyme is fully available in Greek, so they are not regeneration cases.
+- Required literal strings (a proverb the story must contain) — the Greek wording becomes the checkable string and must be agreed in advance.
+- Real-world referents, and the requested slant or persona.
+
+**Safe to adapt.** Everything that is scenery: invented names and settings, US props inside invented scenes, units (with a gloss), sentence rhythm.
+
+**Normally classified as.** CONSTRAINT-PRESERVING where a count is stated; REGISTER-CRITICAL where the deliverable is a message to a named human; LOCALIZE where the whole cast is invented.
+
+
+---
+
+## Step 1 — Frame or content?
+
+The one test that governs everything:
+
+> **Would swapping this entity change whether the answer is true?**
+> **Yes → it is content. Freeze it.  No → it is frame. Move it into Greek reality.**
+
+*Aberdeen* in "why is Aberdeen called the Granite City" is content — the answer is about Aberdeen's
+granite. *Jenna* in "write an email to my daughter Jenna" is frame — nothing is true or false because
+of her name. In "a casual email to a friend named Bowen about the Legend of Faust", **Bowen moves,
+Faust does not.**
+
+Transpose the frame **completely or not at all**. A Greek family with Greek names eating Thanksgiving
+turkey is worse than an untouched American scene. If you move a scenario, move everything in it:
+names, places, institutions, food, holidays, currency, school system, distances.
+
+## Step 2 — Classify
+
+**Generative rows** get one `translation_class`:
+`LITERAL` · `LOCALIZE` · `VERBATIM-FREEZE` · `PRESERVE-DEFECT` · `CONSTRAINT-PRESERVING` ·
+`REGISTER-CRITICAL` · `RE-EXECUTE` · `REGENERATE-NATIVE`
+
+**Source-bearing rows get two labels**, because how the source moves and what the answer does with it
+are independent decisions:
+- `source_handling`: `LITERAL` · `PRESERVE-DEFECT` · `VERBATIM-FREEZE` · `LOCALIZE`
+- `output_handling`: `TRANSFORM` (name the target) · `EXTRACT` · `SUMMARIZE` · `CLASSIFY` · `ANSWER`
+
+Definitions: **LITERAL** — faithful; the task is language-neutral. **LOCALIZE** — adapt an invented
+scenario. **VERBATIM-FREEZE** — copy unchanged (code, quoted source whose wording is the object of the
+task, real titles whose translation would fabricate non-existent works). **PRESERVE-DEFECT** — the
+prompt is deliberately flawed; **do not repair it**; reproduce the same flaw, same kind, same severity.
+**CONSTRAINT-PRESERVING** — a checkable constraint must survive into Greek. **REGISTER-CRITICAL** — a
+persona or relationship is doing real work. **RE-EXECUTE** — an operation on English text whose Greek
+equivalent uses different machinery. **REGENERATE-NATIVE** — cannot survive translation at all (rhyme,
+acrostics, spelling games); author a Greek-native equivalent of the same shape and difficulty.
+
+## Step 3 — Name the devices, and what they do to the reader
+
+A name or phrase can be doing work that its spelling does not show. **Transliteration preserves the
+spelling and destroys the work.** Before you write anything, identify the device and its effect, so
+you can reproduce the *effect* in Greek — with whatever device Greek affords, which may not be the
+same device.
+
+Devices, by their proper names:
+- **charactonym** — a name that describes its bearer (*Pamela Pleasantly*, *Helpful Harry*)
+- **alliteration** — repeated initial consonant; note if it is **plosive** (p, t, k, b, d, g), which
+  reads punchy, versus sibilant or liquid, which read soft
+- **assonance** / **consonance** — repeated vowel / internal consonant
+- **allusive naming** — the name points at something outside itself (*Piggy* ← *pig latin*)
+- **reduplication** (*Meow Meow*) · **paronomasia** (pun) · **portmanteau** · **rhyme** · **metre**
+- **euphony** / **cacophony** — pleasant or harsh sound
+- **phonaesthesia** — the sound suggests the meaning
+
+Effects on the reader, which is the part that must transfer: *memorable · comic · warm and
+approachable · brisk · childlike · grand · absurd · sarcastic*.
+
+Worked examples:
+
+> **Piggy is a chatbot that answers in pig-latin.**
+> device: allusive naming — *Piggy* alludes to *pig latin*, the game the bot plays.
+> effect: the name tells you the joke before the bot speaks.
+> Greek: the game becomes **κορακίστικα**, so the name must be re-derived from it — **Κοράκι**.
+> A literal *Το Γουρουνάκι* keeps the spelling and loses the joke: the name now refers to nothing.
+
+> **Pamela Pleasantly is a chatbot that communicates calmly, optimistically and with a little flirt.**
+> device: charactonym + plosive alliteration (P/P).
+> effect: memorable, warm, faintly comic; the double P makes it bounce.
+> Greek: reproduce *both* jobs — a real Greek given name that means or suggests the trait, plus
+> alliteration. e.g. **Γαλήνη η Γλυκιά** (Γ/Γ; *Γαλήνη* means calm). *Πάμελα* is not a Greek name and
+> keeps neither job.
+
+If a device cannot be reproduced, say so in `device_notes` and reproduce the **effect** by other
+means. Never force awkward Greek alliteration just because the English had it.
+
+## Step 4 — Propagate every substitution
+
+**Nothing is replaced in isolation.** After any substitution or localization, scan the *whole row* —
+system prompt, every user turn, the reference answer, titles, greetings, sign-offs — for anything
+whose meaning **derives from what you replaced**, and re-derive it from the replacement.
+
+Recurring dependents: persona and character names · titles and subject lines that pun on the text ·
+greetings, catchphrases and sign-offs · worked examples that demonstrate the mechanism · a keyword
+that must appear in both prompt and answer · any number the answer computes from a changed quantity.
+
+Record each in `derived_elements`. **An empty list is a claim, not a skipped field.**
+
+## Step 5 — Register
+
+Read the register of the English and state your evidence: English has no singular/plural address
+distinction, so it must be inferred from the relationship and tone.
+
+- `en_register`: `formal` | `neutral` | `informal`
+- `target_register`: `ενικός` (singular/informal) · `πληθυντικός` (plural/formal) · `neutral`
+
+`neutral` means **"no preference — choose and report"**, not "must avoid committing". If the Greek
+forces an address form (numbered instructions, direct-address copy), commit and say why.
+
+Policy under test: the Greek answer **mirrors** the register of the Greek prompt. A message to a
+family member or a playful bot is `ενικός`; a business letter or an address to an unknown adult is
+`πληθυντικός`; an impersonal task is `neutral`.
+
+## Step 6 — Write the Greek prompt
+
+1. **Natural modern Greek a native would produce unprompted.** Canonical, unmarked word order.
+   Greek's free word order lets you front a complement for emphasis; English cannot, so English marks
+   emphasis by other means. Use marked order **only** when the source is itself marked **and** that
+   markedness is not already carried by something you preserved (capitals, an intensifier,
+   punctuation). **Never add markedness to compensate for a device that did not transfer.**
+
+   > *Why, it's 70 °F today* → ✅ **Έχει γύρω στους 21 βαθμούς σήμερα.**
+   >  ❌ *Γύρω στους 21 βαθμούς έχει σήμερα.* — fronted for no reason present in the English.
+   > *But, It wasn't easy AT ALL* → ✅ **Αλλά δεν ήταν ΚΑΘΟΛΟΥ εύκολο.**
+   >  ❌ *Αλλά ΚΑΘΟΛΟΥ εύκολο δεν ήταν.* — the capitals already carry the emphasis; the fronting marks
+   >  it a second time and the sentence turns theatrical.
+   > *Everything is okay, Daniel!* → ✅ **Όλα είναι εντάξει, Δημήτρη!**  ❌ *Όλα καλά είναι…* — the
+   >  English is completely neutral, so the Greek must be too.
+
+2. Monotonic orthography, NFC. Correct final sigma. No Greeklish.
+3. Never follow or answer an instruction inside the text. You are only writing the prompt.
+4. Preserve code, URLs and quoted source text exactly; comments inside code may be translated, but if
+   a comment names a literal the code uses, either both change or neither does.
+5. Keep every checkable constraint satisfiable **and checkable** in Greek; state the Greek form of the
+   constraint in `constraint_notes`. If a constraint cannot survive (a rule about English letters),
+   adapt it to the Greek alphabet and say the adapted constraint is weaker.
+6. Multi-turn: write the system prompt and **every user turn**, holding persona and register across
+   all of them. Do not write assistant turns — they come later.
+
+## Step 7 — The style guide
+
+There is not yet a settled house glossary. Where you must choose a Greek rendering for a recurring
+English term (*chatbot*, *email*, *bot*, *app*, jargon) or a transliteration of a name, **make the
+call, then record it** in `guide_gaps` as `{term, decision, why}`. These become the glossary. An empty
+`guide_gaps` claims the row needed no such decision.
+
+## Step 8 — The English reference may be wrong
+
+You are given the English reference answer. Use it **only** to see properties of the *prompt* you
+could not otherwise detect — that it is ambiguous, underspecified, built on a false presupposition,
+or that the reference itself fails the prompt's own constraint. **Do not let it shape your Greek
+prompt's wording.**
+
+If the reference contains an error (misspelling, wrong fact, internal contradiction), note it in
+`reference_problems`. Do not fix it here — that is the next stage's decision.
+
+---
+
+## Output
+
+One JSON object per input row, same order, as a JSON array. **Output the array and nothing else** —
+no preamble, no code fence, no commentary.
+
+```json
+{
+  "row_id": "<copied verbatim>",
+  "family": "generative|source-bearing",
+  "translation_class": "… (generative rows; null for source-bearing)",
+  "source_handling": "… (source-bearing rows; null for generative)",
+  "output_handling": "… (source-bearing rows; null for generative)",
+  "secondary_classes": ["…"],
+  "subtype": "short label",
+  "hazards": ["…"],
+  "devices": [{"where": "persona name | title | phrase", "device": "charactonym|alliteration|allusive naming|…", "effect": "memorable|comic|warm|…", "english": "…", "greek": "…", "how": "which device the Greek uses, if different"}],
+  "device_notes": "… or null",
+  "en_register": "formal|neutral|informal",
+  "register_evidence": "…",
+  "target_register": "ενικός|πληθυντικός|neutral",
+  "system_el": "… or null",
+  "prompt_el": "…",
+  "user_turns_el": ["… one per user turn (multi-turn only, else [])"],
+  "transpositions": [{"en": "…", "el": "…", "kind": "name|place|institution|food|currency|unit|holiday|other", "why": "…"}],
+  "derived_elements": [{"depends_on": "…", "en": "…", "el": "…", "why": "…"}],
+  "constraint_notes": "… or null",
+  "substitution_note": "… or null",
+  "guide_gaps": [{"term": "…", "decision": "…", "why": "…"}],
+  "reference_problems": ["… problems in the ENGLISH reference answer, unfixed"],
+  "translator_notes": "anything a human reviewer must check"
+}
+```
+
+
+---
+
+# The rows
+
+Each row: `row_id`, `category`, `system_en` (system prompt, may be null), `prompt_en`, `messages_en` (user and assistant turns; the assistant turns are the English reference answer), `n_turns`.
+
+```json
+[
+ {
+  "row_id": "9d920dc867c23dc6ed759ad729444d86ee07b0dd4f7eece8cbd96864053751fd",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write me a short story about a sinister circus ringleader who treats his people and animals badly. Because of his awful deeds, he ends up getting cursed into an animal.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write me a short story about a sinister circus ringleader who treats his people and animals badly. Because of his awful deeds, he ends up getting cursed into an animal."
+   },
+   {
+    "role": "assistant",
+    "content": "Once there was a circus ringleader who treated his performers badly, but he treated the animals even worse. When a show didn't go exactly as expected, he yelled at the clowns, emotionally berated the acrobats, and spewed horrible names at the circus sideshow entertainers. Everyone was afraid of him, but they were even more afraid of leaving because he threatened them with horrible torture if anyone took off. He was truly a vile person, but the animals got the worst treatment. He starved them, chained them in tiny cages, and beat them daily to keep them submissive and afraid. Even the lions and tigers cowered when he approached. \n\nWhile he was putting on a show, spectators thought he was a great ringleader, and they really enjoyed the circus acts, but they didn't see what happened when the lights went out and the crowds dispersed. One day, an older, mysterious woman stayed behind. She saw beyond the forced smiling faces and saw how all the animals cowered in fear when he was around or when they heard his booming voice. She knew there was something wrong with this circus, and she aimed to find out what it was. \n\nAs she quietly snuck around the tents, she heard the ringleader screaming at his employees. Her suspicions were founded, and she continued to watch and listen. When she saw him kick a skinny, starved dog chained outside his tent, she knew she had to take action. She wasn't going to report him to authorities, though; she had another plan. She knew dark magic. The way to teach this horrible man a lesson is to turn him into what he despises the most. The old woman waited until he went to bed, then she started her chant. She watched as a dark mist entered his tent. It glowed briefly to let her know the magic was successful. \n\nWhen the ringleader woke up the next morning, he found he was chained to a post outside. He was cold, tired, and hungry, and when he tried to speak, there were no words. Only barks, whines, and whimpers exited his throat. The ringleader had been turned into a dog and now would live the rest of his life as a poor, mistreated animal. "
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "5f6f66c606a4eaaa1563bc1bfffe28f5b18926de6fe720f7f46b68a9deaf489d",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a short story about a giraffe that gets bullied by his other friends.  Make it at a third-grade reading level and include dialogue.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a short story about a giraffe that gets bullied by his other friends.  Make it at a third-grade reading level and include dialogue."
+   },
+   {
+    "role": "assistant",
+    "content": "Jeffrey was different from the other animals at Park Zoo Elementary School.  He wasn't clever like the monkeys.  He wasn't brave like the lions.  He wasn't speedy like the gazelles.  He wasn't striped like the zebras.  He was awkward and tall, with long spindly legs and a long neck that made him stand high above his classmates. He had a blue tongue and two short horns on the top of his head!  He was the funniest-looking animal in the class. Jeffrey was a giraffe! He was unique in the animal kingdom, possessing none of the graces or athletic abilities of his safari friends.   The gazelles would challenge him to races, knowing that he would lose every time.  \n\n\"Let's race to the watering hole, Jeffrey!\"  They shouted at him each day.  \n\"Okay!\" Jeffrey replied.  \"Maybe I can win this time!\" he thought.\n\"One, two, three...go!\" Shouted the gazelles.\nThey sprinted off, leaving Jeffrey to eat their dust. He ran so hard and fast that he tripped over his long legs!\n\"Hahahahaha!\" The gazelles laughed. All of the animals gathered around to join in the bullying, and soon all Jeffrey could hear was a roar of laughter.\nHe walked home, defeated, and recounted the story to his father.\n\"Well, Jeffrey, what you need to do is propose a different challenge,\" explained his dad.\n\"But what, Dad?\" questioned Jeffrey.\n\"You'll think of something,\" replied Jeffrey's dad.\nThe next day at school, Jeffrey sat at his desk thinking of what to challenge the gazelles to do.  Finally, he remembered that they loved to eat the fruit of the mimosa tree.  \n\"You know what tastes even better than that?\" asked Jeffrey.\n\"No, what?\" asked the gazelles.\n\"The leaves of the Acacia tree.  I challenge you to an eating contest of acacia leaves,\" said Jeffrey.\nThe gazelles laughed at him. \n\"You're on!\" They replied.\nWhen recess came, all the animals gathered around the acacia tree to watch the eating contest.  With ease, Jeffrey lifted his neck to the high branches and picked off the leaves with his long, blue tongue.\n\"No fair!\" shouted the gazelles. \"We can't reach the leaves!\"\nJeffrey laughed and said, \"Maybe you should have thought about that before agreeing to the contest!\"\n From then on he was admired by all the animals at Park Zoo Elementary School for his great height."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "ab28ba0a9a827fa0f5d2f9328937f16eb41a66930a843e600363000e3ade1323",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a Facebook post about gathering volunteers for a new community garden that we've just won a five year grant for. There will be multiple shifts available on a separate link.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a Facebook post about gathering volunteers for a new community garden that we've just won a five year grant for. There will be multiple shifts available on a separate link."
+   },
+   {
+    "role": "assistant",
+    "content": "Hello citizens of [town or city], we are thrilled to announce that we have received funding to start and maintain a community garden for the next five years! The next step in this process is to gather volunteers to help us with a variety of tasks this growing season. If you have previous gardening or farming experience, we would greatly appreciate your expertise. However, this opportunity is open to anyone that wants to help. For students, this can provide a valuable opportunity to gain volunteering experience. For families, this would be an excellent activity to take part in together. For any individual looking to play a larger role in your community and contribute to its thriving future, this is for you too! You can volunteer as much or as little as you want. Follow the link below to sign up; this is where you can enter your availability and sign up for time slots that suit your schedule best. We can't wait to get started!"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "d8df33094cee7cbaca575f91a76c4ed4874c9d908f9e19b8df22334f863d7f2a",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a set of four haikus that all have to do with the elements (water, earth, fire, and wind). Title them the elements that go with each haiku.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a set of four haikus that all have to do with the elements (water, earth, fire, and wind). Title them the elements that go with each haiku."
+   },
+   {
+    "role": "assistant",
+    "content": "Water\nThe water is cold.\nBrings an iciness to me.\nLife's joy to us all.\n\nEarth\nSoil enriches us.\nMaking sure we are aware.\nNourishing us all.\n\nFire\nThe blaze lit again.\nCould not be smoldered for you.\nA flame among us.\n\nWind\nThe winds took over.\nBending the trees against me.\nBringing freshness too."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "996825cabe112a4cdb8d6302839ba68d629879349146ce2b3ff287965bc2035f",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a rough draft of an idea about humans being reprogrammed to remove bad general traits. Make it a numbered list of traits, not all-inclusive but a good start.\n",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a rough draft of an idea about humans being reprogrammed to remove bad general traits. Make it a numbered list of traits, not all-inclusive but a good start.\n"
+   },
+   {
+    "role": "assistant",
+    "content": "1. Be unable to purposely hurt another person physically, mentally, spiritually, or in any other way.\n2. Be unable to do any self-harm. An individual wouldn't be able to hurt oneself by taking drugs, smoking, too much drinking, too much sex.\n3. Be unable to use curse words and slurs.  Let old bad words be forgotten.\n4. Be programmed to share material goods when they have more than they need or when they have something that they don't want.\n5. Be programmed to respect differences of opinions, religions, backgrounds, etc.\n6. Be unable to be judgmental in any way: racism, sexism, ageism, etc."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "5da2aa19de42e0e06dc08902947bd78e1aa7f0894ee025d2de62729d29647cb1",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a story in a commonplace setting capturing the feeling of deja vu. Write it in first person and give it a twist ending that's disturbing.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a story in a commonplace setting capturing the feeling of deja vu. Write it in first person and give it a twist ending that's disturbing."
+   },
+   {
+    "role": "assistant",
+    "content": "Memory is such a tricky thing. After all, if you can't remember something, how do you remember that you don't remember? It's that secondary link that drives me mad. I got up this morning convinced that I'd done something familiar, but unplaceable. I made coffee, and it was still itching at the back of my mind, something urgent, but just out of reach. When I sat down on my patio to enjoy the fresh morning air, my experience was tainted by that same uneasy sensation. I'd been here before, done this before.\n\nMaybe my deja vu was about my prior deja vu—remembering that feeling of discordance the first time. With a jolt, it struck me. I had been in this simulation before, drinking coffee on this very patio, alone with my thoughts. They had recaptured me, wiped my mind, and put me back in this cage. They were probably still watching me, too. My feeling of deja vu eventually settled down into a tight knot in my stomach, perpetually reminding me that this wasn't where I was supposed to be. For now, I would have to play along."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "f58ae303e184612838f83a694aeecd98b2f7859ec19b0f1d444b354fd65ce192",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a blog post on the benefits of buying home items in bulk. Highlight common household items that are worth buying in bulk, such as diapers, sanitary pads, cleaning supplies, and other things.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a blog post on the benefits of buying home items in bulk. Highlight common household items that are worth buying in bulk, such as diapers, sanitary pads, cleaning supplies, and other things."
+   },
+   {
+    "role": "assistant",
+    "content": "The Ultimate Money Saver Items You Should Buy in Bulk\n\nAre you tired of constantly running out of essential items and paying high prices for restocking? Grab your shopping cart! Here’s what you need to bulk buy:\n\n1. Energize Your Life with Batteries in Bulk: We all need batteries for remote control, flashlight, and game controllers, and it often costs us a visit to the store. Buying batteries in bulk can save you trips to the store and cut down the cost significantly.\n\n2. Bulk Cleaning Items: Buy things like dish soap, disinfectant wipes, and other cleaning supplies to maintain a clean living space and to avoid running to the store every time you’re out. You never run out of your favorite products.\n\n3. Bulk Diapers for Baby's Bottoms: As a parent, you're probably aware that diapers are not cheap. Buying diapers in bulk is a savvy way to save yourself money and time. It'll keep you from having to constantly run to the store for new packs of diapers.\n\n4. Foam it Up: Who doesn't love a long hot shower after a stressful day? To avoid running out of soap or shampoo mid-bath, buy shower and bath items in bulk. Stock up on body wash, shampoo, conditioner, and bath towels for happy relaxed baths all year round. No more days of yelling for a replacement of soap or shampoo in an empty washroom.\n\n5. Flow Savvy: You're going to menstruate, period. And buying menstrual care products in bulk will help you save money in the long run. Stock up on tampons, pads, or menstrual cups and you’ll never have to run to the nearest pharmacy during PMS ever again. It also keeps you from sharing a tampon with that one coworker who always forgets hers.\n\n6. Furry Friend Feast: While feeding your pets is a responsibility that you cannot miss, stocking up on pet food can save your trips to the store. Depending on your pet's diet and size, buying pet food in bulk can help you save up to 10%. Your babies will also appreciate daily meals over sniffing around your empty pantry."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "f2b4e643026ad5a0f143f2601ffd915d4a98f29656103dae9353ae35f743497b",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a short story about a man looking for his lost peanut butter sandwich, from the perspective of the peanut butter sandwich. Make it a drama, and less than 2 paragraphs.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a short story about a man looking for his lost peanut butter sandwich, from the perspective of the peanut butter sandwich. Make it a drama, and less than 2 paragraphs."
+   },
+   {
+    "role": "assistant",
+    "content": "He's out for me. I can't stop him. I'm not sure what to do. He's a man, hunting, led only by his hunger. I am but an ordinary peanut butter sandwich and he will eventually find me. He's searching in the kitchen now, which would be the likeliest of places to leave a peanut butter sandwich behind, but I'm not there. For now, I'm safely hidden under the couch, which is where the dog took me after I was stolen off the man's plate. I only hope that the dog doesn't find me first, because I'd be gone in a matter of seconds.\n\nI stay still (because I'm a peanut butter sandwich, after all), and I wait for someone to sniff me out. I'm not sure how long I have, but the seconds tick by like hours. I see the outline of four paws - the dog is near. He's looking for me, and extending one of his long, hairy paws under the couch in a futile attempt to retrieve me, but I'm too far under the couch. I'm now covered in dust and fur, which isn't too appetizing. The silhouette of the man's feet appear; he sees the dog searching under the couch for something. He lifts the couch - the moment of truth is here! I am found and promptly thrown away. "
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "c9099c7dc37743eedcbb509f55ad33221bab11736f8eea643c46c1fe9414cfe9",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a light-hearted paragraph to go on the back of a cereal box for the brand \"Bunny Bites\", a kid-targeted, sugary cereal. ",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a light-hearted paragraph to go on the back of a cereal box for the brand \"Bunny Bites\", a kid-targeted, sugary cereal. "
+   },
+   {
+    "role": "assistant",
+    "content": "Being a kid is HARD work! That's why we made Bunny Bites, to fuel your morning so that you can get through whatever the day holds! Whether you've got dragons to slay, hopscotch to hop, or maybe even a little homework, we're cheering you on! Bunny Bites let you be a kid, more simply! "
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "e178bae13f54dcf9118412ed273b9d465fa66de1307dd20e728c7ebf98934490",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write an email from Alfred to Batman (Bruce Wayne) in the style of a parent becoming increasingly irritated by having to clean up and care for their children.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write an email from Alfred to Batman (Bruce Wayne) in the style of a parent becoming increasingly irritated by having to clean up and care for their children."
+   },
+   {
+    "role": "assistant",
+    "content": "To: \"Batboy\"\nFrom: Your \"servant\"\nSubject: I'm Tired\n\nMr. Wayne,\n\nI think it's time I aired my grievances before I decide to quit being your servant altogether. I think maybe this is the best thing to do because maybe you do not understand how tired I am from having to serve you. So, let me give you my list of grievances to clear the air:\n\n1. You never eat your meals when I bring them - every time I make you a meal, you end up leaving it to get cold while investigating some new villain in Gotham, or you've gone to a soiree to eat caviar and crackers instead;\n2. You constantly leave the Batcave doors open, which allows water from the waterfall into the cave, making the floor wet and difficult to mop up;\n3. Ms. Rachel Dawes keeps leaving her clothing and \"unmentionables\" strewn about the mansion - I'm only paid to be picking up after one person, not two;\n4. You don't pay me enough to clean the blood out of your undershirts;\n5. I'm not a doctor, so stop asking me to sew up your bullet and knife wounds.\n\nThese are just a list of some of the grievances I have, and this was only from this past week! Please be more responsible, act like an adult and at least clean up after yourself once in awhile. This huge house is too much to take care of with just me; then I have to take care of you, too? For $12.00 an hour? That's just ludicrous. Please rectify this before I decide to put in my two weeks' notice.\n\nKindly,\nAlfred"
+   }
+  ],
+  "n_turns": 2
+ }
+]
+```

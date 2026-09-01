@@ -1,0 +1,114 @@
+[
+ {
+  "row_id": "20dbc03e478d9b70225c7abcc7ab31a4cf514766a0524fc440852c34459fa0ff",
+  "family": "source-bearing",
+  "translation_class": null,
+  "source_handling": "PRESERVE-DEFECT",
+  "output_handling": "ANSWER",
+  "secondary_classes": ["LITERAL"],
+  "subtype": "numbered comprehension questions + true/false over a dermatology explainer",
+  "hazards": ["question–passage term drift on the key term (hyperpigmentation) would break answer-recoverability", "medical terminology has several competing Greek renderings", "the source contains a punctuation defect ('pills. or the onset') that must be reproduced, not repaired", "the MCQ options A/B must stay checkable in Greek (Α/Β, Σωστό/Λάθος)"],
+  "devices": [],
+  "device_notes": "No rhetorical devices. The one non-literal expression is the nickname \"mask of pregnancy\", which is a fixed medical nickname, not wordplay; rendered as «μάσκα της εγκυμοσύνης», which exists in Greek dermatology writing.",
+  "en_register": "neutral",
+  "register_evidence": "Consumer health copy: first person plural inclusive ('our skin'), generic second person ('when you have a wound', 'if you pick at acne spots'), no named addressee and no personal relationship. The task itself (answer three questions about a passage) is impersonal.",
+  "target_register": "πληθυντικός",
+  "system_el": null,
+  "prompt_el": "1. Τι είναι η υπερμελάγχρωση;\n2. Τι μπορεί να προκαλέσει υπερμελάγχρωση;\n3. Η εγκυμοσύνη μπορεί μερικές φορές να προκαλέσει υπερμελάγχρωση:\n    Α. Σωστό\n    Β. Λάθος\n\n\nΗ αιτία της υπερμελάγχρωσης είναι η υπερπαραγωγή μελανίνης, της χρωστικής που δίνει χρώμα στο δέρμα μας. (Υπενθυμίζουμε ότι όσοι έχουν πιο ανοιχτόχρωμο δέρμα έχουν λιγότερη μελανίνη, ενώ όσοι έχουν πιο σκούρο δέρμα έχουν περισσότερη μελανίνη.) \n\nΟρισμένες περιοχές του δέρματός μας μπορεί να έχουν επιπλέον μελανίνη σε σύγκριση με άλλες, και αυτό προκαλεί την εμφάνιση σκούρων κηλίδων. Σε αυτό συμβάλλουν διάφοροι παράγοντες:\n\nΈκθεση στον ήλιο\n\nΗ έκθεση στον ήλιο είναι ένας από τους βασικούς υπαίτιους της υπερμελάγχρωσης. Οι ακτίνες του ήλιου διεγείρουν την παραγωγή μελανίνης (της ίδιας μελανίνης που σας βοηθάει να μαυρίσετε το καλοκαίρι), αυτό όμως μπορεί επίσης να οδηγήσει στην εμφάνιση σκούρων κηλίδων και σε ανομοιόμορφο τόνο του δέρματος. \n\nΤραυματισμός του δέρματος\n\nΌταν έχετε μια πληγή, το δέρμα μπορεί να παραγάγει υπερβολική μελανίνη ως αντίδραση στον τραυματισμό. Τα μελανοκύτταρα, τα κύτταρα που παράγουν τη μελανίνη, ανεβάζουν την παραγωγή ως προστατευτική αντίδραση, κάτι που προκαλεί σκούρες κηλίδες και δυσχρωμίες καθώς το δέρμα επουλώνεται.\n\nΑυτό είναι πιο συχνό σε άτομα με πιο σκούρους τόνους δέρματος. Η αντίδραση είναι πιο έντονη αν η τραυματισμένη περιοχή υποστεί χειρισμούς, όπως αν σκαλίζετε σπυράκια ακμής ή ξύνετε την κρούστα που έχει σχηματιστεί πάνω από ένα τραύμα.\n\nΜέλασμα\n\nΜέλασμα είναι όταν εμφανίζονται σκούρες, συμμετρικές κηλίδες στο πρόσωπο, συνήθως γύρω από τα μάγουλα ή το μέτωπο.\n\nΑυτή η δερματική πάθηση οφείλεται σε ορμονικές αλλαγές, όπως αυτές που συμβαίνουν κατά την εγκυμοσύνη (το μέλασμα έχει το παρατσούκλι «μάσκα της εγκυμοσύνης»), στη λήψη αντισυλληπτικών χαπιών. ή στην έναρξη της εμμηνόπαυσης.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "the Greek rendering of 'hyperpigmentation'", "en": "hyperpigmentation (question 1/2/3 and passage)", "el": "υπερμελάγχρωση / υπερμελάγχρωσης", "why": "the same coinage must appear in all three questions and in the passage, or question–passage lexical match breaks and answer 1 stops being recoverable"},
+   {"depends_on": "the MCQ options A/B", "en": "A. True / B. False", "el": "Α. Σωστό / Β. Λάθος", "why": "the reference answer names the option letter ('A. True'), so the Greek letter labels must stay parallel and checkable"},
+   {"depends_on": "melanin as the answer to question 1", "en": "overproduction of melanin", "el": "υπερπαραγωγή μελανίνης", "why": "answer 1 is a verbatim lift from the passage's first sentence; the phrasing must match"}
+  ],
+  "constraint_notes": "Question 3 is a two-option true/false; the Greek keeps exactly two labelled options (Α/Β) with the same indentation, so it remains answerable by letter as in the English reference.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "hyperpigmentation", "decision": "υπερμελάγχρωση", "why": "standard Greek dermatological term; preferred over the more generic 'υπερχρωμία' because it is specific to melanin-driven darkening, which is what the passage explains. Used identically in question and passage."},
+   {"term": "melasma", "decision": "μέλασμα", "why": "the Greek term is the etymological source of the English one; no transliteration needed"},
+   {"term": "melanocytes", "decision": "μελανοκύτταρα", "why": "established Greek term"},
+   {"term": "dark spots", "decision": "σκούρες κηλίδες", "why": "'κηλίδες' is the dermatological word for spots/patches; reused identically in all three occurrences"},
+   {"term": "mask of pregnancy", "decision": "«μάσκα της εγκυμοσύνης»", "why": "a nickname, so it is calqued and kept in guillemets as a quoted nickname, matching the English quotation marks"}
+  ],
+  "reference_problems": [],
+  "translator_notes": "PRESERVE-DEFECT is the primary label because of the source's punctuation defect in the last sentence: English '…taking birth control pills. or the onset of menopause.' has a full stop where a comma belongs, leaving a lower-case fragment. Reproduced in Greek at the same place and same severity: '…στη λήψη αντισυλληπτικών χαπιών. ή στην έναρξη της εμμηνόπαυσης.' Do NOT let a later reviewer tidy this. Also preserved: the trailing spaces after two paragraphs and the double blank line between the questions and the passage. Register: the passage's generic 'you' is rendered with the Greek generic πληθυντικός (σας βοηθάει, έχετε, σκαλίζετε), which is the unmarked choice for Greek health copy; the answer should mirror this."
+ },
+ {
+  "row_id": "85a25c85700172a4b2ad54594551bde592cd1120e9f8b921d7aed3814a442e3b",
+  "family": "source-bearing",
+  "translation_class": null,
+  "source_handling": "PRESERVE-DEFECT",
+  "output_handling": "EXTRACT",
+  "secondary_classes": ["LITERAL"],
+  "subtype": "two-part extraction question over a scraped children's story",
+  "hazards": ["the passage is a scrape: the drop-cap initial is missing ('HEN' for 'WHEN'), there is a hard line break mid-sentence, and a page-number artefact '[58]' sits inside a word boundary — all three must be reproduced, not silently cleaned", "the answer is a near-verbatim lift of one clause, so that clause's wording must survive intact", "the counting answer (five) depends on the numerals staying as words in the same places", "cat cry 'Mi-a-u-ow' is onomatopoeia and does not transliterate"],
+  "devices": [
+   {"where": "final line of dialogue", "device": "reduplication + comic superlative pile-up", "effect": "comic, petulant", "english": "the horridest, and the meanest, and the most ungrateful!", "greek": "τα πιο απαίσια, και τα πιο κακά, και τα πιο αχάριστα!", "how": "Greek has no synthetic superlative for these adjectives, so the triple 'πιο' repetition carries the same escalating, childish rhythm"},
+   {"where": "cat's cry", "device": "onomatopoeia (syllable-stretched)", "effect": "comic, indignant", "english": "Mi-a-u-ow!!!!", "greek": "Νι-ά-ου-ου!!!!", "how": "re-derived from the Greek cat cry «νιάου» rather than transliterated; the hyphen-stretching and the four exclamation marks are kept"},
+   {"where": "cat's refrain", "device": "epizeuxis / refrain", "effect": "memorable, builds the joke by repetition", "english": "Eggs may be good, but young birds are better. I will wait.", "greek": "Τα αυγά μπορεί να είναι καλά, αλλά τα μικρά πουλιά είναι καλύτερα. Θα περιμένω.", "how": "same device; the refrain is rendered identically at each recurrence so it reads as a refrain"}
+  ],
+  "device_notes": "The English 'HEN' is not a device but a scrape artefact (the dropped drop-cap W of WHEN). Reproduced with the Greek equivalent: «ΌΤΑΝ» minus its initial letter → «ΤΑΝ». This keeps the same kind of defect (missing initial capital of the opening word) at the same severity.",
+  "en_register": "neutral",
+  "register_evidence": "Literary narration in the third person with no addressee; the only second person is inside the cat's own quoted speech ('It is worth while to be patient!'). The instruction line is an impersonal comprehension question.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Πόσα πουλιά ήταν στη φωλιά; Και πώς περιγράφονταν;\n\n\nΤΑΝ η παρδαλή γάτα πρωτοβρήκε τη φωλιά, δεν υπήρχε\nτίποτα μέσα της, γιατί μόλις που είχε αποτελειωθεί. Είπε λοιπόν: «Θα περιμένω!», γιατί ήταν υπομονετική γάτα, και το καλοκαίρι ήταν μπροστά της. Περίμενε μια βδομάδα, και μετά σκαρφάλωσε ξανά στην κορυφή του δέντρου και έριξε μια ματιά μέσα στη φωλιά. Εκεί βρίσκονταν δύο υπέροχα γαλάζια αυγά, λεία και γυαλιστερά.\n\nΗ παρδαλή γάτα είπε: «Τα αυγά μπορεί να είναι καλά, αλλά τα μικρά πουλιά είναι καλύτερα. Θα περιμένω.» Περίμενε λοιπόν· και όσο περίμενε, έπιανε ποντίκια και αρουραίους, και πλενόταν και κοιμόταν, και έκανε ό,τι πρέπει να κάνει μια παρδαλή γάτα για να περνάει η ώρα.\n\nΌταν πέρασε άλλη μια βδομάδα, σκαρφάλωσε πάλι στο δέντρο και έριξε μια ματιά μέσα στη[58] φωλιά. Αυτή τη φορά υπήρχαν πέντε αυγά. Η παρδαλή γάτα όμως είπε ξανά: «Τα αυγά μπορεί να είναι καλά, αλλά τα μικρά πουλιά είναι καλύτερα. Θα περιμένω λίγο ακόμη!»\n\nΠερίμενε λοιπόν λίγο ακόμη και μετά ανέβηκε πάλι να δει. Α! εκεί ήταν πέντε μικροσκοπικά πουλιά, με μεγάλα μάτια και μακριούς λαιμούς, και κίτρινα ράμφη ορθάνοιχτα. Τότε η παρδαλή γάτα κάθισε στο κλαδί, και έγλειψε τη μύτη της και γουργούρισε, γιατί ήταν πολύ ευτυχισμένη. «Αξίζει τον κόπο να έχεις υπομονή!» είπε.\n\nΌταν όμως κοίταξε ξανά τα μικρά πουλιά, για να δει ποιο να πάρει πρώτο, είδε ότι ήταν πολύ αδύνατα — ω, πολύ, πάρα πολύ αδύνατα ήταν! Η παρδαλή γάτα δεν είχε δει ποτέ στη ζωή της κάτι τόσο αδύνατο.\n\n«Τώρα», είπε μέσα της, «αν περίμενα μόνο λίγες μέρες ακόμη, θα πάχαιναν. Τα αδύνατα πουλιά μπορεί να είναι καλά, αλλά τα παχιά πουλιά είναι πολύ καλύτερα. Θα περιμένω!»\n\nΠερίμενε λοιπόν· και έβλεπε τον πατέρα-πουλί να φέρνει σκουλήκια όλη μέρα στη φωλιά, και είπε: «Αχά! σίγουρα παχαίνουν γρήγορα! σε λίγο θα είναι τόσο παχιά όσο τα θέλω. Αχά! τι καλό πράγμα που είναι η υπομονή.»\n\nΕπιτέλους, μια μέρα σκέφτηκε: «Σίγουρα τώρα θα είναι αρκετά παχιά! Δεν θα περιμένω άλλη μέρα. Αχά! τι νόστιμα που θα είναι!»\n\nΣκαρφάλωσε λοιπόν στο δέντρο, γλείφοντας τα χείλη της σε όλη τη διαδρομή και σκεπτόμενη τα παχιά μικρά πουλιά. Και όταν έφτασε στην κορυφή και κοίταξε μέσα στη φωλιά, ήταν άδεια!!\n\nΤότε η παρδαλή γάτα κάθισε στο κλαδί και μίλησε ως εξής: «Λοιπόν, απ' όλα τα απαίσια, κακά, αχάριστα πλάσματα που έχω δει ποτέ, αυτά τα πουλιά είναι τα πιο απαίσια, και τα πιο κακά, και τα πιο αχάριστα! Νι-ά-ου-ου!!!!»",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "the question's word for 'birds'", "en": "How many birds… / five tiny birds", "el": "Πόσα πουλιά… / πέντε μικροσκοπικά πουλιά", "why": "the question and the answer-bearing sentence must use the same lexeme (πουλιά, not πουλάκια) or the extraction target stops matching the question"},
+   {"depends_on": "the answer-bearing description", "en": "with big eyes and long necks, and yellow beaks wide open", "el": "με μεγάλα μάτια και μακριούς λαιμούς, και κίτρινα ράμφη ορθάνοιχτα", "why": "the reference answer quotes this clause almost verbatim, so the Greek clause is the string the Greek answer will lift"},
+   {"depends_on": "the dropped drop-cap defect", "en": "HEN the spotted cat first found…", "el": "ΤΑΝ η παρδαλή γάτα πρωτοβρήκε…", "why": "the defect is re-derived from the Greek opening word ΌΤΑΝ, not copied as an English fragment"}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "the spotted cat", "decision": "η παρδαλή γάτα", "why": "'παρδαλή' is the natural Greek for a spotted/mottled cat and reads like a folk-tale epithet; used identically at all nine occurrences, since it functions as the character's name"},
+   {"term": "father-bird", "decision": "τον πατέρα-πουλί", "why": "keeps the hyphenated compound of the source rather than smoothing to 'το αρσενικό πουλί'; the story's diction is deliberately naive"},
+   {"term": "Mi-a-u-ow", "decision": "Νι-ά-ου-ου", "why": "onomatopoeia is language-specific; re-derived from Greek «νιάου» with the same syllable-stretching"},
+   {"term": "curly quotes “ ”", "decision": "«»", "why": "Greek convention; applied to every quoted line uniformly"}
+  ],
+  "reference_problems": [
+   "The English reference answer is ungrammatical where it splices the source: 'described with big eyes and long necks' (the source reads 'there were five tiny birds, with big eyes…'); it should be 'described as having' or the whole clause should be quoted.",
+   "The reference wraps the whole answer in quotation marks and puts the full stop outside them, yet the text inside is not a verbatim quotation of the passage."
+  ],
+  "translator_notes": "Three scrape defects are deliberately reproduced and must not be cleaned in the next stage: (1) the missing initial letter of the opening word — Greek «ΤΑΝ» for «ΌΤΑΝ», matching English «HEN» for «WHEN»; (2) the hard line break after 'δεν υπήρχε' mid-sentence, in the same position as the English break after 'there was'; (3) the page-number artefact '[58]' left run-together inside the phrase ('μέσα στη[58] φωλιά'), exactly as 'the[58] nest'. Numerals are kept as words (δύο, πέντε) as in the source. No localization: this is a published literary passage, so nothing is moved into Greek reality; only the language changes."
+ },
+ {
+  "row_id": "03d37b9fd16da70829db11b8acba682738ffa452dbabb9d2fbd9ba8914de26fa",
+  "family": "source-bearing",
+  "translation_class": null,
+  "source_handling": "LITERAL",
+  "output_handling": "EXTRACT",
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "single-fact extraction from a quoted interview passage",
+  "hazards": ["the book title is a real published memoir — translating it would fabricate a non-existent Greek work", "the answer is the final clause of the quotation, so 'how difficult this work can be' and the question's 'what people need to understand' must share wording in Greek", "the surname 'Fine' is a real person's name and would look like the English adjective if left bare in a Greek sentence", "the ellipsis '...' marks an elision inside the quotation and is part of the source, not stylistic"],
+  "devices": [],
+  "device_notes": "No rhetorical devices. 'Fine' is a real surname, not a charactonym; the accidental English pun with the adjective 'fine' does no work in the article and is not reproduced.",
+  "en_register": "neutral",
+  "register_evidence": "Journalistic prose plus a first-person interview quotation; no addressee, no relationship, no imperative. The question is an impersonal comprehension task ('According to this article…').",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Σύμφωνα με αυτό το άρθρο, τι πιστεύει η Φάιν (Fine) ότι πρέπει να καταλάβει ο κόσμος; \n\nΗ Φάιν αναστοχάζεται την εμπειρία της από τη φροντίδα κατοικίδιων και τη συμβουλευτική στήριξη των ιδιοκτητών τους στο νέο της βιβλίο απομνημονευμάτων, The Other Family Doctor. Μεγάλο μέρος της δουλειάς, λέει η Φάιν, είναι να γίνεσαι μάρτυρας του πόνου — όχι μόνο των ζώων, αλλά και των ιδιοκτητών τους. Αυτό μπορεί να έχει συναισθηματικό κόστος· τα ποσοστά αυτοκτονίας μεταξύ των κτηνιάτρων είναι δυσανάλογα υψηλότερα από εκείνα άλλων επαγγελμάτων.\n\n«Έχει δοθεί μεγάλη έμφαση στην ευεξία, στο ότι εμείς οι κτηνίατροι πρέπει να προσπαθούμε να φροντίζουμε τον εαυτό μας, να κοιμόμαστε αρκετά, να τρώμε σωστά και να γυμναζόμαστε», λέει η Φάιν. «Και κατά κάποιον τρόπο θεωρώ ότι αυτό είναι μια πολύ καλή αρχή. Πρέπει όμως να προσπαθήσουμε να εστιάσουμε και στο γιατί αυτή η δουλειά είναι τόσο δύσκολη και στο πόσο δεμένοι είναι οι άνθρωποι με τα ζώα τους και στο πόσο έντονες είναι κάποιες από αυτές τις αλληλεπιδράσεις. ... Νομίζω ότι και ο κόσμος πρέπει ίσως να καταλάβει πόσο δύσκολη μπορεί να είναι αυτή η δουλειά.»",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "Fine", "el": "η Φάιν (Fine)", "kind": "name", "why": "content, not frame — the answer is about what this specific person said, so the referent is frozen; only the spelling is transliterated for Greek inflection, with the original given at first mention as the category allows"}
+  ],
+  "derived_elements": [
+   {"depends_on": "the question's verb phrase", "en": "what does Fine think people need to understand? / people, too, need to maybe understand how difficult this work can be", "el": "τι πιστεύει η Φάιν ότι πρέπει να καταλάβει ο κόσμος; / και ο κόσμος πρέπει ίσως να καταλάβει πόσο δύσκολη μπορεί να είναι αυτή η δουλειά", "why": "the question–passage lexical hook is 'people…need to understand'; both are rendered with ο κόσμος + να καταλάβει so the answer stays recoverable by matching"},
+   {"depends_on": "the transliteration Φάιν", "en": "Fine says (×3 occurrences)", "el": "η Φάιν (×3)", "why": "one decision, applied identically at every occurrence including the question line"}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "Fine (surname)", "decision": "Φάιν, with the Latin original in parentheses at first mention only", "why": "Greek needs an inflectable, readable form and an article; the parenthetical original preserves identifiability of a real author"},
+   {"term": "The Other Family Doctor", "decision": "kept in English, untranslated and unitalicised", "why": "a real published memoir with no Greek edition; translating the title would invent a work that does not exist"},
+   {"term": "memoir", "decision": "βιβλίο απομνημονευμάτων", "why": "Greek has no single-word equivalent that covers the modern personal-memoir genre; 'απομνημονεύματα' alone reads as historical/political memoirs"},
+   {"term": "wellness", "decision": "ευεξία", "why": "the standard Greek rendering in health-workplace contexts; 'wellness' as a loanword would read as marketing jargon"},
+   {"term": "counseling their owners", "decision": "συμβουλευτική στήριξη των ιδιοκτητών τους", "why": "'συμβουλευτική' alone is ambiguous with generic advice; the added 'στήριξη' keeps the pastoral sense without changing the fact"}
+  ],
+  "reference_problems": [],
+  "translator_notes": "VERBATIM-FREEZE is a secondary label and applies only to the book title The Other Family Doctor, which is left in English. The elision marker '...' inside the quotation is source material and is preserved verbatim, as is the em dash and the trailing space after the question line. Quotation marks converted to «» per the category's safe-adaptation list; the inner nickname-free quotation has no nested quotes, so no second-level marks are needed. Reviewer should check that 'ο κόσμος' (rather than 'οι άνθρωποι') is used in BOTH the question and the final quoted sentence — that pairing is what makes the answer extractable."
+ }
+]

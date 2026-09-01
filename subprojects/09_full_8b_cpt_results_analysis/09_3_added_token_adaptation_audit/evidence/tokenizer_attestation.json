@@ -1,0 +1,24 @@
+{
+ "schema_version": "newtok_audit_tokenizer_attestation_v1",
+ "status": "proven",
+ "attested_by": "agent",
+ "attested_at": "2026-08-23T12:31:00Z",
+ "extended_tokenizer": {
+  "vocab_size": 148992,
+  "source": "hf:fffoivos/apertus-8b-greek-cpt@main/tokenizer.json",
+  "sha256": "acf4d5c6a8aa0cc64c9c781c203fd6dbb4581b0124cca0a76a9e10322fd81092",
+  "base_tokens": 131072,
+  "modern_added": 17408,
+  "polytonic_added": 512
+ },
+ "base_tokenizer": {
+  "vocab_size": 131072,
+  "source": "hf:swiss-ai/Apertus-8B-2509@main/tokenizer.json",
+  "sha256": "bb201fb226cde11f66c3cf51c5344fb37b1611f00c21e75c324546d854eff2e1"
+ },
+ "verified": [
+  "all 131072 base token ids map to identical strings in the extended tokenizer",
+  "extended merges 287363 = base merges 269443 + 17920 added"
+ ],
+ "why_it_matters": "the merged-vs-split comparison is only valid if the base ids are byte-identical in both tokenizers"
+}

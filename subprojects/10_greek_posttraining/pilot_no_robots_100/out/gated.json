@@ -1,0 +1,3802 @@
+[
+ {
+  "row_id": "f1a36f216898e57dece905d8ddb34bff1e3a92589f0961ab8e6e58044ece68cd",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.26
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "425a5425d42ed2654da17ce1673394d6286ef0f379d16ca8ccda75bae2a71218",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.934,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.12
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "proper_names",
+   "invented_scenario"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "8f90d1c64fbc0cd428a67dd6359194fded26a0406082e248fc16bd36b7a07508",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 16,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.88
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "1a7289a2f9263f543ab1d8d75986fe531b1c24cec14b9349f72439fc28b08d01",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.9
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "rhyme_or_metre",
+   "checkable_constraint"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "9491012e7cdaf7706ce0a8914895c93ab19f84c7bd4ba1b0cf8d3a17a85aeae2",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 0.992,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Mercedes"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.01
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LOCALIZE",
+  "hazards": [
+   "invented_scenario",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "fd4adc4195645ae79a2b827040261be980c2639d9fb055d50ea44a3a0a5c203c",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.96
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "8432652098a896c28e60a2b9787d4ecb951c6ccf2cc4af6a09fe8a887b75ed2d",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.93
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "9460084e383589dad85ab9291f21cd0e947ca59d6c230d0602acdeb5ef76641a",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.92
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LOCALIZE",
+  "hazards": [
+   "invented_scenario",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "4a086e75fe9b148cef050cd6f692ff206d4ee75cc6866e1164288647892e4170",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 2,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.98
+  },
+  "flags": [],
+  "advisories": [
+   "REGISTER_SELFREPORT_DISAGREES"
+  ],
+  "translation_class": "LITERAL",
+  "hazards": [],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "ba5caa4910d7d1798fe9f4ea5316ee28c842173aa2e6f1eaadd97cc901afde3f",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.942,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 2,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.71
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint"
+  ],
+  "target_register": "neutral",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "0729c84ea82331ae7070fb3212eea725162b1fd918dbb7530d98274fcfde87a8",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 1,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.6
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "wordplay",
+   "checkable_constraint",
+   "invented_scenario"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "d72eb4b799be95a85a1fe3ca8e6259166e11ac34510a26cb1a72ba87eb226406",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.965,
+   "greek_ratio_response": 0.809,
+   "greek_ratio_response_nonproper": 0.989,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Agency",
+    "Among",
+    "Auto",
+    "Blaustoise",
+    "Bloons",
+    "Defense",
+    "Disguised",
+    "Friday",
+    "Fu",
+    "Grand",
+    "Kkatamina",
+    "League"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.03
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "checkable_constraint"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "9959a0fd028f37155e2edbc9667e0150beddb341cc27778222139ca8e5e08048",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.92
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint",
+   "verbatim_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "02d18ec0ac08e204e0a61c43bc67b8a67493be94666aefa68472f24e693fd322",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.964,
+   "greek_ratio_response": 0.95,
+   "greek_ratio_response_nonproper": 0.997,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Car",
+    "Datsun",
+    "Driver",
+    "Ford",
+    "Pinto",
+    "Toyota",
+    "UCLA",
+    "and"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.26
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "5aa73bc4352269d1d8747bb2529e5275d23f17c3604437c18d1cf6794f7c1fa2",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.868,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 2,
+    "formal": 0
+   },
+   "len_ratio_el_en": 2.1
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "culture_bound_fact",
+   "proper_names",
+   "checkable_constraint"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "bc8106a1f614bfc1b91dfb5b4e152f99e17b3306606b3ddff0069acd1e839601",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.936,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "πληθυντικός",
+   "register_markers": {
+    "informal": 0,
+    "formal": 3
+   },
+   "len_ratio_el_en": 1.12
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint"
+  ],
+  "target_register": "πληθυντικός",
+  "register_used": "πληθυντικός"
+ },
+ {
+  "row_id": "f23bcac0f869d8560318fff135dc74c3aaf19ce7c8636fd21a50b19f714da330",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.984,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "πληθυντικός",
+   "register_markers": {
+    "informal": 0,
+    "formal": 6
+   },
+   "len_ratio_el_en": 1.5
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "proper_names",
+   "invented_scenario"
+  ],
+  "target_register": "πληθυντικός",
+  "register_used": "πληθυντικός"
+ },
+ {
+  "row_id": "438b6970d31dc21fe060889e64486f81689cc72a37a1aa319349a118a693db31",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.87
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "e9dd9385d7be37c70608a265c06d78a0fd3aaddbc5548976cdd62c3ce402032e",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "πληθυντικός",
+   "register_markers": {
+    "informal": 0,
+    "formal": 1
+   },
+   "len_ratio_el_en": 1.01
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LOCALIZE",
+  "hazards": [
+   "invented_scenario",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "πληθυντικός"
+ },
+ {
+  "row_id": "5fff57b3917de413b348a3aad2b28a98669a252978fa581635004f4cccd9d53f",
+  "category": "Generation",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 1,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.83
+  },
+  "flags": [],
+  "advisories": [
+   "REGISTER_SELFREPORT_DISAGREES"
+  ],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "rhyme_or_metre",
+   "checkable_constraint"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "dca7c1d32f891269b28bd65041b77eb3e61cfd0706941ff5de7ca563b296bdde",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.788,
+   "greek_ratio_response": 0.972,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "City",
+    "Granite",
+    "Rubislaw"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.44
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "ca55b8ed89366d4172559299f58d2e9b293f5bbe39c7e313c9ce12698b70d31b",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 0.968,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Biblioteca",
+    "Palafoxiana",
+    "UNESCO"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.16
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "b65b883845724ef35927eafc60ea9d0b0cc912c54d7e14eb362455ca6f1bdc24",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.38
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "1159358993fb23f18695a802a622f91c22788ca4140ca3ec4b6d5f376d86eaf3",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.725,
+   "greek_ratio_response": 0.944,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Constitution",
+    "Ironside",
+    "Old",
+    "USS"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.27
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "31c6605ac1aecdf870975297401bbcd4c027b397198ca334220916affe2a540e",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.01
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "68d8ef45923b58d8c085edd692fb4e5deb67dc1b306a0fcad84c03346f473f97",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.07
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "df693a8c016e469a614ec274d1558ab0a476ecc7344345927706ff53a1c1f497",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.01
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "33457236f92fcd9607a923e9f78042560a55b54ce25116b5b2a22f9357eeaa23",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.865,
+   "greek_ratio_response": 0.856,
+   "greek_ratio_response_nonproper": 0.902,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Association",
+    "Football",
+    "football",
+    "rugby",
+    "soccer"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.4
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "verbatim_source_text",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "1988b875abada033de380de1d883ff84c13521bd2eee62034482ad361a99109f",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.61
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "1f4757a0f89a0097d4950d9f14de73b510510b5194499757891ebc8ef36776c5",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.793,
+   "greek_ratio_response": 0.98,
+   "greek_ratio_response_nonproper": 0.98,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "consort",
+    "queen"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.51
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "6370a74a8fff97c345c13e98ac466db92faf08f6054f3fd670674f19e2ebc8d8",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.57
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "proper_names"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "8135d113ff012935bc9c745879f1e2831f633b45ed4850b4ac34968e2e42a0b8",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.25
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "19d105c351d607ace3596e9f19d836dc9c30d22b3c26ec2242d37b8e6a026720",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.923,
+   "greek_ratio_response": 0.969,
+   "greek_ratio_response_nonproper": 0.977,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "NBA",
+    "peat"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.67
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "checkable_constraint"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "1badc4b5fbed5a03477faafc4541b0d0b8cd1c08183ea910feb5160247f95e4e",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.8
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "2eaa05774f091c7c85daf39a74d8a4e837ca4eb365778a20c259f8c60aceb0f4",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.39
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "us_specific_unit_or_currency"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "9602a76984d19fd8d9789b183c17f22284a11e9759e29f0f772a8b46ff77d0ed",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.855,
+   "greek_ratio_response": 0.763,
+   "greek_ratio_response_nonproper": 0.763,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "anti",
+    "bridge",
+    "butterfly",
+    "eyebrow",
+    "eyelid",
+    "piercing",
+    "septum",
+    "teardrop"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.22
+  },
+  "flags": [
+   "LOW_GREEK_RATIO"
+  ],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "39cdc3c2b2b61f9f37270a6929d05602b1acd0998fcebcde8a066f35efc952ba",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 0.877,
+   "greek_ratio_response_nonproper": 0.898,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Jag",
+    "behöver",
+    "lite",
+    "mat"
+   ],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 1,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.8
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "language_game"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "f3c182f11b5ca42d2264de728652b383be7febc8b2c9ed5a3e74e629e5813ec8",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.948,
+   "greek_ratio_response": 0.983,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Disney"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.39
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "7bb328b9fdc020aefb525c221fa4f7a1859252725ed964f604244e3b265a19df",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 3,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.98
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "69adf5c5b833591d30b831dd82c615f8763a59a3b2c74c9b1cf8530f92d4a9ec",
+  "category": "Open QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 2.26
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "749a5955dbfaa4be6cd68956bcf5744ad80cc81e342bb6ce934ce355b6e59ca6",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.796,
+   "greek_ratio_response": 0.901,
+   "greek_ratio_response_nonproper": 0.901,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "battery",
+    "crafting",
+    "loot",
+    "overweight",
+    "pool",
+    "quest",
+    "scav",
+    "spawn",
+    "spawns",
+    "tank"
+   ],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 2,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.04
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "6d2fe44a5c915d0c5da449243322155c443165496317d92d907094f777f2f0a3",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.86,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.68
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGENERATE-NATIVE",
+  "hazards": [
+   "language_game",
+   "acrostic_or_spelling",
+   "english_grammar_or_spelling_task",
+   "persona_voice"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "cd643d959f97180ba4e1fc106dc9d57c1c337eeb64d9b992f3fcf74b9e10c06b",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.959,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.33
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "7fe9c4e35d64c8013820b4d9cf2b0890cf0f1c8e137a400f9dca672003e0b558",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.9,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 1,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.86
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "89c788bc330176fdb6af1e1723c7d1a718811d54060745bf68b0343ec57a058f",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.944,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 2,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.95
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "invented_scenario",
+   "proper_names"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "ad178fbde27c74d9fcbe4b6dc95a358f1c427c188ed0c7ba35d470247818bbee",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.948,
+   "greek_ratio_response": 0.961,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Buick",
+    "Roadmaster"
+   ],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 4,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.19
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "culture_bound_fact",
+   "proper_names",
+   "wordplay"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "eda2363da80dcb2bef8d632cc0b912df164505a559b51d0bd9e2371cc25162c7",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.896,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.13
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "eb658184fc22d6480d6664d721632b5f9921dec681821d95bf31dda9a1bd079d",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.87,
+   "greek_ratio_response": 0.889,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Celtics",
+    "Mets",
+    "NBA",
+    "Red",
+    "Series",
+    "Sox",
+    "World"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.1
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "ae65f06fce9783e4d9c259a30e3d57b01cec895849c685e4f43806373185bc98",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.936,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 2,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.99
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "invented_scenario",
+   "us_specific_unit_or_currency"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "07794700c69b31d911cbbdc147ec8672c6e3fd9baa058db11c5f8333a63405a1",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.86,
+   "greek_ratio_response": 0.912,
+   "greek_ratio_response_nonproper": 0.926,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Le",
+    "cri",
+    "dernier"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.85
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "rhyme_or_metre",
+   "checkable_constraint",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "b792cdb7f3cabc2df510d623e9cc832cf605931838860530e6a6f455f868c161",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.961,
+   "greek_ratio_response": 0.986,
+   "greek_ratio_response_nonproper": 0.986,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "hallux"
+   ],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 3,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.25
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "dc1b3cb29dee21b49af91f40dcb3eb200ffb76d96d7293ab21dd4c60b759e22a",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.876,
+   "greek_ratio_response": 0.995,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "QR"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.89
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint",
+   "invented_scenario",
+   "persona_voice",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "πληθυντικός"
+ },
+ {
+  "row_id": "76816928ee18223949a47678aca2589494fbca8c374732f76791ab68e4455155",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.973,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 2,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.11
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "d3848c4e1028908587d1c1f9a0ba6708593ed2020f3fe9131e5ad422c3169151",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.972,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.37
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "invented_scenario"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "028bf6024d6444be93fef487b5b8038b231e20dcb178d00d5ec1447f6a0eac71",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.899,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.08
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "9be06740dbf1f43ad9db6d7b1e8fd4e4bdd3bf2fe1b2e9b358735ba829d82d01",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.95,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.13
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "eab6c13e23dcdd3b16025e7fa7865d5661268c19b8381a4dc73bd2532cb5bafc",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.971,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.3
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "7bc6f39339672e0af9b9df1db09d159e50c424ebb03dc5b8ee7addc6feb5f1b7",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.921,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.88
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "checkable_constraint"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "86786cabb7d4af5047596ea5514776ea2a543a5ff98aee820ca434e65340fdf8",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.899,
+   "greek_ratio_response": 0.909,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Bear",
+    "Californios",
+    "Lazy",
+    "Mare",
+    "Sotto"
+   ],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 1,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.1
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "culture_bound_fact",
+   "us_specific_unit_or_currency",
+   "proper_names"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "e3cfb165f3076b79ab7474a5b2de4264ece17ac986d28ec40e5c4677d49db7c2",
+  "category": "Chat",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.941,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.09
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "invented_scenario"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "cbc43b97950a5c433beec728ac74fca7eddfa9eedc88eaf8597861ac33e17d6b",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.977,
+   "greek_ratio_response": 0.976,
+   "greek_ratio_response_nonproper": 0.998,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Counsel",
+    "Queen",
+    "s"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.32
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "c228a04a13cbe1dcc76586165071146d458ea61dc0feee99ce06de3ee098714b",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.975,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 8,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.06
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "invented_scenario",
+   "proper_names",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "3c9c3191e1175e313b79dd7cdb740914b91d9b5554e20192f93d6f2a0a865766",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.984,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.87
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "a9af4191a28ee76a859236089ab1b1506f49c3193221012696acc2754075325c",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.92,
+   "greek_ratio_response": 0.981,
+   "greek_ratio_response_nonproper": 0.994,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "AITA",
+    "NTA",
+    "acres"
+   ],
+   "identity_leak": [],
+   "register_detected": "πληθυντικός",
+   "register_markers": {
+    "informal": 0,
+    "formal": 1
+   },
+   "len_ratio_el_en": 1.04
+  },
+  "flags": [],
+  "advisories": [
+   "REGISTER_SELFREPORT_DISAGREES"
+  ],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "answer_depends_on_source_text",
+   "persona_voice"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "89a32a4ec2b1776f89830e9e311c593adf2012b4c1bbbca65d90ea51a1a8e064",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "πληθυντικός",
+   "register_markers": {
+    "informal": 0,
+    "formal": 2
+   },
+   "len_ratio_el_en": 2.26
+  },
+  "flags": [],
+  "advisories": [
+   "REGISTER_SELFREPORT_DISAGREES"
+  ],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "us_specific_unit_or_currency",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "3b3bf90b507fda7865c1d534b1a373cb619c7b9df6c5764d873a68678ce02e10",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.83,
+   "greek_ratio_response": 0.777,
+   "greek_ratio_response_nonproper": 0.875,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Game",
+    "Kendrick",
+    "Malibu",
+    "Paak",
+    "Rapsody",
+    "The",
+    "breakdowns",
+    "club",
+    "flow",
+    "grooves",
+    "hip",
+    "hop"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.05
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint",
+   "rhyme_or_metre",
+   "proper_names",
+   "culture_bound_fact",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "6830fd51ed0bcc6c0d85638f60eb6fbd79f3d62cba4e31eba67b2270fbfbc30b",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.73
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "verbatim_source_text",
+   "rhyme_or_metre",
+   "proper_names",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "02e03bb7a483182e210836f4ebc75a06ac59ff4b8331e228905ad6e04117aff4",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.992,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.07
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "18b52a50d627e5a160dd439d035a24b16e611c03cc0173c91f818e6b151a3aa9",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.965,
+   "greek_ratio_response": 0.986,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Ax",
+    "Axiom",
+    "Freedom",
+    "Space"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.87
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "ee99a096c932796fab4b020a37583897c172f6f0393cd5827d18d780db2e3e22",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.87
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint",
+   "verbatim_source_text",
+   "persona_voice"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "9f90f44f4b769097420bb7690101c051b0c707c94f586336d2c10d27e8e191be",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.95
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "culture_bound_fact",
+   "proper_names",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "731e7fdf6654ddaab8662fa5720378d814115a185048dfbe85de81dc1b076eb8",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.27
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "hazards": [
+   "checkable_constraint",
+   "english_grammar_or_spelling_task",
+   "persona_voice",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "27ad5dbc1f45c4906307732e6353313d938f68f89beb97b8a3f2ebec1c79f073",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.953,
+   "greek_ratio_response": 0.953,
+   "greek_ratio_response_nonproper": 0.993,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Damn",
+    "Daniel",
+    "Devil",
+    "Paradise",
+    "Phantom",
+    "Spies",
+    "The",
+    "Webster",
+    "Yankees",
+    "and",
+    "of",
+    "the"
+   ],
+   "identity_leak": [],
+   "register_detected": "ενικός",
+   "register_markers": {
+    "informal": 2,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.18
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "REGISTER-CRITICAL",
+  "hazards": [
+   "persona_voice",
+   "invented_scenario",
+   "proper_names",
+   "culture_bound_fact",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "ενικός",
+  "register_used": "ενικός"
+ },
+ {
+  "row_id": "b4bbd3c887a07e4b2c32063166f18a9f6cf2ea1652f9a3433830544ccf59c47a",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.996,
+   "greek_ratio_response": 0.998,
+   "greek_ratio_response_nonproper": 0.998,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "email"
+   ],
+   "identity_leak": [],
+   "register_detected": "πληθυντικός",
+   "register_markers": {
+    "informal": 0,
+    "formal": 4
+   },
+   "len_ratio_el_en": 1.17
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LOCALIZE",
+  "hazards": [
+   "invented_scenario",
+   "us_specific_unit_or_currency",
+   "checkable_constraint",
+   "persona_voice",
+   "verbatim_source_text",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "πληθυντικός",
+  "register_used": "πληθυντικός"
+ },
+ {
+  "row_id": "de44499068d4b30bd8140a93028b30fff3cdabb118ff771ac733ba3061ceb4fc",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.981,
+   "greek_ratio_response": 0.992,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Mercy"
+   ],
+   "identity_leak": [],
+   "register_detected": "πληθυντικός",
+   "register_markers": {
+    "informal": 0,
+    "formal": 9
+   },
+   "len_ratio_el_en": 1.24
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LOCALIZE",
+  "hazards": [
+   "invented_scenario",
+   "us_specific_unit_or_currency",
+   "persona_voice",
+   "proper_names",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "πληθυντικός",
+  "register_used": "πληθυντικός"
+ },
+ {
+  "row_id": "316a8caf11d71cd56347439be444bf65d18e3c1acbb377a6b14cdb7559c664b4",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "mixed",
+   "register_markers": {
+    "informal": 1,
+    "formal": 2
+   },
+   "len_ratio_el_en": 0.93
+  },
+  "flags": [],
+  "advisories": [
+   "REGISTER_REVIEW"
+  ],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "verbatim_source_text",
+   "rhyme_or_metre",
+   "wordplay",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "99bc89eb1c51ffa9f0169e3a4b39010fbe78feb5993937bbc166d578f6f9a3e9",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.865,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 5.11
+  },
+  "flags": [],
+  "advisories": [
+   "LENGTH_OUTLIER"
+  ],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "rhyme_or_metre",
+   "culture_bound_fact",
+   "proper_names",
+   "checkable_constraint"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "720293f5e50084cd7a8502a9f8f4a94d1d4ddc17570606a9199f7a80ecdeffd2",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.996,
+   "greek_ratio_response": 0.994,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Barbie"
+   ],
+   "identity_leak": [],
+   "register_detected": "πληθυντικός",
+   "register_markers": {
+    "informal": 0,
+    "formal": 1
+   },
+   "len_ratio_el_en": 1.9
+  },
+  "flags": [],
+  "advisories": [
+   "REGISTER_SELFREPORT_DISAGREES"
+  ],
+  "translation_class": "PRESERVE-DEFECT",
+  "hazards": [
+   "verbatim_source_text",
+   "culture_bound_fact",
+   "proper_names",
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "c180b858eb4745b5cdc3ee1d1b20962923287fbb19dc08cc8aa49216770f3d59",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.987,
+   "greek_ratio_response": 0.981,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "FSH",
+    "LH"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.33
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "checkable_constraint",
+   "culture_bound_fact"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "4b9a29902ead5f04b1cd85e8a5da4be0886e4aa629679155e431ffa2eccbb6bb",
+  "category": "Rewrite",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.817,
+   "greek_ratio_response": 0.856,
+   "greek_ratio_response_nonproper": 0.989,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Bank",
+    "Escalator",
+    "Flat",
+    "Flats",
+    "Funbox",
+    "Hip",
+    "Kickers",
+    "Replacement",
+    "Vert",
+    "wall"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 3.33
+  },
+  "flags": [],
+  "advisories": [
+   "LENGTH_OUTLIER"
+  ],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "verbatim_source_text",
+   "proper_names",
+   "culture_bound_fact"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "4b6798a784b8fc346ebd3a2f57504d960d0a7c15607e77d4692f0ddb152245f5",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.862,
+   "greek_ratio_response": 0.746,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "COVID",
+    "Longing",
+    "The"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.15
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "6905b0391b752fae8244aa87359e287a55561921b2b9de3856b2235fd72996b9",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.911,
+   "greek_ratio_response": 0.922,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "A",
+    "Chick",
+    "fil"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.1
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names",
+   "us_specific_unit_or_currency"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "8eb2ddb23a30ca70229861b7197055f1f13a4fefd7ccc2039f7ad847aef936e7",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.99,
+   "greek_ratio_response": 0.967,
+   "greek_ratio_response_nonproper": 0.967,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "phonics"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 2.41
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "english_grammar_or_spelling_task"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "216d28991d6a13bccb4d21d7fc8b21227f40ec4e5940fd6b6fa726fce5b03b7b",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.117,
+   "greek_ratio_response": 0.702,
+   "greek_ratio_response_nonproper": 0.851,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Blue",
+    "Election",
+    "Shift",
+    "The",
+    "blue",
+    "in",
+    "shift",
+    "the"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 2.08
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "VERBATIM-FREEZE",
+  "hazards": [
+   "verbatim_source_text",
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "591f26b0cf38c75653555312a12bd38fb1bf393d42b4d147f8092ca6de59f8d5",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.932,
+   "greek_ratio_response": 0.969,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Colter",
+    "John"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 5.26
+  },
+  "flags": [],
+  "advisories": [
+   "LENGTH_OUTLIER"
+  ],
+  "translation_class": "PRESERVE-DEFECT",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "31dc768eb302af89dfb3baf63a650eaecd02750e27df5859b8fd665effc2588d",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.905,
+   "greek_ratio_response": 0.881,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Gualinga",
+    "Patricia"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 2.33
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "353a021340b7fbfc9a8188ba705f488e4209e3bfc20f252d2d3129ffc3cfa876",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.832,
+   "greek_ratio_response": 0.64,
+   "greek_ratio_response_nonproper": 0.973,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Foundation",
+    "Light",
+    "Malawi",
+    "Maverick",
+    "Raising",
+    "Ray",
+    "of"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.1
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "96c2d5a6a90d7903f88e84460bf4e2188f87cbe560c3f0b266847eece16747b4",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.805,
+   "greek_ratio_response": 0.728,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Chief",
+    "Cozart",
+    "Farrelle",
+    "Keef",
+    "Keith"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.18
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "ea8c6e649929117ffd38bf3bd3a1bf27e10e04f8bd2d2fb77c39000acde47faf",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 1.0,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.14
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "verbatim_source_text"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "d894e2a27b7e15d4768987f3cbc0f52fce3424ebe4a53e893202ad86393c98a6",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.988,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.22
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "us_specific_unit_or_currency",
+   "proper_names",
+   "persona_voice"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "2a4373aaf86f8136364793a07fcd6bc3a211a536d64ba0abd13074bc2078ddb5",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.963,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.07
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "us_specific_unit_or_currency",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "f0ca375a87ce9802e73533079a6780663ce27b08e1f42aac8e0a995901b9f8ba",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.991,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "πληθυντικός",
+   "register_markers": {
+    "informal": 0,
+    "formal": 4
+   },
+   "len_ratio_el_en": 1.87
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "πληθυντικός",
+  "register_used": "πληθυντικός"
+ },
+ {
+  "row_id": "00183d93671b60c1059dda038d1edd2068987bbb42db78b7a85eee96c6f89e0a",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.932,
+   "greek_ratio_response": 0.769,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Homestead"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 0.93
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "7210810f0e50d88b04c35cc29f9b5b8b7e5f82ede37ea17760fd7178a836cca1",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.919,
+   "greek_ratio_response": 0.912,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "FAA",
+    "Il",
+    "Ilyushin"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.27
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "75afed0c0337e9ac694662896610e61149dab1227a554e2dd3ee9f66b2b41b4d",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.676,
+   "greek_ratio_response": 0.724,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [
+    [
+     "final_sigma_medial",
+     "τραγουδίστριατραγουδοποιόςηθοποιός"
+    ],
+    [
+     "final_sigma_medial",
+     "ποπντανςηλεκτρονικήτζαζροκ"
+    ]
+   ],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Gaga",
+    "Lady"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.19
+  },
+  "flags": [],
+  "advisories": [
+   "CONCATENATED_TOKEN"
+  ],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "verbatim_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "dc24704a85d907f8bf98f67f2da11cc677c51dc1e788dddc2b342d0f532a8314",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.997,
+   "greek_ratio_response": 0.996,
+   "greek_ratio_response_nonproper": 0.996,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "V"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 2.12
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text"
+  ],
+  "target_register": "πληθυντικός",
+  "register_used": "πληθυντικός"
+ },
+ {
+  "row_id": "81ab4385e05a066b960eab288363416e376d1cc97de65a54963346bda8541601",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.973,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.43
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "11664d47915c9ad5e09ac58d7e880ffc2b21167cc6c71dfdc82400661d37e18e",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.948,
+   "greek_ratio_response": 1.0,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 2.94
+  },
+  "flags": [],
+  "advisories": [
+   "LENGTH_OUTLIER"
+  ],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "2838781ca386d869c01897467e4c7313e2e8865548f4f09f4c2454237f485308",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.692,
+   "greek_ratio_response": 0.828,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Tiger"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 1.03
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "culture_bound_fact",
+   "proper_names"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ },
+ {
+  "row_id": "5b07d3fd80b2e367904d676716e31b009a3dedf766009b6ceec964da8527c4b4",
+  "category": "Closed QA",
+  "has_stage1": true,
+  "has_stage2": true,
+  "gates": {
+   "nfc_prompt": true,
+   "nfc_response": true,
+   "greek_ratio_prompt": 0.7,
+   "greek_ratio_response": 0.469,
+   "greek_ratio_response_nonproper": 1.0,
+   "mixed_script": [],
+   "final_sigma": [],
+   "final_sigma_advisory": [],
+   "accented_caps": [],
+   "polytonic": false,
+   "latin_words": [
+    "Bill",
+    "Kill",
+    "Quentin",
+    "Tarantino",
+    "Volume"
+   ],
+   "identity_leak": [],
+   "register_detected": "neutral",
+   "register_markers": {
+    "informal": 0,
+    "formal": 0
+   },
+   "len_ratio_el_en": 2.15
+  },
+  "flags": [],
+  "advisories": [],
+  "translation_class": "LITERAL",
+  "hazards": [
+   "answer_depends_on_source_text",
+   "verbatim_source_text",
+   "culture_bound_fact",
+   "proper_names",
+   "us_specific_unit_or_currency"
+  ],
+  "target_register": "neutral",
+  "register_used": "neutral"
+ }
+]

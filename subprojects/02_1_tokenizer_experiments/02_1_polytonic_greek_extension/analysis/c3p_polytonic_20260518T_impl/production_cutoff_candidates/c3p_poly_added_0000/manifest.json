@@ -1,0 +1,15 @@
+{
+  "variant_id": "c3p_poly_added_0000",
+  "base_tokenizer_dir": "subprojects/03_apertus_extension_and_embedding_adaptation/03_3_cscs_experiments_kickoff/ship/apertus_greek_modern_only_148480",
+  "full_tokenizer_dir": "subprojects/03_apertus_extension_and_embedding_adaptation/03_3_cscs_experiments_kickoff/ship/apertus_greek_extended_153600",
+  "base_vocab_size": 148480,
+  "polytonic_added_count": 0,
+  "final_vocab_size": 148480,
+  "alignment_128": true,
+  "alignment_256": true,
+  "base_tokenizer_sha256": "358ae3f29ac17c99769d6d437339e28657d5fcaed3486f8550feed3d6adfc394",
+  "full_tokenizer_sha256": "b1eeb739a564b3abd33c1b85a16162b8284d98f9ab5d67528d3cbe8a82e9cbad",
+  "tokenizer_sha256": "327827af17c54e3796676c0e1f8ccba932e1a1667f340290010955753f37c432",
+  "added_merge_count": 0,
+  "variant_dir": "subprojects/02_1_tokenizer_experiments/02_1_polytonic_greek_extension/analysis/c3p_polytonic_20260518T_impl/production_cutoff_candidates/c3p_poly_added_0000"
+}

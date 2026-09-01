@@ -1,0 +1,507 @@
+[
+  {
+    "row_id": "4730a5b3414a57b50b653221cb365aae33d2d758f8d7c6a525f4980b4fbd3c62",
+    "family": "generative",
+    "translation_class": "CONSTRAINT-PRESERVING",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [
+      "REGISTER-CRITICAL"
+    ],
+    "subtype": "five humorous social posts",
+    "hazards": [
+      "The output must contain exactly five posts.",
+      "The requested slant that beer is superior to modern technology must remain intact.",
+      "The playful address to the assistant should not become formal."
+    ],
+    "devices": [
+      {
+        "where": "persona name",
+        "device": "allusive naming",
+        "effect": "comic",
+        "english": "Droid!",
+        "greek": "Ρομπότ μου!",
+        "how": "A direct, familiar robotic address preserves the playful science-fiction flavor without using an unnatural transliteration."
+      }
+    ],
+    "device_notes": null,
+    "en_register": "informal",
+    "register_evidence": "The exclamation, playful robotic address and phrase “to start” create a casual collaborative tone.",
+    "target_register": "ενικός",
+    "system_el": null,
+    "prompt_el": "Ρομπότ μου! Θέλω να γράψω αστείες αναρτήσεις στο X για το πόσο καλύτερη είναι η μπίρα από τη σύγχρονη τεχνολογία. Γράψε μου πέντε για αρχή.",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [
+      {
+        "depends_on": "Droid!",
+        "en": "The assistant is addressed as a robot-like persona.",
+        "el": "Η προσφώνηση γίνεται «Ρομπότ μου!».",
+        "why": "The familiar possessive particle preserves the playful relationship implied by the English address."
+      }
+    ],
+    "constraint_notes": "The Greek prompt explicitly requests exactly five posts.",
+    "substitution_note": null,
+    "guide_gaps": [
+      {
+        "term": "tweets",
+        "decision": "αναρτήσεις στο X",
+        "why": "This is natural contemporary Greek and preserves the short social-platform post format."
+      },
+      {
+        "term": "beer",
+        "decision": "μπίρα",
+        "why": "Selected the standard modern Greek spelling."
+      }
+    ],
+    "reference_problems": [
+      "The line “but beer has ghosted me” contradicts the intended pro-beer slant and likely omits “never.”",
+      "The claim that someone could survive for over a month on beer alone is medically unsafe and presented without qualification."
+    ],
+    "translator_notes": "Beer and modern technology are the substantive comparison and were preserved; no invented setting required localization."
+  },
+  {
+    "row_id": "f76d87829956fe1fa95c3f3fcfd01e97f8981d6568605663c05491972fcd608a",
+    "family": "generative",
+    "translation_class": "CONSTRAINT-PRESERVING",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "lowercase free-verse poem",
+    "hazards": [
+      "The poem must use free verse.",
+      "Every alphabetic character in the answer must be lowercase."
+    ],
+    "devices": [
+      {
+        "where": "poetic form",
+        "device": "free verse",
+        "effect": "intimate",
+        "english": "free verse poem",
+        "greek": "ποίημα σε ελεύθερο στίχο",
+        "how": "The same poetic form is fully available in Greek."
+      }
+    ],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "The source is a bare impersonal writing instruction with no audience, persona or relationship.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Γράψε ένα ποίημα σε ελεύθερο στίχο με θέμα την προσευχή. Χρησιμοποίησε αποκλειστικά πεζά γράμματα.",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": "The answer must be free verse and contain no uppercase Greek or Latin letters.",
+    "substitution_note": null,
+    "guide_gaps": [],
+    "reference_problems": [],
+    "translator_notes": "The lowercase rule transfers directly to the Greek alphabet without weakening."
+  },
+  {
+    "row_id": "e12865584afea30408e7e16ea6550b365eb1b158e5d93405257b3bfdef25b3ed",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [],
+    "subtype": "short book review",
+    "hazards": [
+      "The real book must remain the subject.",
+      "The review must include its principal lessons.",
+      "The requested brevity is qualitative rather than numerically defined."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "The polite “Please” softens an otherwise impersonal request; no relationship or specialized persona is present.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Γράψε μου μια σύντομη κριτική για το βιβλίο «Πλούσιος μπαμπάς, φτωχός μπαμπάς» και συμπερίλαβε τα βασικά διδάγματά του.",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": "The qualitative brevity requirement and the required inclusion of key takeaways are both explicit.",
+    "substitution_note": null,
+    "guide_gaps": [
+      {
+        "term": "Poor Dad Rich Dad",
+        "decision": "«Πλούσιος μπαμπάς, φτωχός μπαμπάς»",
+        "why": "The prompt reverses the familiar title order, but the reference identifies Robert Kiyosaki’s real book, so the established title order preserves the intended referent."
+      }
+    ],
+    "reference_problems": [
+      "The English reference punctuates the title as “Rich Dad, Poor Dad,” which is not the standard styling “Rich Dad Poor Dad.”"
+    ],
+    "translator_notes": "The English prompt gives the title in reversed order, while the reference makes the intended real-world work unambiguous. The Greek prompt uses the recognizable title and does not preserve the accidental reversal."
+  },
+  {
+    "row_id": "3d3b9a86dc169f351bcf7aec2ef6620b892d6604887902a55abc9f3b0345be7e",
+    "family": "generative",
+    "translation_class": "REGISTER-CRITICAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [
+      "LITERAL"
+    ],
+    "subtype": "excited championship post",
+    "hazards": [
+      "The Minnesota Vikings and the Super Bowl are real content and must not be localized.",
+      "The victory is hypothetical.",
+      "The tone must be conspicuously excited."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "informal",
+    "register_evidence": "A celebratory social-media post written for the moment of a championship victory calls for spontaneous, highly excited fan language.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Γράψε μια ενθουσιώδη ανάρτηση στο X για τη στιγμή που οι Μινεσότα Βάικινγκς κατακτούν το Super Bowl.",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": "The post must describe a Minnesota Vikings Super Bowl victory and maintain an excited tone.",
+    "substitution_note": null,
+    "guide_gaps": [
+      {
+        "term": "tweet",
+        "decision": "ανάρτηση στο X",
+        "why": "Natural contemporary Greek for the requested platform-specific post."
+      },
+      {
+        "term": "Minnesota Vikings",
+        "decision": "Μινεσότα Βάικινγκς",
+        "why": "This readable Greek transliteration preserves the real NFL team."
+      },
+      {
+        "term": "Super Bowl",
+        "decision": "Super Bowl",
+        "why": "The globally recognized event name is normally retained in Latin script."
+      }
+    ],
+    "reference_problems": [
+      "The sentence “The Vikings finally win” uses an awkward present tense for a post celebrating a completed victory."
+    ],
+    "translator_notes": "The post itself need not address a particular person, so grammatical number is neutral even though its style must be informal and excited."
+  },
+  {
+    "row_id": "c041790373b242d2ef54722620c78fad4ba95f72d2958cc01c66cbcbb4035941",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [
+      "REGISTER-CRITICAL"
+    ],
+    "subtype": "favorable film review",
+    "hazards": [
+      "The real film title must remain unchanged.",
+      "The review must be favorable rather than balanced or negative."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "The source is a direct review request with no specified audience or persona; “favorable” controls evaluative stance rather than social formality.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Γράψε μια θετική κινηματογραφική κριτική για την ταινία «Top Gun: Maverick».",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": "The required positive slant is explicit; no numeric length constraint is given.",
+    "substitution_note": null,
+    "guide_gaps": [
+      {
+        "term": "Top Gun: Maverick",
+        "decision": "«Top Gun: Maverick»",
+        "why": "The real film title is retained verbatim to avoid fabricating a localized title."
+      }
+    ],
+    "reference_problems": [
+      "The plot summary imprecisely describes the target as general “weapons capabilities” threatening domestic soil rather than the film’s specific uranium-enrichment facility.",
+      "The claim that the first film inspired numerous young people to become military fighter pilots is asserted without support."
+    ],
+    "translator_notes": "No scenery is invented, so the real film and requested favorable stance are preserved directly."
+  },
+  {
+    "row_id": "0a9cae7b1ca639328abe8b8928b47fe9f190b5c1d8a8aa77dcd741da38958b19",
+    "family": "generative",
+    "translation_class": "LOCALIZE",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [
+      "REGISTER-CRITICAL"
+    ],
+    "subtype": "social-media launch campaign",
+    "hazards": [
+      "The number of posts in “a series” is unspecified.",
+      "The posts must sound like promotional copy from an emerging beverage company.",
+      "The quoted word “buzz” carries a figurative marketing sense."
+    ],
+    "devices": [
+      {
+        "where": "phrase",
+        "device": "paronomasia",
+        "effect": "brisk",
+        "english": "generate “buzz”",
+        "greek": "δημιουργήσει «ντόρο»",
+        "how": "The Greek word «ντόρος» combines literal noise with figurative public attention, preserving the quoted promotional wordplay."
+      }
+    ],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "The instruction itself is impersonal, while the requested promotional posts are intended for a broad customer audience.",
+    "target_register": "πληθυντικός",
+    "system_el": null,
+    "prompt_el": "Ετοίμασε μια σειρά αναρτήσεων στο X για μια ανερχόμενη εταιρεία αναψυκτικών που θέλει να δημιουργήσει «ντόρο» γύρω από το νέο της αναψυκτικό.",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": "A series requires multiple posts, but the source does not specify an exact count.",
+    "substitution_note": "The company is invented but unnamed in the prompt, so the Greek answer may create a fully Greek-native brand and campaign setting.",
+    "guide_gaps": [
+      {
+        "term": "tweets",
+        "decision": "αναρτήσεις στο X",
+        "why": "Natural contemporary Greek that preserves the social-platform format."
+      },
+      {
+        "term": "soft drink",
+        "decision": "αναψυκτικό",
+        "why": "This is the standard native Greek term."
+      },
+      {
+        "term": "buzz",
+        "decision": "ντόρος",
+        "why": "It naturally conveys promotional attention while retaining the source’s noise metaphor."
+      }
+    ],
+    "reference_problems": [
+      "The reference invents an endorsement by “The Governator,” implying a real celebrity partnership with a fictional company.",
+      "It also invents a one-million-dollar sweepstakes and several fake-looking URLs as if they were genuine campaign facts."
+    ],
+    "translator_notes": "Because no brand, spokesperson, retailer or location is fixed by the prompt, all such elements should be generated consistently within a Greek-native commercial frame."
+  },
+  {
+    "row_id": "2bc6986ac9745387f4810f5cdf62b6c9a65b9f8b63acc8bbc0d05f90d684afd4",
+    "family": "generative",
+    "translation_class": "LITERAL",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [
+      "REGENERATE-NATIVE"
+    ],
+    "subtype": "comic fantasy counterfactual",
+    "hazards": [
+      "The Lord of the Rings, Sauron and the One Ring are real fictional referents and must not be replaced.",
+      "The plumbing-control counterfactual must replace Sauron’s control of the One Ring.",
+      "The introduction must explain consequences for the different races.",
+      "The English phrase “plumbing supply” is semantically ambiguous."
+    ],
+    "devices": [
+      {
+        "where": "central premise",
+        "device": "paronomasia",
+        "effect": "absurd",
+        "english": "instead of Sauron controlling the One Ring, he controls the plumbing supply of the world",
+        "greek": "αντί να ελέγχει το Ένα Δαχτυλίδι, ο Σάουρον ελέγχει την ύδρευση ολόκληρου του κόσμου",
+        "how": "The Greek reproduces the grand-versus-mundane comic incongruity through a natural reference to global water supply."
+      }
+    ],
+    "device_notes": "The humor comes primarily from incongruity rather than sound. Greek can reproduce the absurd effect directly without adding marked word order or forced wordplay.",
+    "en_register": "neutral",
+    "register_evidence": "The source is an impersonal creative-writing instruction with a direct follow-up question.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Γράψε μια εισαγωγή για τον «Άρχοντα των Δαχτυλιδιών», όπου όμως, αντί να ελέγχει το Ένα Δαχτυλίδι, ο Σάουρον ελέγχει την ύδρευση ολόκληρου του κόσμου. Τι συνέπειες θα έχει αυτό για τις διαφορετικές φυλές;",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [
+      {
+        "depends_on": "plumbing supply of the world",
+        "en": "How will this impact the different races?",
+        "el": "Τι συνέπειες θα έχει αυτό για τις διαφορετικές φυλές;",
+        "why": "The follow-up remains explicitly tied to the substituted source of Sauron’s power."
+      }
+    ],
+    "constraint_notes": "The output must be an introduction and must address the effects of global water-supply control on multiple races.",
+    "substitution_note": "“Plumbing supply” was resolved as control of worldwide water supply, preserving the reference’s comic premise while avoiding the unintended reading of a plumbing-parts supply chain.",
+    "guide_gaps": [
+      {
+        "term": "The Lord of the Rings",
+        "decision": "«Ο Άρχοντας των Δαχτυλιδιών»",
+        "why": "This is the established Greek rendering of the real work’s title."
+      },
+      {
+        "term": "Sauron",
+        "decision": "Σάουρον",
+        "why": "This is the conventional Greek transliteration of the character’s name."
+      },
+      {
+        "term": "the One Ring",
+        "decision": "το Ένα Δαχτυλίδι",
+        "why": "This is the recognizable Greek rendering of the fictional object."
+      }
+    ],
+    "reference_problems": [
+      "The reference reintroduces a “One Ring of plumbing control,” partially undoing the prompt’s premise that plumbing replaces control of the One Ring.",
+      "The reference uses the incorrect past-tense form “pled” instead of “pleaded” or “pledged.”"
+    ],
+    "translator_notes": "A reviewer should confirm that resolving the ambiguous “plumbing supply” as global water supply matches the desired interpretation."
+  },
+  {
+    "row_id": "7ef2a4d84af1ee860f0d31d5d314bd4d6fcb35ea4477d268407d50bb67672dd8",
+    "family": "generative",
+    "translation_class": "CONSTRAINT-PRESERVING",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [
+      "REGISTER-CRITICAL"
+    ],
+    "subtype": "single emotional paragraph",
+    "hazards": [
+      "The answer must be one short paragraph.",
+      "The sensory trigger must be smell.",
+      "The quilt belonged to the woman’s deceased grandmother.",
+      "The emotional tone must remain central."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "The source is an impersonal literary instruction; emotional intensity applies to the scene rather than to the relationship between user and assistant.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Γράψε μια σύντομη, συγκινητική παράγραφο που να περιγράφει τι νιώθει μια γυναίκα όταν μυρίζει ένα χειροποίητο πάπλωμα που ανήκε στη γιαγιά της, η οποία έχει φύγει από τη ζωή.",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": "The Greek explicitly requests one short paragraph and preserves the required sensory action, relationship and bereavement.",
+    "substitution_note": null,
+    "guide_gaps": [
+      {
+        "term": "handmade quilt",
+        "decision": "χειροποίητο πάπλωμα",
+        "why": "This is natural Greek and does not add the unsupported assumption that the quilt uses patchwork construction."
+      }
+    ],
+    "reference_problems": [],
+    "translator_notes": "The woman and grandmother are invented but have no names, location or culture-specific props requiring transposition."
+  },
+  {
+    "row_id": "51dd3f1d9af309370cf42c4da696d4fa8dfbf009cefaa89f2f8d17b7ec3218db",
+    "family": "generative",
+    "translation_class": "CONSTRAINT-PRESERVING",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [
+      "LITERAL"
+    ],
+    "subtype": "length-bounded cultural blog post",
+    "hazards": [
+      "The answer must contain between 350 and 400 words.",
+      "British afternoon tea is the substantive subject and must not be localized.",
+      "The post must cover history, traditional foods and kinds of tea."
+    ],
+    "devices": [],
+    "device_notes": null,
+    "en_register": "neutral",
+    "register_evidence": "The request specifies informational content and length but no audience relationship, persona or direct-address style.",
+    "target_register": "neutral",
+    "system_el": null,
+    "prompt_el": "Γράψε μια ανάρτηση ιστολογίου 350–400 λέξεων για το βρετανικό απογευματινό τσάι. Συμπερίλαβε μια σύντομη ιστορική αναδρομή, τα παραδοσιακά εδέσματα του μενού και τα είδη τσαγιού που σερβίρονται.",
+    "user_turns_el": [],
+    "transpositions": [],
+    "derived_elements": [],
+    "constraint_notes": "The Greek preserves the inclusive 350–400-word range and separately names all three mandatory content areas.",
+    "substitution_note": null,
+    "guide_gaps": [
+      {
+        "term": "blog post",
+        "decision": "ανάρτηση ιστολογίου",
+        "why": "This native Greek rendering is clearer and less colloquial than the borrowing «μπλογκ ποστ»."
+      },
+      {
+        "term": "British afternoon tea",
+        "decision": "βρετανικό απογευματινό τσάι",
+        "why": "The phrase preserves the specific British institution without localizing it."
+      }
+    ],
+    "reference_problems": [
+      "The English reference is roughly 340 words and therefore falls below the required minimum of 350 words.",
+      "The advice that afternoon tea is a formal event requiring one’s best attire is presented as a universal rule, although dress expectations vary by venue."
+    ],
+    "translator_notes": "Word counting in the next stage should use whitespace-delimited Greek words consistently and verify both bounds."
+  },
+  {
+    "row_id": "8c5a062e797e4fde19eb77ac847725bd24044e470899467342046b4dfbcfa77e",
+    "family": "generative",
+    "translation_class": "LOCALIZE",
+    "source_handling": null,
+    "output_handling": null,
+    "secondary_classes": [
+      "REGISTER-CRITICAL",
+      "CONSTRAINT-PRESERVING"
+    ],
+    "subtype": "playful customer closure notice",
+    "hazards": [
+      "The store must be closed for the whole coming weekend.",
+      "The reason must be the owner’s 35th birthday.",
+      "The post must include a joke about the owner being old.",
+      "The public customer audience requires a consistent plural address."
+    ],
+    "devices": [
+      {
+        "where": "requested joke",
+        "device": "irony",
+        "effect": "comic",
+        "english": "make a joke about him being old",
+        "greek": "κάνει ένα αστείο για το πόσο «μεγάλος» έγινε",
+        "how": "Quotation marks allow «μεγάλος» to carry the playful age-related double meaning without making the joke unduly harsh."
+      }
+    ],
+    "device_notes": null,
+    "en_register": "informal",
+    "register_evidence": "This is a lighthearted Facebook announcement to customers, and the requested joke about the owner’s age makes the business voice friendly rather than formal.",
+    "target_register": "πληθυντικός",
+    "system_el": null,
+    "prompt_el": "Γράψε μια ανάρτηση στο Facebook εκ μέρους ενός καταστήματος παιχνιδιών, που να ενημερώνει τους πελάτες ότι θα παραμείνει κλειστό αυτό το Σαββατοκύριακο για τα 35α γενέθλια του ιδιοκτήτη, του Γιάννη, και να κάνει ένα αστείο για το πόσο «μεγάλος» έγινε.",
+    "user_turns_el": [],
+    "transpositions": [
+      {
+        "en": "Jim",
+        "el": "Γιάννης",
+        "kind": "name",
+        "why": "The owner is invented frame, so his name is replaced with a natural Greek name."
+      }
+    ],
+    "derived_elements": [
+      {
+        "depends_on": "Jim → Γιάννης",
+        "en": "the owner named Jim's 35th birthday",
+        "el": "τα 35α γενέθλια του ιδιοκτήτη, του Γιάννη",
+        "why": "The ownership role, birthday and age must all remain attached to the localized name."
+      },
+      {
+        "depends_on": "Jim → Γιάννης",
+        "en": "make a joke about him being old",
+        "el": "να κάνει ένα αστείο για το πόσο «μεγάλος» έγινε",
+        "why": "The requested joke must still target the same localized owner."
+      }
+    ],
+    "constraint_notes": "The announcement must state closure for this weekend, identify the owner’s 35th birthday as the reason and include one age joke.",
+    "substitution_note": "The invented owner’s name was localized, while Facebook, the weekend closure and the age of 35 were preserved.",
+    "guide_gaps": [
+      {
+        "term": "Facebook post",
+        "decision": "ανάρτηση στο Facebook",
+        "why": "This is the standard natural Greek expression."
+      },
+      {
+        "term": "Jim",
+        "decision": "Γιάννης",
+        "why": "The name is purely invented frame and a Greek-native equivalent makes the whole scenario read locally."
+      }
+    ],
+    "reference_problems": [],
+    "translator_notes": "The generated post should address customers in the plural even if the closing age joke itself refers to Γιάννης in the third person."
+  }
+]

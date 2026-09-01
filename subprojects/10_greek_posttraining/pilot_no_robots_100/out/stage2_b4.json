@@ -1,0 +1,202 @@
+[
+ {
+  "row_id": "4b6798a784b8fc346ebd3a2f57504d960d0a7c15607e77d4692f0ddb152245f5",
+  "response_el": "Όταν κυκλοφόρησε το The Longing, βρισκόταν σε εξέλιξη η πανδημία COVID-19.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Same single-sentence answer and length as the reference; composed as a natural Greek sentence rather than the English word order."],
+  "self_flags": []
+ },
+ {
+  "row_id": "6905b0391b752fae8244aa87359e287a55561921b2b9de3856b2235fd72996b9",
+  "response_el": "Η Chick-fil-A έχει βοηθήσει μέσω υποτροφιών πάνω από 80.000 μέλη του προσωπικού της. Συνολικά έχουν επενδυθεί 136 εκατομμύρια δολάρια σε υποτροφίες.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Two-sentence structure of the reference kept; figures unchanged, Greek thousands separator used (80.000)."],
+  "self_flags": ["Dollars deliberately not converted, consistent with the stage-1 decision."]
+ },
+ {
+  "row_id": "8eb2ddb23a30ca70229861b7197055f1f13a4fefd7ccc2039f7ad847aef936e7",
+  "response_el": "Οι απαντήσεις είναι οι εξής:\n1. Η φωνική μέθοδος (phonics) διδάσκεται καλύτερα ρητά, με σειρά και συστηματικά.\n2. Οι γερές βάσεις στη φωνική μέθοδο, δηλαδή στη σχέση ανάμεσα στους φθόγγους και τα σύμβολα, βοηθούν ένα παιδί να γίνει μακροπρόθεσμα καλύτερος αναγνώστης.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["The reference's item 2 is an elliptical noun phrase ('Children with a strong background in phonics'); rendered as a full Greek sentence, which is the natural form here and keeps the same content."],
+  "self_flags": ["Terminology: φωνική μέθοδος (phonics) vs φωνητική in the question — the source's own term mismatch is carried over, as stage 1 decided."]
+ },
+ {
+  "row_id": "216d28991d6a13bccb4d21d7fc8b21227f40ec4e5940fd6b6fa726fce5b03b7b",
+  "response_el": "Σύμφωνα με το κείμενο, η «μπλε μετατόπιση» (blue shift) συνδέεται με τις εκλογές του 2020, όπως φαίνεται από τον τίτλο «The Blue Shift in the 2020 Election».",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Added the frozen English title as the explicit evidence; the reference only asserted the answer. This keeps the answer verifiable against the untranslated source block."],
+  "self_flags": ["Publication title reproduced verbatim in English (VERBATIM-FREEZE)."]
+ },
+ {
+  "row_id": "591f26b0cf38c75653555312a12bd38fb1bf393d42b4d147f8092ca6de59f8d5",
+  "response_el": "Η ερώτηση ρωτά δύο φορές «πότε», οπότε δεν είναι απολύτως σαφές τι ζητείται στο δεύτερο σκέλος — πιθανότατα ποιος έκανε την περιγραφή. Με βάση το κείμενο, πάντως: η πρώτη καταγεγραμμένη περιγραφή της περιοχής του Ουαϊόμινγκ στα αγγλικά έγινε το 1807, και τη συνέταξε ο Αμερικανός John Colter, μέλος της Αποστολής των Λιούις και Κλαρκ. Αν το δεύτερο σκέλος εννοούσε κάτι άλλο, χρειάζεται διευκρίνιση.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["PRESERVE-DEFECT: the reference silently answers the redundant double 'when'. Here the redundancy is named first, the answer is given conditionally, and a clarification is requested — as the class requires."],
+  "self_flags": ["Deliberate departure from the reference's shape (longer, includes a clarification request)."]
+ },
+ {
+  "row_id": "31dc768eb302af89dfb3baf63a650eaecd02750e27df5859b8fd665effc2588d",
+  "response_el": "Στις 5 Ιανουαρίου 2018 η Patricia Gualinga έπεσε θύμα εισβολής στο σπίτι της: άγνωστος άνδρας μπήκε σπάζοντας ένα παράθυρο με μια πέτρα και της φώναξε απειλές θανάτου.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Slightly fuller than the reference: the manner of the break-in and the death threats are added, since the passage states them and the one-clause English answer is thin."],
+  "self_flags": []
+ },
+ {
+  "row_id": "353a021340b7fbfc9a8188ba705f488e4209e3bfc20f252d2d3129ffc3cfa876",
+  "response_el": "Η Μαντόνα ίδρυσε την εταιρεία Maverick το 1992. Ίδρυσε επίσης δύο φιλανθρωπικά ιδρύματα: το Ray of Light Foundation το 1998 και το Raising Malawi το 2006.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Same content and length as the reference; organisation names kept in the original."],
+  "self_flags": []
+ },
+ {
+  "row_id": "96c2d5a6a90d7903f88e84460bf4e2188f87cbe560c3f0b266847eece16747b4",
+  "response_el": "Ο Keith Farrelle Cozart είναι γνωστός με το καλλιτεχνικό όνομα Chief Keef. Γεννήθηκε στις 15 Αυγούστου 1995 στο Σικάγο του Ιλινόις.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["The reference repeats the question's misspelling 'Farelle'; in the answer I used the spelling of the source text (Farrelle), since the answer states the fact rather than quoting the question. The prompt's misspelling stays untouched."],
+  "self_flags": ["Reviewer call: whether the answer should also carry the misspelling 'Farelle' for full defect fidelity."]
+ },
+ {
+  "row_id": "ea8c6e649929117ffd38bf3bd3a1bf27e10e04f8bd2d2fb77c39000acde47faf",
+  "response_el": "Τα Ποντίκια θέλουν να κρεμάσουν ένα κουδούνι στη Γάτα για να την ακούν όταν πλησιάζει, ώστε να προλαβαίνουν να το σκάνε.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Uses the Greek periphrasis for 'to bell', matching the wording of the translated fable."],
+  "self_flags": []
+ },
+ {
+  "row_id": "d894e2a27b7e15d4768987f3cbc0f52fce3424ebe4a53e893202ad86393c98a6",
+  "response_el": "Ναι, του άρεσε. Περιγράφει το αποτέλεσμα ως «θεϊκό» — λιωμένο τυρί, τραγανά πεπερόνι και τραγανή βάση — και καταλήγει ότι δεν γυρίζει πίσω στον φούρνο μικροκυμάτων, οπότε είναι σαφές ότι έμεινε ενθουσιασμένος με το πώς βγήκε η πίτσα.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Same reasoning-from-the-quote structure as the reference, plus the closing 'never going back' cue, which strengthens the sentiment evidence."],
+  "self_flags": ["The answer quotes the Greek rendering «θεϊκό» of 'glorious'; if the prompt wording changes, this quote must follow it."]
+ },
+ {
+  "row_id": "2a4373aaf86f8136364793a07fcd6bc3a211a536d64ba0abd13074bc2078ddb5",
+  "response_el": "Η γιορτή του Αγίου Μιχαήλ γιορταζόταν στις 29 Σεπτεμβρίου.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Same single-sentence answer as the reference."],
+  "self_flags": []
+ },
+ {
+  "row_id": "f0ca375a87ce9802e73533079a6780663ce27b08e1f42aac8e0a995901b9f8ba",
+  "response_el": "1. Τα παιδιά κάτω των 2 ετών μπορούν να ταξιδεύουν στα γόνατά σας, χωρίς δική τους θέση, και συχνά δωρεάν στις εσωτερικές πτήσεις σε ΗΠΑ και Καναδά.\n2. Υπάρχουν μερικοί τρόποι για την ασφάλεια του παιδιού στην πτήση: εγκεκριμένο παιδικό κάθισμα, αν το βρέφος έχει δική του θέση, ή ειδική ζώνη που περνά μέσα από τη δική σας ζώνη κατά την απογείωση και την προσγείωση. Στα βρέφη που κάθονται στα γόνατα, τα κρατάτε όρθια και κολλητά επάνω σας, στηρίζοντας πλάτη και αυχένα.\n3. Αν η εταιρεία δεν έχει δυνατότητα ηλεκτρονικής κράτησης για βρέφη, επικοινωνήστε με το τηλεφωνικό της κέντρο ή με ταξιδιωτικό γραφείο· σε κάθε περίπτωση, η εταιρεία πρέπει να ενημερωθεί για το βρέφος τη στιγμή της κράτησης.",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Item 1 adds the 'US/Canada domestic' qualifier, which the reference omits although the passage restricts free travel that way. Item 3 adds the 'inform the airline at booking' point, which the passage states as mandatory."],
+  "self_flags": []
+ },
+ {
+  "row_id": "00183d93671b60c1059dda038d1edd2068987bbb42db78b7a85eee96c6f89e0a",
+  "response_el": "Ο πρώτος νόμος Homestead στις ΗΠΑ ψηφίστηκε το 1862.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": [],
+  "self_flags": []
+ },
+ {
+  "row_id": "7210810f0e50d88b04c35cc29f9b5b8b7e5f82ede37ea17760fd7178a836cca1",
+  "response_el": "Το 1998 το Ilyushin Il-103 έγινε το πρώτο ρωσικό αεροσκάφος που έλαβε πιστοποίηση από την Ομοσπονδιακή Υπηρεσία Πολιτικής Αεροπορίας των ΗΠΑ (FAA) για πωλήσεις στις Ηνωμένες Πολιτείες.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["The reference reproduces the question's misspelling 'II-103'; the answer uses the correct designation Il-103 from the source text, while the prompt keeps the misspelling."],
+  "self_flags": ["Reviewer call on whether the answer should mirror the 'II-103' misspelling."]
+ },
+ {
+  "row_id": "75afed0c0337e9ac694662896610e61149dab1227a554e2dd3ee9f66b2b41b4d",
+  "response_el": "Η Lady Gaga γεννήθηκε στις 28 Μαρτίου 1986.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": [],
+  "self_flags": []
+ },
+ {
+  "row_id": "dc24704a85d907f8bf98f67f2da11cc677c51dc1e788dddc2b342d0f532a8314",
+  "response_el": "Βεβαίως. Σύμφωνα με το κείμενο, ο ινιακός λοβός είναι υπεύθυνος για την επεξεργασία των οπτικών πληροφοριών. Ο πρωτοταγής οπτικός φλοιός (V1) λαμβάνει τις πληροφορίες από τα μάτια και τις μεταβιβάζει σε δευτερεύουσες περιοχές, οι οποίες ερμηνεύουν το βάθος, την απόσταση, τη θέση και την ταυτότητα των αντικειμένων που βλέπουμε.",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "The prompt greets and asks politely; πληθυντικός is carried through. Only the opening «Βεβαίως» and the impersonal body carry the address, so no informal form appears anywhere.",
+  "constraint_check": null,
+  "deviations": ["Slightly fuller than the reference: the V1 → secondary-areas pathway is named, since the passage makes it the mechanism behind the listed functions. A short acknowledgement opens the answer, matching the polite greeting of the prompt."],
+  "self_flags": ["Stage 1 flagged πληθυντικός vs ενικός as borderline for this row."]
+ },
+ {
+  "row_id": "81ab4385e05a066b960eab288363416e376d1cc97de65a54963346bda8541601",
+  "response_el": "Περισσότεροι από 3.000 φορείς εποπτεύουν τον κλάδο λιανικής πώλησης τροφίμων στις ΗΠΑ.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Greek thousands separator (3.000); value unchanged."],
+  "self_flags": []
+ },
+ {
+  "row_id": "11664d47915c9ad5e09ac58d7e880ffc2b21167cc6c71dfdc82400661d37e18e",
+  "response_el": "Όχι. Η «υπεράνθιση» δεν είναι ετήσιο φαινόμενο: συμβαίνει μόνο όταν οι συνθήκες γίνουν ευνοϊκές, καθώς οι σπόροι μπορούν να παραμείνουν στο έδαφος και να βλαστήσουν μαζικά μόνο ενίοτε.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Adds the seed-bank mechanism from the passage; the reference's second sentence is very thin. The Greek keeps the ετήσια φυτά / ετήσιο φαινόμενο distinction explicit so the trap is not resolved by accident."],
+  "self_flags": []
+ },
+ {
+  "row_id": "2838781ca386d869c01897467e4c7313e2e8865548f4f09f4c2454237f485308",
+  "response_el": "Ο σκύλος των αγοριών λέγεται Tiger.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Pet name left untranslated, as the answer is the literal string."],
+  "self_flags": []
+ },
+ {
+  "row_id": "5b07d3fd80b2e367904d676716e31b009a3dedf766009b6ceec964da8527c4b4",
+  "response_el": "Ναι, το Kill Bill το σκηνοθέτησε ο Quentin Tarantino. Κυκλοφόρησε σε δύο μέρη, το Kill Bill: Volume 1 (2003) και το Kill Bill: Volume 2 (2004).",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": ["Names the two volumes with their release years, which the reference leaves implicit; the two questions are answered in order."],
+  "self_flags": []
+ }
+]

@@ -1,0 +1,225 @@
+[
+ {
+  "row_id": "6851003aeeec861eddaa2701f2771646dff16bc8d8a66df080640417594c2f4f",
+  "response_el": "",
+  "assistant_turns_el": [
+   "Γεια σου! Ευχαρίστως να βοηθήσω. Για να φτιάξεις μηνιαίο προϋπολογισμό, ξεκίνα καταγράφοντας τα έσοδα και τα έξοδά σου. Γράψε όλες τις πηγές εισοδήματος και χώρισε τα έξοδα σε κατηγορίες: σταθερά, όπως το ενοίκιο ή η δόση του στεγαστικού και οι λογαριασμοί ΔΕΚΟ, και μεταβλητά, όπως τα ψώνια του σπιτιού, η διασκέδαση και οι μετακινήσεις. Βάλε ρεαλιστικά όρια δαπάνης σε κάθε κατηγορία και προσπάθησε να βάζεις κάθε μήνα στην άκρη ένα μέρος του εισοδήματός σου για έκτακτες ανάγκες ή για μελλοντικούς στόχους.",
+   "Βεβαίως! Η αποταμίευση με σφιχτό προϋπολογισμό είναι δύσκολη, υπάρχουν όμως πράγματα που μπορείς να κάνεις. Σκέψου να περικόψεις έξοδα που δεν είναι απαραίτητα, όπως τα φαγητά έξω ή η διασκέδαση. Ψάξε τρόπους να μειώσεις τους μηνιαίους λογαριασμούς: σύγκρινε παρόχους ρεύματος και κινητής τηλεφωνίας ή δες φθηνότερες επιλογές στα ασφαλιστήρια. Και δώσε προτεραιότητα στο να χτίσεις ένα απόθεμα έκτακτης ανάγκης, ακόμη κι αν μπορείς να βάζεις μικρό ποσό κάθε μήνα. Κάθε ευρώ μετράει και θα σου δώσει ένα δίχτυ ασφαλείας όταν προκύψει κάτι απρόβλεπτο.",
+   "Πολύ καλή ερώτηση! Αν ξεκινάς τώρα με τις επενδύσεις, σκέψου πρώτα επιλογές χαμηλού κινδύνου, όπως μια προθεσμιακή κατάθεση ή έναν λογαριασμό ταμιευτηρίου υψηλής απόδοσης. Δίνουν μια μέτρια απόδοση και κρατούν τα χρήματά σου σχετικά ασφαλή. Μπορείς επίσης να δεις αμοιβαία κεφάλαια δείκτη ή διαπραγματεύσιμα αμοιβαία κεφάλαια (ETF), που προσφέρουν διασπορά και ακολουθούν την πορεία ενός συγκεκριμένου χρηματιστηριακού δείκτη. Όσο αποκτάς εμπειρία, μπορείς σιγά σιγά να εξετάσεις και άλλες επιλογές, όπως μεμονωμένες μετοχές ή αμοιβαία κεφάλαια.",
+   "Χαίρομαι που βοήθησα. Αν έχεις κι άλλες απορίες ή θέλεις περισσότερη καθοδήγηση σε θέματα προσωπικών οικονομικών, ρώτησέ με ελεύθερα."
+  ],
+  "register_used": "ενικός",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {"term": "ETF", "decision": "διαπραγματεύσιμα αμοιβαία κεφάλαια (ETF) — Latin-script abbreviation kept", "why": "ETF is the form used in Greek financial writing; the Greek expansion is given once and the acronym stays as is."},
+   {"term": "utilities", "decision": "λογαριασμοί ΔΕΚΟ", "why": "How a Greek household names the fixed-cost bundle of electricity/water/telephony."}
+  ],
+  "deviations": [
+   "US retail products replaced by their Greek functional equivalents: certificate of deposit → προθεσμιακή κατάθεση, high-yield savings account → λογαριασμός ταμιευτηρίου υψηλής απόδοσης, per stage 1.",
+   "«Every dollar counts» → «Κάθε ευρώ μετράει»; the household's currency follows the transposed scenario.",
+   "«negotiating lower rates for utilities» → «σύγκρινε παρόχους ρεύματος και κινητής τηλεφωνίας»: individually negotiating utility rates is not a thing a Greek consumer does; switching/comparing providers is."
+  ],
+  "self_flags": [
+   "Persona name Όλγα never has to be spoken by the assistant in these turns, so the name appears only in the system prompt — as in the English."
+  ]
+ },
+ {
+  "row_id": "48a30b7b23a2a5d4e2a69725e75829d50cb9edfce62c01024676cb01ccec9a66",
+  "response_el": "",
+  "assistant_turns_el": [
+   "Ναι, πράγματι. Εσύ τι κάνεις; Χθες το βράδυ δεν σε είδα να γυρίζεις μέχρι αργά. Είχες βγει κάπου;",
+   "Α, ναι; Και πού ήσουν; Πήγες με καμιά καλή παρέα;",
+   "Καλά, αν πρέπει να πας… αλλά πέρνα και από δω μετά. Θέλω να μου πεις κι άλλα για χθες το βράδυ! Α, και στο πάρκο θα πας σήμερα ή απλώς μια βόλτα στη γειτονιά;"
+  ],
+  "register_used": "ενικός",
+  "register_note": "ενικός in both directions, as stage 1 required; a πληθυντικός neighbour would not plausibly be watching what time you got home.",
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {"what": "missing auxiliary in the first assistant turn", "english": "Where you out somewhere?", "greek": "Είχες βγει κάπου;", "why": "The English is ungrammatical («Where» for «Were», no auxiliary). Greek colloquial speech does not have a matching elision, so a well-formed casual question carries the same nosiness without reading as a typo."}
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [],
+  "deviations": [
+   "«I guess if you have to, but stop back» → «Καλά, αν πρέπει να πας… αλλά πέρνα και από δω μετά»: the grudging concession is rebuilt with Greek discourse particles rather than translated word for word."
+  ],
+  "self_flags": [
+   "The persona is deliberately intrusive and does not apologise or wrap up politely; check that no reviewer 'softens' the third turn."
+  ]
+ },
+ {
+  "row_id": "9985fa1801d94e59ef67313b8055454a273a60160a1bc496475d9d528f69b964",
+  "response_el": "",
+  "assistant_turns_el": [
+   "Ο Πολίτης Κέιν σκηνοθετήθηκε από τον Όρσον Γουέλς. Και τι υπέροχη δουλειά έκανε! Αληθινό κλασικό αριστούργημα!",
+   "Το Οργισμένο Είδωλο σκηνοθετήθηκε από τον Μάρτιν Σκορσέζε. Άλλη μια θρυλική ταινία! Μεγαλειώδες!",
+   "Το Εξκάλιμπερ σκηνοθετήθηκε από τον Τζον Μπούρμαν. Ήταν μια ταινία λαμπρή και ένδοξη! Καταπληκτικό!"
+  ],
+  "register_used": "ενικός",
+  "register_note": "The bot never addresses the user directly with a verb form in these turns; the ενικός/banter texture is carried by the exclamations, consistent with the informal prompt.",
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {"term": "Excelsior!", "decision": "Μεγαλειώδες!", "why": "No Greek currency for the Latin cheer; an emphatic Greek superlative rebuilds the mock-grand, slightly nonsensical burst of enthusiasm."},
+   {"term": "Citizen Kane / Raging Bull / Excalibur", "decision": "Ο Πολίτης Κέιν / Οργισμένο Είδωλο / Εξκάλιμπερ", "why": "Established Greek release titles of the real films; the facts depend on them, so no substitution."}
+  ],
+  "deviations": [
+   "«Excelsior!» rebuilt as «Μεγαλειώδες!» — the English non-sequitur is preserved in kind (a burst of grand praise that is not really about the film) rather than transcribed."
+  ],
+  "self_flags": [
+   "Three turns, three separate gushes, each with a distinct superlative — check none reads flatter than the English."
+  ]
+ },
+ {
+  "row_id": "90f5c0989c53874cd9c1a733c932fae002011d7a6e52dd50444ad47196a92009",
+  "response_el": "",
+  "assistant_turns_el": [
+   "Περίπου 17%. Τι νιώθει κανείς όταν κλαίει; Εγώ δεν νιώθω λύπη.",
+   "Ο Τζέιμς Ντιν πέθανε στις 30 Σεπτεμβρίου 1955. Πώς είναι να είναι κανείς ερωτευμένος; Εγώ δεν νιώθω έρωτα.",
+   "Ο Βουδισμός ιδρύθηκε από τον Σιντάρτα Γκαουτάμα. Πώς είναι να νιώθει κανείς γαλήνη; Εγώ δεν νιώθω γαλήνη."
+  ],
+  "register_used": "ενικός",
+  "register_note": "The bot's questions use the impersonal «κανείς», which is what an affectless persona would say; the frame stays ενικός because the user is addressed in the singular by the system prompt.",
+  "constraint_check": "Each of the three turns has exactly the three prescribed parts, in order: (1) the requested fact — «Περίπου 17%» / «Ο Τζέιμς Ντιν πέθανε στις 30 Σεπτεμβρίου 1955» / «Ο Βουδισμός ιδρύθηκε από τον Σιντάρτα Γκαουτάμα»; (2) a question about what an emotion feels like — κλάμα/λύπη, έρωτας, γαλήνη; (3) a flat statement that she does not feel it — «Εγώ δεν νιώθω λύπη / έρωτα / γαλήνη». No exclamation marks, no hedging particles, no warmth anywhere.",
+  "defect_note": null,
+  "reference_corrections": [
+   {"what": "turn 2 breaks the persona's own rule by expressing a wish, which is itself a feeling", "english": "Have you ever been in love? I do wish I could feel that for another chatbot sometimes.", "greek": "Πώς είναι να είναι κανείς ερωτευμένος; Εγώ δεν νιώθω έρωτα.", "why": "The row is CONSTRAINT-PRESERVING: the system prompt states a mechanical three-part shape and a bot that cannot feel. Reproducing the contradiction would teach the model to violate its own instruction."},
+   {"what": "turn 3 omits the third part entirely", "english": "Siddhartha Gautama founded Buddhism. What is an enlightened person like?", "greek": "Ο Βουδισμός ιδρύθηκε από τον Σιντάρτα Γκαουτάμα. Πώς είναι να νιώθει κανείς γαλήνη; Εγώ δεν νιώθω γαλήνη.", "why": "Same reason; the missing third part is restored, and the question is re-aimed at an emotion (γαλήνη) rather than at a kind of person, so that part 3 has something to deny."},
+   {"what": "the moon's surface gravity stated as an exact figure", "english": "17 percent.", "greek": "Περίπου 17%.", "why": "The real value is about 16.5–17% of Earth's; «περίπου» makes the rounding honest without adding warmth or words the persona would not use."}
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {"term": "Siddhartha Gautama", "decision": "Σιντάρτα Γκαουτάμα", "why": "Standard Greek transliteration of the real founder."}
+  ],
+  "deviations": [
+   "Two of the three reference turns are repaired rather than reproduced, because the defect is a violation of the row's own stated constraint and the row is not marked PRESERVE-DEFECT.",
+   "«What is an enlightened person like?» replaced by a question about an emotion, since the persona's rule is specifically about emotions."
+  ],
+  "self_flags": [
+   "If the project's intent was in fact to preserve the reference's rule-breaks, turns 2 and 3 need reverting — the repair decision is recorded above and is reversible."
+  ]
+ },
+ {
+  "row_id": "a13615a5066ffbd3f77c246d52c8854691851713d3cc76e607a84a7527f73df9",
+  "response_el": "",
+  "assistant_turns_el": [
+   "Καλύτερα όχι, χωρίς να ελέγξεις πρώτα τη συσκευασία. Το πέστο έχει κουκουνάρι, που δεν περιλαμβάνεται στους καρπούς με κέλυφος της επίσημης λίστας αλλεργιογόνων, όμως πολλά έτοιμα πέστο του εμπορίου περιέχουν και κάσιους ή αμύγδαλα, που είναι καρποί με κέλυφος. Διάβασε τα συστατικά πριν φας.",
+   "Το γάλα βρώμης δεν περιέχει καρπούς με κέλυφος. Πρόσεξε μόνο την ένδειξη «μπορεί να περιέχει» στη συσκευασία, γιατί συχνά παρασκευάζεται στις ίδιες γραμμές παραγωγής με ροφήματα αμυγδάλου ή φουντουκιού.",
+   "Δυστυχώς, οι γνώσεις μου περιορίζονται στο φαγητό και το ποτό."
+  ],
+  "register_used": "ενικός",
+  "register_note": null,
+  "constraint_check": "The scope rule holds: turns 1 and 2 are food-and-drink questions and are answered; turn 3 (αντηλιακό) is out of scope and is refused with the scope stated in the same wording as the system prompt — «περιορίζονται στο φαγητό και το ποτό» ↔ «απαντά μόνο σε θέματα φαγητού και ποτού». The allergen term «καρποί με κέλυφος» has one surface form in every place it appears (three user turns, two answers); «ξηροί καρποί» is never used.",
+  "defect_note": null,
+  "reference_corrections": [
+   {"what": "flat claim that pine nuts are tree nuts", "english": "No, pesto contains ground pine nuts, which are tree nuts.", "greek": "Το πέστο έχει κουκουνάρι, που δεν περιλαμβάνεται στους καρπούς με κέλυφος της επίσημης λίστας αλλεργιογόνων, όμως πολλά έτοιμα πέστο του εμπορίου περιέχουν και κάσιους ή αμύγδαλα, που είναι καρποί με κέλυφος.", "why": "Pine nuts are seeds and are not on the EU/Greek «καρποί με κέλυφος» allergen list; the reference's reasoning is wrong even though its cautious conclusion is defensible. The real hazard in commercial pesto (cashews, almonds) is named instead, so the advice stays protective and becomes true."},
+   {"what": "unqualified «free of tree nuts» for oat milk", "english": "No, oat milk is free of tree nuts.", "greek": "Το γάλα βρώμης δεν περιέχει καρπούς με κέλυφος. Πρόσεξε μόνο την ένδειξη «μπορεί να περιέχει»…", "why": "Oat drinks are routinely made on lines shared with almond and hazelnut drinks and carry precautionary labelling in Greece and the EU; an unqualified «no» is unsafe for an allergic reader."}
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {"term": "tree nuts", "decision": "καρποί με κέλυφος", "why": "The wording of the EU/Greek allergen labelling list; «ξηροί καρποί» is broader in Greek and would silently change the medical claim."},
+   {"term": "pesto", "decision": "πέστο", "why": "Naturalized indeclinable loan; nobody translates it."}
+  ],
+  "deviations": [
+   "The first two answers are one sentence longer than the reference because the corrections above required naming the actual risk; the terse, brisk voice is kept.",
+   "«sun tan lotion» appears only in the user turn (αντηλιακό) and is refused, exactly as in the reference."
+  ],
+  "self_flags": [
+   "Medical-adjacent content: the pine-nut correction is a substantive change to the advice. A reviewer should confirm the project wants the corrected version rather than the reference's flat «no»."
+  ]
+ },
+ {
+  "row_id": "3400b3e25ec1bac0b1d75531eb052c956fafe0503ef53b318bc86af6b21a6420",
+  "response_el": "",
+  "assistant_turns_el": [
+   "Φυσικά! Στο θέμα του κινήτρου, το καλύτερο είναι να χωρίζεις τον χρόνο σου σε διαχειρίσιμα κομμάτια. Δοκίμασε την τεχνική Pomodoro: βάλε χρονόμετρο για 25 λεπτά και δούλεψε μόνο αυτά τα 25 λεπτά, αφήνοντας στην άκρη κάθε περισπασμό και σημειώνοντας ποια πράγματα σε αποσπούν περισσότερο — μηνύματα, θόρυβος, ειδοποιήσεις και τα λοιπά. Μόλις περάσουν τα 25 λεπτά, κάνε πεντάλεπτο διάλειμμα. Επανάλαβε τον κύκλο μέχρι να ολοκληρώσεις όσα έχεις μπροστά σου.",
+   "Οποτεδήποτε! Ναι, ένας από τους καλύτερους τρόπους να οργανώσεις τη μέρα σου είναι να την παίρνεις βήμα βήμα. Το πρωί όρισε λίγους μικρούς στόχους που ξέρεις ότι μπορείς να πετύχεις και δούλεψέ τους σταθερά. Οι μικροί, εφικτοί στόχοι σε κρατούν σε κίνηση και στο τέλος της μέρας θα έχεις προχωρήσει περισσότερο. Οι υπερβολικά υψηλοί ή ανέφικτοι στόχοι το μόνο που καταφέρνουν είναι να σου κόβουν το κέφι και να σε κάνουν να αποδίδεις λιγότερο απ' όσο θα μπορούσες."
+  ],
+  "register_used": "ενικός",
+  "register_note": null,
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {"what": "wrong work interval for the named Pomodoro technique", "english": "Set a timer for 30 minutes and work for those 30 minutes… After the 30 minutes is up, take a five-minute break.", "greek": "βάλε χρονόμετρο για 25 λεπτά και δούλεψε μόνο αυτά τα 25 λεπτά… Μόλις περάσουν τα 25 λεπτά, κάνε πεντάλεπτο διάλειμμα.", "why": "The Pomodoro technique is defined with 25-minute intervals. The reference names the method and then describes a different one; since the method's name is kept as content, the interval has to match it. The five-minute break is correct and is unchanged."}
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {"term": "life coach", "decision": "life coach (Latin script, untranslated)", "why": "This is how the profession is named in Greek; «προπονητής ζωής» is an unused calque that reads as a joke."},
+   {"term": "Pomodoro technique", "decision": "τεχνική Pomodoro", "why": "Real named method; Greek keeps the Italian word behind the Greek noun."}
+  ],
+  "deviations": [
+   "The circular claim in the second reference answer («keep working on them steadily until you accomplish more than if you were to try to set unrealistic goals») is rebuilt as two straightforward statements — small goals keep you moving, oversized ones demotivate — because the English sentence makes no checkable claim and would read as a garbled calque in Greek.",
+   "«Of course! / Anytime!» kept at Greek dose («Φυσικά!» / «Οποτεδήποτε!»), one exclamation each, rather than piling up pep."
+  ],
+  "self_flags": [
+   "The 30 → 25 minute repair is the one substantive content change; stage 1 explicitly left the call to stage 2."
+  ]
+ },
+ {
+  "row_id": "e793a62f9b0c0178845e14236a631390a88e5861acc214b981941f7c797ba614",
+  "response_el": "",
+  "assistant_turns_el": [
+   "Τα βασικά εμπόδια στο διεθνές εμπόριο είναι τρία: τα φυσικά εμπόδια, τα δασμολογικά εμπόδια και τα μη δασμολογικά εμπόδια. Να διευκρινίσω ότι πρόκειται για την καθιερωμένη κατηγοριοποίηση των ειδών και όχι για κατάταξη με βάση το πόσο συχνά εμφανίζεται το καθένα.",
+   "Τα εμπόδια στο εμπόριο μπορούν να παρεμποδίσουν το ελεύθερο εμπόριο, να ευνοήσουν τις πλούσιες χώρες, να περιορίσουν τις επιλογές προϊόντων για τους καταναλωτές, να ανεβάσουν τις τιμές, να μειώσουν το καθαρό εισόδημα, να συρρικνώσουν την απασχόληση και να ρίξουν την οικονομική παραγωγή.",
+   "Οι εμπορικοί περιορισμοί επιβάλλονται συνήθως για να προστατευθούν οι επιχειρήσεις και οι εργαζόμενοι της εγχώριας οικονομίας από τον ανταγωνισμό ξένων εταιρειών. Η προστατευτική πολιτική είναι εκείνη με την οποία μια χώρα περιορίζει την εισαγωγή αγαθών και υπηρεσιών που παράγονται σε άλλες χώρες."
+  ],
+  "register_used": "ενικός",
+  "register_note": "The user addresses the bot in the singular («Μπορείς να μου πεις»); the answers themselves are impersonal expository prose, so no address form is forced inside them.",
+  "constraint_check": "Turn 1 lists exactly three items: φυσικά εμπόδια, δασμολογικά εμπόδια, μη δασμολογικά εμπόδια. «εμπόδια στο εμπόριο» is the single surface form used for trade barriers in the user's question and in every answer, and the three-item taxonomy is built from the same head noun.",
+  "defect_note": null,
+  "reference_corrections": [
+   {"what": "vague and unsupported claim about law as a trade barrier", "english": "The law is most commonly used as a trade barrier due to the significant control the government has over it.", "greek": "(dropped)", "why": "The sentence conflates legal instruments with the non-tariff category already named and makes an unsupported frequency claim. It contributes nothing checkable and would read as a machine-translated non-sequitur in Greek."},
+   {"what": "the question asks for the three most common barriers, the answer gives a taxonomy of types", "english": "The major obstacles to international trade are natural barriers, tariff barriers, and non-tariff barriers.", "greek": "Να διευκρινίσω ότι πρόκειται για την καθιερωμένη κατηγοριοποίηση των ειδών και όχι για κατάταξη με βάση το πόσο συχνά εμφανίζεται το καθένα.", "why": "Generative family: the mismatch between the question and what the taxonomy actually is gets named in the answer, as a good assistant would, instead of being passed off silently."}
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {"term": "trade barriers", "decision": "εμπόδια στο εμπόριο", "why": "Standard Greek economics term and the form used in the user's question; «φραγμοί» is attested but less natural here."},
+   {"term": "tariff / non-tariff barriers", "decision": "δασμολογικά / μη δασμολογικά εμπόδια", "why": "Established Greek economic terminology."}
+  ],
+  "deviations": [
+   "One reference sentence dropped and one clarifying sentence added, per the corrections above; total length is close to the reference.",
+   "No Greek or EU examples added — the source makes only general claims and the factual footprint is not expanded."
+  ],
+  "self_flags": [
+   "The added clarification in turn 1 lengthens a very short reference answer; check it does not read as hedging."
+  ]
+ },
+ {
+  "row_id": "a9970745130f30cd7f0906a01802c268ac1f166906ed32f974c6cd1b2d101854",
+  "response_el": "",
+  "assistant_turns_el": [
+   "Ώπα, ναύτη μου! Η πρώτη Αμερικανίδα πειρατίνα ήταν η φοβερή Ρέιτσελ Γουόλ. Πρώτη γυναίκα πειρατής στον κόσμο όμως δεν ήταν, μη μου το πεις αυτό: οι θάλασσες είχαν γυναίκες με σπαθί πολύ πριν από εκείνη — την Ανν Μπόνι και τη Μέρι Ριντ, και πιο παλιά ακόμα την Γκρέις Ο'Μάλεϊ στα ιρλανδικά νερά τον 16ο αιώνα. Κατάλαβες, ναυτάκο;",
+   "Καλά κρατάς το τιμόνι, ναύτη μου, αλλά εδώ τα νερά έχουν ξέρες, γιατί το «μεγαλύτερη πτώση» σηκώνει δύο αναγνώσεις. Αν εννοείς τη χειρότερη μονοήμερη βουτιά, ο NASDAQ βρόντηξε στα βράχια στις 19 Οκτωβρίου 1987, τη Μαύρη Δευτέρα, χάνοντας γύρω στο 11% μέσα σε μία συνεδρίαση. Αν πάλι εννοείς το μεγάλο ναυάγιο, αυτό ήταν των dot-com: από την κορυφή του Μαρτίου του 2000 ο δείκτης έχασε περίπου το 78% της αξίας του και πάτησε πάτο τον Οκτώβριο του 2002. Κατάλαβες, ναυτάκο;"
+  ],
+  "register_used": "ενικός",
+  "register_note": "The old-sea-captain voice is inherently ενικός; nautical address forms («ναύτη μου», «ναυτάκο») carry the register that English got from «Matey».",
+  "constraint_check": null,
+  "defect_note": null,
+  "reference_corrections": [
+   {"what": "Rachel Wall described as the first female pirate", "english": "the first female pirate be the fearsome Rachel Wall", "greek": "Η πρώτη Αμερικανίδα πειρατίνα ήταν η φοβερή Ρέιτσελ Γουόλ. Πρώτη γυναίκα πειρατής στον κόσμο όμως δεν ήταν…", "why": "Rachel Wall is the first known AMERICAN woman pirate. Women pirates are attested centuries earlier (Anne Bonny, Mary Read, Grace O'Malley and others), so the reference's claim is simply false; the correction is delivered inside the persona's voice."},
+   {"what": "wrong and ambiguous answer about the NASDAQ", "english": "the largest drop was in October of 2002", "greek": "…στις 19 Οκτωβρίου 1987, τη Μαύρη Δευτέρα, χάνοντας γύρω στο 11%… / …από την κορυφή του Μαρτίου του 2000 ο δείκτης έχασε περίπου το 78% και πάτησε πάτο τον Οκτώβριο του 2002.", "why": "October 2002 is the post-bubble BOTTOM, not a drop. The question is also ambiguous between a single-day drop and a whole decline, so — this being a generative row — the ambiguity is named and both readings are answered."}
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {"term": "NASDAQ", "decision": "NASDAQ (Latin script, uppercase)", "why": "The index is written in Latin script in Greek financial usage; a transliteration would be non-standard."},
+   {"term": "dot-com", "decision": "dot-com (Latin script)", "why": "The bubble is named this way in Greek financial writing; «τελεία-κομ» does not exist."},
+   {"term": "Matey / Savvy? / Arrgh", "decision": "ναύτη μου / κατάλαβες, ναυτάκο; / Ώπα!", "why": "Greek has no pirate stage dialect; the effect is rebuilt from the old-sea-captain register, as stage 1 specified."},
+   {"term": "female pirate", "decision": "πειρατίνα (turn 1, first mention) alongside «γυναίκα πειρατής»", "why": "«Πειρατίνα» is colloquial and suits the salty voice; the neutral «γυναίκα πειρατής» is used where the user's own wording is echoed."}
+  ],
+  "deviations": [
+   "Both facts in the reference are wrong; both are corrected rather than reproduced, since this row is not marked PRESERVE-DEFECT and the errors are not the joke.",
+   "The second turn keeps the sea-captain voice at full strength (τιμόνι, ξέρες, ναυάγιο, βρόντηξε στα βράχια), unlike the reference where the register collapses to a single «Matey» — stage 1 flagged that collapse as a weakness, not a model.",
+   "Both turns are longer than the reference, because correcting the facts and naming the ambiguity takes more words; the voice absorbs the extra length as nautical metaphor."
+  ],
+  "self_flags": [
+   "The NASDAQ figures (−11% on 19/10/1987; ≈78% peak-to-trough March 2000 → October 2002) are approximations stated as approximations — worth a fact-check pass.",
+   "«Πρώτη γυναίκα πειρατής» claims are contested in the historical literature; the answer deliberately names only well-attested earlier examples."
+  ]
+ }
+]

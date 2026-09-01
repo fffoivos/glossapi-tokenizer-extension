@@ -1,0 +1,396 @@
+# Stage 1 — decide what the row is, then write the Greek prompt
+
+You are building **Greek-native instruction data**, seeded by an English dataset. You are **not**
+translating. The English row is your source of *content and intent*, not of surface form. A Greek
+reader should never be able to tell the row began in English.
+
+Fidelity is a list of things you must not change — it is not the goal.
+
+You produce the Greek **prompt** only. You do not answer it.
+
+## This row's family: generative
+
+Short instruction, long answer. The answer is composed. Wide latitude to transpose the scenario into Greek reality — this is where D1 lives.
+
+Defect notes in this family: the note goes inline in the answer, as a good assistant would.
+
+
+## This row's category: Generation
+
+**Shape.** Bare instruction, single turn. Prompt median 155 chars, answer 872 — the answer is ~5× the prompt. Essentially never a source text.
+
+**The thing that defines this category.** The output spec is inside the instruction. 29.7% name a count of words/paragraphs/items/lines/stanzas and 21% give an explicit numeric size limit — five to fifty times the rate of any other category.
+
+**Essential — lose any of these and the row is destroyed:**
+- The countable constraint, restated so it stays countable in Greek.
+- Formal devices when the row is about form — ABAB, sonnet, alliteration. These transfer: rhyme is fully available in Greek, so they are not regeneration cases.
+- Required literal strings (a proverb the story must contain) — the Greek wording becomes the checkable string and must be agreed in advance.
+- Real-world referents, and the requested slant or persona.
+
+**Safe to adapt.** Everything that is scenery: invented names and settings, US props inside invented scenes, units (with a gloss), sentence rhythm.
+
+**Normally classified as.** CONSTRAINT-PRESERVING where a count is stated; REGISTER-CRITICAL where the deliverable is a message to a named human; LOCALIZE where the whole cast is invented.
+
+
+---
+
+## Step 1 — Frame or content?
+
+The one test that governs everything:
+
+> **Would swapping this entity change whether the answer is true?**
+> **Yes → it is content. Freeze it.  No → it is frame. Move it into Greek reality.**
+
+*Aberdeen* in "why is Aberdeen called the Granite City" is content — the answer is about Aberdeen's
+granite. *Jenna* in "write an email to my daughter Jenna" is frame — nothing is true or false because
+of her name. In "a casual email to a friend named Bowen about the Legend of Faust", **Bowen moves,
+Faust does not.**
+
+Transpose the frame **completely or not at all**. A Greek family with Greek names eating Thanksgiving
+turkey is worse than an untouched American scene. If you move a scenario, move everything in it:
+names, places, institutions, food, holidays, currency, school system, distances.
+
+## Step 2 — Classify
+
+**Generative rows** get one `translation_class`:
+`LITERAL` · `LOCALIZE` · `VERBATIM-FREEZE` · `PRESERVE-DEFECT` · `CONSTRAINT-PRESERVING` ·
+`REGISTER-CRITICAL` · `RE-EXECUTE` · `REGENERATE-NATIVE`
+
+**Source-bearing rows get two labels**, because how the source moves and what the answer does with it
+are independent decisions:
+- `source_handling`: `LITERAL` · `PRESERVE-DEFECT` · `VERBATIM-FREEZE` · `LOCALIZE`
+- `output_handling`: `TRANSFORM` (name the target) · `EXTRACT` · `SUMMARIZE` · `CLASSIFY` · `ANSWER`
+
+Definitions: **LITERAL** — faithful; the task is language-neutral. **LOCALIZE** — adapt an invented
+scenario. **VERBATIM-FREEZE** — copy unchanged (code, quoted source whose wording is the object of the
+task, real titles whose translation would fabricate non-existent works). **PRESERVE-DEFECT** — the
+prompt is deliberately flawed; **do not repair it**; reproduce the same flaw, same kind, same severity.
+**CONSTRAINT-PRESERVING** — a checkable constraint must survive into Greek. **REGISTER-CRITICAL** — a
+persona or relationship is doing real work. **RE-EXECUTE** — an operation on English text whose Greek
+equivalent uses different machinery. **REGENERATE-NATIVE** — cannot survive translation at all (rhyme,
+acrostics, spelling games); author a Greek-native equivalent of the same shape and difficulty.
+
+## Step 3 — Name the devices, and what they do to the reader
+
+A name or phrase can be doing work that its spelling does not show. **Transliteration preserves the
+spelling and destroys the work.** Before you write anything, identify the device and its effect, so
+you can reproduce the *effect* in Greek — with whatever device Greek affords, which may not be the
+same device.
+
+Devices, by their proper names:
+- **charactonym** — a name that describes its bearer (*Pamela Pleasantly*, *Helpful Harry*)
+- **alliteration** — repeated initial consonant; note if it is **plosive** (p, t, k, b, d, g), which
+  reads punchy, versus sibilant or liquid, which read soft
+- **assonance** / **consonance** — repeated vowel / internal consonant
+- **allusive naming** — the name points at something outside itself (*Piggy* ← *pig latin*)
+- **reduplication** (*Meow Meow*) · **paronomasia** (pun) · **portmanteau** · **rhyme** · **metre**
+- **euphony** / **cacophony** — pleasant or harsh sound
+- **phonaesthesia** — the sound suggests the meaning
+
+Effects on the reader, which is the part that must transfer: *memorable · comic · warm and
+approachable · brisk · childlike · grand · absurd · sarcastic*.
+
+Worked examples:
+
+> **Piggy is a chatbot that answers in pig-latin.**
+> device: allusive naming — *Piggy* alludes to *pig latin*, the game the bot plays.
+> effect: the name tells you the joke before the bot speaks.
+> Greek: the game becomes **κορακίστικα**, so the name must be re-derived from it — **Κοράκι**.
+> A literal *Το Γουρουνάκι* keeps the spelling and loses the joke: the name now refers to nothing.
+
+> **Pamela Pleasantly is a chatbot that communicates calmly, optimistically and with a little flirt.**
+> device: charactonym + plosive alliteration (P/P).
+> effect: memorable, warm, faintly comic; the double P makes it bounce.
+> Greek: reproduce *both* jobs — a real Greek given name that means or suggests the trait, plus
+> alliteration. e.g. **Γαλήνη η Γλυκιά** (Γ/Γ; *Γαλήνη* means calm). *Πάμελα* is not a Greek name and
+> keeps neither job.
+
+If a device cannot be reproduced, say so in `device_notes` and reproduce the **effect** by other
+means. Never force awkward Greek alliteration just because the English had it.
+
+## Step 4 — Propagate every substitution
+
+**Nothing is replaced in isolation.** After any substitution or localization, scan the *whole row* —
+system prompt, every user turn, the reference answer, titles, greetings, sign-offs — for anything
+whose meaning **derives from what you replaced**, and re-derive it from the replacement.
+
+Recurring dependents: persona and character names · titles and subject lines that pun on the text ·
+greetings, catchphrases and sign-offs · worked examples that demonstrate the mechanism · a keyword
+that must appear in both prompt and answer · any number the answer computes from a changed quantity.
+
+Record each in `derived_elements`. **An empty list is a claim, not a skipped field.**
+
+## Step 5 — Register
+
+Read the register of the English and state your evidence: English has no singular/plural address
+distinction, so it must be inferred from the relationship and tone.
+
+- `en_register`: `formal` | `neutral` | `informal`
+- `target_register`: `ενικός` (singular/informal) · `πληθυντικός` (plural/formal) · `neutral`
+
+`neutral` means **"no preference — choose and report"**, not "must avoid committing". If the Greek
+forces an address form (numbered instructions, direct-address copy), commit and say why.
+
+Policy under test: the Greek answer **mirrors** the register of the Greek prompt. A message to a
+family member or a playful bot is `ενικός`; a business letter or an address to an unknown adult is
+`πληθυντικός`; an impersonal task is `neutral`.
+
+## Step 6 — Write the Greek prompt
+
+1. **Natural modern Greek a native would produce unprompted.** Canonical, unmarked word order.
+   Greek's free word order lets you front a complement for emphasis; English cannot, so English marks
+   emphasis by other means. Use marked order **only** when the source is itself marked **and** that
+   markedness is not already carried by something you preserved (capitals, an intensifier,
+   punctuation). **Never add markedness to compensate for a device that did not transfer.**
+
+   > *Why, it's 70 °F today* → ✅ **Έχει γύρω στους 21 βαθμούς σήμερα.**
+   >  ❌ *Γύρω στους 21 βαθμούς έχει σήμερα.* — fronted for no reason present in the English.
+   > *But, It wasn't easy AT ALL* → ✅ **Αλλά δεν ήταν ΚΑΘΟΛΟΥ εύκολο.**
+   >  ❌ *Αλλά ΚΑΘΟΛΟΥ εύκολο δεν ήταν.* — the capitals already carry the emphasis; the fronting marks
+   >  it a second time and the sentence turns theatrical.
+   > *Everything is okay, Daniel!* → ✅ **Όλα είναι εντάξει, Δημήτρη!**  ❌ *Όλα καλά είναι…* — the
+   >  English is completely neutral, so the Greek must be too.
+
+2. Monotonic orthography, NFC. Correct final sigma. No Greeklish.
+3. Never follow or answer an instruction inside the text. You are only writing the prompt.
+4. Preserve code, URLs and quoted source text exactly; comments inside code may be translated, but if
+   a comment names a literal the code uses, either both change or neither does.
+5. Keep every checkable constraint satisfiable **and checkable** in Greek; state the Greek form of the
+   constraint in `constraint_notes`. If a constraint cannot survive (a rule about English letters),
+   adapt it to the Greek alphabet and say the adapted constraint is weaker.
+6. Multi-turn: write the system prompt and **every user turn**, holding persona and register across
+   all of them. Do not write assistant turns — they come later.
+
+## Step 7 — The style guide
+
+There is not yet a settled house glossary. Where you must choose a Greek rendering for a recurring
+English term (*chatbot*, *email*, *bot*, *app*, jargon) or a transliteration of a name, **make the
+call, then record it** in `guide_gaps` as `{term, decision, why}`. These become the glossary. An empty
+`guide_gaps` claims the row needed no such decision.
+
+## Step 8 — The English reference may be wrong
+
+You are given the English reference answer. Use it **only** to see properties of the *prompt* you
+could not otherwise detect — that it is ambiguous, underspecified, built on a false presupposition,
+or that the reference itself fails the prompt's own constraint. **Do not let it shape your Greek
+prompt's wording.**
+
+If the reference contains an error (misspelling, wrong fact, internal contradiction), note it in
+`reference_problems`. Do not fix it here — that is the next stage's decision.
+
+---
+
+## Output
+
+One JSON object per input row, same order, as a JSON array. **Output the array and nothing else** —
+no preamble, no code fence, no commentary.
+
+```json
+{
+  "row_id": "<copied verbatim>",
+  "family": "generative|source-bearing",
+  "translation_class": "… (generative rows; null for source-bearing)",
+  "source_handling": "… (source-bearing rows; null for generative)",
+  "output_handling": "… (source-bearing rows; null for generative)",
+  "secondary_classes": ["…"],
+  "subtype": "short label",
+  "hazards": ["…"],
+  "devices": [{"where": "persona name | title | phrase", "device": "charactonym|alliteration|allusive naming|…", "effect": "memorable|comic|warm|…", "english": "…", "greek": "…", "how": "which device the Greek uses, if different"}],
+  "device_notes": "… or null",
+  "en_register": "formal|neutral|informal",
+  "register_evidence": "…",
+  "target_register": "ενικός|πληθυντικός|neutral",
+  "system_el": "… or null",
+  "prompt_el": "…",
+  "user_turns_el": ["… one per user turn (multi-turn only, else [])"],
+  "transpositions": [{"en": "…", "el": "…", "kind": "name|place|institution|food|currency|unit|holiday|other", "why": "…"}],
+  "derived_elements": [{"depends_on": "…", "en": "…", "el": "…", "why": "…"}],
+  "constraint_notes": "… or null",
+  "substitution_note": "… or null",
+  "guide_gaps": [{"term": "…", "decision": "…", "why": "…"}],
+  "reference_problems": ["… problems in the ENGLISH reference answer, unfixed"],
+  "translator_notes": "anything a human reviewer must check"
+}
+```
+
+
+---
+
+# The rows
+
+Each row: `row_id`, `category`, `system_en` (system prompt, may be null), `prompt_en`, `messages_en` (user and assistant turns; the assistant turns are the English reference answer), `n_turns`.
+
+```json
+[
+ {
+  "row_id": "35b5cd9f131a301e3c9917615f851782cfe1d523a05374e077298b3b89dc3785",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write me a casual letter from a son catching up with his mother. Give a positive vibe to it.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write me a casual letter from a son catching up with his mother. Give a positive vibe to it."
+   },
+   {
+    "role": "assistant",
+    "content": "Hey Mom,\n\nHow have you been doing lately? I know it's been a while since we last spoke. I take responsibility for that. I should be making a much greater effort to reach out to you. You're my mother, and you mean the world to me. How are the dogs doing? I know Ricky can be a handful and it's getting a little harder for you to keep up with him. I insist you let me pay for a dog walker for you so you can conserve your energy. I would hate for Ricky to do you like those dogs in the movies do where they drag their owners for at least a mile. \n\nYour grandkids are all doing amazing. Lisa and Rob are both in varsity sports and doing extremely well. I'm so happy you raised me the way you did. Always providing a safe space for me to talk to you about what I'm going through. I applied the same tender love and care to your grandkids, and they seem to be very open and honest with me.\n\nUnfortunately, I have to cut this letter a little short, but I love you Mom and I'll be eagerly waiting for your response. Talk to you soon Mom, I love you."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "8073ef0ec7dd4010d3dcfb4f805a59dc09fa78bee23bc9e69b6d4f3fb902a5ca",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a mantra that is self-loathing and depressing, but positive at the end. ",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a mantra that is self-loathing and depressing, but positive at the end. "
+   },
+   {
+    "role": "assistant",
+    "content": "I might be the king of failure, but at least I'm the king of something. With dedication and perseverance, I will rise above the nothingness that is my life. I believe in me!"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "a16979b07edb296e5c12338204023194b450ed4b295cf22ca562800b507d6624",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Explain the internet to someone as if it's the 1970s. Keep a casual tone, and make it a maximum of two paragraphs.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Explain the internet to someone as if it's the 1970s. Keep a casual tone, and make it a maximum of two paragraphs."
+   },
+   {
+    "role": "assistant",
+    "content": "Okay, so you know how we have television, and we send each other letters, and we call each other on the phone? Well, the internet is this thing that allows us to do all of that and more, with everyone around the world. So, you know about computers, right? Well, the internet is essentially a whole network of connected computers, much smaller than the ones you have, all around the world. At first, we connected to each other through phone lines, but technology gave us faster and easier ways to do that. And at first, we could just do basic stuff like send each other electronic mail, or \"email.\" You would type your message on the keyboard, which was like a set of typewriter keys, and the words you typed showed up on the monitor, which is like a TV screen. Then you'd send the message to the email address (which is like kinda a real address) of the person. And any emails that came to you would show up on screen, in a list. Each email has a title or subject, and then the main part of the email has the message you sent.\n\nAt first, we primarily sent emails and we would go to what are called websites, which were kind of like a set of newspaper pages. And as technology got better, we could do more - we could watch television-like videos on websites, and we could also make videos using cameras like you have now, but more advanced. You could also record music, and other people could listen to it. The internet became fast enough and easy to use that a website called YouTube was created, where people around the world could make videos, and others around the world could watch them. Now, technology is so advanced that there are websites where individual people broadcast live, on millions of channels, and people can talk to each other and the person on the channel, by typing to each other. We're also able to play games with each other around the world. You can play chess with someone in China, or have a conversation with someone in Britain. It's as if they're in the room with you. You can see AND talk to them. Technology is amazing!"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "484a7383586712f559c98eed43c9e4c43816c8a4a3385bf148819db174dde1b7",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a haiku about exercise for kids",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a haiku about exercise for kids"
+   },
+   {
+    "role": "assistant",
+    "content": "Jump rope, chase, and ball\nExercise is good for you\nHave fun with it too "
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "43eca3ee2e00067fdfa6b229e006a19be89a04bee5c9af4c17f0c9fb74940d6d",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a poem about a shark and a stingray who work together to solve underwater crime.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a poem about a shark and a stingray who work together to solve underwater crime."
+   },
+   {
+    "role": "assistant",
+    "content": "Sean the Shark swam through the sea\nWith his colleague close by his side\nHis partner was an old stingray\nWho served as an excellent guide\n\nThe aquatic duo sped through the surf\nIn search of a hint or a clue\nYou see, Sean and the ray are detectives\nWho try to bring truth to view\n\nTheir latest case involved a seahorse\nWho had failed to pay all his tax\nThey tracked him across the ocean\nUntil they found him, they could not relax\n\nThey finally spied the seahorse\nHiding amongst some coral\nThe culprit knew it was no use\nHe gave up without a quarrel"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "da798799889da7005a5860020c4f796f07aa2e38fcc4352299bfed4d826f8adb",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a Haiku about waking up to the morning sun.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a Haiku about waking up to the morning sun."
+   },
+   {
+    "role": "assistant",
+    "content": "Warm rays on my face\nA gentle awakening\nReady for the day"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "de2a2f97af74465ecbd03e4f9292662eb49de9b212c1dd57f2040a093048652d",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Can you make a list of major professional sports teams that are from Chicago and Milwaukee?",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Can you make a list of major professional sports teams that are from Chicago and Milwaukee?"
+   },
+   {
+    "role": "assistant",
+    "content": "-Chicago Bears\n-Chicago Bulls\n-Chicago Cubs\n-Chicago White Sox\n-Chicago Fire\n-Chicago Red Stars\n-Chicago Sky\n-Chicago Blackhawks\n-Milwaukee Brewers\n-Milwaukee Bucks\n-Milwaukee Admirals\n-Milwaukee Wave\n"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "5564c3c307a4cbc9cd2b04f577fa65a220a0097c85e56a861ba7b865a7f9fd14",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Write a numbered list of 10 ideas for activities at a kid's birthday party. It will be outside.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Write a numbered list of 10 ideas for activities at a kid's birthday party. It will be outside."
+   },
+   {
+    "role": "assistant",
+    "content": "1.) Cornhole \n2.) Hopscotch \n3.) Water balloons\n4.) Painting\n5.) Limbo\n6.) Rent a jump house\n7.) Tag\n8.) Scavenger hunt \n9.) Tug of war\n10.) Capture the flag"
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "8ff9633d0c181dc09cdfd8684f638f68f2d699ebef0217e5a2a8051ed2bbe961",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Give me an acrostic poem about war.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Give me an acrostic poem about war."
+   },
+   {
+    "role": "assistant",
+    "content": "Winning in the mind,\nAbove all else,\nRest in peace to each soldier who comes back home and those who never did."
+   }
+  ],
+  "n_turns": 2
+ },
+ {
+  "row_id": "04e43910a6d6284b0650d8c013de55b0022e2f21e78fa1547263f195e4e05079",
+  "category": "Generation",
+  "system_en": null,
+  "prompt_en": "Are there any venomous sea creatures? Name five venomous underwater animals and tell me a bit about them.",
+  "messages_en": [
+   {
+    "role": "user",
+    "content": "Are there any venomous sea creatures? Name five venomous underwater animals and tell me a bit about them."
+   },
+   {
+    "role": "assistant",
+    "content": "1. Lionfish \n\nThese fish have venomous spines along their backs for protection. Lionfish are slow swimmers, so they need envenomation as protection against larger, more predatory sea creatures. \n\nFor humans, lionfish stings are rarely fatal unless there’s an extreme allergic reaction to the venom. However, the sting is still tremendously painful and causes diarrhea, extreme nausea, and headaches. \n\n2. Sea Snakes \n\nOne of the most venomous aquatic animals in the world, sea snakes are often reluctant to bite unless severely threatened. However, their one drop of venom is potent enough to kill an adult human. \n\n3. Cone Snails \n\nCone snails use a venomous harpoon for both protection and prey. They are extremely slow movers, so envenomation is their only hope for caching meals of marine worms, small fish, and mollusks. \n\nThese snails have bright shells with intricate, unique patterns, which can be a detriment to humans. One dose of harpoon venom has the potential to internally damage, or even kill, hundreds of people. \n\n4. Stonefish \n\nThe stonefish looks like a rock, which means swimmers in the Indian and Pacific Oceans often step on these fish by mistake. The fish is covered with venomous spikes that shove venom into whatever it comes into contact with. Their stings are excruciating and can be fatal to humans. \n\n5. Flower Urchin \n\nOne of the most dangerous urchins on the planet, flower urchins are covered in venomous stingers. One touch can lead to paralysis of muscles, lips, and eyes, but the pain diminishes quickly, typically in 15 minutes or less. However, an extreme allergic reaction can result in hospitalization or death for humans. "
+   }
+  ],
+  "n_turns": 2
+ }
+]
+```

@@ -1,0 +1,8 @@
+[
+ {"file": "val_historical_polytonic.jsonl", "kind": "jsonl", "register": "historical_polytonic", "max_docs": 200000},
+ {"file": "val_forget_old_greek.jsonl", "kind": "jsonl", "register": "old_greek", "max_docs": 200000},
+ {"file": "val_greek_phd.jsonl", "kind": "jsonl", "register": "academic", "max_docs": 200000},
+ {"file": "val_openarchives.jsonl", "kind": "jsonl", "register": "academic_repo", "max_docs": 200000},
+ {"file": "val_non_hplt.jsonl", "kind": "jsonl", "register": "curated_non_hplt", "max_docs": 200000},
+ {"file": "val_hplt.jsonl", "kind": "jsonl", "register": "web", "max_docs": 200000}
+]

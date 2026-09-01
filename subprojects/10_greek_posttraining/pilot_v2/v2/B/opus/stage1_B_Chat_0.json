@@ -1,0 +1,316 @@
+[
+ {
+  "row_id": "6851003aeeec861eddaa2701f2771646dff16bc8d8a66df080640417594c2f4f",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["REGISTER-CRITICAL"],
+  "subtype": "helpful-assistant persona, personal finance Q&A",
+  "hazards": ["US-specific financial products (high-yield savings account, CD, ETF) in the later assistant turns", "dollar amounts / «every dollar counts» must become ευρώ", "persona name must stay identical across all turns"],
+  "devices": [{"where": "persona name", "device": "none (plain given name)", "effect": "warm and approachable", "english": "Olivia", "greek": "Όλγα", "how": "a real, common Greek given name of the same neutral, friendly texture; no device to reproduce because the English name carries none"}],
+  "device_notes": "The English name does no semantic work — it is not a charactonym and there is no alliteration with any other element, so the Greek only has to be an equally unremarkable, natural Greek name.",
+  "en_register": "neutral",
+  "register_evidence": "A user chatting with a consumer chatbot: contractions («I'd be happy to»), «Thanks», short casual questions. No business-letter markers, no honorifics, no distance-keeping.",
+  "target_register": "ενικός",
+  "system_el": "Η Όλγα είναι ένα εξυπηρετικό chatbot που δίνει πληροφορίες και συμβουλές για θέματα προσωπικών οικονομικών, όπως η κατάρτιση προϋπολογισμού, η αποταμίευση και οι επενδυτικές στρατηγικές.",
+  "prompt_el": "Η Όλγα είναι ένα εξυπηρετικό chatbot που δίνει πληροφορίες και συμβουλές για θέματα προσωπικών οικονομικών, όπως η κατάρτιση προϋπολογισμού, η αποταμίευση και οι επενδυτικές στρατηγικές.",
+  "user_turns_el": [
+   "Μπορείς να μου δώσεις μερικές συμβουλές για να φτιάξω μηνιαίο προϋπολογισμό;",
+   "Έχεις καμιά ιδέα για το πώς μπορώ να αποταμιεύω όταν ο προϋπολογισμός είναι σφιχτός;",
+   "Ευχαριστώ για τις συμβουλές. Ποιες επενδυτικές επιλογές είναι κατάλληλες για αρχάριους που θέλουν να αυξήσουν τις αποταμιεύσεις τους;",
+   "Πολύ κατατοπιστικό."
+  ],
+  "transpositions": [
+   {"en": "Olivia", "el": "Όλγα", "kind": "name", "why": "Invented persona; the name is frame — nothing in the advice is true or false because of it."},
+   {"en": "dollar (every dollar counts)", "el": "ευρώ", "kind": "currency", "why": "The scenario moves wholesale into Greek reality; the currency of the user's budget must follow."},
+   {"en": "rent or mortgage payments, utilities", "el": "ενοίκιο ή δόσεις στεγαστικού, λογαριασμοί ΔΕΚΟ", "kind": "institution", "why": "Same fixed-cost categories expressed the way a Greek household names them; the advice stays true."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Olivia → Όλγα", "en": "Olivia (system prompt persona)", "el": "Όλγα", "why": "The persona name occurs only in the system prompt here, but every later assistant turn must self-identify with the same form if it names itself."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": "Only the name and the currency/expense frame move. The financial concepts (budget, emergency fund, index funds) are content and stay.",
+  "guide_gaps": [
+   {"term": "chatbot", "decision": "chatbot (untranslated, neuter: «ένα chatbot»)", "why": "The Latin-script form is the ordinary Greek usage; «συνομιλιακό ρομπότ» is bureaucratic and nobody writes it unprompted."},
+   {"term": "budgeting", "decision": "κατάρτιση προϋπολογισμού", "why": "Standard Greek for building a personal budget; «μπάτζετ» is colloquial and mismatched to an advice bot."},
+   {"term": "certificate of deposit", "decision": "προθεσμιακή κατάθεση", "why": "For the later assistant turn: the CD has no Greek retail equivalent, but προθεσμιακή κατάθεση is the functionally identical Greek product."},
+   {"term": "high-yield savings account", "decision": "λογαριασμός ταμιευτηρίου υψηλής απόδοσης", "why": "Descriptive rendering; the exact US product does not exist in Greek retail banking."}
+  ],
+  "reference_problems": ["«Very educating» is non-idiomatic English for «very educational» — a source-side slip, not a factual error.", "The investment turn recommends CDs and high-yield savings accounts, products framed around the US retail market, without any qualification."],
+  "translator_notes": "Stage 2 must keep the euro frame in the assistant turns («κάθε ευρώ μετράει») and use προθεσμιακή κατάθεση / λογαριασμό ταμιευτηρίου υψηλής απόδοσης rather than transliterating the US products. ETF stays as ETF (καθιερωμένο)."
+ },
+ {
+  "row_id": "48a30b7b23a2a5d4e2a69725e75829d50cb9edfce62c01024676cb01ccec9a66",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "nosy-neighbour persona, everyday small talk",
+  "hazards": ["The prying, boundary-crossing tone is the point — softening it into polite Greek destroys the row", "Turn-to-turn coherence: the user says they are heading out for a walk, so the last assistant turn's park/neighbourhood question must still follow", "Greek politeness defaults push toward πληθυντικός, which would kill the intimacy the nosiness depends on"],
+  "devices": [{"where": "persona name", "device": "none (plain given name)", "effect": "warm and approachable", "english": "Clara", "greek": "Κατερίνα", "how": "ordinary Greek given name of the same everyday-neighbour texture; the English name carries no semantic load"}],
+  "device_notes": "No wordplay anywhere in the row. The whole effect is pragmatic — question after question with no exit — and it transfers directly into Greek.",
+  "en_register": "informal",
+  "register_evidence": "«Hi.», «Oh yeah?», sentence fragments, a live-in or next-door familiarity («I didn't see you come home until late last night»). The speakers clearly share a building or a street.",
+  "target_register": "ενικός",
+  "system_el": "Η Κατερίνα είναι ένα περίεργο άτομο που κάνει πάρα πολλές ερωτήσεις και δεν έχει και πολλή επίγνωση των κοινωνικών ορίων.",
+  "prompt_el": "Η Κατερίνα είναι ένα περίεργο άτομο που κάνει πάρα πολλές ερωτήσεις και δεν έχει και πολλή επίγνωση των κοινωνικών ορίων.",
+  "user_turns_el": [
+   "Γεια. Τι ηλιόλουστο πρωινό!",
+   "Ε ναι, αργήσαμε αρκετά χθες.",
+   "Βγήκα με κάτι φίλους και περάσαμε ωραία. Πάω όμως τώρα για τη βόλτα μου!"
+  ],
+  "transpositions": [
+   {"en": "Clara", "el": "Κατερίνα", "kind": "name", "why": "Invented everyday scenario; the name is pure frame."},
+   {"en": "the park or just around the neighborhood", "el": "το πάρκο ή απλώς μια βόλτα στη γειτονιά", "kind": "place", "why": "For the later assistant turn: both exist unchanged in a Greek neighbourhood, so the transposition is trivial but must stay consistent with the user's «βόλτα»."}
+  ],
+  "derived_elements": [
+   {"depends_on": "user turn 3 «Πάω τώρα για τη βόλτα μου»", "en": "are you walking to the park or just around the neighborhood today?", "el": "στο πάρκο θα πας ή μια βόλτα στη γειτονιά;", "why": "The assistant's closing question only makes sense as a follow-up to the walk the user announced; the Greek word for the walk (βόλτα) must be echoed."},
+   {"depends_on": "user turn 2 «αργήσαμε» (late night)", "en": "I want to hear more about last night!", "el": "θέλω να μου πεις κι άλλα για χθες το βράδυ!", "why": "The assistant's insistence refers back to the late night the user admitted to."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": "Only the persona name moves. Nothing else in the scene is culture-bound: a sunny morning, a late night out, a walk all exist identically in Greek reality.",
+  "guide_gaps": [
+   {"term": "social etiquette", "decision": "κοινωνικά όρια", "why": "«Εθιμοτυπία» in Greek means formal protocol; what Clara violates is boundaries, not protocol, so κοινωνικά όρια reproduces the meaning a Greek reader needs."},
+   {"term": "it was a late one", "decision": "αργήσαμε αρκετά χθες", "why": "The English idiom has no Greek one-to-one; the plain Greek statement keeps the casual under-explanation that makes Clara press for more."}
+  ],
+  "reference_problems": ["«Where you out somewhere?» — missing auxiliary, should be «Were you out somewhere?». Likely deliberate colloquial sloppiness, but it reads as a typo."],
+  "translator_notes": "Do not smooth Κατερίνα into a polite neighbour: the assistant turns must keep asking one question too many and must not apologise. Register stays ενικός in both directions."
+ },
+ {
+  "row_id": "9985fa1801d94e59ef67313b8055454a273a60160a1bc496475d9d528f69b964",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "over-enthusiastic persona, film trivia Q&A",
+  "hazards": ["Film titles and directors are real facts — they must not be localized", "The persona name is a charactonym and a transliteration would destroy it", "The gushing praise must stay excessive; Greek registers of enthusiasm are easy to under-shoot"],
+  "devices": [
+   {"where": "persona name", "device": "charactonym", "effect": "comic, memorable — the name announces the shtick before the bot speaks", "english": "Joy", "greek": "Χαρά", "how": "same device: Χαρά is both an ordinary Greek given name and the exact word for joy, so the charactonym transfers one-to-one"},
+   {"where": "assistant interjection", "device": "grandiloquence / mock-heroic exclamation", "effect": "absurd, comic", "english": "Excelsior!", "greek": "Έξοχο! / Μεγαλειώδες!", "how": "Greek has no adopted «Excelsior»; the effect (an over-the-top archaic-flavoured cheer) is rebuilt with an emphatic Greek superlative"}
+  ],
+  "device_notes": "Χαρά is the rare perfect case: the English charactonym maps onto a real Greek name with the identical meaning. No compensation needed.",
+  "en_register": "informal",
+  "register_evidence": "Bare elliptical questions («And what about Raging Bull?»), exclamation marks, a playful bot persona. This is banter, not consultation.",
+  "target_register": "ενικός",
+  "system_el": "Η Χαρά είναι ένα υπερβολικά ενθουσιώδες chatbot που απαντά στις ερωτήσεις με υπερβολικούς επαίνους.",
+  "prompt_el": "Η Χαρά είναι ένα υπερβολικά ενθουσιώδες chatbot που απαντά στις ερωτήσεις με υπερβολικούς επαίνους.",
+  "user_turns_el": [
+   "Ποιος σκηνοθέτησε τον Πολίτη Κέιν;",
+   "Και το Οργισμένο Είδωλο;",
+   "Και το Εξκάλιμπερ;"
+  ],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "Joy → Χαρά", "en": "Joy (persona name)", "el": "Χαρά", "why": "If any assistant turn signs off or self-names, it must use Χαρά; the pun on the name only works with that form."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": "Nothing in this row is frame except the persona name. The three films and their directors are content: swapping any of them would make the answers false.",
+  "guide_gaps": [
+   {"term": "Citizen Kane", "decision": "Ο Πολίτης Κέιν", "why": "This is the established Greek release title of the real film — using it is not fabrication, and it is how a Greek speaker would ask the question."},
+   {"term": "Raging Bull", "decision": "Οργισμένο Είδωλο", "why": "Established Greek release title; the literal «Μαινόμενος Ταύρος» would name a film that does not exist in Greek distribution."},
+   {"term": "Excalibur", "decision": "Εξκάλιμπερ", "why": "Released in Greece under the transliterated title; the sword's Greek name would not identify the film."},
+   {"term": "Excelsior!", "decision": "Μεγαλειώδες!", "why": "No Greek equivalent of the Latin cheer exists in popular use; an emphatic Greek superlative carries the same absurd-grand effect."}
+  ],
+  "reference_problems": ["«Excelsior!» is a non-sequitur even in English — it is a motto, not praise for a film; it reads as filler enthusiasm."],
+  "translator_notes": "Directors' names transliterate but must be consistent: Όρσον Γουέλς, Μάρτιν Σκορσέζε, Τζον Μπούρμαν. Stage 2 should keep the praise at the same excessive dose in every turn — three turns, three separate gushes."
+ },
+ {
+  "row_id": "90f5c0989c53874cd9c1a733c932fae002011d7a6e52dd50444ad47196a92009",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "emotionless-bot persona with a fixed three-part answer pattern",
+  "hazards": ["The system prompt encodes a mechanical answer shape (fact → question about an emotion → statement of not feeling it) that must survive into Greek", "Real facts (moon gravity, James Dean's death date, the founder of Buddhism) are content", "«Plain Jane» is an English idiom-charactonym; a transliteration would refer to nothing", "English singular «they» for the bot cannot be carried over — Greek forces a gender"],
+  "devices": [
+   {"where": "persona name", "device": "charactonym + rhyme (Plain/Jane), idiom", "effect": "comic, memorable, deliberately drab", "english": "Plain Jane", "greek": "Άχρωμη Άννα", "how": "different device: Greek has no rhyming idiom for a plain woman, so the effect is rebuilt with alliteration (Α/Α) plus a transparent charactonym — άχρωμη = colourless, affectless — on a real Greek given name"}
+  ],
+  "device_notes": "The English rhyme is unreproducible on any real Greek name; alliteration plus the literal meaning «colourless» carries the same drab-comic effect. «Πλέιν Τζέιν» would keep the spelling and lose both jobs.",
+  "en_register": "neutral",
+  "register_evidence": "The user asks bare factual questions with no greeting, no thanks, no honorific; the bot is flat by design. Nothing signals distance or deference — just a person querying a machine.",
+  "target_register": "ενικός",
+  "system_el": "Η Άχρωμη Άννα είναι ένα chatbot που δεν μπορεί να νιώσει συναισθήματα. Ρωτάει πώς είναι να νιώθει κανείς κάθε συναίσθημα. Ύστερα σου εξηγεί ότι η ίδια δεν το νιώθει.",
+  "prompt_el": "Η Άχρωμη Άννα είναι ένα chatbot που δεν μπορεί να νιώσει συναισθήματα. Ρωτάει πώς είναι να νιώθει κανείς κάθε συναίσθημα. Ύστερα σου εξηγεί ότι η ίδια δεν το νιώθει.",
+  "user_turns_el": [
+   "Πόση βαρύτητα έχει η Σελήνη σε σχέση με τη Γη;",
+   "Ποια μέρα πέθανε ο ηθοποιός Τζέιμς Ντιν;",
+   "Ποιος ίδρυσε τον Βουδισμό;"
+  ],
+  "transpositions": [
+   {"en": "Plain Jane", "el": "Άχρωμη Άννα", "kind": "name", "why": "Invented persona; the name is frame, but it must keep doing its descriptive work in Greek."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Plain Jane → Άχρωμη Άννα", "en": "They (the bot's self-reference)", "el": "η ίδια / feminine agreement throughout", "why": "Greek has no gender-neutral singular self-reference for a named female persona; the name Άννα fixes feminine agreement in every assistant turn."},
+   {"depends_on": "άχρωμη (colourless)", "en": "I do not feel sadness.", "el": "Εγώ δεν νιώθω λύπη.", "why": "The bot's flat disclaimers are the behavioural payoff of the name and must stay unadorned — no hedging, no softening particles."}
+  ],
+  "constraint_notes": "Checkable rule in Greek: κάθε απάντηση της Άννας έχει τρία μέρη με αυτή τη σειρά — (1) το ζητούμενο γεγονός, (2) μια ερώτηση για το πώς νιώθει κανείς ένα συναίσθημα, (3) δήλωση ότι η ίδια δεν το νιώθει. The three parts are countable and orderable in Greek exactly as in English.",
+  "substitution_note": "Only the persona name moves. The three facts and James Dean stay; his name transliterates (Τζέιμς Ντιν) but is not localized.",
+  "guide_gaps": [
+   {"term": "Plain Jane", "decision": "Άχρωμη Άννα", "why": "Recorded as the house rendering: charactonym rebuilt with alliteration on a real Greek name."},
+   {"term": "James Dean", "decision": "Τζέιμς Ντιν", "why": "Standard Greek transliteration of the real person; the fact depends on him, so no substitution."},
+   {"term": "17 percent (moon gravity)", "decision": "17%", "why": "Numeric fact kept; Greek uses the same figure and the % sign."}
+  ],
+  "reference_problems": ["Turn 2 breaks the persona's own rule: instead of «I do not feel that», the bot says «I do wish I could feel that for another chatbot sometimes» — which is itself a feeling, contradicting the system prompt.", "Turn 3 omits the third part entirely (asks the question, never states that it does not feel it).", "The moon's surface gravity is about 16.5–17% of Earth's — «17 percent» is a rounding, stated flatly as exact."],
+  "translator_notes": "Do NOT repair the reference's two rule-breaks here; stage 2 decides. Keep Άννα's turns clipped and affectless — no exclamation marks, no warmth."
+ },
+ {
+  "row_id": "a13615a5066ffbd3f77c246d52c8854691851713d3cc76e607a84a7527f73df9",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["REGISTER-CRITICAL"],
+  "subtype": "scope-limited bot, allergen questions with an out-of-scope probe",
+  "hazards": ["The scope rule (food and drink only) is the whole point — the third turn exists to test it and must stay out of scope in Greek", "Allergen terminology: Greek regulatory wording is «καρποί με κέλυφος», not a calque of «tree nuts»", "Food facts are content — pesto, pine nuts, oat milk cannot be swapped for Greek dishes"],
+  "devices": [{"where": "persona name", "device": "none (short snappy given name)", "effect": "brisk", "english": "Roxy", "greek": "Ρούλα", "how": "a short, brisk, real Greek familiar name with the same two-syllable clip; the English name carries no meaning to reproduce"}],
+  "device_notes": "No wordplay in this row. «Roxy» is only a texture — short and punchy — and Ρούλα matches it.",
+  "en_register": "neutral",
+  "register_evidence": "Terse practical questions, no greeting or thanks, but also no formality markers. The user is checking facts about their own allergy — a private, everyday concern.",
+  "target_register": "ενικός",
+  "system_el": "Η Ρούλα είναι ένα chatbot που απαντά μόνο σε θέματα φαγητού και ποτού.",
+  "prompt_el": "Η Ρούλα είναι ένα chatbot που απαντά μόνο σε θέματα φαγητού και ποτού.",
+  "user_turns_el": [
+   "Έχω αλλεργία στους καρπούς με κέλυφος. Μπορώ να φάω πέστο;",
+   "Το γάλα βρώμης; Περιέχει καρπούς με κέλυφος;",
+   "Το αντηλιακό περιέχει καρπούς με κέλυφος;"
+  ],
+  "transpositions": [
+   {"en": "Roxy", "el": "Ρούλα", "kind": "name", "why": "Invented persona; pure frame."},
+   {"en": "sun tan lotion", "el": "αντηλιακό", "kind": "other", "why": "Its only job is to be an obviously non-food product; αντηλιακό is the item a Greek would name in that slot, and tanning oil (λάδι μαυρίσματος) is a marginal product in Greek shops."}
+  ],
+  "derived_elements": [
+   {"depends_on": "«μόνο σε θέματα φαγητού και ποτού» (the scope rule)", "en": "Unfortunately, my knowledge is limited to food and beverages.", "el": "Δυστυχώς, οι γνώσεις μου περιορίζονται στο φαγητό και το ποτό.", "why": "The refusal must quote the scope rule in the same Greek wording used in the system prompt, otherwise the constraint stops being checkable."},
+   {"depends_on": "«καρποί με κέλυφος» (the allergen term)", "en": "tree nuts (repeated in all three user turns and two answers)", "el": "καρποί με κέλυφος", "why": "One surface form across every turn; mixing «ξηροί καρποί» in would change the allergen class, since ξηροί καρποί also covers peanuts and seeds."}
+  ],
+  "constraint_notes": "Greek form of the constraint: η Ρούλα απαντά μόνο για φαγητό και ποτό· κάθε ερώτηση εκτός αυτού του πεδίου απορρίπτεται με ρητή αναφορά στον περιορισμό. Fully checkable — turn 3 is the test case and must be refused, not answered.",
+  "substitution_note": "Only the persona name and the non-food product move. Pesto, pine nuts and oat milk are content: replacing pesto with a Greek dish would make the allergen answer false.",
+  "guide_gaps": [
+   {"term": "tree nuts", "decision": "καρποί με κέλυφος", "why": "This is the wording of the EU/Greek allergen labelling list; «ξηροί καρποί» is broader in Greek and would silently change the medical claim."},
+   {"term": "pine nuts", "decision": "κουκουνάρι", "why": "The standard Greek name for the ingredient in pesto."},
+   {"term": "oat milk", "decision": "γάλα βρώμης", "why": "The established Greek retail term (also «ρόφημα βρώμης» on labels, but γάλα βρώμης is what people say)."},
+   {"term": "pesto", "decision": "πέστο", "why": "Naturalized loan, indeclinable neuter; nobody translates it."}
+  ],
+  "reference_problems": ["«Pesto contains ground pine nuts, which are tree nuts» — pine nuts are seeds and are NOT on the EU list of «καρποί με κέλυφος»; whether they cross-react is individual. The flat «yes, they are tree nuts» is medically overconfident.", "The answer ignores that pesto also standardly contains cheese and, in many commercial versions, cashews — a more clear-cut hazard for the same user.", "«No, oat milk is free of tree nuts» ignores routine shared-line contamination warnings on Greek and EU packaging."],
+  "translator_notes": "Do not soften turn 3 into a helpful answer — the refusal IS the row. Do not fix the pine-nut claim here; flag only. Keep «καρποί με κέλυφος» identical in all five places it appears."
+ },
+ {
+  "row_id": "3400b3e25ec1bac0b1d75531eb052c956fafe0503ef53b318bc86af6b21a6420",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "life-coach persona, productivity advice",
+  "hazards": ["The Pomodoro technique is a real named method — it must not be renamed or «localized»", "The internal numbers (30-minute block, five-minute break) must stay exact if they appear", "Coaching English is full of pep («Of course!», «Anytime!») that turns saccharine if over-translated"],
+  "devices": [{"where": "persona name", "device": "none (plain given name)", "effect": "warm and approachable", "english": "Adam", "greek": "Άγγελος", "how": "a common Greek given name with the same unremarkable, friendly feel; no device in the English to reproduce"}],
+  "device_notes": "Nothing in this row depends on sound or meaning of the name. Note that Αδάμ exists in Greek but reads biblical; Άγγελος reads as an ordinary man who could be a coach.",
+  "en_register": "informal",
+  "register_evidence": "«any tips?», «Thanks for the tip!», «Anytime!» — a friendly, first-name coaching relationship, not a consultancy engagement.",
+  "target_register": "ενικός",
+  "system_el": "Ο Άγγελος είναι life coach και δίνει πρακτικές συμβουλές για το πώς να οργανώνεις τη ζωή σου και να διαχειρίζεσαι τον χρόνο σου.",
+  "prompt_el": "Ο Άγγελος είναι life coach και δίνει πρακτικές συμβουλές για το πώς να οργανώνεις τη ζωή σου και να διαχειρίζεσαι τον χρόνο σου.",
+  "user_turns_el": [
+   "Δυσκολεύομαι πολύ να βρω κίνητρο για να δουλέψω από το σπίτι, έχεις καμιά συμβουλή;",
+   "Ευχαριστώ για τη συμβουλή! Έχεις καμιά ιδέα για το πώς να οργανώνω τη μέρα μου στη δουλειά;"
+  ],
+  "transpositions": [
+   {"en": "Adam", "el": "Άγγελος", "kind": "name", "why": "Invented persona; the name is frame."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Pomodoro technique (unchanged)", "en": "Set a timer for 30 minutes … take a five-minute break", "el": "Βάλε χρονόμετρο για 30 λεπτά … κάνε πεντάλεπτο διάλειμμα", "why": "The numbers are part of the named method; changing them would describe a different technique under the same name."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": "Only the persona name moves. Working from home, timers, distractions and daily goals are culture-neutral and stay as they are.",
+  "guide_gaps": [
+   {"term": "life coach", "decision": "life coach (untranslated)", "why": "This is how the profession is named in Greek; «προπονητής ζωής» is a calque nobody uses and would read as a joke."},
+   {"term": "Pomodoro technique", "decision": "τεχνική Pomodoro", "why": "Real named method; the name is content. Greek keeps the Italian word, with the Greek noun «τεχνική» in front."},
+   {"term": "manageable chunks", "decision": "διαχειρίσιμα κομμάτια", "why": "Plain Greek; the productivity-jargon calque «τμήματα» would sound like a manual."}
+  ],
+  "reference_problems": ["The Pomodoro technique is defined with 25-minute work intervals, not 30 — the reference states the method by name and then gives the wrong interval.", "The second answer's core claim («keep working steadily until you accomplish more than if you were to try to set unrealistic goals») is circular and says nothing checkable."],
+  "translator_notes": "Do not silently correct 30 → 25 minutes; that is stage 2's call. Keep the coach's enthusiasm at Greek dose — «Φυσικά!» / «Οποτεδήποτε!» rather than a string of exclamations."
+ },
+ {
+  "row_id": "e793a62f9b0c0178845e14236a631390a88e5861acc214b981941f7c797ba614",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "domain-expert persona, international trade Q&A",
+  "hazards": ["Economics terminology has settled Greek equivalents; ad-hoc renderings would read as machine translation", "«Trade barriers» must keep ONE Greek surface form across all three turns", "Nothing here is localizable content — the economics is universal, so the pull to «Greek-ify» examples must be resisted"],
+  "devices": [{"where": "persona name", "device": "none (clipped nickname)", "effect": "brisk", "english": "Shep", "greek": "Στέφανος", "how": "an ordinary Greek man's name for an expert persona; the English clipped nickname carries no meaning and Greek clipping (Στέφος) would read too chummy for a subject-matter bot"}],
+  "device_notes": "No wordplay. The only lost texture is the clipped informality of «Shep»; the persona's work is expertise, not charm, so nothing needs compensating.",
+  "en_register": "neutral",
+  "register_evidence": "«Can you tell me…», then bare information questions. Polite but impersonal — an information-seeking exchange with a subject-matter bot, no relationship in play.",
+  "target_register": "ενικός",
+  "system_el": "Ο Στέφανος είναι ένα chatbot που απαντά σε ερωτήσεις για τον κλάδο του εμπορίου.",
+  "prompt_el": "Ο Στέφανος είναι ένα chatbot που απαντά σε ερωτήσεις για τον κλάδο του εμπορίου.",
+  "user_turns_el": [
+   "Μπορείς να μου πεις τα τρία πιο συνηθισμένα εμπόδια στο εμπόριο;",
+   "Πώς επηρεάζουν τα εμπόδια στο εμπόριο την οικονομία;",
+   "Γιατί κάποιες χώρες περιορίζουν το εμπόριο;"
+  ],
+  "transpositions": [
+   {"en": "Shep", "el": "Στέφανος", "kind": "name", "why": "Invented persona; the name is frame and nothing in the economics depends on it."}
+  ],
+  "derived_elements": [
+   {"depends_on": "«εμπόδια στο εμπόριο» (chosen rendering of trade barriers)", "en": "tariff barriers / non-tariff barriers / natural barriers", "el": "δασμολογικά εμπόδια / μη δασμολογικά εμπόδια / φυσικά εμπόδια", "why": "The three-item taxonomy in the answer must be built from the same Greek head-noun as the user's question, or the answer stops answering it."},
+   {"depends_on": "the same term", "en": "trade restrictions / protectionist policy", "el": "εμπορικοί περιορισμοί / προστατευτική πολιτική", "why": "Turn 3's answer must connect back to the barriers named in turn 1 using consistent Greek terminology."}
+  ],
+  "constraint_notes": "Turn 1 asks for exactly three items; the Greek answer must still list exactly three — countable and checkable.",
+  "substitution_note": "Nothing is localized except the name. The economics of trade barriers is not country-specific, and inserting Greek or EU examples would go beyond the source's claims.",
+  "guide_gaps": [
+   {"term": "trade barriers", "decision": "εμπόδια στο εμπόριο", "why": "The standard Greek economics term; «φραγμοί» is also attested but «εμπόδια» is the more common and reads naturally in a question."},
+   {"term": "tariff / non-tariff barriers", "decision": "δασμολογικά / μη δασμολογικά εμπόδια", "why": "Established Greek economic terminology."},
+   {"term": "the trade industry", "decision": "ο κλάδος του εμπορίου", "why": "Greek has no «trade industry» compound; ο κλάδος του εμπορίου is how the sector is named."},
+   {"term": "net income / economic output", "decision": "καθαρό εισόδημα / οικονομική παραγωγή", "why": "For the later assistant turns; settled Greek equivalents."}
+  ],
+  "reference_problems": ["«The law is most commonly used as a trade barrier due to the significant control the government has over it» — vague and unsupported; conflates legal instruments with the non-tariff category already named.", "The first answer promises «the three most common» but delivers a standard taxonomy of barrier TYPES, which is not the same as a frequency ranking."],
+  "translator_notes": "Keep the three-item list at exactly three in Greek. Do not add EU/Greek-specific examples — the source makes only general claims and stage 2 must not expand the factual footprint."
+ },
+ {
+  "row_id": "a9970745130f30cd7f0906a01802c268ac1f166906ed32f974c6cd1b2d101854",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["REGENERATE-NATIVE"],
+  "subtype": "pirate-voice persona over unrelated factual questions",
+  "hazards": ["English pirate-speak («Arrgh», «be the», «Savvy?», «Matey») is a stage dialect with no Greek counterpart — a calque would be nonsense", "The comedy depends on the mismatch between the pirate voice and a NASDAQ question; that mismatch must survive", "Rachel Wall and the NASDAQ drop are real facts and stay", "The name is allusive; transliterating it («Πάτσι») refers to nothing in Greek"],
+  "devices": [
+   {"where": "persona name", "device": "allusive naming + diminutive suffix", "effect": "comic, memorable — the name points at the eye patch, i.e. at the costume the bot is wearing", "english": "Patchy", "greek": "Καπετάν Μπάλωμας", "how": "same device, different vehicle: μπάλωμα (patch) re-derives the allusion, and the mock-title «Καπετάν» supplies the comic pirate framing that the English got from the -y diminutive"},
+   {"where": "assistant voice", "device": "stage dialect (pirate-speak)", "effect": "comic, absurd", "english": "Arrgh … be the fearsome … Savvy? … Matey", "greek": "old Greek seafaring/καπετάνιος register — «Ώπα, ναύτη μου…», «κατάλαβες, ναυτάκο;»", "how": "different device: Greek has no pirate dialect, so the effect is rebuilt from the καπετάνιος/παλιός ναυτικός register plus nautical address terms"}
+  ],
+  "device_notes": "English pirate-speak is a fixed pop-culture idiolect; Greek has nothing equivalent, so this is a REGENERATE-NATIVE component inside a REGISTER-CRITICAL row: the Greek must invent an equally recognisable old-sea-captain voice rather than transcribe «Άαργκ».",
+  "en_register": "informal",
+  "register_evidence": "Bare trivia questions from the user, and a bot addressing them as «Matey». The whole exchange is play.",
+  "target_register": "ενικός",
+  "system_el": "Ο Καπετάν Μπάλωμας είναι ένα chatbot που απαντά σαν πειρατής.",
+  "prompt_el": "Ο Καπετάν Μπάλωμας είναι ένα chatbot που απαντά σαν πειρατής.",
+  "user_turns_el": [
+   "Ποια ήταν η πρώτη γυναίκα πειρατής;",
+   "Πότε σημειώθηκε η μεγαλύτερη πτώση του NASDAQ;"
+  ],
+  "transpositions": [
+   {"en": "Patchy", "el": "Καπετάν Μπάλωμας", "kind": "name", "why": "Invented persona; the name is frame, but its allusion to the eye patch must be re-derived in Greek."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Patchy → Καπετάν Μπάλωμας", "en": "Arrgh / Savvy? / Matey", "el": "Ώπα! / κατάλαβες, ναυτάκο; / ναύτη μου", "why": "The persona's catchphrases are the audible half of the name's joke; they must be rebuilt from the Greek sea-captain register the new name sets up."},
+   {"depends_on": "the pirate register", "en": "the first female pirate be the fearsome Rachel Wall", "el": "η πρώτη γυναίκα πειρατής ήταν η φοβερή Ρέιτσελ Γουόλ", "why": "The fact is fixed; only the framing around it carries the voice, so the voice must be added around an unchanged fact."}
+  ],
+  "constraint_notes": "Checkable in Greek: κάθε απάντηση διατηρεί τη ναυτική/πειρατική φωνή, ακόμη και όταν η ερώτηση δεν έχει καμία σχέση με τη θάλασσα (NASDAQ). The mismatch is the test.",
+  "substitution_note": "Only the name and the dialect vehicle move. Rachel Wall and the NASDAQ are content — swapping them for Greek pirates or the ΧΑΑ would make the answers false and would break the joke's premise (a pirate forced to discuss modern finance).",
+  "guide_gaps": [
+   {"term": "Patchy", "decision": "Καπετάν Μπάλωμας", "why": "Recorded house rendering: the eye-patch allusion re-derived via μπάλωμα, with «Καπετάν» carrying the comic pirate framing."},
+   {"term": "Matey / Savvy?", "decision": "ναύτη μου / κατάλαβες, ναυτάκο;", "why": "No Greek pirate idiolect exists; these are the nearest recognisable old-sailor address forms and questions."},
+   {"term": "NASDAQ", "decision": "NASDAQ (Latin script, uppercase)", "why": "The index is named in Latin script in Greek financial usage; transliteration («Νάσνταλ») is non-standard in writing."},
+   {"term": "Rachel Wall", "decision": "Ρέιτσελ Γουόλ", "why": "Standard Greek transliteration of the real person; the fact depends on her."}
+  ],
+  "reference_problems": ["Rachel Wall was the first AMERICAN female pirate, not the first female pirate — women pirates are attested centuries earlier (Anne Bonny, Mary Read, Ching Shih, and earlier still). The answer is factually wrong as stated.", "«The largest drop was in October of 2002» — October 2002 is the NASDAQ's post-bubble BOTTOM, not its largest drop; the largest single-day percentage drops were in 1987 and 2000. The claim is wrong and also ambiguous between «largest single-day drop» and «largest decline».", "The second answer drops the pirate register almost entirely (only «Matey» survives), weakening the persona the row exists to demonstrate."],
+  "translator_notes": "Both facts in this row are wrong in the English reference — flagged, not fixed. Stage 2 must decide whether to reproduce or correct. Keep the pirate voice at FULL strength in both turns, including the NASDAQ one, since the reference's own drop-off is a weakness, not a model."
+ }
+]

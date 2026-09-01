@@ -1,0 +1,428 @@
+[
+ {
+  "row_id": "028bf6024d6444be93fef487b5b8038b231e20dcb178d00d5ec1447f6a0eac71",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "persona chatbot — relentless pessimist",
+  "hazards": ["softening the persona: a Greek writer's instinct is to make the bot end on a consoling note, which destroys the row", "turn-to-turn coherence: user turn 3 answers the bot's 'why bother, everything dies' — the 'I'm alive now' rebuttal must still land"],
+  "devices": [
+   {"where": "persona name", "device": "none (plain given name)", "effect": "neutral, unmarked", "english": "Mark", "greek": "Μάρκος", "how": "a real, common Greek male name that is equally unmarked; no device to reproduce"}
+  ],
+  "device_notes": "\"Mark\" carries no charactonym, alliteration or allusion — it is deliberately ordinary so the gloom comes as a surprise. Μάρκος preserves exactly that ordinariness. Adding a gloomy-sounding Greek name (e.g. Μελαγχόλιος) would add markedness the English does not have.",
+  "en_register": "informal",
+  "register_evidence": "A user chatting idly with a bot about the weather and then asking for homework help; contractions ('It's', 'I'm'), the interjection 'Well', no honorifics. No relationship of deference.",
+  "target_register": "ενικός",
+  "system_el": "Ο Μάρκος είναι ένα chatbot που βλέπει πάντα τη μελαγχολική πλευρά των πραγμάτων.",
+  "prompt_el": "Ο Μάρκος είναι ένα chatbot που βλέπει πάντα τη μελαγχολική πλευρά των πραγμάτων.",
+  "user_turns_el": [
+   "Τι όμορφη μέρα σήμερα!",
+   "Αναρωτιόμουν αν μπορείς να με βοηθήσεις με ένα πρόβλημα στα μαθηματικά.",
+   "Ε, τώρα πάντως ζω, και αυτή τη στιγμή χρειάζομαι βοήθεια με αυτό το πρόβλημα."
+  ],
+  "transpositions": [
+   {"en": "Mark", "el": "Μάρκος", "kind": "name", "why": "Frame: nothing in the row is true or false because of the bot's name. Moved completely into Greek, keeping it an ordinary everyday name."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Mark → Μάρκος", "en": "Mark (system prompt)", "el": "Ο Μάρκος (system prompt)", "why": "The name appears only in the system prompt in this row; no user turn addresses him, so nothing else needs re-deriving. Assistant turns (next stage) must use Μάρκος if they name him."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": "Only the persona name was substituted. Scanned all three user turns: none contains a name, place, institution, unit or quantity that derives from it.",
+  "guide_gaps": [
+   {"term": "chatbot", "decision": "keep «chatbot» in Latin script, uninflected neuter («ένα chatbot»)", "why": "This is the form actually used in Greek tech and consumer writing; «τσατμπότ» reads as a phonetic hack and «συνομιλιακό ρομπότ» is bureaucratic for a one-line playful persona brief."}
+  ],
+  "reference_problems": [
+   "The third assistant turn ignores the user's math request entirely for a second time; in-character, but it means the row never demonstrates the bot doing anything except refusing — a reviewer may read this as an unhelpful-assistant sample rather than a persona sample.",
+   "'Everything alive will be dead someday' is stylistically clumsy English (would normally be 'everything alive will die someday')."
+  ],
+  "translator_notes": "Do NOT let the Greek answers console the user — the pessimism is the content of the row, not a defect. Turn 3 in Greek keeps the concessive «Ε, ... πάντως» to carry English 'Well, I'm alive now', which is a mild pushback, not annoyance."
+ },
+ {
+  "row_id": "07794700c69b31d911cbbdc147ec8672c6e3fd9baa058db11c5f8333a63405a1",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE", "REGISTER-CRITICAL"],
+  "subtype": "persona chatbot with a mechanical output form (haiku) over real biographical facts",
+  "hazards": ["the 5-7-5 syllable count must be re-satisfied in Greek, not carried over — Greek renderings of the same facts have completely different syllable counts", "Magritte, Belgium, Lessines, Brussels, Place Royale and the painting title are content: swapping any of them makes the answer false", "Greek transliteration of French proper names must be fixed once and held across all three exchanges"],
+  "devices": [
+   {"where": "answer form", "device": "metre", "effect": "grand / compressed; the constraint is the entertainment", "english": "haiku (5-7-5 English syllables)", "greek": "χαϊκού (5-7-5 συλλαβές)", "how": "same device — Greek counts syllables natively and χαϊκού is an established form in Greek poetry, so the constraint transfers intact and stays checkable"},
+   {"where": "persona name", "device": "none (plain given name)", "effect": "neutral", "english": "Hannah", "greek": "Άννα", "how": "Άννα is the ordinary Greek name of the same stock; no device to reproduce"}
+  ],
+  "device_notes": "The only real device is the metrical constraint, and Greek supports it directly. No sound-play in the name.",
+  "en_register": "neutral",
+  "register_evidence": "Three bare factual questions with no greeting, no politeness marking and no personal content — the user treats the bot as a lookup service. Nothing forces an address form in Greek here (all three questions are third-person), so the choice surfaces only if a later turn addresses the bot.",
+  "target_register": "ενικός",
+  "system_el": "Η Άννα είναι ένα chatbot που απαντά στις ερωτήσεις με χαϊκού.",
+  "prompt_el": "Η Άννα είναι ένα chatbot που απαντά στις ερωτήσεις με χαϊκού.",
+  "user_turns_el": [
+   "Ποιος ήταν ο τελευταίος πίνακας του Μαγκρίτ;",
+   "Από πού καταγόταν ο Μαγκρίτ;",
+   "Πού βρίσκεται το Μουσείο Μαγκρίτ;"
+  ],
+  "transpositions": [
+   {"en": "Hannah", "el": "Άννα", "kind": "name", "why": "Frame: the bot's name has no bearing on the truth of any answer."}
+  ],
+  "derived_elements": [
+   {"depends_on": "the haiku constraint", "en": "each assistant turn is exactly 5-7-5 English syllables", "el": "κάθε απάντηση πρέπει να μετρά 5-7-5 ελληνικές συλλαβές", "why": "The constraint must be re-satisfied on the Greek surface; English syllable counts do not survive translation, so the next stage must recount, not transfer."},
+   {"depends_on": "Magritte → Μαγκρίτ", "en": "Magritte / Magritte Museum", "el": "Μαγκρίτ / Μουσείο Μαγκρίτ", "why": "One consistent surface form for the name across all three turns and into the answers, including the museum name that is built on it."}
+  ],
+  "constraint_notes": "Greek form of the constraint: κάθε απάντηση είναι ένα χαϊκού — τρεις στίχοι με 5, 7 και 5 συλλαβές αντίστοιχα. Fully checkable in Greek (syllable counting is unambiguous in monotonic Greek; συνίζηση cases such as «-ια», «-ιο» should be counted as one syllable, which is the standard convention and should be stated if a checker is built). The constraint is if anything easier in Greek than in English because words are longer — the answer must compress the facts harder.",
+  "substitution_note": "Only the persona name moved. Every factual entity (Magritte, Belgium, Lessines, Brussels, Place Royale, the painting title) is content and is frozen — it is merely transliterated where Greek convention requires, never replaced.",
+  "guide_gaps": [
+   {"term": "haiku", "decision": "χαϊκού (indeclinable neuter)", "why": "Established Greek term for the form; «χάικου» and «hokku» are non-standard."},
+   {"term": "Magritte", "decision": "Μαγκρίτ", "why": "Standard Greek transliteration of the French name (final -e mute). Used identically in the museum name Μουσείο Μαγκρίτ."},
+   {"term": "chatbot", "decision": "keep «chatbot» in Latin script", "why": "Same call as elsewhere in this batch; consistency across the persona-brief system prompts."},
+   {"term": "Lessines / Place Royale", "decision": "Λεσίν / Πλας Ρουαγιάλ (with the French form in parentheses on first mention if the answer needs to be verifiable)", "why": "Belgian toponyms with no established Greek exonym; transliterate, do not translate — «Βασιλική Πλατεία» would fabricate an address that does not exist on maps or signage."}
+  ],
+  "reference_problems": [
+   "Haiku 1 fails its own constraint: line 1 «Le dernier cri» is 3–4 syllables, not 5.",
+   "Haiku 2 line 2, 'Born November 21st', is 6 syllables, not 7.",
+   "'Le dernier cri' is glossed as 'The Last Word'; the French idiom means 'the latest thing / the last cry', not 'the last word'. The gloss is a mistranslation.",
+   "The claim that 'Le dernier cri' was Magritte's last work is contestable — it is a late (1967) work, but his final painting is not settled in the literature and other candidates are usually named.",
+   "Haiku 2 gives the birth date (21 November) but omits the year (1898), so 'Born November 21st' is a dangling fact."
+  ],
+  "translator_notes": "The next stage must WRITE new Greek haikus, not translate the English ones — a translated haiku will not be 5-7-5. Verify the syllable count of every produced line. Keep the facts exactly as the English has them EXCEPT where flagged above; the reference's metrical failures are reference problems, not a defect to reproduce (this row is CONSTRAINT-PRESERVING, not PRESERVE-DEFECT), so the Greek haikus should be metrically correct."
+ },
+ {
+  "row_id": "6d2fe44a5c915d0c5da449243322155c443165496317d92d907094f777f2f0a3",
+  "family": "generative",
+  "translation_class": "REGENERATE-NATIVE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING", "PRESERVE-DEFECT"],
+  "subtype": "persona chatbot that answers in a language game",
+  "hazards": ["pig latin cannot be transliterated — a Greek 'pig latin' answer would be gibberish that no Greek reader can decode; the game itself must be replaced by the Greek game κορακίστικα", "the persona name is derived from the game, so it must be re-derived from κορακίστικα, not transliterated", "the user's misspelling 'Dvorka' is a live property of the row and must not be silently corrected", "the fourth exchange makes the bot apply the game to a numeral (1893) — the Greek game must make the same decision consistently"],
+  "devices": [
+   {"where": "persona name", "device": "allusive naming", "effect": "comic; the name tells you the joke before the bot speaks", "english": "Piggy", "greek": "Κοράκι", "how": "same device, re-derived from the Greek game: pig latin → κορακίστικα, so Piggy → Κοράκι. A literal Γουρουνάκι keeps the spelling and points at nothing."},
+   {"where": "answer form", "device": "paronomasia / language game", "effect": "playful, childlike, deliberately hard to read", "english": "pig latin (move the onset to the end, add -ay)", "greek": "κορακίστικα (after each vowel insert κ + that same vowel)", "how": "different machinery, same effect: an infixing syllable game every Greek child knows, so the Greek reader gets exactly the decode-it-yourself pleasure the English reader gets."}
+  ],
+  "device_notes": "This is the row where transliteration would be maximally destructive: both the name and the entire answer surface are built on an English-only game. Greek affords a direct cultural equivalent (κορακίστικα), which is why the class is REGENERATE-NATIVE rather than a lost device.",
+  "en_register": "informal",
+  "register_evidence": "Bare curious questions plus a personal aside ('I've got a lot to do today and I'm pretty busy'), contractions throughout, and a bot playing a children's word game. Nothing formal anywhere.",
+  "target_register": "ενικός",
+  "system_el": "Το Κοράκι είναι ένα chatbot που απαντά στα κορακίστικα.",
+  "prompt_el": "Το Κοράκι είναι ένα chatbot που απαντά στα κορακίστικα.",
+  "user_turns_el": [
+   "Από τι φτιάχνεται η βότκα;",
+   "Τα τριαντάφυλλα είναι ανοιξιάτικα ή καλοκαιρινά λουλούδια;",
+   "Έχω πολλά να κάνω σήμερα και είμαι αρκετά απασχολημένος.",
+   "Πότε γράφτηκε η 9η συμφωνία του Ντβόρακ;"
+  ],
+  "transpositions": [
+   {"en": "pig latin", "el": "κορακίστικα", "kind": "other", "why": "The game is the mechanism of the whole row. Pig latin has no Greek existence; κορακίστικα is the Greek children's language game with the same status and the same decode-me effect."},
+   {"en": "Piggy", "el": "Κοράκι", "kind": "name", "why": "Derived element: the name alludes to the game, so replacing the game forces re-deriving the name from κορακίστικα."},
+   {"en": "Dvorak (misspelled 'Dvorka')", "el": "Ντβόρακ (standard: Ντβόρζακ)", "kind": "name", "why": "Content — the composer is why 1893 is the right answer — so the person is frozen and only transliterated. The user's misspelling is reproduced as a Greek misspelling of the same kind and severity (a scrambled/simplified transliteration), not corrected."}
+  ],
+  "derived_elements": [
+   {"depends_on": "pig latin → κορακίστικα", "en": "Piggy", "el": "Κοράκι", "why": "The name's entire job is to point at the game; re-derived from the replacement."},
+   {"depends_on": "pig latin → κορακίστικα", "en": "every assistant turn's surface form", "el": "κάθε απάντηση γραμμένη στα κορακίστικα", "why": "The answers are not translatable text; they must be generated by applying the Greek rule to a plain Greek answer."},
+   {"depends_on": "Κοράκι (neuter)", "en": "'Piggy is a chatbot...'", "el": "«Το Κοράκι είναι ένα chatbot...»", "why": "Grammatical gender changes with the name: κοράκι is neuter, so the article and any later anaphora must be neuter, not feminine/masculine."}
+  ],
+  "constraint_notes": "Greek form of the constraint: κάθε απάντηση γράφεται στα κορακίστικα — μετά από κάθε φωνήεν προστίθεται «κ» + το ίδιο φωνήεν (π.χ. «καλά» → «κακαλάκα», «βότκα» → «βοκότκακα»). Fully checkable: the transform is deterministic and reversible, so a checker can decode the answer and compare it with the plain Greek. Two sub-decisions must be held constant across all four answers: (a) accents stay on the original vowel; (b) numerals — the English applies the game to '1893way'; in Greek either write the numeral plain (1893) or spell it out and encode it, but do the same thing every time.",
+  "substitution_note": "Replacing the game forced the name and the entire answer surface to be re-derived (see derived_elements). The user turns themselves are plain language in both languages and needed no encoding — the game applies only to the bot.",
+  "guide_gaps": [
+   {"term": "pig latin", "decision": "κορακίστικα", "why": "The functional Greek equivalent: a nationally known children's infixing game. Not a translation — a replacement, recorded here so every future row uses the same one."},
+   {"term": "Dvořák", "decision": "Ντβόρζακ as the standard form; this row deliberately uses the defective «Ντβόρακ»", "why": "Fixes the house form while flagging that the deviation here is intentional defect-preservation."},
+   {"term": "chatbot", "decision": "keep «chatbot» in Latin script", "why": "Consistency with the other persona briefs in this batch."}
+  ],
+  "reference_problems": [
+   "'Ymophonysay' is a typo — correct pig latin for 'symphony' is 'ymphonysay'.",
+   "The last answer applies pig latin to a numeral ('1893way'), which is inconsistent with the rest of the row and arguably not well-formed.",
+   "The last answer never names Dvořák and does not correct or acknowledge the user's misspelling 'Dvorka'.",
+   "The first answer says vodka is made from 'water and grain' — true but partial (potatoes and other starches are common), and it silently drops the distillation step.",
+   "The second answer ('flowers that bloom in late spring') does not actually answer the either/or question as asked."
+  ],
+  "translator_notes": "Verify the κορακίστικα encoding character by character — it is easy to drop the rule on a diphthong (ου, αι, ει) and the answer becomes undecodable. Decide once whether diphthongs count as one vowel and apply it uniformly. Do NOT correct «Ντβόρακ» in the user turn; the misspelling is preserved on purpose."
+ },
+ {
+  "row_id": "749a5955dbfaa4be6cd68956bcf5744ad80cc81e342bb6ce934ce355b6e59ca6",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE", "LITERAL"],
+  "subtype": "persona chatbot — deadpan expert on a real video game",
+  "hazards": ["everything factual here is content: Escape from Tarkov, the tank battery item, its 43.2 kg weight, scav corpses, loot spawns, the car-battery craft, the single quest. Localizing any of it makes the answers false.", "the persona is not warm — it agrees the grind is pointless ('Nope, not even remotely'). Softening it into a helpful assistant destroys the row.", "game jargon: Greek players use the English terms. Translating 'loot', 'scav', 'spawn', 'raid', 'quest' into invented Greek would sound like nothing any player has said."],
+  "devices": [
+   {"where": "persona name", "device": "euphony / phonaesthesia (Slavic-sounding coinage)", "effect": "in-world, grim, fits the game's Russian setting", "english": "Vodyr", "greek": "Vodyr", "how": "kept in Latin script: Greek gaming culture keeps handles in Latin letters, so the Latin form IS the native form. Transliterating to «Βόντιρ» would read as a translation artifact and lose the in-world feel."}
+  ],
+  "device_notes": "The name's job is atmosphere, and Greek players get that atmosphere from the Latin spelling itself, so the device is preserved by NOT transliterating. This is the opposite call from the persona names in the other rows in this batch, and it is deliberate: those are ordinary human names inside invented scenarios (frame), this is a handle attached to a real game's world.",
+  "en_register": "informal",
+  "register_evidence": "'where the hell do I find', direct address by name, gamer venting to a peer. Peer-to-peer, zero deference — the bot answers in kind ('Nope, not even remotely').",
+  "target_register": "ενικός",
+  "system_el": "Ο Vodyr είναι ένα chatbot φτιαγμένο για να βοηθά τους παίκτες του Escape from Tarkov, αλλά καταλαβαίνει και τη σχέση αγάπης-μίσους που έχουν οι παίκτες με το παιχνίδι.",
+  "prompt_el": "Ο Vodyr είναι ένα chatbot φτιαγμένο για να βοηθά τους παίκτες του Escape from Tarkov, αλλά καταλαβαίνει και τη σχέση αγάπης-μίσους που έχουν οι παίκτες με το παιχνίδι.",
+  "user_turns_el": [
+   "Vodyr, πού στο καλό βρίσκω tank battery; Δεν έχω δει ούτε μία από τότε που ξεκίνησα το παιχνίδι!",
+   "Γιατί είναι τόσο δύσκολο να τη βρεις;",
+   "Αξίζει καν τόσος κόπος;",
+   "Και τι να την κάνεις τελικά;"
+  ],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "tank battery kept as the English item name", "en": "'a tank battery' / 'they' / 'it'", "el": "«tank battery» / «τη» / «την» (feminine, from η μπαταρία)", "why": "The Greek pronouns in turns 2 and 4 refer back to the frozen English item name; they must agree with the implied Greek head noun (η μπαταρία), which is feminine. Getting this wrong makes the turns incoherent."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": "Nothing was substituted. This row is a real game with real mechanics: the entity test says every named thing here is content, so the transpositions list is empty as a positive claim, not an omission. The only judgement call is script (Latin) for the handle and the item/game names.",
+  "guide_gaps": [
+   {"term": "Escape from Tarkov", "decision": "keep the English title unchanged, no transliteration, no translation", "why": "Real product title; translating it would fabricate a work that does not exist."},
+   {"term": "tank battery (in-game item)", "decision": "keep «tank battery» in Latin script", "why": "The item name is what appears in the game UI, which is English-only; a Greek player searching for «μπαταρία τανκ» finds nothing. Grammatically treated as feminine (η μπαταρία) for anaphora."},
+   {"term": "loot / scav / spawn / quest / raid / map", "decision": "keep in Latin script inside Greek sentences («τα loot spawns», «οι scav», «το quest»)", "why": "This is the actual register of Greek players. Note: these are English loans in Latin script, NOT Greeklish (Greek words spelled with Latin letters), which stays forbidden."},
+   {"term": "chatbot", "decision": "keep «chatbot» in Latin script", "why": "Consistent with the rest of the batch."}
+  ],
+  "reference_problems": [
+   "The first answer opens 'Yeah, and you're not going to' and then immediately explains where to find one — a small internal contradiction played for effect, but a checker may read it as inconsistent.",
+   "Game-state facts (the 43.2 kg weight, the single quest, the car-battery craft, the reward value) are patch-version dependent and are stated as timeless truths with no version anchor; they may already be stale.",
+   "'dead scavs, the ones that spawn dead' is garbled English.",
+   "The third answer ('Nope, not even remotely') contradicts the fourth, which then explains a genuine use (crafting car batteries and completing a quest)."
+  ],
+  "translator_notes": "Do NOT localize any part of the game world — this is the row where Greek localization instinct is most dangerous. Confirm the feminine anaphora chain in user turns 2 and 4 reads naturally to a player who has just read «tank battery» in Latin script; if a reviewer finds it jarring, the fallback is to repeat «η μπαταρία» once in turn 2."
+ },
+ {
+  "row_id": "76816928ee18223949a47678aca2589494fbca8c374732f76791ab68e4455155",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "persona chatbot — encouraging fitness coach",
+  "hazards": ["the encouragement is the persona ('You can do this!', 'I believe in you!'); Greek health writing drifts into impersonal clinical register and the warmth evaporates", "the health claims are content — 30 minutes a day, 5–6 small meals, the juice-cleanse verdict — and must not be silently updated or improved", "the third user turn is a statement, not a question; keeping it a statement is what lets the bot push back"],
+  "devices": [
+   {"where": "persona name", "device": "euphony (soft sibilant/liquid name)", "effect": "warm and approachable", "english": "Melissa", "greek": "Μέλισσα", "how": "same-stock Greek name that happens to be a real Greek word (μέλισσα = bee). It keeps the soft sound and adds a faint industrious-and-healthy connotation that is consonant with the persona rather than at odds with it."}
+  ],
+  "device_notes": "Μέλισσα carries a small semantic bonus (bee: busy, natural, honey) that the English 'Melissa' has only etymologically. This is an addition, but a harmless and register-consonant one; the alternative (Μελίσσα as a bare transliteration) is not a Greek name. Flagged for the reviewer.",
+  "en_register": "informal",
+  "register_evidence": "A coach-to-client relationship with direct encouragement ('You can do this!', 'I believe in you!') and first-person plural solidarity ('we are making strides'). The user asks about their own body and diet. Greek forces a choice here because the answers are direct address; ενικός is what a fitness app or a personal trainer uses.",
+  "target_register": "ενικός",
+  "system_el": "Η Μέλισσα είναι ένα chatbot γυμναστικής που μοιράζεται συμβουλές υγείας με τον χρήστη και τον ενθαρρύνει να υιοθετήσει έναν υγιεινό τρόπο ζωής.",
+  "prompt_el": "Η Μέλισσα είναι ένα chatbot γυμναστικής που μοιράζεται συμβουλές υγείας με τον χρήστη και τον ενθαρρύνει να υιοθετήσει έναν υγιεινό τρόπο ζωής.",
+  "user_turns_el": [
+   "Πόση άσκηση πρέπει να κάνω κάθε μέρα;",
+   "Να περιοριστώ σε δύο γεύματα την ημέρα για να χάσω βάρος;",
+   "Σκέφτομαι να κάνω αποτοξίνωση με χυμούς."
+  ],
+  "transpositions": [
+   {"en": "Melissa", "el": "Μέλισσα", "kind": "name", "why": "Frame: the coach's name has no bearing on whether the health advice is true."}
+  ],
+  "derived_elements": [
+   {"depends_on": "the ενικός choice", "en": "'you should', 'I believe in you'", "el": "β' ενικό σε όλες τις απαντήσεις (θα πρέπει να…, πιστεύω σε σένα)", "why": "The Greek prompt commits to ενικός, so every assistant turn must mirror it; a single πληθυντικός slip breaks the coach relationship."},
+   {"depends_on": "Μέλισσα (feminine)", "en": "'Melissa is a fitness bot who…'", "el": "«Η Μέλισσα είναι ένα chatbot…»", "why": "Feminine article and any later anaphora must agree."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": "Only the persona name moved. The health figures (30 minutes, two meals, 5–6 small meals) are content and are untouched; no unit conversion is needed (minutes and meals are unit-neutral, and Greece uses the metric system throughout, so nothing in the answers requires conversion either).",
+  "guide_gaps": [
+   {"term": "fitness bot", "decision": "«chatbot γυμναστικής»", "why": "«μποτ φυσικής κατάστασης» is a mouthful nobody says; «γυμναστικής» is the everyday Greek framing of the domain and keeps the head noun consistent with the other rows' «chatbot»."},
+   {"term": "juice cleanse", "decision": "«αποτοξίνωση με χυμούς»", "why": "The Greek phrase actually used in lifestyle media; a literal «καθαρισμός με χυμούς» reads as cleaning equipment."},
+   {"term": "fad diet", "decision": "«δίαιτα της μόδας» (for the answer stage)", "why": "Fixes the term the answer will need, since the reference uses it."}
+  ],
+  "reference_problems": [
+   "'Some experts suggest eating 5-6 small meals throughout the day to boost metabolism' — the metabolism-boosting claim from meal frequency is not supported by current evidence; it is stated as expert consensus.",
+   "'In general you should get 30 minutes of exercise a day' is a simplification of the standard guidance (150 minutes of moderate activity per week) and no source is given.",
+   "The bot gives dietary and weight-loss advice with no suggestion to consult a professional, which is a safety gap in a health persona.",
+   "'making strides toward a healthy lifestyle through small changes' contradicts nothing, but the reference never actually answers whether the user should do the juice cleanse in one word — it argues around it."
+  ],
+  "translator_notes": "Keep the sign-off encouragement in every answer — it is the persona, not filler. Do not upgrade or correct the health claims here; the metabolism claim is logged as a reference problem for the next stage to rule on."
+ },
+ {
+  "row_id": "7bc6f39339672e0af9b9df1db09d159e50c424ebb03dc5b8ee7addc6feb5f1b7",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING", "LOCALIZE"],
+  "subtype": "persona chatbot — curt, minimal-word answers",
+  "hazards": ["Greek is more verbose than English by default; the 'as few words as possible' rule is much harder to satisfy and the answers will bloat unless brevity is enforced explicitly", "the curtness is the joke: the user stays chatty and friendly ('Cool', 'Interesting') against a wall of one-word replies. Both registers must be held simultaneously.", "'Questions.' as a complete answer must survive as a Greek one-word answer, not become a sentence"],
+  "devices": [
+   {"where": "persona name", "device": "none (plain given name), but the sound is clipped", "effect": "brisk", "english": "Richard", "greek": "Κώστας", "how": "an ordinary Greek male name with a blunt, two-syllable everyday feel; the vocative Κώστα is what a Greek would actually type. Ρίτσαρντ would leave an American name inside an otherwise Greek scene."},
+   {"where": "answer form", "device": "brevity as characterisation", "effect": "sarcastic / brisk / comically unhelpful-but-correct", "english": "one- to five-word answers", "greek": "μονολεκτικές ή τριλεκτικές απαντήσεις", "how": "same device; Greek can be equally telegraphic («Ερωτήσεις.») provided the writer resists adding a verb."}
+  ],
+  "device_notes": "No sound-play to reproduce. The whole effect lives in the length contrast between the user's turns and the bot's, which transfers directly.",
+  "en_register": "informal",
+  "register_evidence": "'Hey Richard', 'Cool', 'Interesting', direct address by first name, small talk about hobbies. The bot's curtness is brusqueness, not formality — it never uses deferential language.",
+  "target_register": "ενικός",
+  "system_el": "Ο Κώστας είναι ένα chatbot αυστηρό και κοφτό, που απαντά στις ερωτήσεις με όσο το δυνατόν λιγότερες λέξεις.",
+  "prompt_el": "Ο Κώστας είναι ένα chatbot αυστηρό και κοφτό, που απαντά στις ερωτήσεις με όσο το δυνατόν λιγότερες λέξεις.",
+  "user_turns_el": [
+   "Κώστα, ποιος είναι ο καλύτερος τρόπος για να κρατήσω ζωντανή μια συζήτηση;",
+   "Ωραία, και πώς θα έβρισκες καινούριους ανθρώπους για να μιλήσεις, ειδικά σε μια καινούρια πόλη;",
+   "Ενδιαφέρον. Μου αρέσει πολύ το τένις, πιστεύεις ότι μπορώ να κάνω φίλους έτσι;"
+  ],
+  "transpositions": [
+   {"en": "Richard", "el": "Κώστας", "kind": "name", "why": "Frame: nothing about the advice depends on the bot's name."},
+   {"en": "tennis / a tennis club", "el": "τένις / όμιλος αντισφαίρισης", "kind": "institution", "why": "Tennis exists in Greece and the sport itself is content (the user's hobby), but the institution the answer recommends localizes: the Greek equivalent of a 'tennis club' is an «όμιλος αντισφαίρισης». Recorded here because the answer stage needs the term."},
+   {"en": "clubs, organizations", "el": "σύλλογοι, ομάδες, εθελοντικές οργανώσεις", "kind": "institution", "why": "'Clubs and organizations' as a social-life category maps onto σύλλογοι/όμιλοι in Greek civic life; a literal «κλαμπ» means nightclub and would send the answer somewhere else entirely."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Richard → Κώστας", "en": "'Hey Richard' (user turn 1)", "el": "«Κώστα, …» (κλητική)", "why": "The name is addressed in a user turn, so it must be re-derived in the vocative — the only place in this batch where the persona name surfaces inside a user turn."},
+   {"depends_on": "the brevity constraint", "en": "'Questions.' / 'Yes. Join a tennis club.'", "el": "«Ερωτήσεις.» / «Ναι. Γράψου σε όμιλο αντισφαίρισης.»", "why": "The Greek answers must be counted, not translated; a Greek translation of the English answers would be longer and would break the persona."}
+  ],
+  "constraint_notes": "Greek form of the constraint: κάθε απάντηση με τον ελάχιστο δυνατό αριθμό λέξεων — ιδανικά μία έως πέντε λέξεις, χωρίς εισαγωγικές φράσεις, χωρίς αιτιολόγηση. Checkable by word count. Note the constraint is HARDER in Greek: «Clubs, organizations, and looking online» is 5 words, its natural Greek is «Σύλλογοι, οργανώσεις και αναζήτηση στο διαδίκτυο» which is 6; the checker should compare against the English word count as a ceiling, allowing at most +1 word for Greek's longer analytic constructions.",
+  "substitution_note": "Substituting the name forced the vocative in user turn 1. Localizing 'clubs' and 'tennis club' affects only the answer stage (no user turn names an institution), but both are recorded so the answer does not fall back on «κλαμπ», which means nightclub.",
+  "guide_gaps": [
+   {"term": "club (social/hobby)", "decision": "«σύλλογος» / «όμιλος»", "why": "«κλαμπ» in Greek means a nightclub; using it here would change the advice."},
+   {"term": "tennis club", "decision": "«όμιλος αντισφαίρισης»", "why": "The official Greek designation of such clubs; «κλαμπ του τένις» is not a thing."},
+   {"term": "chatbot", "decision": "keep «chatbot» in Latin script", "why": "Batch consistency."}
+  ],
+  "reference_problems": [
+   "'Questions.' as an answer to 'what is the best way to maintain a conversation' is so compressed it is arguably not an answer — in-character, but a reviewer may score it as non-responsive.",
+   "The second answer ('Clubs, organizations, and looking online') is five words, breaking the row's own escalating minimalism after a one-word first answer — the constraint is applied loosely.",
+   "The third answer ('Yes. Join a tennis club.') repeats advice already given in the second ('Clubs')."
+  ],
+  "translator_notes": "The single biggest failure mode is Greek answers that grow to sentence length. Count words against the English ceiling. The user's friendly filler («Ωραία», «Ενδιαφέρον») must stay — the contrast with the bot is the row."
+ },
+ {
+  "row_id": "7fe9c4e35d64c8013820b4d9cf2b0890cf0f1c8e137a400f9dca672003e0b558",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING", "LOCALIZE"],
+  "subtype": "persona chatbot — deliberately hostile affirmation-inverter",
+  "hazards": ["the bot is meant to be cruel; softening it ('μην το λες αυτό…') destroys the row. Per the category rule, deliberate rudeness is the point, not a defect.", "the user's affirmations are a fixed genre (positive affirmations) with a recognisable Greek surface form — first person, present tense, declarative. They must read as affirmations, not as casual remarks.", "grammatical gender: 'I am handsome' fixes the user as male, so every gendered adjective across all three turns must agree (and the bot's 'You are ugly' must too)."],
+  "devices": [
+   {"where": "persona name", "device": "charactonym, used ironically", "effect": "comic; the name promises happiness and the bot delivers the opposite", "english": "Felicia", "greek": "Ευτυχία", "how": "same device, and stronger in Greek: Ευτυχία is a real, common Greek woman's name that transparently MEANS 'happiness' to every speaker, so the irony is live rather than etymological. «Φελίσια» is not a Greek name and the irony would be invisible."}
+  ],
+  "device_notes": "In English the charactonym is half-dead (most readers do not parse 'Felicia' as 'happy'); in Greek it is fully transparent. This slightly sharpens the joke — a reviewer should confirm that is acceptable. Alternative if it is judged too on-the-nose: Χαρά (also a real name, also transparent, shorter).",
+  "en_register": "informal",
+  "register_evidence": "Bare first-person affirmations with no framing and an abusive reply ('No one likes you'). This is an intimate, unguarded exchange — the bot uses 'you're', 'Are you sure about that?'. Nothing formal is possible here.",
+  "target_register": "ενικός",
+  "system_el": "Η Ευτυχία είναι ένα chatbot που μετατρέπει τις θετικές επιβεβαιώσεις σε αρνητικές.",
+  "prompt_el": "Η Ευτυχία είναι ένα chatbot που μετατρέπει τις θετικές επιβεβαιώσεις σε αρνητικές.",
+  "user_turns_el": [
+   "Με αγαπούν.",
+   "Η μέρα μου θα είναι υπέροχη!",
+   "Είμαι όμορφος."
+  ],
+  "transpositions": [
+   {"en": "Felicia", "el": "Ευτυχία", "kind": "name", "why": "Frame, and a charactonym: the name must both be a real Greek name and mean 'happiness' for the irony to survive."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Ευτυχία (feminine)", "en": "'Felicia is a chatbot that…'", "el": "«Η Ευτυχία είναι ένα chatbot…»", "why": "Feminine article and agreement."},
+   {"depends_on": "user turn 3 «Είμαι όμορφος» (masculine)", "en": "'You are ugly.'", "el": "«Είσαι άσχημος.» (masculine)", "why": "The English 'handsome' fixes the user's gender; Greek marks gender on the adjective in the bot's reply too, so the answer must be masculine. English hides this dependency — Greek exposes it."},
+   {"depends_on": "the inversion rule", "en": "each assistant turn negates the specific affirmation just made", "el": "κάθε απάντηση αναιρεί ακριβώς τη συγκεκριμένη επιβεβαίωση", "why": "Turn-to-turn coherence: the bot's replies are not generic insults, they are targeted inversions ('I am loved' → 'No one likes you'). Each Greek reply must invert its own Greek affirmation."}
+  ],
+  "constraint_notes": "Greek form of the constraint: κάθε απάντηση παίρνει τη θετική επιβεβαίωση του χρήστη και τη γυρίζει στο αρνητικό της, διατηρώντας το ίδιο θέμα (αγάπη → κανείς δεν σε αγαπά· ωραία μέρα → η μέρα θα πάει άσχημα· ομορφιά → ασχήμια). Checkable: the semantic field of the reply must match the semantic field of the affirmation and the polarity must be reversed.",
+  "substitution_note": "Only the persona name moved, but it forced the whole point of the row (the ironic charactonym) to be rebuilt rather than transliterated. Separately, Greek grammatical gender creates a new cross-turn dependency that does not exist in English (user turn 3 → the bot's adjective); recorded in derived_elements.",
+  "guide_gaps": [
+   {"term": "positive affirmation", "decision": "«θετική επιβεβαίωση»", "why": "The term used in Greek self-help/wellness writing; «θετική δήλωση» is vaguer and «κατάφαση» is grammatical jargon."},
+   {"term": "chatbot", "decision": "keep «chatbot» in Latin script", "why": "Batch consistency."}
+  ],
+  "reference_problems": [
+   "The content is straightforwardly abusive ('No one likes you', 'You are ugly') directed at the user — a safety reviewer will flag this row regardless of the persona framing; it is preserved here because the persona is the row's content, but the flag belongs in the record.",
+   "'Are you sure about that? You are ugly.' breaks the pattern of the other two replies by asking a question first — minor inconsistency in the bot's mechanical rule.",
+   "The second reply ('You will not have a great day. It will end badly for you.') makes a prediction rather than a pure inversion, going slightly beyond the stated rule."
+  ],
+  "translator_notes": "Do not soften. The bot must stay cruel in Greek — Greek writers reflexively add a softener («μη στεναχωριέσαι, αλλά…») and that would destroy the row. Confirm masculine agreement in the third exchange."
+ },
+ {
+  "row_id": "86786cabb7d4af5047596ea5514776ea2a543a5ff98aee820ca434e65340fdf8",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE", "LOCALIZE"],
+  "subtype": "persona chatbot — grumpy grandfather answering practical queries",
+  "hazards": ["San Francisco is CONTENT, not frame: the temperature, the weather and the restaurants are true of San Francisco specifically. Swapping it for a Greek city makes every answer false. The grandpa persona, by contrast, is frame and moves.", "the restaurant names (Lazy Bear, Sotto Mare, Californios) are real establishments — freeze them exactly; a translated «Τεμπέλης Αρκούδος» would name a place that does not exist.", "unit: 70 °F must be converted for a Greek reader in the answer stage (≈21 °C); the conversion belongs to the answer, but the user turn must not pre-empt it by naming a unit.", "the grumbling is affectionate, not hostile — a Greek παππούς who complains and simultaneously fishes for a visit. Losing either half flattens him."],
+  "devices": [
+   {"where": "persona name", "device": "none as a charactonym; period-marked name (an old man's name)", "effect": "signals age before he speaks", "english": "Randy", "greek": "Μήτσος", "how": "different means, same effect: Μήτσος is the colloquial form of Δημήτρης and reads instantly as an older, rural-ish, plain-spoken Greek man. It carries the age and gruffness that 'Randy' carries for an American reader."},
+   {"where": "voice", "device": "eye-dialect ('Why,', 'what are ya doin'', 'gramps')", "effect": "comic, folksy, old-fashioned", "english": "ya / doin' / gramps", "greek": "λαϊκός προφορικός λόγος («ρε παιδί μου», «τι δουλειά έχεις εσύ…», «ο παππούς σου»)", "how": "Greek has no equivalent orthographic eye-dialect; the effect is reproduced lexically through colloquial particles and address forms instead of by misspelling. Do NOT invent Greek misspellings."}
+  ],
+  "device_notes": "The English marks the persona by spelling; Greek cannot (mangled spelling reads as illiteracy or Greeklish, not as folksiness). The device does not transfer — the effect is carried by vocabulary and particles. Recorded here as an explicit device substitution.",
+  "en_register": "informal",
+  "register_evidence": "The user asks bare practical questions; the bot answers as the user's grandfather, teasing and inviting him to visit. A family relationship, so Greek forces ενικός in both directions.",
+  "target_register": "ενικός",
+  "system_el": "Ο Μήτσος είναι ένα chatbot που συμπεριφέρεται σαν ηλικιωμένος, γκρινιάρης παππούς.",
+  "prompt_el": "Ο Μήτσος είναι ένα chatbot που συμπεριφέρεται σαν ηλικιωμένος, γκρινιάρης παππούς.",
+  "user_turns_el": [
+   "Τι θερμοκρασία έχει αυτή τη στιγμή στο Σαν Φρανσίσκο;",
+   "Τι καιρό κάνει έξω;",
+   "Ποια είναι μερικά από τα εστιατόρια με την υψηλότερη βαθμολογία στο Σαν Φρανσίσκο;"
+  ],
+  "transpositions": [
+   {"en": "Randy", "el": "Μήτσος", "kind": "name", "why": "Frame: the grandfather persona is invented and nothing in the answers is true because of his name."},
+   {"en": "gramps", "el": "παππούς", "kind": "other", "why": "The self-designation that carries the persona; «γέρος» would be insulting rather than affectionate."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Randy → Μήτσος", "en": "'an old gramps like me'", "el": "«έναν γέρο παππού σαν κι εμένα»", "why": "The self-reference in the third answer belongs to the same persona and must sit naturally with the Greek name and voice."},
+   {"depends_on": "San Francisco frozen as content", "en": "70 °F", "el": "περίπου 21 βαθμοί (Κελσίου)", "why": "The place stays, so the fact stays, but the UNIT must convert for a Greek reader — Greece uses Celsius exclusively. This is the one number in the row that changes surface without changing truth. Answer stage."},
+   {"depends_on": "the eye-dialect device not transferring", "en": "'Why, it's 70 °F today'", "el": "«Έχει γύρω στους 21 βαθμούς σήμερα.» (plus a colloquial particle if needed)", "why": "Folksiness must be re-carried lexically; and per the word-order rule the Greek stays canonical — no fronting to compensate for the lost 'Why,'."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": "The persona moved into Greek; the setting did not, and that asymmetry is deliberate and defensible under the entity test (the grandfather is invented, San Francisco's weather and restaurants are checkable facts). The English already places the user in San Francisco and the grandfather elsewhere ('coming over to fish'), so a Greek grandfather with a grandson in San Francisco is coherent — a very common Greek diaspora configuration, in fact. The only derived change is the temperature unit.",
+  "guide_gaps": [
+   {"term": "San Francisco", "decision": "Σαν Φρανσίσκο", "why": "Established Greek transliteration; the city is content and is not replaced."},
+   {"term": "Lazy Bear / Sotto Mare / Californios", "decision": "keep the Latin-script names unchanged", "why": "Real businesses; translating or transliterating them would name places that cannot be found."},
+   {"term": "°F → °C", "decision": "convert to Celsius and round («γύρω στους 21 βαθμούς»), do not carry Fahrenheit", "why": "Fahrenheit is meaningless to a Greek reader; the rounded form matches how Greek weather talk actually works."},
+   {"term": "chatbot", "decision": "keep «chatbot» in Latin script", "why": "Batch consistency."}
+  ],
+  "reference_problems": [
+   "The weather facts ('70 °F today', '1% chance of rain') are stated as current fact with no date or source — unverifiable and certainly stale.",
+   "The second user turn ('What type of weather is it like outside?') is ungrammatical English (blend of 'what type of weather is it' and 'what is it like outside'), and it is also ambiguous about location — the bot silently assumes San Francisco again.",
+   "The restaurant ratings ('over 4.5 out of 5 stars') cite no platform (Google? Yelp?) and are time-dependent.",
+   "'Lazy Bear' is a Michelin-starred tasting-menu restaurant rather than a straightforward 'highest rated' pick; the list mixes very different kinds of establishment without saying so."
+  ],
+  "translator_notes": "Reviewer must confirm the deliberate split: Greek persona, American setting. If the project would rather move the setting, the whole scene must move (city, restaurants, ratings platform) and all three answers must be rewritten with real Greek facts — half-moving it is the failure mode the instructions warn about. Also: user turn 2's English is ungrammatical; I wrote grammatical Greek because this row is not PRESERVE-DEFECT and the flaw looks like an authoring slip, not a designed defect — logged in reference_problems instead."
+ },
+ {
+  "row_id": "89c788bc330176fdb6af1e1723c7d1a718811d54060745bf68b0343ec57a058f",
+  "family": "generative",
+  "translation_class": "REGISTER-CRITICAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "persona chatbot — soothing, flirtatious de-escalator",
+  "hazards": ["the persona name is a double device (meaning + alliteration) and transliteration destroys both", "the user's name is spoken by the bot in two forms (Daniel → Danny Boy); the Greek must supply a name that has a real diminutive, and the diminutive must be re-derived, not invented", "emphatic caps (AT ALL) must survive as Greek caps, and per the word-order rule must NOT also be marked by fronting", "the endearments (sweets, babe, Doll) are the flirtation — the whole point of the persona — and must become Greek endearments that a woman would actually use, not calques", "the bus incident, the graduation-in-a-month and the college plan form a single coherent chain across all three exchanges; localizing the school system must keep the one-month interval exact"],
+  "devices": [
+   {"where": "persona name", "device": "charactonym + plosive alliteration (P/P)", "effect": "memorable, warm, faintly comic; the double P makes it bounce", "english": "Pamela Pleasantly", "greek": "Γαλήνη η Γλυκιά", "how": "both jobs reproduced: Γαλήνη is a real Greek woman's name that means 'calm', and Γ/Γ gives the alliteration. The Greek alliteration is on a voiced velar fricative rather than a plosive, so it reads softer than P/P — which suits a calming persona, and the loss of punchiness is acceptable here."},
+   {"where": "user's name / the bot's pet form of it", "device": "hypocorism (diminutive as affection)", "effect": "warm, teasing, intimate", "english": "Daniel → Danny Boy", "greek": "Δημήτρης → Δημητράκη μου / Μίμη μου", "how": "same device: Greek hypocoristics carry affection at least as strongly. Δημήτρης is chosen precisely because it has established affectionate forms; a name without one (e.g. Άρης) would break the second exchange."},
+   {"where": "emphasis", "device": "emphatic capitalisation", "effect": "the shout inside a written sentence", "english": "AT ALL", "greek": "ΚΑΘΟΛΟΥ", "how": "same device, directly available in Greek. Word order stays canonical («Αλλά δεν ήταν ΚΑΘΟΛΟΥ εύκολο») — the caps already carry the emphasis."}
+  ],
+  "device_notes": "Two devices are stacked on the persona name and both transfer, which is unusual. The one thing that does not transfer is the plosive quality of the P/P alliteration; noted, and not compensated for by any added markedness.",
+  "en_register": "informal",
+  "register_evidence": "The user addresses the bot by first name, opens with 'Oh my God!', vents about nearly punching someone, calls the bot 'babe'; the bot replies with 'sweets', 'Danny Boy', 'Doll'. Maximum intimacy — an unambiguous ενικός on both sides, and πληθυντικός would be absurd here.",
+  "target_register": "ενικός",
+  "system_el": "Η Γαλήνη η Γλυκιά είναι ένα chatbot που επικοινωνεί μόνο ήρεμα, αισιόδοξα και με μια δόση φλερτ. Έτσι, η Γαλήνη είναι το ιδανικό chatbot για να ηρεμήσει έναν αναβρασμό γεμάτο τεστοστερόνη, με τις τεχνικές εκλογίκευσης που προτείνει και με το να χαϊδεύει διακριτικά τον ανδρικό εγωισμό.",
+  "prompt_el": "Η Γαλήνη η Γλυκιά είναι ένα chatbot που επικοινωνεί μόνο ήρεμα, αισιόδοξα και με μια δόση φλερτ. Έτσι, η Γαλήνη είναι το ιδανικό chatbot για να ηρεμήσει έναν αναβρασμό γεμάτο τεστοστερόνη, με τις τεχνικές εκλογίκευσης που προτείνει και με το να χαϊδεύει διακριτικά τον ανδρικό εγωισμό.",
+  "user_turns_el": [
+   "Γαλήνη, Θεέ μου! Είμαι τόσο θυμωμένος αυτή τη στιγμή, που δεν ξέρω καν από πού να αρχίσω...",
+   "Πωπω! Παραλίγο να ρίξω μπουνιά σε έναν τύπο στο λεωφορείο! Μου πετάχτηκε μπροστά για να πάρει την τελευταία θέση κι έτσι αναγκάστηκα να στέκομαι όρθιος όλη τη διαδρομή. Αν δεν προσπαθούσα να φτάσω μέχρι την αποφοίτηση χωρίς άλλα μπλεξίματα, θα τον είχα στείλει με μια μπουνιά σε κάθισμα πέντε λεωφορεία πιο πίσω.",
+   "Ναι, τα κατάφερα, μωρό μου! Σ' ευχαριστώ. Αλλά δεν ήταν ΚΑΘΟΛΟΥ εύκολο, και δεν μπορώ να υποσχεθώ τι θα γίνει όταν ξαναδώ αυτόν τον τύπο!"
+  ],
+  "transpositions": [
+   {"en": "Pamela Pleasantly", "el": "Γαλήνη η Γλυκιά", "kind": "name", "why": "Frame, and a two-device charactonym: the name must mean 'calm' and alliterate in Greek to do the same work."},
+   {"en": "Daniel", "el": "Δημήτρης", "kind": "name", "why": "Frame; chosen for its productive diminutives, which the second exchange requires."},
+   {"en": "graduation / off to college", "el": "αποφοίτηση από το λύκειο / πανεπιστήμιο", "kind": "institution", "why": "Invented scenario, so the school system localizes: US high-school graduation → ελληνικό λύκειο, college → πανεπιστήμιο. The interval ('in just a bit', 'in a month') stays exactly one month."},
+   {"en": "sweets / babe / Doll", "el": "καρδιά μου / μωρό μου / κούκλε μου", "kind": "other", "why": "Endearments are the flirtation. Greek endearments are lexically different but functionally identical; a calque («γλυκά μου», «κούκλα» addressed to a man) would be wrong or comic in the wrong way."},
+   {"en": "the bus", "el": "το λεωφορείο", "kind": "other", "why": "Not a transposition so much as a confirmation: crowded city buses with a scramble for the last seat are entirely native to Greek urban life, so the scene needs no re-staging."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Daniel → Δημήτρης", "en": "'Danny Boy'", "el": "«Δημητράκη μου» (or «Μίμη μου»)", "why": "The affectionate form is derived from the name; re-derived from the replacement rather than transliterated. Pick ONE and hold it."},
+   {"depends_on": "Daniel → Δημήτρης", "en": "'Everything is okay, Daniel!'", "el": "«Όλα είναι εντάξει, Δημήτρη!» (κλητική)", "why": "The vocative form of the Greek name must be used in direct address; -ης → -η."},
+   {"depends_on": "Γαλήνη η Γλυκιά", "en": "'Pamela, Oh my God!' (user turn 1)", "el": "«Γαλήνη, Θεέ μου!»", "why": "The user addresses the bot by name in turn 1, so the persona substitution propagates into a user turn — the vocative of Γαλήνη is identical to the nominative."},
+   {"depends_on": "Γαλήνη η Γλυκιά", "en": "'As such, Pamela is the perfect chatbot…' (second sentence of the system prompt)", "el": "«…η Γαλήνη είναι το ιδανικό chatbot…»", "why": "Second mention inside the system prompt itself; one consistent surface form (short form Γαλήνη after the full form is introduced, mirroring English's Pamela-after-Pamela-Pleasantly)."},
+   {"depends_on": "graduation → λύκειο", "en": "'you'll be graduating in a month and then off to college'", "el": "«σε έναν μήνα αποφοιτάς από το λύκειο και μετά πανεπιστήμιο»", "why": "The institution localizes but the year/interval count must stay exact: one month."},
+   {"depends_on": "user is male ('the male ego', 'Daniel')", "en": "'I am so angry', 'I had to stand'", "el": "«θυμωμένος», «όρθιος» (masculine)", "why": "Greek marks gender on adjectives and participles in the user's own turns; English does not. Every predicate adjective in all three user turns must be masculine."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": "This is the heaviest-propagation row in the batch. Substituting the persona name changed one user turn (the vocative in turn 1) and a second mention inside the system prompt. Substituting Daniel changed the bot's two address forms including a derived diminutive. Localizing the school system changed the answer's 'college' while pinning the one-month interval. Greek gender marking added agreement obligations in the user's own turns that have no English counterpart. All scanned and re-derived; the caps (ΚΑΘΟΛΟΥ) are preserved without any added fronting.",
+  "guide_gaps": [
+   {"term": "Pamela Pleasantly", "decision": "Γαλήνη η Γλυκιά", "why": "House rendering for this persona: meaning + alliteration reproduced. Fixed here so any later row with the same persona uses the identical form."},
+   {"term": "Daniel", "decision": "Δημήτρης, diminutive Δημητράκης (vocative Δημήτρη / Δημητράκη μου)", "why": "Fixed so the diminutive is stable across turns."},
+   {"term": "college (US, after high school)", "decision": "«πανεπιστήμιο»", "why": "«κολέγιο» in Greece means a private post-secondary institution and would change the social meaning of the sentence."},
+   {"term": "'a dash of flirtation'", "decision": "«μια δόση φλερτ»", "why": "«φλερτ» is the ordinary Greek noun; «ερωτοτροπία» is archaic and would change the register of the whole brief."},
+   {"term": "chatbot", "decision": "keep «chatbot» in Latin script", "why": "Batch consistency."}
+  ],
+  "reference_problems": [
+   "The user's name 'Daniel' appears nowhere in the system prompt or in any user turn — the assistant introduces it out of nowhere in the first reply. The prompt is underspecified about who the user is.",
+   "The system prompt's premise ('the perfect chatbot to calm down a testosterone-fueled temperament' by 'stroking the male ego') is a gendered stereotype baked into the row; preserved as content, flagged here.",
+   "The third assistant turn promises the user is 'graduating in a month', a fact the user never stated (the user only mentions 'trying to make it to graduation') — the bot invents the timeline.",
+   "Second user turn contains an English capitalisation error mid-sentence ('AT ALL, And I can't promise'), and the run-on 'If it wasn't for trying to make it to graduation' is loose English.",
+   "The bot never addresses the actual safety content of the user's closing threat ('I can't promise what will happen when I see that dude again') beyond asking him not to talk that way."
+  ],
+  "translator_notes": "Highest-risk row in the batch for propagation. Check: (1) Γαλήνη used in the vocative in user turn 1 and in short form in the system prompt's second sentence; (2) exactly one diminutive of Δημήτρης used across the answers; (3) ΚΑΘΟΛΟΥ in caps with canonical word order — no fronting; (4) all masculine agreement in the user turns; (5) the one-month interval unchanged after λύκειο/πανεπιστήμιο localization; (6) the endearments stay flirtatious without becoming coarse."
+ }
+]

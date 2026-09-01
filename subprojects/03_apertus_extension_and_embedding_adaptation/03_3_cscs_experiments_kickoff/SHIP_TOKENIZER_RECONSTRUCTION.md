@@ -1,5 +1,13 @@
 # Ship Tokenizer Reconstruction — Two Apertus-Compatible Bundles
 
+> **Production update 2026-07-29**: the next cleaned Greek CPT dataset uses the
+> calibrated **148,992** bundle at
+> [`ship/apertus_greek_modern_polytonic_148992/`](ship/apertus_greek_modern_polytonic_148992/):
+> ModernGreek-148480 plus the selected first 512 polytonic merges. The
+> 153,600 bundle below remains the historical full-specialization artifact.
+> Decision evidence:
+> [`../03_4_implementation_experiments/polytonic_cutoff_probe/PRODUCTION_DECISION_20260729.md`](../03_4_implementation_experiments/polytonic_cutoff_probe/PRODUCTION_DECISION_20260729.md).
+
 > **v0.7 + user confirmation 2026-05-20**: CPT scope is the composite **153,600** bundle (vocab = base 131,072 + modern 17,408 + polytonic 5,120). The **modern-only 148,480** bundle remains as an ablation artifact; the active CPT base is `ship/apertus_greek_extended_153600/`. v0.7 §1's "vocabulary 131,072 → 148,480" wording is a typo from carrying forward v0.6 language — the param count (184.5 M = 22,528 × 4,096 × 2) and the §3.1 polytonic-exposure metrics in v0.7 both assume the 153,600 scope.
 
 *2026-05-20 (updated post-review). **Both** the modern-only 148,480

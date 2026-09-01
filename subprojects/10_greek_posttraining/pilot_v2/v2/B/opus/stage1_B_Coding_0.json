@@ -1,0 +1,179 @@
+[
+ {
+  "row_id": "3b650507e57066726fa49fac22e8aac6d2be122f5705b4da43f75fac8a75d91f",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "bare code-generation request (Python, type conversion)",
+  "hazards": [
+   "The identifier-bearing terms 'list' and 'bytearray' are not symmetric: 'list' is an ordinary Greek-translatable noun (λίστα) while 'bytearray' is a Python type name that must stay a Latin code token; translating it would make the answer's bytearray() call unreachable from the prose.",
+   "The answer will contain unfenced, indentation-only Python (category norm) — any masking that assumes fences will mangle it downstream.",
+   "'print' must map to a verb (τυπώνει/εκτυπώνει) without becoming the identifier print()."
+  ],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "neutral",
+  "register_evidence": "Declarative 'I want a Python3 program that...' — a plain task statement to a tool, no relationship cues, no greeting, no politeness marking. Nothing addresses the assistant directly, so English gives no evidence either way.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Θέλω ένα πρόγραμμα σε Python3 που να μετατρέπει μια λίστα σε bytearray και να το τυπώνει.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "bytearray kept as a Latin code token", "en": "bytearray", "el": "bytearray (neuter: «το bytearray»)", "why": "Because the term stays untranslated it has no Greek gender; the pronoun in «να το τυπώνει» is derived from treating the loan type name as neuter, which is the default for untranslated technical loans in Greek."}
+  ],
+  "constraint_notes": "Two checkable constraints survive unchanged: the language must be Python 3, and the program must both convert a list to a bytearray and print the result. Both are language-neutral and verifiable in the Greek version.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "bytearray", "decision": "Keep as the Latin code token 'bytearray'; do not translate or transliterate (no «μπαϊτ-πίνακας», no «πίνακας ψηφιολέξεων»).", "why": "It is the exact Python type/constructor name the answer must call; any Greek rendering desynchronises the prose from the code."},
+   {"term": "list", "decision": "Translate as «λίστα».", "why": "Here it is used as ordinary prose ('a list'), not as the identifier list(); «λίστα» is the standard Greek term among Greek developers."},
+   {"term": "print", "decision": "Render as the verb «τυπώνει» in prose; leave print() untouched in code.", "why": "«εκτυπώνει» leans toward paper printing; «τυπώνει» is the common developer usage for console output."},
+   {"term": "Python3", "decision": "Keep the source form 'Python3' verbatim (not «Python 3», not «Πάιθον»).", "why": "Version-bearing language name; treated as a code-adjacent token."}
+  ],
+  "reference_problems": [
+   "Factual error: the reference says iterable elements must be integers 'in the range 0-256'. The valid range for bytearray is 0-255 inclusive.",
+   "Terminology error: bytearray() is called 'the bytearray() method'. It is a built-in type/constructor, not a method.",
+   "Loose claim: 'can also be used for strings and iterables' — a str is itself an iterable, so the contrast is malformed; the real distinction is str (needs an encoding) vs iterables of ints.",
+   "The code block is unfenced (indentation/blank-line delimited only), which is the category norm but leaves the code span unmarked."
+  ],
+  "translator_notes": "Purely language-neutral programming task; no frame to transpose and no cultural content, so LITERAL is uncontroversial. Reviewer should confirm (a) that 'bytearray' stayed a Latin token in the prompt, and (b) that the 0-256 off-by-one in the English reference is carried forward as a flagged problem, not silently fixed here — repairing it is the next stage's call."
+ },
+ {
+  "row_id": "eeb18034ef729153d05de0a58c8a50bfbfbb0e6b282dcdd7c3400418f45646ba",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LITERAL", "VERBATIM-FREEZE"],
+  "subtype": "code generation from a supplied question/answer key (Python quiz)",
+  "hazards": [
+   "The three quiz facts are CONTENT, not frame: Dvorak, Charles Babbage and HTTPS are true statements about the world; swapping them would change whether the answer key is correct. They must not be localised into Greek trivia.",
+   "Question 3 is metalinguistic about an English acronym: the 'S' in HTTPS stands for the English word 'Secure'. The expected answer therefore cannot become Greek («Ασφαλής») without making the answer key false. The question moves to Greek; the answer token stays English.",
+   "Case-folding fragility: the reference relies on .lower() matching. In Greek, .lower() also affects final sigma and accents (e.g. «Πληκτρολόγιο» vs «πληκτρολόγιο» is fine, but «ΠΛΗΚΤΡΟΛΟΓΙΟ».lower() is fine while accented/unaccented input differ). This is a real new failure mode the Greek answer must handle or acknowledge.",
+   "Transliterating a real person's name creates spelling variants (Τσαρλς Μπάμπατζ / Μπάμπετζ / Charles Babbage) that a strict string comparison will reject.",
+   "'Right'/'Wrong' are user-facing string literals that must move to Greek together with the prose that names them; changing one without the other desynchronises prompt and answer."
+  ],
+  "devices": [],
+  "device_notes": "No naming or sound devices in this row; the quiz questions are plain factual interrogatives.",
+  "en_register": "informal",
+  "register_evidence": "Bare imperatives with no softening ('Write a program...', 'Make sure it prints...') addressed directly to the assistant, plus a casual list format. This is a single developer talking to a tool, not a formal request.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα πρόγραμμα σε Python που φτιάχνει ένα κουίζ τριών ερωτήσεων, με τις εξής ερωτήσεις:\n\n1. Η διάταξη Dvorak αφορά ποια συσκευή; (πληκτρολόγιο)\n2. Ποιος θεωρείται ο πατέρας του υπολογιστή; (Τσαρλς Μπάμπατζ)\n3. Τι σημαίνει το «S» στο «HTTPS»; (Secure)\n\nΦρόντισε να τυπώνει «Σωστό» ή «Λάθος», ανάλογα με την απάντηση που δίνει ο χρήστης.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "the printed verdict strings", "en": "\"Right\" / \"Wrong\"", "el": "«Σωστό» / «Λάθος»", "why": "The literals the program prints are user-facing text for a Greek user; once they move, the answer's print() calls must print exactly these Greek strings and the prose must name the same strings."},
+   {"depends_on": "answer key for Q1", "en": "Keyboard", "el": "πληκτρολόγιο", "why": "The Greek question is phrased as «αφορά ποια συσκευή;», so the expected one-word answer is derived from that phrasing (nominative «πληκτρολόγιο», not genitive)."},
+   {"depends_on": "answer key for Q2", "en": "Charles Babbage", "el": "Τσαρλς Μπάμπατζ", "why": "The question is now in Greek, so the string the program compares against must be the Greek-script form of the same real person; the comparison target is derived from the transliteration decision."},
+   {"depends_on": "answer key for Q3", "en": "Secure", "el": "Secure", "why": "The question asks what an English acronym's letter stands for; the correct answer remains the English word, so the comparison string does NOT move even though the question text does."}
+  ],
+  "constraint_notes": "Checkable constraints preserved in Greek: (1) exactly three questions, in the given order, with the given answer key; (2) the program must print exactly «Σωστό» or «Λάθος» depending on the user's answer. Greek form of constraint (2): η έξοδος πρέπει να είναι ακριβώς «Σωστό» ή «Λάθος». One constraint is measurably WEAKER in Greek: the reference's case-insensitive match via .lower() no longer suffices, because Greek input varies in accents (πληκτρολόγιο/ΠΛΗΚΤΡΟΛΟΓΙΟ/πληκτρολογιο) and in final vs medial sigma; a faithful Greek answer needs accent-stripping/normalisation, or must accept that matching is stricter than the English original.",
+  "substitution_note": "Nothing was localised. The three facts are content under the Step-1 test — replacing Dvorak, Babbage or HTTPS would change whether the answer key is true — so they were frozen while only the carrier prose moved to Greek.",
+  "guide_gaps": [
+   {"term": "quiz", "decision": "«κουίζ» (indeclinable neuter loan).", "why": "Established everyday Greek; «διαγώνισμα» implies a school test and «ερωτηματολόγιο» implies a survey."},
+   {"term": "Charles Babbage", "decision": "Transliterate as «Τσαρλς Μπάμπατζ».", "why": "The surrounding question is Greek prose, and Greek convention transliterates personal names; recorded here because it creates a string-matching variant the answer must handle (also accepting the Latin spelling is defensible)."},
+   {"term": "Dvorak", "decision": "Keep Latin 'Dvorak'.", "why": "It is a keyboard-layout designation used in Latin script in Greek technical writing, like QWERTY; transliterating would obscure it."},
+   {"term": "layout (keyboard)", "decision": "«διάταξη».", "why": "Standard Greek for keyboard layout; «διάταξη πληκτρολογίου» would give the answer away inside the question, so the question was rephrased to «αφορά ποια συσκευή;»."},
+   {"term": "Right / Wrong (program output)", "decision": "«Σωστό» / «Λάθος», neuter singular.", "why": "Neuter verdict adjectives are the idiomatic Greek quiz feedback; «Σωστά»/«Λάθος» mixes forms."}
+  ],
+  "reference_problems": [
+   "The preamble misdescribes its own code: it claims to use 'a `for` loop to check the answer', but the code contains no loop at all — three unrolled if/else blocks.",
+   "Trailing whitespace on the blank separator lines inside the code (lines with four spaces) — harmless but sloppy for an indentation-delimited block.",
+   "The code is fully unrolled rather than data-driven, which contradicts the stated approach and makes the three-question requirement brittle.",
+   "The code block is unfenced; delimiting is by indentation/blank lines only."
+  ],
+  "translator_notes": "Key judgement to check: Q3's answer stays the English word 'Secure' while its question text is Greek. This is deliberate — the question is about an English acronym, so a Greek answer key would be factually wrong. Second judgement: «Τσαρλς Μπάμπατζ» as the comparison string; a reviewer may prefer accepting both the Greek and Latin spellings. Third: the Greek version genuinely weakens the reference's .lower() matching strategy (accents, final sigma) — flagged in constraint_notes so the answer stage can decide whether to normalise."
+ },
+ {
+  "row_id": "5a53b61c06cfb11033fc7adea69160c0523216de13e89e55c5bcd5805a77a1e1",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE", "CONSTRAINT-PRESERVING"],
+  "subtype": "bare code-generation request with a worked example (Python, webbrowser)",
+  "hazards": [
+   "The worked example is a mechanism demonstration: 'google' -> 'www.google.com' shows the exact string transformation the code must implement. Both halves must stay in Latin script and stay consistent with each other; localising the example site would require re-deriving the URL.",
+   "'www.' is a literal substring the program tests for — it must never be Hellenised or quoted differently.",
+   "The prompt carries a false presupposition (that every site name maps to www.<name>.com) that the Greek must reproduce rather than repair; repairing it here would delete the property the answer has to cope with.",
+   "'Chrome' is a real product name; translating it would make the webbrowser.get('chrome') call unreachable."
+  ],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "informal",
+  "register_evidence": "Bare imperative 'Give me a Python script', contracted 'If it's not', first-person wants ('any website I want', 'I should be able to just put in') — a casual, direct request from one developer to a tool.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Δώσε μου ένα script σε Python που ανοίγει όποια ιστοσελίδα θέλω σε νέα καρτέλα του Chrome. Θα πρέπει να μπορώ να γράφω απλώς «google» και να μου ανοίγει το «www.google.com». Αν δεν είναι www., να τερματίζει το πρόγραμμα.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "the worked example 'google'", "en": "www.google.com", "el": "www.google.com", "why": "The URL is derived from the input token by the very transformation the program implements; because the input token was frozen, the URL is frozen too. Had 'google' been localised, this string would have had to be re-derived."}
+  ],
+  "constraint_notes": "Checkable constraints preserved: (1) Python; (2) opens the page in a NEW tab of Chrome specifically; (3) a bare name such as «google» must expand to «www.google.com»; (4) if the site does not follow the www. form, the program must terminate. All four are verifiable against the Greek prompt exactly as against the English.",
+  "substitution_note": "No localisation performed. Under the Step-1 test, 'google' and 'Chrome' are content-adjacent: the example URL and the browser argument are the strings the code manipulates, so swapping either would change what the correct program does. Culture markers are absent, consistent with the category profile.",
+  "guide_gaps": [
+   {"term": "script", "decision": "Keep «script» (Latin), not «σενάριο», not «σκριπτ».", "why": "«σενάριο» is a false friend (film script) and «σκριπτ» is unattested in serious Greek technical prose; Greek developers write 'script'."},
+   {"term": "tab (browser)", "decision": "«καρτέλα».", "why": "The established Greek UI term, used by Chrome's own Greek localisation."},
+   {"term": "website", "decision": "«ιστοσελίδα».", "why": "Everyday Greek; «ιστότοπος» is the stricter term for 'site' but reads bureaucratic in a casual developer request."},
+   {"term": "Chrome", "decision": "Keep Latin 'Chrome', undeclined.", "why": "Product name that is also the literal argument to webbrowser.get(\"chrome\")."}
+  ],
+  "reference_problems": [
+   "The code is broken: `break` appears inside an `except` block with no enclosing loop, which is a SyntaxError ('break' outside loop) — the script will not run at all.",
+   "A bare `except:` catches everything, including KeyboardInterrupt/SystemExit; it also does not actually verify the www.<name>.com format, contrary to the prose claim.",
+   "The prose claim that 'the try/except block ensures it will only work for websites that follow the www.sitename.com format' is false: webbrowser.open_new_tab typically returns without raising even for nonexistent domains, so the failure branch will usually not trigger.",
+   "webbrowser.get(\"chrome\") is not a registered browser name on most platforms (the registered names are 'chrome' only where set up, commonly 'google-chrome' or 'chromium'), so the call frequently raises webbrowser.Error regardless of the URL.",
+   "A stray empty comment line ('#') is left above the url_site assignment.",
+   "The prompt's premise that every site is www.<name>.com is false and the answer adopts it uncritically (e.g. it cannot open .gr sites) without flagging it."
+  ],
+  "translator_notes": "The English prompt is underspecified and rests on a false presupposition (all sites are www.<name>.com); per Step 8 this was NOT repaired in the Greek — the Greek prompt reproduces the same premise so the row keeps the property that makes it interesting. Reviewer should verify «www.» and «www.google.com» round-trip byte-identically and that the guillemets around them are prose quoting, not part of the strings. Note this is one of the rare 9/334 rows whose reference answer IS fenced."
+ },
+ {
+  "row_id": "6359f0f00690473e3446e1d092aa4f58720fe059d9e3b3c3572d9b195c649f18",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "bare code-generation request (C++/OpenCV image processing)",
+  "hazards": [
+   "'Canny' is an eponym (John F. Canny), not a describable adjective: it must stay Latin and uncapitalised-as-a-name, because the answer calls cv::Canny(). Translating or transliterating it («Κάνι») would break the link to the API name.",
+   "'edge detection' has a settled Greek rendering («ανίχνευση ακμών») but 'ακμή' is a false friend for the untrained reader (it also means 'peak/acme'); the term must be kept in its established image-processing sense.",
+   "The answer will be long, unfenced C++ with load-bearing indentation and cv:: qualifiers — the whole span is verbatim territory.",
+   "The English verb is wrong ('a function that passes an image' where 'takes/accepts an image' is meant); rendering that sloppiness literally in Greek («περνάει μια εικόνα») would read as a different, ungrammatical error rather than the same one."
+  ],
+  "devices": [],
+  "device_notes": "No naming or sound devices. 'Canny' looks like the English adjective 'canny' but is an eponym, so it carries no wordplay to reproduce — noted only because it is a transliteration trap.",
+  "en_register": "neutral",
+  "register_evidence": "A single bare imperative clause with no punctuation, no greeting, no first-person framing and no politeness marking — a terse technical instruction that gives no relationship evidence in either direction.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Φτιάξε μια συνάρτηση σε C++ που δέχεται μια εικόνα και επιστρέφει την εικόνα με φίλτρο ανίχνευσης ακμών Canny.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "the term «ανίχνευση ακμών Canny»", "en": "canny edge detection filter", "el": "φίλτρο ανίχνευσης ακμών Canny", "why": "Word order is derived from Greek noun-phrase syntax: the eponym follows the head phrase in Greek instead of preceding it as in English, so 'canny edge detection filter' becomes «φίλτρο ανίχνευσης ακμών Canny» while every token's role is preserved."}
+  ],
+  "constraint_notes": "Checkable constraints preserved: the language must be C++, the deliverable is a function (not a whole program), it takes an image as input and returns an image, and the transformation applied is Canny edge detection. All remain verifiable from the Greek wording.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "edge detection", "decision": "«ανίχνευση ακμών».", "why": "The established Greek term in image processing and in Greek university curricula; «εντοπισμός περιγραμμάτων» describes contours, a different operation."},
+   {"term": "Canny", "decision": "Keep Latin 'Canny', placed after the head phrase.", "why": "Eponym tied to the cv::Canny() API name; transliteration would desynchronise the prose from the code."},
+   {"term": "function", "decision": "«συνάρτηση».", "why": "Standard Greek for a programming function; «λειτουργία» means 'feature/operation' and would change the deliverable."},
+   {"term": "C++", "decision": "Keep as 'C++', undeclined, with «σε C++».", "why": "Language name and code token; «σε» avoids the awkward genitive «συνάρτηση της C++»."}
+  ],
+  "reference_problems": [
+   "The prompt's own wording is defective ('a function that passes an image' instead of 'takes/accepts an image'); the reference silently reinterprets it without noting the ambiguity.",
+   "The thresholding step is a no-op: cv::Canny already outputs a binary 0/255 image, so cv::threshold(edges, mask, 128, 255, THRESH_BINARY) produces the same mask and adds nothing.",
+   "The function does not do what the prompt asks: it returns the original colour image masked to the edge pixels, not 'the image with a canny edge detection filter' (which would be the edge map itself).",
+   "The extra parameters threshold1/threshold2 are undocumented in the prose and were not requested; the prompt asked for a function taking an image.",
+   "std::cerr and std::endl are used with only <opencv2/opencv.hpp> included; this compiles only because that header transitively pulls in <iostream> — <iostream> should be included explicitly.",
+   "The reference has no explanatory prose at all after the code, unlike the other rows in this batch, and never states that OpenCV must be linked/installed.",
+   "The code block is unfenced (indentation-delimited only)."
+  ],
+  "translator_notes": "Reviewer should confirm the deliberate non-reproduction of the English's loose verb 'passes': the Greek uses «δέχεται» (accepts), because a literal «περνάει» would be a different and harsher error in Greek rather than the same mild sloppiness. If the batch policy wants prompt defects preserved in kind, this row is the candidate to revisit (it would move to PRESERVE-DEFECT), but the flaw here reads as incidental, not deliberate, so LITERAL was chosen. Also verify 'Canny' and 'C++' survive byte-identically."
+ }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "row_id": "5328c63fb7ec32ab6d74b12765ec0f28dcf8cfe4c78ecf3fa8dfe894c84d5796",
+    "response_el": "Ο λόγος είναι περιγραφικός και αξιολογικός. Παρουσιάζει παραστατικά τον Πανταλόνε μέσα από πλήθος αρνητικών γνωρισμάτων και πράξεων, διαμορφώνοντας μια έντονα επικριτική εικόνα ενός σύνθετου χαρακτήρα.",
+    "assistant_turns_el": [],
+    "register_used": "neutral",
+    "register_note": null,
+    "constraint_check": null,
+    "defect_note": null,
+    "reference_corrections": [],
+    "class_disagreement": null,
+    "guide_gaps": [
+      {
+        "term": "La Commedia dell'arte",
+        "decision": "κομέντια ντελ άρτε",
+        "why": "Χρησιμοποιήθηκε η καθιερωμένη ελληνική απόδοση που ορίζει το στάδιο 1."
+      }
+    ],
+    "deviations": [],
+    "self_flags": []
+  },
+  {
+    "row_id": "a9575bb9e4bc90cf7bfd7e3ab5d87f9d3ae7cd46bb273bbb3ab43584d0fd9c3b",
+    "response_el": "Κουζινικά",
+    "assistant_turns_el": [],
+    "register_used": "ενικός",
+    "register_note": null,
+    "constraint_check": "Η απάντηση είναι λεξικά πανομοιότυπη με την επιλογή «Κουζινικά».",
+    "defect_note": "Η εσφαλμένη γραφή «Έπιλα» στην πηγή διατηρείται σκόπιμα, αλλά δεν επηρεάζει την επιλεγμένη κατηγορία.",
+    "reference_corrections": [],
+    "class_disagreement": null,
+    "guide_gaps": [],
+    "deviations": [],
+    "self_flags": []
+  },
+  {
+    "row_id": "586d18d65cfc4651de4468e3012a1d8d747dbb89ef2a2cf9dddb223a12a61672",
+    "response_el": "1. Ανδρικό\n2. Ανδρικό\n3. Γυναικείο\n4. Ανδρικό\n5. Γυναικείο\n6. Ανδρικό\n7. Γυναικείο\n8. Ανδρικό\n9. Γυναικείο\n10. Γυναικείο",
+    "assistant_turns_el": [],
+    "register_used": "neutral",
+    "register_note": null,
+    "constraint_check": "Διατηρήθηκαν η αρχική σειρά και η αρίθμηση των δέκα ονομάτων· κάθε αριθμός αντιστοιχίστηκε σε μία από τις ετικέτες «Ανδρικό» ή «Γυναικείο».",
+    "defect_note": "Η ταξινόμηση αποτυπώνει παραδοσιακές συμβάσεις ονοματοδοσίας στον αγγλόφωνο κόσμο, όπως ορίζει η ελληνική πηγή.",
+    "reference_corrections": [],
+    "class_disagreement": null,
+    "guide_gaps": [],
+    "deviations": [],
+    "self_flags": []
+  },
+  {
+    "row_id": "41414834dc92e99f00e16af99da40b51959e2945f179a122e4a5118d8bf1f86a",
+    "response_el": "αρνητικό",
+    "assistant_turns_el": [],
+    "register_used": "neutral",
+    "register_note": null,
+    "constraint_check": "Η απάντηση είναι λεξικά πανομοιότυπη με την επιλογή «αρνητικό».",
+    "defect_note": null,
+    "reference_corrections": [],
+    "class_disagreement": null,
+    "guide_gaps": [],
+    "deviations": [
+      "Παραλείφθηκε η επεξηγηματική διατύπωση της αγγλικής αναφοράς, ώστε η απάντηση να ταυτίζεται ακριβώς με μία από τις κλειστές ελληνικές ετικέτες."
+    ],
+    "self_flags": []
+  }
+]

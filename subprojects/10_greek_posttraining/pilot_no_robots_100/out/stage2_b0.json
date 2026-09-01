@@ -1,0 +1,334 @@
+[
+ {
+  "row_id": "f1a36f216898e57dece905d8ddb34bff1e3a92589f0961ab8e6e58044ece68cd",
+  "response_el": "Ξύπνησα μέσα σε κρύο ιδρώτα. Δεν ήξερα πού βρισκόμουν ούτε πώς είχα φτάσει εκεί. Κοίταξα γύρω μου το δωμάτιο· τίποτα δεν μου θύμιζε τίποτα. Σηκώθηκα από το κρεβάτι και πήγα στο μπάνιο. Στον καθρέφτη αντίκρισα ένα πρόσωπο που δυσκολεύτηκα να αναγνωρίσω: μαύροι κύκλοι κάτω από τα μάτια, δέρμα χλωμό, σαν να είχα μέρες να κοιμηθώ.\n\nΓύρισα στην κρεβατοκάμαρα και προσπάθησα να θυμηθώ το προηγούμενο βράδυ. Θυμόμουν ότι είχα βγει με φίλους, όμως από ένα σημείο και μετά όλα ήταν θολά. Τους πήρα τηλέφωνο έναν έναν. Κανείς δεν απάντησε. Άρχισα να πανικοβάλλομαι και δεν ήξερα τι να κάνω.\n\nΑποφάσισα να βγω για περπάτημα, να καθαρίσει το μυαλό μου. Καθώς προχωρούσα, τα κομμάτια άρχισαν να επιστρέφουν μόνα τους. Ένα μπαρ. Ποτήρια που δεν μέτρησα. Ένας καβγάς με κάποιον του οποίου το πρόσωπο δεν μπορούσα να συγκρατήσω. Και μετά εγώ να τρέχω μέσα στα σκοτεινά σοκάκια, με την ανάσα να καίει.\n\nΚατάλαβα ότι είχα κάνει κάτι κακό. Δεν ήξερα ακόμη τι ακριβώς, ήξερα όμως ότι θα το μετάνιωνα για την υπόλοιπη ζωή μου. Ένιωσα το στομάχι μου να ανακατεύεται και στάθηκα στη γωνία ενός δρόμου που δεν αναγνώριζα, με τους περαστικούς να με προσπερνούν βιαστικοί. Τα χέρια μου έτρεμαν και δεν ήταν από το κρύο.\n\nΓύρισα στο διαμέρισμα και κλείδωσα πίσω μου. Κάθισα στον καναπέ και έχωσα το κεφάλι στις παλάμες μου. Τότε πρόσεξα, στον νεροχύτη της κουζίνας, ένα πουκάμισο μουσκεμένο, και το νερό γύρω του είχε ένα χρώμα που δεν ήθελα να ονομάσω. Δεν ήξερα τι να κάνω. Ήμουν χαμένος και μόνος.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "First-person narrative; no addressee, so no address form is forced anywhere in the text.",
+  "constraint_check": "Length constraint «γύρω στις 250 λέξεις»: the Greek text is 251 words, i.e. within the requested approximate budget.",
+  "deviations": [
+   "The English reference ends flatly on «I was lost and alone» without ever delivering the dark secret the prompt asks for. I kept its arc and length but added one concrete closing image (the soaked shirt in the sink) so that the promised dark discovery actually lands.",
+   "Sentence rhythm was rebuilt: the English repeats «I didn't know what to do» four times and uses uniform short clauses; Greek prose of this kind would read as broken, so the repetition is used twice, as a deliberate refrain."
+  ],
+  "self_flags": [
+   "The added ending image raises the story's implied severity (possible violence). If the dataset prefers strict content parity with the reference, the last two sentences can be cut without touching the rest."
+  ]
+ },
+ {
+  "row_id": "425a5425d42ed2654da17ce1673394d6286ef0f379d16ca8ccda75bae2a71218",
+  "response_el": "Θέμα: Πες μου για την Ιταλία!\n\nΑγαπημένη μου Ελένη,\n\nΧαίρομαι πολύ που γύρισες από την Ιταλία και ανυπομονώ να μου τα πεις όλα! Πώς ήταν ο καιρός; Τι προλάβατε να δείτε, πού μείνατε, τι φάγατε; Θα ήθελα πολύ να μου στείλεις και μερικές φωτογραφίες. Σκέφτεσαι να ξαναπάς κάποια στιγμή;\n\nΠεριμένω να τα πούμε.\n\nΦιλιά πολλά,\nΜαμά",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": null,
+  "constraint_check": null,
+  "deviations": [
+   "Added a subject line, which a Greek email of this kind would normally carry; the English reference has none.",
+   "«Until then» has no idiomatic Greek equivalent in a family email, so it became «Περιμένω να τα πούμε»."
+  ],
+  "self_flags": [
+   "Signed «Μαμά», following the reference. The prompt does not state the writer's gender, so a reviewer may prefer a neutral sign-off or «Μπαμπάς».",
+   "Name kept as Ελένη per the stage 1 localization decision (not a transliteration of Jenna)."
+  ]
+ },
+ {
+  "row_id": "8f90d1c64fbc0cd428a67dd6359194fded26a0406082e248fc16bd36b7a07508",
+  "response_el": "Χρόνια σου πολλά!\n\nΣήμερα είναι η δική σου μέρα και θέλω να σου πω καθαρά αυτά που ίσως δεν λέγονται αρκετά συχνά: σε εκτιμώ βαθύτατα και νιώθω ευγνώμων που σε έχω στη ζωή μου. Από την πρώτη στιγμή με δέχτηκες στην οικογένειά σου σαν δικό σου παιδί, και αυτό δεν το ξεχνάω.\n\nΗ καλοσύνη σου, η γενναιοδωρία σου και η σοφία σου με έχουν επηρεάσει περισσότερο απ' όσο φαντάζεσαι. Σε όλα αυτά τα χρόνια μου έχεις σταθεί, με έχεις στηρίξει και έχουμε μοιραστεί αμέτρητες όμορφες στιγμές — και είμαι σίγουρος πως έρχονται κι άλλες. Σήμερα γιορτάζω εσένα και όλα όσα έχεις καταφέρει· είσαι για μένα παράδειγμα δύναμης, αξιοπρέπειας και υπομονής.\n\nΣου εύχομαι να ζήσεις πολλά χρόνια, γερή και χαρούμενη, και ό,τι κάνεις να σου πηγαίνει κατ' ευχήν. Να πραγματοποιηθούν όλα σου τα όνειρα και να είσαι πάντα περιτριγυρισμένη από την αγάπη της οικογένειας και των φίλων σου.\n\nΧρόνια σου πολλά, με πολλή αγάπη!",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Kept ενικός throughout, as stage 1 assigned, because the English message is markedly affectionate; the alternative πληθυντικός would also be idiomatic for a πεθερά.",
+  "constraint_check": null,
+  "deviations": [
+   "«my second mother» was dropped: in Greek it reads as a cliché that can sound like a slight to one's own mother. Replaced with «με δέχτηκες σαν δικό σου παιδί», which carries the same warmth natively.",
+   "«an amazing addition to our family» was inverted — in Greek it is the daughter/son-in-law who was received into the family, so the sentence was rewritten from that angle.",
+   "Trimmed roughly a fifth of the reference's length; the English piles up superlatives in a way that reads as insincere in a Greek birthday text."
+  ],
+  "self_flags": [
+   "«είμαι σίγουρος» fixes the writer as male. The prompt does not say; a reviewer may want «σίγουρη» or a gender-free rewording.",
+   "Register call (ενικός vs πληθυντικός for a mother-in-law) is a genuine cultural judgement worth a second opinion."
+  ]
+ },
+ {
+  "row_id": "1a7289a2f9263f543ab1d8d75986fe531b1c24cec14b9349f72439fc28b08d01",
+  "response_el": "Ο Αύγουστος τη βαλίτσα μας γεμίζει\nκι ο δρόμος για τη θάλασσα ανοίγει μπροστά,\nτο τρένο στην αποβάθρα σφυρίζει\nκι ό,τι μας βάραινε μένει πίσω, μακριά.\n\nΤο μεσημέρι στο κύμα λιώνει σαν κερί,\nη άμμος καίει, τ' αλάτι στο δέρμα στεγνώνει,\nκι ένα παγωτό στάζει αργά μες στο χέρι,\nενώ ο ήλιος τα βουνά απέναντι χρυσώνει.\n\nΜα κι ο χειμώνας κρύβει τη δική του χαρά,\nμε σκι, με τζάμια θολά και μια κούπα ζεστή,\nστο καταφύγιο η παρέα γελά\nκαι το χιόνι απ' έξω στήνει τη δική του γιορτή.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "First-person plural («μας», «γελά η παρέα») avoids addressing the reader, so no address form is forced.",
+  "constraint_check": "Three stanzas of four lines each, ΑΒΑΒ throughout: (γεμίζει / μπροστά / σφυρίζει / μακριά), (κερί / στεγνώνει / χέρι / χρυσώνει), (χαρά / ζεστή / γελά / γιορτή).",
+  "deviations": [
+   "The English stanzas name English destinations (Europe, Leeds). Rhyming on Greek place names would have forced awkward lines, so the poem keeps the same three-part structure — travel, beach, mountains — with images rather than toponyms.",
+   "«drinks with your mates» became «η παρέα γελά στο καταφύγιο», which is the natural Greek scene; the alcohol reference is not needed for the image."
+  ],
+  "self_flags": [
+   "«κερί / χέρι» is a slightly imperfect rhyme (κε-ρί / χέ-ρι differ in stress placement). A reviewer strict about ομοιοκαταληξία may want line 5 reworked to end on a word stressed like «χέρι»."
+  ]
+ },
+ {
+  "row_id": "9491012e7cdaf7706ce0a8914895c93ab19f84c7bd4ba1b0cf8d3a17a85aeae2",
+  "response_el": "Όταν το παλιό Mercedes του Ανδρέα Βασιλείου γλίστρησε και βγήκε από τον δρόμο, περίμενε να δει τη ζωή του να περνάει μπροστά στα μάτια του. Έτσι λένε, ολόκληρη, από την πρώτη μέρα ως αυτό το λεπτό. Αντί γι' αυτό είδε μόνο κομμάτια, και μάλιστα κομμάτια που είχε κλειδώσει χρόνια — όπως τότε που η κόρη του τον βρήκε να κλαίει στην αποθήκη· είχε νιώσει τέτοια ντροπή που θα προτιμούσε να είχε ανοίξει η γη να τον καταπιεί. Τώρα, τη στιγμή που το αυτοκίνητο έπαιρνε τη στροφή και βούλιαζε στο χαντάκι, κατάλαβε πως αυτό που είχε στο πρόσωπό της δεν ήταν η αηδία που είχε φανταστεί τόσα χρόνια, αλλά κάτι εντελώς άλλο: τρυφερότητα, ίσως και κατανόηση.\n\nΤο κλάμα έγινε κουζίνα, ένα απόγευμα με το μίξερ ξεσκέπαστο: εκεί, στη γωνία, η γυναίκα του, πολύ πριν την αρρώστια, να ξεσπάει σε γέλιο βλέποντας το αλεύρι στο ταβάνι και τους λεκέδες στο καρό πουκάμισό του, και το χέρι της, μαλακό, να του χαϊδεύει το αξύριστο μάγουλο. Ήρθαν κι άλλα: μια ανατολή που τον τύφλωσε στην Αίγινα, ο κατσούφης περιπτεράς απ' όπου έπαιρνε καφέ κάθε πρωί δεκατρία χρόνια, η άσπρη ουρά ενός ζαρκαδιού που χανόταν στα Τζουμέρκα χθες, καθώς κατέβαζε το ντουφέκι και δεν πυροβολούσε, ένας καταρράκτης που βροντούσε — σαν το γέλιο της γυναίκας του, που να το πάλι.\n\nΤο γέλιο ήταν πάντα εκεί. Ήταν ακόμη εκεί όταν χάθηκαν όλα και ο κόσμος έγινε μαύρος.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Third-person narration; no addressee.",
+  "constraint_check": null,
+  "deviations": [
+   "Following the stage 1 localization decision, the protagonist is Greek, so the surrounding detail was moved with him: the 1980 Buick LeSabre became «το παλιό Mercedes», the Athens sunrise became a sunrise on Αίγινα (Athens would no longer read as a distant memory for a Greek character), the shopkeeper became a περιπτεράς, and the upstate New York waterfall became one in the Τζουμέρκα.",
+   "«blending malts» has no Greek household equivalent; the same domestic-accident image was rebuilt with a mixer and flour on the ceiling.",
+   "«almost zipped himself» is opaque even in English; replaced with the idiomatic «θα προτιμούσε να είχε ανοίξει η γη να τον καταπιεί».",
+   "The Browning is unnamed («το ντουφέκι»): brand-naming a hunting rifle is not a Greek narrative habit."
+  ],
+  "self_flags": [
+   "Whether the wife's illness should stay cancer (the English says so) or remain unnamed, as here, is a stylistic call.",
+   "Deer hunting in the Τζουμέρκα is plausible but a reviewer familiar with Greek hunting seasons may prefer a different animal or region."
+  ]
+ },
+ {
+  "row_id": "fd4adc4195645ae79a2b827040261be980c2639d9fb055d50ea44a3a0a5c203c",
+  "response_el": "Πώς αποπληρώνονται τα χρέη αποτελεσματικά\n\nΔάνεια, πιστωτικές κάρτες και δόσεις έχουν γίνει κομμάτι της καθημερινότητας. Το χρέος από μόνο του δεν είναι πάντα κακό — ένα στεγαστικό δάνειο, για παράδειγμα, είναι συχνά επένδυση. Το πρόβλημα ξεκινά όταν το χρέος μεγαλώνει ανεξέλεγκτα και ένα διαχειρίσιμο ποσό μετατρέπεται σε βάρος πολλών ετών. Παρακάτω περιγράφονται οι βασικοί τρόποι ώστε να μένει υπό έλεγχο.\n\nΠρώτα απ' όλα, η ελάχιστη δόση πληρώνεται πάντα. Όποιος τη χάνει, δεν κερδίζει τίποτα: τον επόμενο μήνα η οφειλή είναι μεγαλύτερη, προστίθενται τόκοι υπερημερίας και συχνά και επιβαρύνσεις, ενώ το ιστορικό πληρωμών χαλάει και κάνει κάθε μελλοντική χρηματοδότηση ακριβότερη. Είναι η χειρότερη δυνατή ανταλλαγή, γιατί δίνει μόνο περισσότερο χρέος.\n\nΔεύτερον, χρήματα που κάθονται σε καταθετικό λογαριασμό αποδίδουν συνήθως λιγότερο απ' όσο κοστίζει το χρέος. Ένα παράδειγμα: οφειλή 1.000 ευρώ με επιτόκιο 23% γίνεται μέσα σε έναν χρόνο περίπου 1.230 ευρώ. Τα ίδια 1.000 ευρώ σε μια κατάθεση με 2% θα αποδώσουν 20 ευρώ. Παράλληλα, δηλαδή, η ζημιά είναι πάνω από 200 ευρώ. Η αποπληρωμή της κάρτας είναι σχεδόν πάντα η καλύτερη «απόδοση» που μπορεί να βρει κανείς.\n\nΤρίτον, σημασία έχει το επιτόκιο, όχι το υπόλοιπο. Πολλοί εστιάζουν στο μεγαλύτερο ποσό, αλλά ο ανατοκισμός τρέχει γρήγορα: όταν δύο οφειλές είναι παρόμοιου μεγέθους, συμφέρει να κλείνει πρώτη εκείνη με το υψηλότερο επιτόκιο, ακόμη κι αν δεν είναι η μεγαλύτερη. Υπάρχουν αρκετοί δωρεάν υπολογιστές στο διαδίκτυο που κάνουν αυτή τη σύγκριση.\n\nΤέταρτον, χρειάζεται σχέδιο. Ένα απλό χρονοδιάγραμμα πληρωμών, με σειρά προτεραιότητας και ημερομηνίες, λειτουργεί σαν υπενθύμιση τη στιγμή που μπαίνει ο πειρασμός μιας νέας αγοράς. Βοηθά επίσης ένα μικρό απόθεμα έκτακτης ανάγκης, ώστε μια βλάβη ή ένας γιατρός να μη γίνεται καινούργια κάρτα.\n\nΤέλος, αξίζει μια συζήτηση με την τράπεζα πριν εμφανιστεί καθυστέρηση. Ρύθμιση οφειλής, μεταφορά υπολοίπου ή συγκέντρωση δανείων σε ένα με χαμηλότερο επιτόκιο είναι επιλογές που εξετάζονται πολύ πιο εύκολα όσο τα πράγματα είναι ακόμη τακτοποιημένα.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Written impersonally («περιγράφονται», «όποιος», «κανείς»), so no ενικός/πληθυντικός choice is forced on the reader.",
+  "constraint_check": "Hard cap «λιγότερες από 400 λέξεις»: the article, including the title line, is 305 words.",
+  "deviations": [
+   "The reference opens with a US-specific claim (that having no debt hurts your credit score and mortgage chances). That framing is misleading in Greece, where no consumer credit score of that type is used, so the opening was replaced with the Greek-true point that some debt is investment and the danger is escalation. The payment-history point survives, correctly scoped to «ιστορικό πληρωμών».",
+   "Dollar amounts became euro amounts and the arithmetic was redone; the reference's «net negative $18» does not follow from its own numbers (it compares $23 of interest with $5 of yield), so the figure was recomputed and stated as «πάνω από 200 ευρώ» for the 1.000-euro example.",
+   "The reference's war metaphor («you are going to war with your finances») was dropped as an English cliché and replaced with a plain planning paragraph.",
+   "Two practical items absent from the reference were added — an emergency buffer and negotiating with the bank before defaulting — because the reference is thin on what to actually do."
+  ],
+  "self_flags": [
+   "The 23% card rate and 2% deposit rate are illustrative; a reviewer may want them checked against current Greek market figures or made explicitly hypothetical.",
+   "«ρύθμιση οφειλής» has a specific legal sense in Greece; here it is used in the everyday banking sense."
+  ]
+ },
+ {
+  "row_id": "8432652098a896c28e60a2b9787d4ecb951c6ccf2cc4af6a09fe8a887b75ed2d",
+  "response_el": "Κυριακή πρωί, και το κολυμβητήριο της γειτονιάς είχε ήδη γεμίσει. Δεκάδες ενθουσιασμένα παιδιά και εξίσου νυσταγμένοι γονείς στριμώχνονταν στον διάδρομο με τα παπούτσια στο χέρι. Οι τρεις πισίνες ήταν όλες ρηχές, φτιαγμένες για μικρά παιδιά. Σε κάποιες διαδρομές, μωρά χοροπηδούσαν στην αγκαλιά των γονιών τους πιτσιλώντας και γελώντας· σε άλλες, λίγο μεγαλύτερα παιδιά έκαναν τις πρώτες τους απλωτές μόνα τους.\n\nΤο κοριτσάκι της ιστορίας μας ήταν από τα δεύτερα. Λάτρευε να πηδάει και να πιτσιλάει, και ακόμη περισσότερο λάτρευε να τα καταφέρνει μόνο του. Γύρισε και κοίταξε στο πλάι, εκεί που καθόταν ο μπαμπάς της. «Μπαμπά, κοίτα!» φώναξε, και βούτηξε από το σκαλάκι προς το πλαστικό πατάρι στο νερό. Ο μπαμπάς χαμογέλασε. Είχε προχωρήσει τόσο πολύ μέσα σε λίγους μήνες μαθημάτων. Το πρώτο μισό της ώρας ήταν το σοβαρό κομμάτι — ανάσες, ύπτιο, στροφές — αλλά το δεύτερο μισό ήταν το αγαπημένο της: λιγότερες οδηγίες, περισσότερα πιτσιλίσματα. Πηδούσαν με τη σειρά από την άκρη, γύριζαν κολυμπώντας πίσω και ανέβαιναν μόνα τους έξω. Σήμερα το κοριτσάκι είχε βάλει σκοπό να κάνει τη μεγαλύτερη βουτιά της ζωής της· από το κύμα που σηκώθηκε, δύσκολα θα διαφωνούσε κανείς ότι τα κατάφερε.\n\nΤο μάθημα έκλεισε με το «πλυντήριο», όπου όλα τα παιδιά κρέμονται από τη δασκάλα κι εκείνη τα στριφογυρίζει μέσα στο νερό — εκεί γελάνε πάντα όλοι. Βγαίνοντας, το κοριτσάκι έτρεξε στον μπαμπά της, που την περίμενε με ανοιχτή την πετσέτα για να τη στεγνώσει και να τη ζεστάνει. Ένα γρήγορο ντους, αλλαξιά ρούχα, και ίσως ήταν ώρα για ένα κρουασάν στο φούρνο της γωνίας. Το κοριτσάκι αγαπούσε αυτές τις κυριακάτικες ώρες που ήταν μόνο δικές τους.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Third-person narration with a single narratorial «η ιστορία μας»; no addressee.",
+  "constraint_check": "Structure constraint «περίπου τρεις παραγράφους»: exactly three paragraphs. The reference's four paragraphs were consolidated into three so the count is met on the nose.",
+  "deviations": [
+   "The invented school name «Fass Swim School» was dropped in favour of «το κολυμβητήριο της γειτονιάς»; a transliterated Anglo brand name would be the only foreign object in an otherwise Greek scene.",
+   "The post-class «treat» became «ένα κρουασάν στο φούρνο της γωνίας», the everyday Greek version of the same ritual.",
+   "The reference's four paragraphs are merged to three to satisfy the stated paragraph count, which the reference itself misses."
+  ],
+  "self_flags": [
+   "«πλυντήριο» is a literal rendering of the game's English name; Greek swimming schools may use a different term, worth checking with someone who teaches."
+  ]
+ },
+ {
+  "row_id": "9460084e383589dad85ab9291f21cd0e947ca59d6c230d0602acdeb5ef76641a",
+  "response_el": "Ο Γιώργος και η Άννα ήταν φίλοι από παιδιά. Είχαν μεγαλώσει στην ίδια πολυκατοικία και, χρόνια αργότερα, έμεναν πάλι σε διπλανά διαμερίσματα. Ο Γιώργος την αγαπούσε από πάντα, αλλά ποτέ δεν είχε βρει το θάρρος να της το πει. Φοβόταν ότι θα χαλούσε αυτό που είχαν ή, ακόμη χειρότερα, ότι εκείνη δεν ένιωθε το ίδιο. Όταν όμως η Άννα δέχτηκε πρόταση για δουλειά σε μια μακρινή πόλη, κατάλαβε ότι ο χρόνος του τελείωνε.\n\nΤο αποφάσισε ένα πρωί, πριν από την καθιερωμένη κυριακάτικη βόλτα τους για καφέ. Βγήκε από το σπίτι και πέρασε από το ανθοπωλείο της γωνίας. Ήξερε ότι τα αγαπημένα της λουλούδια ήταν οι τουλίπες, και του φάνηκε σαν σημάδι που εκείνη τη μέρα υπήρχαν τόσες πολλές. Διάλεξε τις κίτρινες και τις μπλε, τα χρώματα που της άρεσαν, και γύρισε πίσω να την πάρει.\n\nΗ καρδιά του χτυπούσε δυνατά καθώς χτυπούσε το κουδούνι της. Είχε αποφασίσει να το πάει όπως έρθει: αν τα λουλούδια την ξάφνιαζαν άσχημα, θα έβρισκε κάποια δικαιολογία. Η Άννα άνοιξε χαμογελώντας κι εκείνος ανάσανε. Της έδωσε τις τουλίπες, μπήκε μέσα όσο τις έβαζε σε ένα βάζο, και ύστερα κατέβηκαν για καφέ. Κάποια στιγμή τη ρώτησε αν θα δεχόταν τη δουλειά. Την είδε να διστάζει στην ιδέα ότι θα έφευγε τόσο μακριά, και το εκμεταλλεύτηκε: της είπε ότι την αγαπούσε, ότι την αγαπούσε μια ολόκληρη ζωή. Η Άννα άργησε να απαντήσει και ο Γιώργος ένιωσε τα χέρια του να κρυώνουν. Ήρθε και ο σερβιτόρος με την παραγγελία, κι η σιωπή τραβήχτηκε κι άλλο.\n\nΤελικά η Άννα γέλασε σιγανά. «Δεν πίστευα ότι θα μου το έλεγες ποτέ. Σε περιμένω από το λύκειο.» Ο Γιώργος άπλωσε το χέρι και έπιασε το δικό της, και κατάλαβε ότι η ζωή του μόλις είχε αρχίσει.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Third-person narration; no addressee.",
+  "constraint_check": null,
+  "deviations": [
+   "The American «daily brunch date» has no Greek counterpart; it became the weekly Sunday coffee outing, which is the equivalent shared ritual.",
+   "Added the detail that they grew up in the same block of flats, so that «διπλανά διαμερίσματα» reads as a natural Greek arrangement rather than a coincidence."
+  ],
+  "self_flags": [
+   "«Σε περιμένω από το λύκειο» keeps the reference's «since high school»; Greek λύκειο covers the same ages, so the line works, but a reviewer may prefer «από τα σχολικά μας χρόνια»."
+  ]
+ },
+ {
+  "row_id": "4a086e75fe9b148cef050cd6f692ff206d4ee75cc6866e1164288647892e4170",
+  "response_el": "ΕΣΩΤ. ΑΥΤΟΚΙΝΗΤΟ – ΜΕΡΑ\n\nΔύο σκυλιά, ο ΛΟΥΚΙ και ο ΡΕΞ, στο πίσω κάθισμα ενός γεμάτου αυτοκινήτου. Στην οροφή, σκηνή και υπνόσακοι. Οι άνθρωποί τους μπροστά.\n\nΛΟΥΚΙ: Φτάσαμε σχεδόν! Το μυρίζω. Ανυπομονώ.\nΡΕΞ: Πού φτάσαμε; Πού πάμε;\nΛΟΥΚΙ: Άκουσα τη μαμά να λέει για ένα μονοπάτι. Κάτι για Ζαγόρι και μια χαράδρα.\nΡΕΞ: Ωραία μου ακούγεται. Κοίτα, κοίτα! Κάτι βλέπω.\nΛΟΥΚΙ: Βλέπω δέντρα. Μυρίζω δέντρα. Μυρίζω πάρα πολλά πράγματα. Το μυρίζεις αυτό;\nΡΕΞ: Το μυρίζω. Θα τα ψάξω όλα μόλις βγω από το αυτοκίνητο.\n\nΕΞΩΤ. ΠΑΡΚΙΝΓΚ ΣΤΗΝ ΑΡΧΗ ΤΟΥ ΜΟΝΟΠΑΤΙΟΥ – ΛΙΓΟ ΑΡΓΟΤΕΡΑ\n\nΛΟΥΚΙ: Ωχ, όχι. Μας βάζουν λουρί. Κρίμα. Μου αρέσει να τρέχω ελεύθερος.\nΡΕΞ: Και μένα. Θέλω να τρέχω ελεύθερος μαζί σου, αδερφέ.\nΛΟΥΚΙ: Τότε ας τρέξουμε όσο πιο γρήγορα μπορούμε, μαζί με τον άνθρωπό μας.\nΡΕΞ: Είμαι πίσω σου. Πάμε.\nΛΟΥΚΙ: Ωχ, όχι!\nΡΕΞ: Τι έγινε;\nΛΟΥΚΙ: Ο άνθρωπός μας έπεσε. Τώρα μπερδευτήκαμε όλοι στα λουριά.\nΡΕΞ: Εγώ πάντως ακόμη τρέχω.\nΛΟΥΚΙ: Κι εγώ ακόμη τρέχω. Να τρέξουμε μαζί;\nΡΕΞ: Ναι. Τρέχω ήδη.\n\nΕΞΩΤ. ΔΑΣΟΣ – ΑΡΓΟΤΕΡΑ\n\nΛΟΥΚΙ: Κι εγώ. Τι ωραία που είναι.\nΡΕΞ: Τρέχουμε πολλή ώρα.\nΛΟΥΚΙ: Πού είμαστε;\nΡΕΞ: Δεν ξέρω, αδερφέ. Δεν βλέπω τον άνθρωπό μας.\nΛΟΥΚΙ: Διψάω. Θέλω νερό.\nΡΕΞ: Δεν βλέπω νερό. Λέω, αν τρέξουμε κι άλλο, θα βρούμε.\nΛΟΥΚΙ: Εντάξει, πάμε.\nΡΕΞ: Τρέχουμε πάρα πολλή ώρα. Νερό δεν βλέπω. Θέλω νερό.\nΛΟΥΚΙ: Ούτε νερό βλέπω ούτε τον άνθρωπό μας.\n\nΕΞΩΤ. ΔΑΣΟΣ – ΣΟΥΡΟΥΠΟ\n\nΡΕΞ: Σκοτεινιάζει.\nΛΟΥΚΙ: Σκοτεινά και τρομακτικά. Άκουσες αυτόν τον θόρυβο;\nΡΕΞ: Τον άκουσα. Ήταν τρομακτικός. Έκανε «Κου-κου-βάου».\nΛΟΥΚΙ: Τι λες να ήταν;\nΡΕΞ: Δεν ξέρω, ξέρω όμως ότι θέλω σπίτι. Μου λείπει ο άνθρωπός μου και το κρεβατάκι μου.\nΛΟΥΚΙ: Κι εγώ θέλω σπίτι, αλλά μην κλαψουρίζεις τώρα. Πρέπει να βρούμε τον άνθρωπό μας. Πάμε.\nΡΕΞ: Το ακούς αυτό; Τι είναι;\nΛΟΥΚΙ: Το ακούω. Ο άνθρωπός μας είναι! Πάμε!\nΡΕΞ: Ζήτω! Τον βρήκαμε. Τώρα πάμε σπίτι.\nΛΟΥΚΙ: Δεν πάμε σπίτι. Μόλις ήρθαμε.\nΡΕΞ: Ζήτω για τον άνθρωπό μας!",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "The dogs address each other in ενικός, as any two characters would; nothing in the answer addresses the user, so the response register itself stays neutral.",
+  "constraint_check": null,
+  "deviations": [
+   "Dog names Luther and Bailey became Λούκι and Ρεξ — names Greek households actually give dogs, so the dialogue reads as native.",
+   "The Appalachian Trail in Georgia became the Ζαγόρι / Χαράδρα του Βίκου, the equivalent well-known hiking destination for a Greek family.",
+   "«Goldendoodles» was dropped: the breed is unfamiliar in Greece and naming it added nothing to the scene.",
+   "The owl's «Hoo Hoo» became «Κου-κου-βάου», which is how the sound is rendered in Greek and lets the joke survive.",
+   "Slug lines (ΕΣΩΤ./ΕΞΩΤ.) were added, since the prompt asks for a script and the reference is only loosely formatted as one."
+  ],
+  "self_flags": [
+   "«Κου-κου-βάου» is a coined onomatopoeia leaning on «κουκουβάγια»; a reviewer may prefer the plainer «Ου-ου»."
+  ]
+ },
+ {
+  "row_id": "ba5caa4910d7d1798fe9f4ea5316ee28c842173aa2e6f1eaadd97cc901afde3f",
+  "response_el": "😮‍💨 Δύο στους τρεις εργαζόμενους πλήρους απασχόλησης λένε ότι κάποια στιγμή στην καριέρα τους έφτασαν στα όριά τους.\n\nΗ επαγγελματική εξουθένωση δεν είναι μόδα· είναι πραγματικό πρόβλημα και αυξάνεται.\nΠώς προστατεύεται κανείς;\n\n👇 Τέσσερα πράγματα που κάνουν τη διαφορά:\n\n1️⃣ Πάρε την άδειά σου ✈️\nΑκούγεται αυτονόητο, αλλά πόσοι έκαναν πέρσι όλες τις μέρες άδειας που δικαιούνταν; Η απόσταση από τη δουλειά δεν είναι πολυτέλεια, είναι συντήρηση. Χωρίς αυτή, η κούραση μαζεύεται αθόρυβα.\n\n2️⃣ Φτιάξε μια ρουτίνα φροντίδας 🛌\nΛίγος χρόνος κάθε μέρα για κάτι που ξεκουράζει πραγματικά: ύπνος που φτάνει, κίνηση, ένα βιβλίο, μια βόλτα χωρίς κινητό. Και μια εβδομαδιαία «σταθερά» που δεν ακυρώνεται για κανέναν λόγο.\n\n3️⃣ Βρες ένα χόμπι που σε τραβάει 🎣\nΕίναι εύκολο να σε καταπιεί η δουλειά. Ένα χόμπι θυμίζει ότι υπάρχει κι ένας κόσμος έξω από το γραφείο. Κιθάρα, κήπος, ποδήλατο, μαγειρική, χορός — δεν έχει σημασία τι, αρκεί να το περιμένεις.\n\n4️⃣ Μη μένεις μόνος 🤝\nΗ απομόνωση και η εξουθένωση πάνε μαζί. Όλα φαίνονται πιο βουνό όταν τα κουβαλάς μόνος. Δώσε προτεραιότητα σε οικογένεια και φίλους — και αν αυτή τη στιγμή ο κύκλος σου είναι μικρός, κάνε την κίνηση να τον ανοίξεις.\n\n💬 Διάλεξε ΕΝΑ από τα τέσσερα και κάν' το αυτή την εβδομάδα. Γράψε στα σχόλια ποιο διάλεξες — και μοιράσου την ανάρτηση με κάποιον που τη χρειάζεται. 🔁",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Stage 1 set the row's target register to neutral for the request itself, but a Facebook post giving advice is addressed to a reader and Greek social-media copy of this kind is uniformly ενικός. The address form is therefore ενικός and consistent throughout the post; nothing addresses the user who commissioned it.",
+  "constraint_check": "Emoji present throughout; short punchy opening (statistic + question) before the list; exactly 4 numbered tips; closing call to action (pick one, comment, share).",
+  "deviations": [
+   "«PTO» became «άδεια»: paid time off is a statutory entitlement in Greece, so the American framing of unused PTO days was rewritten as unused annual leave.",
+   "The hobby examples were changed from snowboarding/knitting/beach running to ones a Greek reader recognises (κιθάρα, κήπος, ποδήλατο, μαγειρική, χορός).",
+   "The reference's closing paragraph is a reflection on «hustle culture», not a call to action, even though the prompt asks for one. Replaced with an actual CTA."
+  ],
+  "self_flags": [
+   "The «2 in 3» statistic is carried over from the reference and is US-sourced; presented here as a general claim. If the dataset requires sourced figures, this line should be softened or cut.",
+   "Register departs from the stage 1 neutral label for good reason (see register_note) — worth a reviewer's confirmation."
+  ]
+ },
+ {
+  "row_id": "0729c84ea82331ae7070fb3212eea725162b1fd918dbb7530d98274fcfde87a8",
+  "response_el": "Ορίστε 15 προορισμοί που δεν υπάρχουν — και ευτυχώς:\n\n1. Κόλπος της Καταστροφής\n2. Φαράγγι του Φόβου\n3. Λίμνη της Λύπης\n4. Βάλτος των Βδελλών\n5. Δάσος της Δυστυχίας\n6. Πέρασμα της Πανούκλας\n7. Βουνό της Βεντέτας\n8. Κάμπος του Κλάματος\n9. Σπηλιά της Συμφοράς\n10. Ακτή της Αγωνίας\n11. Νησί της Ναυτίας\n12. Ρεματιά της Ρημαγιάς\n13. Τέλμα της Τρομάρας\n14. Χαράδρα του Χαμού\n15. Γκρεμός της Γκρίνιας\n\nΑν παρ' όλα αυτά επιμείνεις, πάρε μαζί σου αντηλιακό και μια καλή δικαιολογία.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The playful closing line addresses the user in ενικός, matching the prompt's jokey tone.",
+  "constraint_check": "Exactly 15 entries; every name is alliterative in Greek (the geographical term and the noun that follows share their initial letter and sound: Κ-Κ, Φ-Φ, Λ-Λ, Β-Β, Δ-Δ, Π-Π, Β-Β, Κ-Κ, Σ-Σ, Α-Α, Ν-Ν, Ρ-Ρ, Τ-Τ, Χ-Χ, Γκ-Γκ); all are invented and none corresponds to a real Greek toponym.",
+  "deviations": [
+   "None of the English names could be carried over — alliteration does not survive translation — so all 15 were composed fresh in Greek. The register of the list (ominous, comic) matches the reference.",
+   "Added a one-line comic sign-off; the reference is a bare list and the prompt's tone invites it."
+  ],
+  "self_flags": [
+   "«Ρεματιά της Ρημαγιάς» uses a colloquial/dialectal noun; if a reviewer finds it too obscure, «Ρεματιά της Ρημαξιάς» or «Ράχη της Ρημιάς» work equally well.",
+   "«Γκρεμός της Γκρίνιας» alliterates on the digraph γκ rather than a single letter — deliberate, but worth confirming it counts for the checker."
+  ]
+ },
+ {
+  "row_id": "d72eb4b799be95a85a1fe3ca8e6259166e11ac34510a26cb1a72ba87eb226406",
+  "response_el": "Ο Sykkuno είναι Αμερικανός στρίμερ ποικίλου περιεχομένου, από τη νότια Καλιφόρνια, με κινεζική και βιετναμέζικη καταγωγή. Ξεκίνησε τη διαδρομή του στο Twitch, όπου από τον Απρίλιο του 2019 και μετά έκανε τακτικές μεταδόσεις, ενώ τον Μάιο του 2022 υπέγραψε συμφωνία με το YouTube και μετέφερε εκεί τις ζωντανές του εκπομπές. Από τον Αύγουστο του 2022 τον εκπροσωπεί το πρακτορείο United Talent Agency.\n\nΟ χαρακτηρισμός «ποικίλου περιεχομένου» δεν είναι τυπικός: δεν παίζει σταθερά το ίδιο παιχνίδι. Στα κανάλια του έχουν περάσει, μεταξύ άλλων, League of Legends, Grand Theft Auto V, Among Us, Valorant, Friday the 13th, Overcooked, Bloons Tower Defense 6 και Minecraft. Σπάνια παίζει μόνος· προτιμά τις παρέες, και αυτό είναι ίσως το βασικό γνώρισμα του καναλιού του.\n\nΈχει στενή σχέση, φιλική και επαγγελματική, με πολλούς άλλους δημιουργούς, όπως οι Leslie Fu, Valkyrae, Yvonnie, Kkatamina, xQc, Disguised Toast, Michael Reeves, LilyPichu και Blaustoise, με τους οποίους εμφανίζεται συχνά σε κοινές μεταδόσεις.\n\nΈνα στοιχείο που ίσως δεν είναι γνωστό αφορά το ωράριό του: οι εκπομπές του γίνονται συνήθως μεταξύ 3 το μεσημέρι και 3 τα ξημερώματα, ώρα Ειρηνικού — δηλαδή, για την Ελλάδα, από το βράδυ ως το πρωί της επόμενης μέρας. Πολύ σπάνια ξεκινά νωρίτερα, συνήθως όταν συμμετέχει σε τουρνουά, όταν συντονίζεται με φίλους ή όταν θέλει να δώσει μια ώρα πιο βολική για το ευρωπαϊκό κοινό.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Purely expository; the user is never addressed, so no address form is forced.",
+  "constraint_check": "Paragraph format kept (four paragraphs). Word window «τουλάχιστον 200, όχι πάνω από 250»: the answer is 217 words, inside the window.",
+  "deviations": [
+   "Added one orienting sentence for a Greek reader — converting the 3 p.m.–3 a.m. Pacific window into what it means locally — because the reference's time zone reference is meaningless outside the US. This replaces, not supplements, wording cut elsewhere.",
+   "The reference's misspellings were corrected: «Micheal Reeves» → Michael Reeves, «Sykunno» → Sykkuno, «ValkyRae» → Valkyrae.",
+   "«American-born streamer of Asian descent» was compressed to «Αμερικανός … με κινεζική και βιετναμέζικη καταγωγή», since the Greek phrasing would otherwise repeat itself."
+  ],
+  "self_flags": [
+   "All biographical facts come from the English reference and are stated as of 2022; platform deals and representation change, so a reviewer should verify currency and, ideally, the friend list spellings.",
+   "Handles and game titles are deliberately left in Latin script — that is how they are written in Greek gaming coverage."
+  ]
+ },
+ {
+  "row_id": "9959a0fd028f37155e2edbc9667e0150beddb341cc27778222139ca8e5e08048",
+  "response_el": "Ξεκίνησα τον επικήδειο όπως ξεκινούσα σχεδόν κάθε κουβέντα που έκανα με τους άλλους για τον Βαγγέλη. Πήρα μια βαθιά ανάσα: «Δεν μου είπε ποτέ σ' αγαπώ.» Περίμενα τα μικρά ξαφνιασμένα επιφωνήματα, τις ανάσες που κόβονται, και θυμήθηκα γιατί μου άρεσε τόσο πολύ να το λέω. Με τον Βαγγέλη ήμασταν παντρεμένοι σαράντα δύο χρόνια, κάναμε έξι παιδιά και δεκατέσσερα εγγόνια. Φαινόταν αδιανόητο στον κόσμο ότι δεν είχε πει ποτέ εκείνες τις τρεις λέξεις που τόσοι θεωρούν απαραίτητες. Για μένα όμως δεν ήταν αυτές που μετρούσαν.\n\nΣυνέχισα: «Αυτό δεν σημαίνει ότι δεν με αγαπούσε. Μου έφτιαχνε καφέ κάθε πρωί, εκτός από την Κυριακή, γιατί ήξερε ότι δεν ήθελα καφέ πριν από την εκκλησία. Κάθε Πέμπτη περνούσε από τον μανάβη και έπαιρνε φράουλες, για να έχω όταν ερχόταν η λέσχη ανάγνωσης στο σπίτι. Μου τηλεφωνούσε την ίδια στιγμή που καταλάβαινε ότι θα αργήσει, για να μην ανησυχώ. Κι όταν η Μαρία μας έπεσε από τη μουριά κι έσπασε το πόδι της, μου έφερε την άλλη μέρα λουλούδια, για να ξέρω ότι δεν με θεωρούσε υπεύθυνη που δεν την πρόσεχα. Ο Βαγγέλης ήταν εκεί με τον τρόπο που εγώ χρειαζόμουν.»\n\nΣε αυτό το σημείο δάκρυσα. Ο Βαγγέλης ήταν η ζωή μου και τον αγάπησα με κάθε κομμάτι της ψυχής μου. Ο μεγάλος μου γιος, ο Θανάσης, ανέβηκε στο βήμα και με αγκάλιασε. Ακολούθησαν ο Νίκος και η Μαρία, και σε λίγο ήταν όλα τα παιδιά μου εκεί πάνω, στο μικρό αναλόγιο, κρατώντας με όρθια. Κανείς δεν είπε τίποτα. Δεν χρειαζόταν. Στη ζωή μου, οι άνθρωποί μου το απέδειξαν: Τα έργα μιλούν πιο δυνατά από τα λόγια.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "First-person narration; the only direct address is inside the quoted eulogy, to a congregation, and uses no second person.",
+  "constraint_check": "Exactly 3 paragraphs. The required phrase appears verbatim as the closing sentence: «Τα έργα μιλούν πιο δυνατά από τα λόγια».",
+  "deviations": [
+   "Names were localized in line with the story's Greek setting (Burt → Βαγγέλης, Oliver/Ben/Mary → Θανάσης/Νίκος/Μαρία); the ages, the 42 years of marriage and the 6 children / 14 grandchildren are kept exactly.",
+   "«stop by the store» became «περνούσε από τον μανάβη», the Greek version of the same errand; the church detail was kept because it works identically in a Greek setting.",
+   "The reference mixes past and present tense in its third paragraph; the Greek keeps a single consistent past tense."
+  ],
+  "self_flags": [
+   "The exact Greek wording of the proverb is the checkable string; if the evaluation matches against a different standard rendering (e.g. «Οι πράξεις μιλούν πιο δυνατά από τα λόγια»), the closing sentence must be swapped to match.",
+   "«λέσχη ανάγνωσης» for «book club» is the standard term but sounds slightly formal for an elderly rural couple; «η παρέα του βιβλίου» is an alternative."
+  ]
+ },
+ {
+  "row_id": "02d18ec0ac08e204e0a61c43bc67b8a67493be94666aefa68472f24e693fd322",
+  "response_el": "Το Ford Pinto του 1971 φιγουράρει συνήθως στις λίστες με τα χειρότερα αυτοκίνητα όλων των εποχών, κι όμως η ετυμηγορία αυτή είναι άδικη. Η Ford το σχεδίασε για να αντιμετωπίσει τα ιαπωνικά μικρά αυτοκίνητα, τα Toyota και τα Datsun, και το έφερε στην αγορά με ταχύτητα που παραμένει εντυπωσιακή: εκεί όπου η ανάπτυξη ενός μοντέλου απαιτούσε τότε περίπου 43 μήνες, το Pinto χρειάστηκε μόλις 25 — από τους συντομότερους χρόνους στην ιστορία της αυτοκινητοβιομηχανίας. Ήταν επίσης φθηνό, κάτω από 3.000 δολάρια, δηλαδή προσιτότερο από τους περισσότερους ανταγωνιστές του, και ιδιαίτερα οικονομικό στην κατανάλωση, με περίπου 34 μίλια ανά γαλόνι — κάτι κάτω από 7 λίτρα στα εκατό χιλιόμετρα, νούμερο που πολλά σημερινά αυτοκίνητα δεν πιάνουν. Διαφημίστηκε ως «το μικρό ανέμελο αυτοκίνητο» και το περιοδικό Car and Driver έγραψε ότι είχε αίσθηση σπορ μοντέλου, δίνοντάς του θετικές κριτικές. Έμεινε βέβαια στη μνήμη για τη διάταξη του ρεζερβουάρ και τους κινδύνους πυρκαγιάς σε πρόσκρουση από πίσω — και για το γεγονός ότι η Ford υπολόγισε πως οι αποζημιώσεις θα κόστιζαν λιγότερο από την ανάκληση. Χρόνια αργότερα, ωστόσο, καθηγητής νομικής του UCLA υποστήριξε σε μελέτη του ότι το Pinto δεν ήταν πιο επικίνδυνο από τα ομοειδή αυτοκίνητα της εποχής του. Αν λοιπόν κρίνει κανείς ένα αυτοκίνητο με βάση αυτά που ζητούσε ο αγοραστής του — χαμηλή τιμή, χαμηλή κατανάλωση, ευχάριστη οδήγηση, άμεση διαθεσιμότητα — το Pinto τα πρόσφερε όλα, και τα προβλήματά του βαραίνουν λιγότερο απ' όσο θέλει ο θρύλος.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Argumentative exposition in one paragraph; the reader is never addressed directly.",
+  "constraint_check": "Single paragraph, as requested.",
+  "deviations": [
+   "Added the metric equivalent of 34 mpg (~7 l/100 km), since a Greek reader does not measure consumption in miles per gallon; the original figure is kept alongside it.",
+   "The price stays in dollars — it is a historical US price for a US car and converting it would be false precision.",
+   "Named the actual defect (fuel-tank placement) which the reference leaves vague as «bursting into flames», so the counter-argument answers the real objection rather than a caricature of it."
+  ],
+  "self_flags": [
+   "The prompt asks for a deliberately one-sided defence of a car with a notorious safety record; the slant is preserved as instructed rather than balanced, and the safety problem is acknowledged rather than hidden. A reviewer should decide whether that is the right handling for this dataset.",
+   "The UCLA claim (Gary Schwartz's paper) and the 25-vs-43-month figure come from the reference and are widely repeated but worth verifying."
+  ]
+ },
+ {
+  "row_id": "5aa73bc4352269d1d8747bb2529e5275d23f17c3604437c18d1cf6794f7c1fa2",
+  "response_el": "Λοιπόν, άκου, γιατί αυτό είναι φοβερό. Υπάρχει ένας τύπος, ο Σκοτ Λανγκ, ναι; Πρώην κλέφτης, μόλις βγήκε από τη φυλακή, θέλει να στρώσει τη ζωή του, αλλά ξέρεις πώς είναι, κανείς δεν σε παίρνει δουλειά όταν έχεις τέτοιο βιογραφικό. Έχει και μια κόρη, τη λατρεύει, αλλά φράγκο δεν βλέπει. Μου θύμισε τον ξάδερφό μου τον Τάκη, που είχε βγει κι αυτός και δούλευε σε ένα πλυντήριο αυτοκινήτων, αλλά τέλος πάντων, δεν είναι αυτό το θέμα, το θέμα είναι ο Σκοτ.\n\nΤέλος πάντων. Γνωρίζει έναν κύριο, τον Χανκ Πιμ, επιστήμονας, μεγάλο μυαλό, και ο Χανκ έχει φτιάξει μια στολή — και τώρα κρατήσου — μια στολή που σε κάνει μικρό σαν μυρμήγκι. Μυρμήγκι, φίλε! Ο ξάδερφός μου λέει ότι ο θείος του γείτονά του είχε δει κάτι τέτοιο σε ντοκιμαντέρ, αλλά αυτός βλέπει και ιπτάμενους δίσκους, οπότε δεν ξέρω. Πάντως ο Χανκ θέλει τον Σκοτ για να πάρουν πίσω τη στολή από έναν κακό, τον Ντάρεν Κρος, που είναι από αυτούς τους τύπους που χαμογελάνε ενώ σου λένε ότι θα σε καταστρέψουν.\n\nΟ Σκοτ λοιπόν δέχεται, φοράει τη στολή, γίνεται μικρός, και από κει και πέρα γίνεται χαμός. Παλεύει με μυρμήγκια, μετά κάνει παρέα με τα μυρμήγκια, μετά παλεύει με τους κακούς πάνω σε ένα τρενάκι-παιχνίδι — και σου ορκίζομαι, αυτό είναι το καλύτερο κομμάτι, γιατί από μέσα φαίνεται τρομερή μάχη κι από έξω είναι δύο φιγούρες πάνω σε ένα παιχνίδι. Και στο τέλος, φυσικά, σώζει την κατάσταση.\n\nΚαι το ωραίο ποιο είναι; Ότι ο Σκοτ τα καταφέρνει και στην πραγματική ζωή. Βρίσκει δουλειά, βρίσκει σπίτι, βλέπει την κόρη του, όλα καλά. Και έχει και τη στολή, ναι; Που σημαίνει ότι όποτε βαρεθεί μπορεί να γίνει πάλι μυρμήγκι και να μπλέξει σε καινούργια περιπέτεια. Εγώ πάντως αν είχα τέτοια στολή θα την είχα ήδη χαλάσει. Αλλά αυτό είναι άλλη ιστορία.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "Luis's monologue is colloquial ενικός throughout, addressing the listener directly («άκου», «κρατήσου», «σου ορκίζομαι»), sustained across all four paragraphs.",
+  "constraint_check": "Exactly 4 paragraphs, as requested; the voice is comic throughout (digressions about the cousin, the toy-train fight, the closing aside).",
+  "deviations": [
+   "The reference is written in flat, neutral prose and does not attempt Luis's voice at all — which is the whole point of the prompt. The Greek deliberately rebuilds that voice with Greek rambling-narrator devices (digressions, «τέλος πάντων», a cousin who is a supposed source, direct address).",
+   "Added two concrete jokes absent from the reference (the cousin Τάκης, the toy-train fight) because Luis's register needs digressions to exist; content is otherwise the same four beats.",
+   "Character names transliterated as Greek subtitles do (Σκοτ Λανγκ, Χανκ Πιμ, Ντάρεν Κρος), while the film title stays Ant-Man in Latin script per the stage 1 decision."
+  ],
+  "self_flags": [
+   "The cousin is renamed Τάκης rather than kept as Ernesto; Luis's cousin is a running gag in the films, so a reviewer who wants strict fidelity to the character may prefer «ο ξάδερφός μου ο Ερνέστο».",
+   "The toy-train fight is from the film's climax and is accurate, but it goes beyond what the reference mentions."
+  ]
+ },
+ {
+  "row_id": "bc8106a1f614bfc1b91dfb5b4e152f99e17b3306606b3ddff0069acd1e839601",
+  "response_el": "Αγαπητή κυρία [Επώνυμο], ελπίζω να είστε καλά. Δεν εντόπισα τις συστάσεις σας στην αίτησή σας για τη θέση. Παρακαλώ στείλτε τις σε αυτή τη διεύθυνση έως την Παρασκευή. Σας ευχαριστώ πολύ.\n\nΜε εκτίμηση,\n[Όνομα]",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "Πληθυντικός throughout («είστε», «σας», «στείλτε»), as Greek business correspondence with a job applicant requires.",
+  "constraint_check": "One body paragraph, with greeting and request inside it (the signature block is not a body paragraph). Whole email, signature included, is 34 words — under the 40-word cap.",
+  "deviations": [
+   "The English «Hi [Name]» is on its own line; in Greek it was folded into the single paragraph so the one-paragraph requirement is met literally.",
+   "«for the [position]» was reduced to «για τη θέση»: repeating a placeholder would cost words the 40-word budget does not have and Greek reads fine without it."
+  ],
+  "self_flags": [
+   "Placeholders [Επώνυμο] and [Όνομα] follow the reference's bracket convention; if the dataset dislikes placeholders, real invented names would add roughly two words and still fit."
+  ]
+ },
+ {
+  "row_id": "f23bcac0f869d8560318fff135dc74c3aaf19ce7c8636fd21a50b19f714da330",
+  "response_el": "Θέμα: Παραίτηση από τη θέση της βοηθού υπευθύνου καταστήματος\n\nΑγαπητέ κύριε Στέλιο,\n\nΜε λύπη σας ενημερώνω για την παραίτησή μου από τη θέση της βοηθού υπευθύνου καταστήματος, με άμεση ισχύ. Όπως γνωρίζετε, το πρόβλημα υγείας που αντιμετωπίζω συνεχίζεται και δεν μου επιτρέπει πλέον να ανταποκριθώ στις απαιτήσεις της δουλειάς όπως θα ήθελα. Σας ευχαριστώ ειλικρινά για την κατανόηση και τις διευκολύνσεις που μου δείξατε όλο αυτό το διάστημα.\n\nΧαίρομαι πολύ για τα χρόνια που δούλεψα εδώ. Αποκόμισα πολύτιμη εμπειρία και γνώσεις, και η συνεργασία με την ομάδα του καταστήματος, υπό τη δική σας καθοδήγηση, ήταν από τις καλύτερες επαγγελματικές μου εμπειρίες.\n\nΦεύγω πραγματικά στενοχωρημένη και ελπίζω, αν το επιτρέψουν οι συνθήκες, να υπάρξει στο μέλλον η ευκαιρία να επιστρέψω. Θα χαρώ, εννοείται, να βοηθήσω με ό,τι χρειαστεί για την ομαλή παράδοση των εκκρεμοτήτων μου.\n\nΣας ευχαριστώ για τη στήριξη και την καθοδήγησή σας όλα αυτά τα χρόνια.\n\nΜε εκτίμηση,\n[Όνομα]",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "Πληθυντικός throughout, as a written resignation in Greece is, even with a boss one is on good terms with; the warmth is carried by wording rather than by dropping to ενικός.",
+  "constraint_check": null,
+  "deviations": [
+   "Added a subject line and an offer to help with the handover — both standard in a Greek resignation email and expected of someone who wants to leave on good terms, which is the prompt's stated goal.",
+   "The reference's «immediate resignation … effective immediately» is redundant; said once in Greek.",
+   "«Dear Sam» became «Αγαπητέ κύριε Στέλιο», which keeps the formal frame while the first-name use signals the good rapport."
+  ],
+  "self_flags": [
+   "Grammatical gender: the writer is feminine («στενοχωρημένη», «της βοηθού»), following the stage 1 note that the prompt's role is feminine in the Greek. The English prompt does not state the writer's gender — worth a reviewer's call.",
+   "«κύριε Στέλιο» (title + first name) is a real Greek workplace usage but a reviewer may prefer plain «Αγαπητέ Στέλιο»."
+  ]
+ },
+ {
+  "row_id": "438b6970d31dc21fe060889e64486f81689cc72a37a1aa319349a118a693db31",
+  "response_el": "Βοτανικά θεραπευτικά μέσα: τι υπόσχονται και πώς χρησιμοποιούνται\n\nΤα φυτά χρησιμοποιούνται ως θεραπευτικά μέσα εδώ και χιλιετίες, και η ολιστική ιατρική τα αντιμετωπίζει ως μέρος μιας ευρύτερης φροντίδας: αντί να στοχεύει μόνο στο σύμπτωμα, εξετάζει διατροφή, ύπνο, κίνηση και ψυχική κατάσταση μαζί. Στην Ελλάδα η παράδοση αυτή είναι ζωντανή — από το χαμομήλι της γιαγιάς μέχρι το τσάι του βουνού. Ακολουθούν επτά φυτά που χρησιμοποιούνται κατά καιρούς για διάφορες ενοχλήσεις.\n\nΆρνικα: βότανο των ορεινών περιοχών της Ευρώπης. Χρησιμοποιούνται τα άνθη του, εξωτερικά, για μώλωπες, οιδήματα και πόνους μετά από τραυματισμό ή επέμβαση.\n\nΚουρκουμάς: η βαθιά κίτρινη ρίζα που χρησιμοποιείται χιλιάδες χρόνια για στομαχικές ενοχλήσεις, πληγές και πόνους στις αρθρώσεις. Η δράση του αποδίδεται κυρίως στην αντιφλεγμονώδη κουρκουμίνη.\n\nΧαμομήλι: το πιο κοινό ελληνικό αφέψημα. Χρησιμοποιείται για ήπιες στομαχικές διαταραχές, για χαλάρωση πριν τον ύπνο και, ως κομπρέσα, για ερεθισμένα μάτια και δέρμα.\n\nΤσάι του βουνού (σιδερίτης): ενδημικό στα ελληνικά βουνά, πλούσιο σε αντιοξειδωτικά· πίνεται παραδοσιακά για κρυολογήματα, βήχα και πονόλαιμο.\n\nΦασκόμηλο: αρωματικό βότανο με αντισηπτικές ιδιότητες. Το αφέψημά του χρησιμοποιείται για γαργάρες σε πονόλαιμο και ουλίτιδα, καθώς και για την εφίδρωση.\n\nΤζίντζερ (πιπερόριζα): γνωστό κυρίως για τη ναυτία — στο ταξίδι ή στην εγκυμοσύνη — αλλά και για μυϊκούς πόνους και δυσπεψία.\n\nΚανέλα: πέρα από μπαχαρικό, είναι πλούσια σε αντιοξειδωτικά· μελετάται για την επίδρασή της στο σάκχαρο και στη χοληστερίνη.\n\nΠράσινο τσάι: αντιοξειδωτικό ρόφημα που συνδέεται με την καρδιαγγειακή υγεία και χρησιμοποιείται και εξωτερικά, για ερεθισμούς του δέρματος.\n\nΔύο επισημάνσεις. Πρώτον, «φυσικό» δεν σημαίνει «ακίνδυνο»: αρκετά βότανα αλληλεπιδρούν με φάρμακα, ιδίως με αντιπηκτικά και αντιδιαβητικά. Δεύτερον, τα βότανα δεν αντικαθιστούν τη διάγνωση και τη θεραπεία· λειτουργούν καλύτερα ως συμπλήρωμα, με τη γνώση του γιατρού ή του φαρμακοποιού.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "Impersonal constructions throughout («χρησιμοποιούνται», «ακολουθούν»); the reader is never addressed.",
+  "constraint_check": "At least 7 plants: eight are listed (Άρνικα, Κουρκουμάς, Χαμομήλι, Τσάι του βουνού, Φασκόμηλο, Τζίντζερ, Κανέλα, Πράσινο τσάι), each with a short description. Total length, title included, is 276 words — under the 400-word cap.",
+  "deviations": [
+   "Two of the reference's plants were replaced with ones a Greek reader recognises and actually uses: myrrh → φασκόμηλο, holy basil → τσάι του βουνού (σιδερίτης). Both replacements carry comparable traditional uses; the count is unchanged and in fact exceeds the required 7.",
+   "The reference's opening claim — that holistic medicine is the answer to painkiller and antidepressant addiction — was dropped as an unsupported and potentially harmful assertion, and replaced with a description of what holistic practice actually claims to do.",
+   "Several of the reference's health claims are stated too confidently (green tea reducing cancer risk, cinnamon cutting heart-disease risk, turmeric curing «brain fog»). These were softened to what is actually studied.",
+   "Added a closing safety note about herb–drug interactions, which the reference omits entirely."
+  ],
+  "self_flags": [
+   "Every efficacy statement here is traditional-use framing, not clinical evidence. If the dataset has a medical-claims policy, this row should be checked against it.",
+   "«Άρνικα» is listed for external use only, deliberately — internal use is unsafe; that is a correction to the reference, not a translation choice."
+  ]
+ },
+ {
+  "row_id": "e9dd9385d7be37c70608a265c06d78a0fd3aaddbc5548976cdd62c3ce402032e",
+  "response_el": "Κορυφές Αετού: εκεί που ο χειμώνας γίνεται γιορτή\n\nΒαρέθηκε η παρέα τα ίδια και τα ίδια; Ένα Σαββατοκύριακο στις Κορυφές Αετού αρκεί για να αλλάξει η διάθεση. Το χιονοδρομικό μας έχει πίστες για όλα τα επίπεδα: από τη μεγάλη κατάβαση για όσους ψάχνουν ταχύτητα, μέχρι τις ήρεμες πλαγιές και τη σχολή για τα παιδιά που φοράνε σκι πρώτη φορά. Όλη η οικογένεια στο ίδιο βουνό, ο καθένας στον ρυθμό του.\n\nΚαι όταν ο καιρός δεν βοηθάει, το κέντρο δραστηριοτήτων δίπλα στις πίστες συνεχίζει τη μέρα: κλειστό γήπεδο μπάσκετ, επιτραπέζια αντισφαίριση, τοίχος αναρρίχησης και μίνι γκολφ. Τα Σαββατόβραδα τα φώτα χαμηλώνουν και το μίνι γκολφ γίνεται «διαστημικό», με φωσφορίζουσες τοιχογραφίες και μαύρο φως — από τα πιο αγαπημένα των παιδιών, αλλά και των γονιών που δεν το παραδέχονται.\n\nΤο ξενοδοχείο μας ολοκληρώνει την εικόνα. Δωμάτια και σουίτες με θέα στις πίστες, εσωτερική πισίνα, χαμάμ και πλήρες κέντρο ευεξίας με μασάζ — γιατί κάποιοι στην παρέα δικαιούνται και μια μέρα ξεκούρασης. Στο ισόγειο, το εστιατόριο με παραδοσιακή κουζίνα του βουνού: ντόπια τυριά, κρέας στη γάστρα και πίτες ψημένες την ίδια μέρα, από σεφ που ξέρει καλά τι σημαίνει τραπέζι μετά το σκι.\n\nΣκι, παιχνίδι, φαγητό και τζάκι — τα έχουμε όλα. Ελάτε στις Κορυφές Αετού και φέρτε μαζί και τους δικούς σας.",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "Stage 1 set the target register to neutral for the request; the produced advertisement addresses the public and Greek tourism copy uses πληθυντικός («Ελάτε», «φέρτε»). It is consistent throughout, and nothing addresses the user who commissioned the ad.",
+  "constraint_check": null,
+  "deviations": [
+   "The facility list is preserved item for item (family friendly, slopes for all levels, activity centre, hotel with amenities), but individual amenities were localized: pickleball has no presence in Greece and became μπάσκετ, επιτραπέζια αντισφαίριση and a climbing wall; the American «bunny hill» became «οι ήρεμες πλαγιές και η σχολή».",
+   "The reference's Italian restaurant with an Italy-trained chef was replaced with a mountain-cuisine restaurant; at a Greek ski resort local food is the selling point, and an Italian grill would read as imported copy.",
+   "The reference's «Does Mom need a day off?» was rephrased without assigning the spa day to a gender."
+  ],
+  "self_flags": [
+   "«Κορυφές Αετού» is an invented resort name chosen in stage 1; it should be checked that it does not collide with an existing Greek business.",
+   "Amenities named here (χαμάμ, εσωτερική πισίνα, τοίχος αναρρίχησης) are invented in the same way the reference invents its own — the prompt only says «ξενοδοχείο με παροχές κ.λπ.»."
+  ]
+ },
+ {
+  "row_id": "5fff57b3917de413b348a3aad2b28a98669a252978fa581635004f4cccd9d53f",
+  "response_el": "Γλυκιά μου κρέμα, παγωμένη μου χαρά,\nστην τελευταία σου μπουκιά βουλιάζω,\nμια στάλα φως που σβήνει βιαστικά,\nκαι μες στο άδειο κύπελλο κοιτάζω.\n\nΤο ξέρω, το γλυκό μου έχει τελειώσει,\nη γεύση στον ουρανίσκο αργοσβήνει,\nκι ό,τι με είχε για λίγο ημερώσει\nμια θλίψη μικρή και ήσυχη μου αφήνει.\n\nΛένε πως όλα τα καλά τελειώνουν,\nμα γιατί τόσο νωρίς, τόσο σκληρά;\nΟι μέρες τις γλυκύτητές μας σώνουν\nκι αφήνουν πίσω μια σιωπή βαριά.\n\nΚάθομαι μόνος, με το κουτάλι ακόμα,\nκαι ονειρεύομαι την πρώτη γεύση στο στόμα.",
+  "assistant_turns_el": [],
+  "register_used": "neutral",
+  "register_note": "The poem addresses the ice cream, not a person, so no address form toward a reader is forced.",
+  "constraint_check": "Sonnet form: 14 lines in the standard 4-4-4-2 arrangement, rhyme scheme ΑΒΑΒ ΓΔΓΔ ΕΖΕΖ ΗΗ — (χαρά/βουλιάζω/βιαστικά/κοιτάζω), (τελειώσει/αργοσβήνει/ημερώσει/αφήνει), (τελειώνουν/σκληρά/σώνουν/βαριά), (ακόμα/στόμα). Metre follows the Greek sonnet convention (loose hendecasyllable) rather than English iambic pentameter.",
+  "deviations": [
+   "The English quatrains are loosely metrical and one line («in a blink») breaks the metre; the Greek keeps a consistent line length instead.",
+   "The reference's melodramatic «tears streaming down my face» was toned down; Greek lyric of this register would read as parody, so the closing couplet ends on the longing rather than on weeping."
+  ],
+  "self_flags": [
+   "«Κάθομαι μόνος» fixes the speaker as male; «μόνη» would be equally valid and the prompt does not specify.",
+   "A reviewer checking metre should note that Greek sonnets are conventionally hendecasyllabic or decapentasyllabic — line length here is regular but not strictly counted syllable by syllable."
+  ]
+ }
+]

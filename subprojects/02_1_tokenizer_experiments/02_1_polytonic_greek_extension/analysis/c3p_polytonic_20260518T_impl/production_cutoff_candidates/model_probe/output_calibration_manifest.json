@@ -1,0 +1,15 @@
+{
+  "schema_version": "polytonic-output-calibration-data-v1",
+  "output": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/probe_data/output_calibration.jsonl",
+  "sha256": "c2510c955ed5117f448b3bc0cfb395e2fb51535830209d628e15046fadf1f987",
+  "bytes": 7365890,
+  "docs": 2000,
+  "docs_per_register": {
+    "ancient_polytonic": 1000,
+    "modern_greek": 1000
+  },
+  "max_chars_per_doc": 3000,
+  "modern_skip_valid_docs": 1000,
+  "eval_text_overlap_count": 0,
+  "normalization": "NFC"
+}

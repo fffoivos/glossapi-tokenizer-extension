@@ -1,0 +1,26 @@
+{
+ "schema_version": "newtok_audit_debug_smoke_v1",
+ "status": "passed",
+ "slurm_job_id": 3162819,
+ "partition": "debug",
+ "state": "COMPLETED",
+ "submitted_at": "2026-08-23T13:11:18Z",
+ "started_at": "2026-08-23T13:11:19Z",
+ "ended_at": "2026-08-23T13:14:07Z",
+ "elapsed": "00:02:48",
+ "model": "/capstor/scratch/cscs/fffoivos/checkpoint_release_20260818/raw_staging_v1/step9536-tokens40B",
+ "validates": [
+  "Apertus HF model loads under the pinned uenv+venv",
+  "extended/base offset alignment: 0 unaligned of 17642 occurrences",
+  "both hidden probe layers (11, 30) populate",
+  "echo probe covers all 17920 added ids"
+ ],
+ "observed": {
+  "docs_scored": 32,
+  "occurrences": 17642,
+  "unaligned": 0,
+  "tokens_with_occurrences": 2543
+ },
+ "input_limitation": "ran against the pre-masking training parquets, which this experiment SUPERSEDED with the receipt-bound held-out sets; it validates the audit CODE, not the production input",
+ "code_validated": "pipeline shape only"
+}

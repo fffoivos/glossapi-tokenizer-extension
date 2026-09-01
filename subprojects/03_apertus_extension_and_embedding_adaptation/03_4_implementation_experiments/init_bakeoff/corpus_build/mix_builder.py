@@ -110,10 +110,10 @@ def _build_source_stream(
 
     Two source modes:
     - HF dataset (`id`): streaming `load_dataset(id, config, split, streaming=True)`
-    - Local parquet (`local_parquet`): a path on disk (or a glob). Supports
-      `${VAR}` env-var expansion so recipes can reference `${SELECTED}` for the
-      runbook-built post-Apertus-drop + post-internal-dedup pool. Reviewer
-      round-2 Blocker 3: the runbook (`03_2/CPT_DATASET_BUILD_RUNBOOK.md`) is
+    - Local parquet (`local_parquet`): a path on disk (or a glob), or an exact
+      sorted `local_parquet_files` inventory. Both support `${VAR}` expansion.
+      The exact-list form lets a receipt bind every input without relying on a
+      broad future glob. The runbook (`03_2/CPT_DATASET_BUILD_RUNBOOK.md`) is
       the canonical CPT-source path; this is the in-process consumer.
 
     Applies filter_field/filter_values, filter_values_regex, filter_min,
@@ -170,29 +170,59 @@ def _build_source_stream(
             row.get("doc_key")
             or row.get("doc_id")
             or row.get("id")
+            or row.get(doc_key_field)
             or f"{name}_{candidate_index}"
         )
-        return {"text": text, "source": name, "doc_id": str(doc_id)}
+        normalized = {"text": text, "source": name, "doc_id": str(doc_id)}
+        # These optional fields are evidence-only. Preserving them changes
+        # neither eligibility, RNG, token accounting nor selection order.
+        for key in (
+            "source_dataset", "source_doc_id", "source_metadata_json",
+            "_source_release_shard", "_source_release_row_index",
+        ):
+            if key in row:
+                normalized[key] = row[key]
+        return normalized
 
     local_parquet = spec.get("local_parquet")
-    if local_parquet:
+    local_parquet_files = spec.get("local_parquet_files")
+    if local_parquet and local_parquet_files:
+        raise SystemExit(f"{name}: set only one of local_parquet or local_parquet_files")
+    if local_parquet or local_parquet_files:
         # Expand env vars (e.g., ${SELECTED}) before opening
-        local_path = os.path.expandvars(local_parquet)
-        if "$" in local_path:
+        local_path = os.path.expandvars(local_parquet) if local_parquet else None
+        if local_path and "$" in local_path:
             raise SystemExit(
                 f"{name}: local_parquet path still contains '$' after expansion: {local_path!r}. "
                 f"Set the env var before running mix_builder."
             )
-        import glob
+        if local_parquet_files:
+            if not isinstance(local_parquet_files, list) or not local_parquet_files:
+                raise SystemExit(f"{name}: local_parquet_files must be a non-empty list")
+            paths = [os.path.expandvars(str(path)) for path in local_parquet_files]
+            if any("$" in path for path in paths):
+                raise SystemExit(f"{name}: local_parquet_files contains an unexpanded '$'")
+            if paths != sorted(paths) or len(paths) != len(set(paths)):
+                raise SystemExit(f"{name}: local_parquet_files must be unique and sorted")
+            missing = [path for path in paths if not Path(path).is_file()]
+            if missing:
+                raise SystemExit(f"{name}: local_parquet_files contains missing paths: {missing[:3]}")
+        else:
+            import glob
+
+            paths = sorted(glob.glob(local_path))
+            if not paths:
+                raise SystemExit(f"{name}: local_parquet matched no files: {local_path}")
         import pyarrow.parquet as pq
 
-        paths = sorted(glob.glob(local_path))
-        if not paths:
-            raise SystemExit(f"{name}: local_parquet matched no files: {local_path}")
         for path in paths:
             pf = pq.ParquetFile(path)
             available = set(pf.schema_arrow.names)
-            requested = [text_col, doc_key_field, "doc_key", "doc_id", "id"]
+            requested = [
+                text_col, doc_key_field, "doc_key", "doc_id", "id",
+                "source_dataset", "source_doc_id", "source_metadata_json",
+                "_source_release_shard", "_source_release_row_index",
+            ]
             if filter_field:
                 requested.append(filter_field)
             columns = []
@@ -466,11 +496,18 @@ def main() -> int:
             if not text:
                 continue
             n_tokens_row = _approx_token_count(text, tokenizer)
-            json.dump({
+            output_row = {
                 "text": text,
                 "source": row.get("source", "?"),
                 "doc_id": row.get("doc_id", f"row_{n_rows}"),
-            }, fp, ensure_ascii=False)
+            }
+            for key in (
+                "source_dataset", "source_doc_id", "source_metadata_json",
+                "_source_release_shard", "_source_release_row_index",
+            ):
+                if key in row:
+                    output_row[key] = row[key]
+            json.dump(output_row, fp, ensure_ascii=False)
             fp.write("\n")
             n_tokens += n_tokens_row
             n_rows += 1

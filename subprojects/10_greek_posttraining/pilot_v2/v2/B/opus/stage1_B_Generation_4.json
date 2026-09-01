@@ -1,0 +1,240 @@
+[
+ {
+  "row_id": "1a8e674fb0ff2b3a1cffabb7398e82454389d1131c9b0827707597c71d086aff",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE", "LITERAL"],
+  "subtype": "re-rank a real results table by a new criterion + one award line per finalist",
+  "hazards": [
+   "Real athletes, real event, real times: swapping any of them changes what is true — freeze all eight names, times and IOC country codes.",
+   "The table is a pasted results block; its column structure (tabs) is the machine-readable part and must survive.",
+   "The count is implicit but hard: eight finalists, therefore eight metals and eight award sentences.",
+   "Metal names must stay recognisable as metals in Greek (όσμιο, ρουθήνιο, λευκόχρυσος, παλλάδιο, ιρίδιο, ρόδιο) so the rarity/price ordering stays checkable.",
+   "'PR' is a results-table literal; the Greek table abbreviation is different machinery (ΑΡ = ατομικό ρεκόρ)."
+  ],
+  "devices": [],
+  "device_notes": "No naming or sound device in the prompt; it is a bare operational instruction over a data block.",
+  "en_register": "neutral",
+  "register_evidence": "Bare lowercase instruction with no addressee, no politeness marking and no relationship — a work order pasted above data.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "φτιάξε μια νέα κατάταξη επάθλων για τα παρακάτω, με βάση σπανιότερα ή ακριβότερα μέταλλα, και γράψε μια σύντομη πρόταση απονομής για τον καθένα.\n\nΤελική φάση\n21 Σεπτ. 2004, βραδινή συνεδρία\n\nΘέση\tΑθλητής\tΧρόνος\tΣημειώσεις\n1η θέση, χρυσό μετάλλιο\t Raman Makarau (BLR)\t58.79\tΑΡ\n2η θέση, ασημένιο μετάλλιο\t Sergei Punko (BLR)\t1:00.18\t\n3η θέση, χάλκινο μετάλλιο\t Israel Oliver (ESP)\t1:03.15\t\n4\t Enrique Floriano (ESP)\t1:03.23\t\n5\t Yoshikazu Sakai (JPN)\t1:04.05\t\n6\t Kosei Egawa (JPN)\t1:04.90\t\n7\t Sergiy Demchuk (UKR)\t1:05.58\t\n8\t Albert Gelis (ESP)\t1:06.21\t\nΠηγές",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "Rank / Athlete / Time / Notes", "el": "Θέση / Αθλητής / Χρόνος / Σημειώσεις", "kind": "other", "why": "Table headers are scenery of presentation, not data; a Greek results table uses these words."},
+   {"en": "PR", "el": "ΑΡ", "kind": "other", "why": "The Greek results-table abbreviation for a personal record is ΑΡ (ατομικό ρεκόρ); 'PR' would read as an untranslated foreign tag."},
+   {"en": "Final round", "el": "Τελική φάση", "kind": "other", "why": "Standard Greek heading for the final of a swimming event."},
+   {"en": "References", "el": "Πηγές", "kind": "other", "why": "Stray encyclopaedia section heading left at the end of the pasted block; kept as a stray heading, translated so the paste looks Greek-sourced."}
+  ],
+  "derived_elements": [
+   {"depends_on": "1st/2nd/3rd place medal labels", "en": "gold medalist(s) / silver medalist(s) / bronze medalist(s)", "el": "χρυσό μετάλλιο / ασημένιο μετάλλιο / χάλκινο μετάλλιο", "why": "These three labels are what the new metal ranking is meant to displace, so they must read as the ordinary Greek medal names for the joke of the task to land."}
+  ],
+  "constraint_notes": "Checkable in Greek: (a) exactly eight entries covered, one new metal per finisher; (b) exactly one short award sentence («μια σύντομη πρόταση απονομής») per finisher; (c) the assigned metals must be rarer/more expensive than gold-silver-bronze, orderable by price. Athlete names, times and country codes are frozen strings a checker can diff against the source table.",
+  "substitution_note": "Athlete names kept in Latin script: Greek sports results tables routinely print foreign athletes' names in Latin, so this is native practice, and transliterating (Ραμάν Μακαράου κ.λπ.) would invent spellings that cannot be verified.",
+  "guide_gaps": [
+   {"term": "PR (personal record)", "decision": "ΑΡ", "why": "Greek athletics/swimming tables use ΑΡ for ατομικό ρεκόρ; keep the two-letter table form rather than spelling it out."},
+   {"term": "foreign athlete names in a results table", "decision": "keep Latin script unchanged", "why": "Native Greek practice in results tables; avoids fabricating transliterations of real people."},
+   {"term": "medalist(s)", "decision": "«χρυσό/ασημένιο/χάλκινο μετάλλιο» rather than «χρυσός/αργυρός νικητής»", "why": "Greek tables name the medal, not the medallist."}
+  ],
+  "reference_problems": [
+   "'Rhobidium' is not an element — a misspelling of rhodium (ρόδιο).",
+   "'broke the 1-hour barrier' is wrong: the winning time is 58.79, i.e. under one minute, not one hour.",
+   "Internal contradiction with the stated criterion: platinum (6th) is more expensive than gold (5th), and palladium is given to 4th on the claim it 'just barely eclipses the price of gold' — so the price ordering across places 4-6 is not monotonic.",
+   "Californium is not a medal metal and the reference itself concedes it 'has to be substituted', which breaks the premise it was chosen for; the '62,000 times more expensive' figure is unsourced.",
+   "Athlete's name is spelled 'Sergiy Demchuck' in the answer but 'Sergiy Demchuk' in the table.",
+   "Grammatically broken sentence: '6th place goes to Japan's own Kosei Egawa shines like platinum'."
+  ],
+  "translator_notes": "Check the tab structure of the table survived intact (4 columns, leading space before each athlete name preserved as in the source). Confirm the reviewer accepts the ΑΡ-for-PR call and the Latin-script athlete names. The trailing 'Πηγές' is a deliberate artifact of the original paste, not an instruction. The Greek answer will need Greek element names (όσμιο, ρουθήνιο, λευκόχρυσος/πλατίνα, παλλάδιο, ιρίδιο, ρόδιο) — 'λευκόχρυσος' vs 'πλατίνα' is a stage-2 call."
+ },
+ {
+  "row_id": "6c1f639eef09ab63444178fafc1df47138319fb3c401c013354be5eb916c94b8",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "story opening from a fixed premise, with a required quoted line",
+  "hazards": [
+   "The quoted curse is the whole mechanism of the fictional universe: it is a literal string the story must contain, so the Greek wording has to be fixed here and reused verbatim in the answer.",
+   "English 'go to hell' idiom is fully available in Greek, so no regeneration is needed — but the Greek must be the idiomatic curse, not a word-for-word calque.",
+   "'a couple of people' means two people, not a romantic couple — the Greek must not import the wrong reading.",
+   "'the beginning of a story' — the answer must not be a whole story with an ending.",
+   "The cast is entirely invented, so the Greek answer's names and setting should be Greek; nothing in the prompt itself names anyone."
+  ],
+  "devices": [],
+  "device_notes": "No device in the prompt. The reference answer's names (Rocky Walker, Johnny Strait, Belview High School) are invented frame and would all move to Greek in the answer; none of them appear in the prompt, so nothing to fix here.",
+  "en_register": "neutral",
+  "register_evidence": "Plain writing brief, no addressee, no relationship; the only marked language is inside the quoted curse.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε την αρχή μιας ιστορίας για δύο ανθρώπους που συναντιούνται στην κόλαση. Βρέθηκαν εκεί επειδή, σε έναν καβγά που είχαν πολλά χρόνια πριν πεθάνουν και οι δύο, ο ένας είπε στον άλλον «Θα σε συναντήσω στην κόλαση». Σε αυτό το φανταστικό σύμπαν, αν το πει κάποιος αυτό, είναι υποχρεωτικό να γίνει. Να περιλαμβάνει διαλόγους.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "a couple of people", "el": "δύο ανθρώπους", "kind": "other", "why": "'A couple of' here means two, not a romantic couple; Greek «ένα ζευγάρι» would force the wrong reading."},
+   {"en": "hell (the place)", "el": "η κόλαση", "kind": "other", "why": "Direct equivalent; the whole premise is content, not scenery."}
+  ],
+  "derived_elements": [
+   {"depends_on": "the quoted curse «Θα σε συναντήσω στην κόλαση»", "en": "if someone says that, it has to happen", "el": "αν το πει κάποιος αυτό, είναι υποχρεωτικό να γίνει", "why": "The rule sentence points back at the quoted line; both must use the same wording of the utterance so the rule is anchored to a fixed string."}
+  ],
+  "constraint_notes": "Checkable in Greek: the story must (a) be an opening only, (b) contain dialogue («να περιλαμβάνει διαλόγους»), and (c) contain the fixed literal «Θα σε συναντήσω στην κόλαση» as an utterance in the remembered fight. Agreed Greek form of the required string: «Θα σε συναντήσω στην κόλαση» (chosen over the looser «Θα τα πούμε στην κόλαση» so the checker has one exact string).",
+  "substitution_note": "The Greek answer should localize the invented cast fully (Greek given names and surnames, a Greek school/neighbourhood) rather than keep Rocky/Johnny/Belview; nothing in the prompt constrains this.",
+  "guide_gaps": [
+   {"term": "\"I'll meet you in hell\"", "decision": "«Θα σε συναντήσω στην κόλαση»", "why": "Idiomatic Greek curse that keeps the literal 'meet' the premise depends on; «Θα τα πούμε στην κόλαση» is more colloquial but drops the explicit meeting the rule needs."},
+   {"term": "Include dialogue", "decision": "«Να περιλαμβάνει διαλόγους»", "why": "Greek prefers the plural for 'dialogue' as a feature of a text."},
+   {"term": "quotation marks", "decision": "Greek guillemets «...»", "why": "Native Greek typography; curly English quotes would mark the row as translated."}
+  ],
+  "reference_problems": [
+   "The reference does not use the prompt's line: the flashback quote is 'See you in Hell, bastard!', not 'I'll meet you in hell' — the required literal is altered.",
+   "The premise says the fight happened 'many years before they both died', but the reference has both men arrive at hell simultaneously through the same crack, which the prompt does not require and which sits oddly with two separate deaths.",
+   "'Belview highschool' — 'highschool' is not a word (high school).",
+   "Rocky claims 'I lived a long and happy life, violence-free', which does not explain why he is in hell; the reference leaves the contradiction unaddressed.",
+   "The narration switches between past and present tense in the opening paragraph ('opens up' / 'became confused' / 'turned')."
+  ],
+  "translator_notes": "The exact Greek string «Θα σε συναντήσω στην κόλαση» is the checkable object of this row — stage 2 must reproduce it verbatim inside the story, not paraphrase it. Verify «στον άλλον» accusative form and that guillemets are used consistently."
+ },
+ {
+  "row_id": "96dfe434640fa2b7e7b4347dffc9e302fd63d50fd87e281b287fada7f34fd9f9",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LITERAL"],
+  "subtype": "first-person historical monologue with a word cap and a banned-topic rule",
+  "hazards": [
+   "Jericho and Joshua are content — the answer is about that specific event; nothing may be localized.",
+   "The 400-word cap is checkable in Greek but not equivalent: Greek is more synthetic, so 400 Greek words is more text than 400 English words. The cap stays as stated.",
+   "The 'don't mention God in any form' rule has a wider surface in Greek: Θεός, Κύριος, Ύψιστος, Ύψιστε, ο Ένας, θεϊκός, θεόσταλτος, and set phrases such as «δόξα τω Θεώ», «Θεός φυλάξοι», «αν θέλει ο Θεός» all violate it. The Greek prompt must make the ban read as covering every such form.",
+   "'Modern-day lingo' must become genuine current Greek casual speech, not Greek words in an English slang rhythm.",
+   "Register clash is the point of the row: a biblical subject told in today's street Greek."
+  ],
+  "devices": [
+   {"where": "style instruction", "device": "register clash", "effect": "comic, brisk", "english": "conversational monologue using modern-day lingo (about the Fall of Jericho)", "greek": "μονόλογος σε χαλαρό, καθημερινό ύφος, με σημερινή αργκό", "how": "Same device: Greek carries an even sharper contrast because the biblical episode is known in Greek through the archaizing register of scripture."}
+  ],
+  "device_notes": "No naming device. The single device is the deliberate register clash, and it transfers directly.",
+  "en_register": "neutral",
+  "register_evidence": "Bare imperative brief with no addressee or relationship; the informality lives in the requested output, not in how the requester speaks.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια μαρτυρία αυτόπτη μάρτυρα για την πτώση της Ιεριχούς, από έναν άνδρα του στρατού του Ιησού του Ναυή. Να είναι μονόλογος σε πρώτο πρόσωπο, σε χαλαρό, καθημερινό ύφος, με σημερινή αργκό. Να περιλαμβάνει αμφιβολίες για τις μεθόδους του Ιησού του Ναυή και έκπληξη για το αποτέλεσμα. Κράτησέ το κάτω από 400 λέξεις. Μην αναφέρεις τον Θεό με κανέναν τρόπο και με κανένα όνομα.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "Joshua → Ιησούς του Ναυή", "en": "Joshua's army / Joshua's methods", "el": "τον στρατό του Ιησού του Ναυή / τις μεθόδους του Ιησού του Ναυή", "why": "Greek has no bare 'Joshua': the established name is the two-part «Ιησούς του Ναυή», so every later mention must be re-derived from it (and cannot be shortened to «Ιησούς», which would read as Christ)."}
+  ],
+  "constraint_notes": "Checkable in Greek: (a) under 400 words — «κάτω από 400 λέξεις», counted on the Greek output; (b) first person singular throughout; (c) monologue, no other speakers; (d) must contain doubt about the method and surprise at the outcome; (e) zero mentions of God under any name or derived form. Constraint (e) is stated as «με κανέναν τρόπο και με κανένα όνομα» because the English 'in any form' does not, in Greek, obviously reach Κύριος/Ύψιστος or fixed expressions like «δόξα τω Θεώ»; the Greek is therefore slightly more explicit than the English, not weaker.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "Joshua", "decision": "Ιησούς του Ναυή", "why": "The only established Greek name for the biblical figure; bare «Ιησούς» would be read as Jesus Christ."},
+   {"term": "Jericho / the Fall of Jericho", "decision": "η Ιεριχώ, gen. «της Ιεριχούς»; «η πτώση της Ιεριχούς»", "why": "Standard Greek form and genitive; «άλωση» was rejected because in Greek it is strongly bound to Constantinople."},
+   {"term": "firsthand account", "decision": "μαρτυρία αυτόπτη μάρτυρα", "why": "Native Greek collocation; a calque of 'firsthand' («από πρώτο χέρι») would read as journalese here."},
+   {"term": "modern-day lingo", "decision": "σημερινή αργκό", "why": "«Αργκό» is the ordinary Greek word for slang; «λινγκο» does not exist and «ιδιόλεκτο» is technical."}
+  ],
+  "reference_problems": [
+   "Factual error: Jericho is described as 'that big city on top of a mountain' — Jericho lies in the Jordan valley, one of the lowest cities on earth.",
+   "The closing 'Joshua definitely made a believer out of me' skirts the prompt's own ban by importing belief language, and the trumpet-and-shout premise the piece narrates is left with no explanation, which the ban makes unavoidable but the reference does not handle.",
+   "'the huge stone walls ... literally shattered' — 'literally' is used loosely in a narrated miracle.",
+   "Inconsistent capitalisation of 'Earth' ('Earth-shattering', 'embedded in the Earth').",
+   "Tense slips between present ('Joshua's saying') and past narration."
+  ],
+  "translator_notes": "Confirm the genitive «της Ιεριχούς» is acceptable house style (some Greek texts leave Ιεριχώ indeclinable). The word cap will be counted on Greek tokens — flag if the reviewer wants it rescaled rather than kept at 400. The God-ban wording was deliberately widened; check that this counts as constraint preservation and not as adding an instruction."
+ },
+ {
+  "row_id": "d44d10b8172494f6fbd317ec717e03f1450e39deb312d4893504d2b84c679cb9",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LITERAL"],
+  "subtype": "short web article on a real subject, with a word cap and a required catchy title",
+  "hazards": [
+   "Every referent is real — Bukhara, Uzbekistan, the Bukharan Jews, the Babylonian exile. Nothing may be moved to Greek reality; the only Greek decisions are transliterations.",
+   "The 250-word cap must stay countable on the Greek output.",
+   "'Catchy title' is a deliverable, not a suggestion: the answer is wrong without a title, and the title must be catchy in Greek on its own terms, not a translated English pun.",
+   "Three required content beats: arrival, population numbers, impact.",
+   "The publication venue (a fun-facts site) sets the register of the output and must survive."
+  ],
+  "devices": [
+   {"where": "requested title", "device": "euphony / allusive naming (requested, not supplied)", "effect": "memorable", "english": "give it a catchy title", "greek": "βάλε του έναν τίτλο που να τραβάει το μάτι", "how": "The prompt only requires the effect; the Greek asks for the same effect with the ordinary Greek idiom for it, leaving the device to the answer."}
+  ],
+  "device_notes": "No device is present in the prompt itself; one is commissioned for the answer. The reference's own title device (Silk Road allusion) is available in Greek — «Δρόμος του Μεταξιού» is the standard term — so nothing is foreclosed.",
+  "en_register": "neutral",
+  "register_evidence": "Commissioning brief, no addressee or relationship; polite-neutral throughout, with the informality located in the described venue ('fun facts') rather than in the request.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα άρθρο για τους Εβραίους της Μπουχαράς στο Ουζμπεκιστάν, με λίγο υπόβαθρο για το πώς έφτασαν στην περιοχή, για το πόσοι ήταν σε αριθμούς και για το πώς επηρέασαν τον τόπο. Το κείμενο θα μπει σε έναν ιστότοπο με παράξενα γεωγραφικά τρίβια, οπότε βάλε του έναν τίτλο που να τραβάει το μάτι. Κράτησέ το κάτω από 250 λέξεις.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "Bukhara → Μπουχαρά", "en": "the Bukhara Jews", "el": "οι Εβραίοι της Μπουχαράς", "why": "The community's name is derived from the city's, so the Greek community name must be re-derived from the chosen Greek spelling of the city rather than transliterated separately (e.g. «Βουχαραίοι»)."}
+  ],
+  "constraint_notes": "Checkable in Greek: (a) under 250 words on the Greek text; (b) a title is present and is a title, not a first sentence; (c) all three beats covered — arrival in the region, population figures, impact on the area. The word cap is unchanged from the English, so the Greek article will carry somewhat more content per word.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "Bukhara", "decision": "Μπουχαρά (η Μπουχαρά, gen. της Μπουχαράς)", "why": "Standard modern Greek transliteration of the Uzbek city; the older learned «Βουχάρα» would read as archaizing on a fun-facts site."},
+   {"term": "Bukhara Jews", "decision": "Εβραίοι της Μπουχαράς", "why": "Greek names the community by the city with a genitive rather than an adjective; «Μπουχαριανοί Εβραίοι» is not established."},
+   {"term": "obscure geographic fun facts (website)", "decision": "ιστότοπος με παράξενα γεωγραφικά τρίβια", "why": "«Τρίβια» is current Greek for fun facts; «παράξενα» carries 'obscure' better than «άγνωστα», which would suggest unresearched."},
+   {"term": "website", "decision": "ιστότοπος", "why": "House choice over «σάιτ» (too colloquial for a brief) and «ιστοσελίδα» (a single page, not a site)."},
+   {"term": "catchy", "decision": "που να τραβάει το μάτι", "why": "Idiomatic Greek for a title that grabs attention; «πιασάρικος» carries a pejorative tinge of cheapness."}
+  ],
+  "reference_problems": [
+   "Internal contradiction: 'their origins are the subject of legend' followed immediately by 'historians believe that they've traced their arrival to 586 BCE' presented as settled — the 586 BCE origin is itself legendary, and mainstream scholarship dates the community far later.",
+   "'the Babylonians exiling them from Israel' — the exile was from Judah/Judea (the text itself says 'far beyond the reaches of Judea' two lines earlier).",
+   "'the Russian Tsar' is vague and unattributed, and treats a two-century succession of rulers as one person.",
+   "The 50,000 peak-population figure is given without period or source and is high relative to usual estimates.",
+   "The title uses an en-dash-less run-on ('The Jews of the Silk Road– Bukhara, Uzbekistan's Jewish Legacy') with a spacing error.",
+   "The prompt asks about impact on the area, but the reference mostly covers persecution and emigration; the impact beat is thin."
+  ],
+  "translator_notes": "Confirm the «Μπουχαρά» spelling as the house form — it must then be reused in the answer's title. Check the word cap is applied to Greek words. The answer's title should be a Greek-native catchy title, not a translation of the reference's Silk Road title."
+ },
+ {
+  "row_id": "f946c1a75f3ce6fec158bb5063941b4802afe45b34f0b39f09f722442f34cffd",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LOCALIZE"],
+  "subtype": "essay intro with an exact sentence count and an invented-content licence",
+  "hazards": [
+   "Two independent counts: exactly 3 sentences AND 3 goals. Both must stay countable in Greek, and the sentence count is the harder one — Greek's coordination habits make it easy to fuse or split.",
+   "'Exactly 3 sentences, no more. No less.' is itself emphatic and fragmented; the emphasis is carried by the fragmentation, so the Greek must fragment too and must not add extra intensifiers on top.",
+   "The class is frame: a US rhetoric-and-composition course has no Greek counterpart under that name, and nothing becomes true or false by moving it. It must move fully into the Greek academic system.",
+   "The row is written in the student's first person ('my experience', 'I struggled') — the deliverable is ghostwritten in the requester's voice, and that ownership must survive.",
+   "The licence to invent ('as long as they sound plausible') must stay a licence, not become a demand for real goals."
+  ],
+  "devices": [
+   {"where": "final constraint", "device": "fragmentation / epistrophic emphasis", "effect": "brisk, insistent", "english": "This paragraph needs to be exactly 3 sentences, no more. No less.", "greek": "Η παράγραφος πρέπει να έχει ακριβώς 3 προτάσεις, ούτε παραπάνω. Ούτε λιγότερες.", "how": "Same device: the sentence break before the last two words is what does the work, and Greek takes it unchanged."}
+  ],
+  "device_notes": "No naming device. The one device is the deliberate sentence-fragment at the end; it transfers directly, so no compensation and no added markedness.",
+  "en_register": "informal",
+  "register_evidence": "First-person student voice, 'You can make up whatever goals you want', the clipped emphatic fragment at the end, and a trailing space typical of quick typing — this is someone talking to a tool, casually.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια σύντομη εισαγωγή για ένα δοκίμιο. Έχει θέμα την εμπειρία μου φέτος στο μάθημα Ρητορικής και Ακαδημαϊκής Γραφής. Πρέπει να αναφέρει 3 πράγματα που ήθελα να αποκομίσω από το μάθημα, αν πέτυχα ή όχι αυτούς τους στόχους, και να προετοιμάζει το έδαφος ότι δυσκολεύτηκα σε κάποια πράγματα, τα οποία θα αναλύσω στη συνέχεια του δοκιμίου. Μπορείς να επινοήσεις όποιους στόχους θέλεις, αρκεί να ακούγονται εύλογοι. Η παράγραφος πρέπει να έχει ακριβώς 3 προτάσεις, ούτε παραπάνω. Ούτε λιγότερες.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "my rhetoric and composition class", "el": "το μάθημα Ρητορικής και Ακαδημαϊκής Γραφής", "kind": "institution", "why": "'Rhetoric and composition' is a US general-education course with no Greek namesake; Greek universities teach the same content as «Ακαδημαϊκή Γραφή», often paired with rhetoric. Moving the whole cast (student, course, essay) into Greek higher education keeps the scenario internally consistent."},
+   {"en": "essay", "el": "δοκίμιο", "kind": "other", "why": "«Δοκίμιο» is the Greek academic essay; «έκθεση» would relocate the scenario to secondary school and contradict a university-level rhetoric course."}
+  ],
+  "derived_elements": [
+   {"depends_on": "rhetoric and composition class → μάθημα Ρητορικής και Ακαδημαϊκής Γραφής", "en": "this year", "el": "φέτος", "why": "Kept, and kept attached to the course: a Greek university course runs within one academic year, so 'φέτος' stays true after the institutional move."},
+   {"depends_on": "the invented goals licence", "en": "as long as they sound plausible", "el": "αρκεί να ακούγονται εύλογοι", "why": "Plausibility is now judged against the Greek course, so the answer's three goals must be goals a Greek student of ακαδημαϊκή γραφή would credibly have."}
+  ],
+  "constraint_notes": "Checkable in Greek: (a) exactly 3 sentences — «ακριβώς 3 προτάσεις, ούτε παραπάνω. Ούτε λιγότερες.» — counted by terminal punctuation on the Greek output; (b) exactly 3 goals named; (c) a verdict on whether the goals were met; (d) a forward-pointing setup for the struggles. Note for the checker: Greek «πρόταση» means both 'sentence' and 'clause' — here it is the orthographic sentence, and the answer must not satisfy the count with three clauses inside one period.",
+  "substitution_note": "Full localization: the student, the course and the essay all move into the Greek university system together; no US props (semester letter grades, 'freshman', 'workshop') should appear in the Greek answer.",
+  "guide_gaps": [
+   {"term": "rhetoric and composition (class)", "decision": "Ρητορική και Ακαδημαϊκή Γραφή", "why": "Names the same skill set with terms that exist in Greek curricula; a literal «Ρητορική και Σύνθεση» would name no real course."},
+   {"term": "essay", "decision": "δοκίμιο", "why": "University-level; distinguishes it from the school «έκθεση»."},
+   {"term": "gain from the class", "decision": "αποκομίσω από το μάθημα", "why": "Standard Greek collocation for what one takes away from a course; «κερδίσω» would read transactional."},
+   {"term": "set up the fact that", "decision": "προετοιμάζει το έδαφος ότι", "why": "Greek idiom for foreshadowing in an intro; a literal «να στήσει το γεγονός ότι» is not Greek."}
+  ],
+  "reference_problems": [
+   "The reference violates the row's central constraint in spirit: it is 3 sentences, but the second sentence packs all three goals into one long enumeration, and the first sentence ('Upon entering this course, I was hoping to gain three things') spends a whole sentence announcing rather than delivering — leaving no sentence for the struggles beyond a trailing clause.",
+   "The struggles are barely set up: 'they did not come without their own unique challenges' does not point forward to the rest of the essay as the prompt requires.",
+   "'all of these goals have been achieved to some extent' hedges rather than answering whether the goals were achieved.",
+   "'practice and flex my writing muscles' is a mixed and clichéd metaphor for an academic intro."
+  ],
+  "translator_notes": "Verify the sentence count of the final Greek answer by terminal punctuation, and flag the «πρόταση» = sentence/clause ambiguity to the checker. Confirm the institutional move to «Ρητορική και Ακαδημαϊκή Γραφή» is acceptable, since it must then govern the invented goals. The two-fragment ending is intentional — do not merge «Ούτε λιγότερες.» into the previous sentence."
+ }
+]

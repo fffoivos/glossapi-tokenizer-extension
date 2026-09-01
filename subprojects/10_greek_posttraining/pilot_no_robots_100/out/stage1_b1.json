@@ -1,0 +1,380 @@
+[
+ {
+  "row_id": "dca7c1d32f891269b28bd65041b77eb3e61cfd0706941ff5de7ca563b296bdde",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "factual question about a real city's nickname",
+  "hazards": ["culture_bound_fact", "proper_names"],
+  "en_register": "neutral",
+  "register_evidence": "Impersonal factual question with no addressee marked; no politeness markers, no persona.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Γιατί το Αμπερντίν αποκαλείται «Πόλη του Γρανίτη» (Granite City);",
+  "user_turns_el": ["Γιατί το Αμπερντίν αποκαλείται «Πόλη του Γρανίτη» (Granite City);"],
+  "localization_decisions": [
+   {"en": "Aberdeen", "el": "Αμπερντίν", "why": "Real place being asked about — transliterated, not localized."},
+   {"en": "the Granite City", "el": "«Πόλη του Γρανίτη» (Granite City)", "why": "The nickname is the object of the question; translated for sense with the English original kept in parentheses so the answer can still explain the actual epithet."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Must stay about Aberdeen, Scotland — no substitution of a Greek city. Check that keeping the English nickname in parentheses is acceptable house style."
+ },
+ {
+  "row_id": "ca55b8ed89366d4172559299f58d2e9b293f5bbe39c7e313c9ce12698b70d31b",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "factual geography/history question",
+  "hazards": ["culture_bound_fact"],
+  "en_register": "neutral",
+  "register_evidence": "Bare information question, no addressee or relationship cues.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Πού βρίσκεται η παλαιότερη δημόσια βιβλιοθήκη της αμερικανικής ηπείρου;",
+  "user_turns_el": ["Πού βρίσκεται η παλαιότερη δημόσια βιβλιοθήκη της αμερικανικής ηπείρου;"],
+  "localization_decisions": [
+   {"en": "the Americas", "el": "η αμερικανική ήπειρος", "why": "Greek has no idiomatic plural «οι Αμερικές»; «αμερικανική ήπειρος» covers North and South America and keeps the answer (Puebla, Mexico) correct."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Do not narrow to «ΗΠΑ» — that would change the correct answer."
+ },
+ {
+  "row_id": "b65b883845724ef35927eafc60ea9d0b0cc912c54d7e14eb362455ca6f1bdc24",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "general biology question",
+  "hazards": [],
+  "en_register": "neutral",
+  "register_evidence": "Impersonal question about animal behaviour; no address form implied.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Τι βοηθάει μια αλεπού να πιάσει ένα κουνέλι κατά την καταδίωξη;",
+  "user_turns_el": ["Τι βοηθάει μια αλεπού να πιάσει ένα κουνέλι κατά την καταδίωξη;"],
+  "localization_decisions": [],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Language-neutral; nothing to check beyond fluency."
+ },
+ {
+  "row_id": "1159358993fb23f18695a802a622f91c22788ca4140ca3ec4b6d5f376d86eaf3",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "factual question about a historical warship nickname",
+  "hazards": ["culture_bound_fact", "proper_names"],
+  "en_register": "neutral",
+  "register_evidence": "«Can you explain…» is a direct request to the assistant, casual and unmarked for politeness beyond the modal.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Μπορείς να μου εξηγήσεις τι ήταν το «Old Ironside»;",
+  "user_turns_el": ["Μπορείς να μου εξηγήσεις τι ήταν το «Old Ironside»;"],
+  "localization_decisions": [
+   {"en": "Old Ironside", "el": "«Old Ironside»", "why": "Nickname of the USS Constitution — a real proper name, kept in the Latin script exactly as written in the source."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "The source writes «Old Ironside»; the standard nickname is «Old Ironsides». I deliberately did NOT repair the spelling — flag if the project prefers normalisation. Direct address to a chat assistant rendered ενικός per project policy for casual assistant-directed requests."
+ },
+ {
+  "row_id": "31c6605ac1aecdf870975297401bbcd4c027b397198ca334220916affe2a540e",
+  "translation_class": "REGISTER-CRITICAL",
+  "secondary_classes": ["LITERAL"],
+  "subtype": "factual question with a vain-animal persona instruction",
+  "hazards": ["persona_voice"],
+  "en_register": "informal",
+  "register_evidence": "The user asks the assistant to role-play a vain giraffe («enamored with himself»); playful persona framing implies casual singular address.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Τι χρώμα έχει η γλώσσα της καμηλοπάρδαλης; Απάντησε σαν μια αρσενική καμηλοπάρδαλη που είναι αρκετά επιφανειακή και ερωτευμένη με τον εαυτό της.",
+  "user_turns_el": ["Τι χρώμα έχει η γλώσσα της καμηλοπάρδαλης; Απάντησε σαν μια αρσενική καμηλοπάρδαλη που είναι αρκετά επιφανειακή και ερωτευμένη με τον εαυτό της."],
+  "localization_decisions": [
+   {"en": "a giraffe … enamored with himself", "el": "μια αρσενική καμηλοπάρδαλη … ερωτευμένη με τον εαυτό της", "why": "«καμηλοπάρδαλη» is grammatically feminine in Greek, so the English male persona is carried by the explicit adjective «αρσενική» while the agreement stays feminine."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Register is the content here: the answer must be written in the vain giraffe's voice, in ενικός. Reviewer should confirm the «αρσενική καμηλοπάρδαλη» solution for the gender clash, or accept dropping the male marking entirely."
+ },
+ {
+  "row_id": "68d8ef45923b58d8c085edd692fb4e5deb67dc1b306a0fcad84c03346f473f97",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "veterinary anatomy question",
+  "hazards": [],
+  "en_register": "neutral",
+  "register_evidence": "Impersonal factual question, no addressee.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Ποιοι είναι οι διαφορετικοί τύποι δοντιών που έχουν οι ενήλικοι σκύλοι;",
+  "user_turns_el": ["Ποιοι είναι οι διαφορετικοί τύποι δοντιών που έχουν οι ενήλικοι σκύλοι;"],
+  "localization_decisions": [],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Answer will use κοπτήρες / κυνόδοντες / προγόμφιοι / γομφίοι — standard Greek dental terms exist, no hazard."
+ },
+ {
+  "row_id": "df693a8c016e469a614ec274d1558ab0a476ecc7344345927706ff53a1c1f497",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "factual date question about a real institution",
+  "hazards": ["culture_bound_fact", "proper_names"],
+  "en_register": "neutral",
+  "register_evidence": "«Can you tell me…» — a plain request to the assistant, unmarked politeness.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Μπορείς να μου πεις πότε ιδρύθηκε η Βιβλιοθήκη του Κογκρέσου;",
+  "user_turns_el": ["Μπορείς να μου πεις πότε ιδρύθηκε η Βιβλιοθήκη του Κογκρέσου;"],
+  "localization_decisions": [
+   {"en": "Library of Congress", "el": "Βιβλιοθήκη του Κογκρέσου", "why": "Established Greek name of the real US institution; not localized to a Greek library."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Must remain the US Library of Congress. Address form committed to ενικός by the modal verb."
+ },
+ {
+  "row_id": "33457236f92fcd9607a923e9f78042560a55b54ce25116b5b2a22f9357eeaa23",
+  "translation_class": "LITERAL",
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "etymology of an English word",
+  "hazards": ["culture_bound_fact", "verbatim_source_text", "answer_depends_on_source_text"],
+  "en_register": "neutral",
+  "register_evidence": "Impersonal question about word origin; no addressee.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Ποια είναι η προέλευση του όρου «soccer» για το άθλημα που στο μεγαλύτερο μέρος του κόσμου είναι γνωστό ως «football» (ποδόσφαιρο);",
+  "user_turns_el": ["Ποια είναι η προέλευση του όρου «soccer» για το άθλημα που στο μεγαλύτερο μέρος του κόσμου είναι γνωστό ως «football» (ποδόσφαιρο);"],
+  "localization_decisions": [
+   {"en": "soccer", "el": "«soccer» (frozen)", "why": "The English word itself is the object of the question — translating it to «ποδόσφαιρο» would destroy the task."},
+   {"en": "football", "el": "«football» (ποδόσφαιρο)", "why": "Kept in English because the answer contrasts the two English terms (Association Football vs rugby football); the Greek gloss is added for readability."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Both English terms must stay in Latin script; the answer hinges on «Association Football» → «soccer». Verify the parenthetical Greek gloss does not tempt the model to answer about the Greek word."
+ },
+ {
+  "row_id": "1988b875abada033de380de1d883ff84c13521bd2eee62034482ad361a99109f",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "factual geography question",
+  "hazards": ["culture_bound_fact", "proper_names"],
+  "en_register": "neutral",
+  "register_evidence": "Bare factual question, no address form.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Πού βρίσκεται το όρος Αίτνα;",
+  "user_turns_el": ["Πού βρίσκεται το όρος Αίτνα;"],
+  "localization_decisions": [
+   {"en": "Mt. Etna", "el": "το όρος Αίτνα", "why": "Established Greek name of the real volcano; the English abbreviation «Mt.» is expanded to the natural Greek «όρος»."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Nothing to check beyond the standard Greek name Αίτνα."
+ },
+ {
+  "row_id": "1f4757a0f89a0097d4950d9f14de73b510510b5194499757891ebc8ef36776c5",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "question about a real royal title",
+  "hazards": ["culture_bound_fact"],
+  "en_register": "neutral",
+  "register_evidence": "Impersonal definitional question; no addressee, no tone markers.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Τι είναι η βασίλισσα σύζυγος (queen consort) και ποιος είναι ο ρόλος της;",
+  "user_turns_el": ["Τι είναι η βασίλισσα σύζυγος (queen consort) και ποιος είναι ο ρόλος της;"],
+  "localization_decisions": [
+   {"en": "Queen consort", "el": "βασίλισσα σύζυγος (queen consort)", "why": "A real British/European title with no fully settled Greek equivalent; the usual Greek rendering is given with the English term in parentheses for disambiguation from a reigning queen."},
+   {"en": "what do they do", "el": "ποιος είναι ο ρόλος της", "why": "English singular-they is rendered as feminine singular, which is unambiguous in Greek for this title."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Reviewer should confirm «βασίλισσα σύζυγος» over alternatives such as «σύζυγος του βασιλιά»; the key distinction the answer needs is consort vs reigning queen (βασιλεύουσα)."
+ },
+ {
+  "row_id": "6370a74a8fff97c345c13e98ac466db92faf08f6054f3fd670674f19e2ebc8d8",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "physics thought-experiment explainer request",
+  "hazards": ["proper_names"],
+  "en_register": "neutral",
+  "register_evidence": "«Can you tell me about…» — a direct, casual request to the assistant.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Μπορείς να μου πεις για τη γάτα του Σρέντινγκερ; Τι είναι και τι σημαίνει;",
+  "user_turns_el": ["Μπορείς να μου πεις για τη γάτα του Σρέντινγκερ; Τι είναι και τι σημαίνει;"],
+  "localization_decisions": [
+   {"en": "Schrödinger's cat", "el": "η γάτα του Σρέντινγκερ", "why": "Standard Greek rendering of the real physicist's name and the established name of the thought experiment."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "«Σρέντινγκερ» is the common Greek transliteration; «Σρέντιγκερ» also occurs — check house preference."
+ },
+ {
+  "row_id": "8135d113ff012935bc9c745879f1e2831f633b45ed4850b4ac34968e2e42a0b8",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "factual question about child dentition",
+  "hazards": [],
+  "en_register": "neutral",
+  "register_evidence": "Impersonal factual question, no addressee.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Πόσα νεογιλά (παιδικά) δόντια χάνουν τα παιδιά;",
+  "user_turns_el": ["Πόσα νεογιλά (παιδικά) δόντια χάνουν τα παιδιά;"],
+  "localization_decisions": [
+   {"en": "baby teeth", "el": "νεογιλά (παιδικά) δόντια", "why": "«νεογιλά» is the correct dental term but is not universally known; the colloquial «παιδικά» is added in parentheses to match the plain register of the English."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Numeric answer (20) is language-neutral; nothing rescaled."
+ },
+ {
+  "row_id": "19d105c351d607ace3596e9f19d836dc9c30d22b3c26ec2242d37b8e6a026720",
+  "translation_class": "LITERAL",
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "sports history question with a listing instruction",
+  "hazards": ["culture_bound_fact", "proper_names", "checkable_constraint"],
+  "en_register": "neutral",
+  "register_evidence": "Factual query plus a bare imperative («List any teams…»); no relationship or politeness cues, but the imperative forces an address form in Greek.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Ποιες ομάδες του NBA έχουν πετύχει «3-peat», δηλαδή τρία συνεχόμενα πρωταθλήματα NBA; Ανάφερε τις ομάδες και τις χρονιές που κατέκτησαν διαδοχικά τους τίτλους.",
+  "user_turns_el": ["Ποιες ομάδες του NBA έχουν πετύχει «3-peat», δηλαδή τρία συνεχόμενα πρωταθλήματα NBA; Ανάφερε τις ομάδες και τις χρονιές που κατέκτησαν διαδοχικά τους τίτλους."],
+  "localization_decisions": [
+   {"en": "NBA", "el": "NBA", "why": "Real league, used in Latin initials in Greek sports usage."},
+   {"en": "3-peat", "el": "«3-peat», δηλαδή τρία συνεχόμενα πρωταθλήματα", "why": "English coinage (a pun on «repeat») with no Greek equivalent; frozen and glossed inline so the question remains answerable in Greek."}
+  ],
+  "constraint_notes": "The checkable part is: name the teams AND the consecutive years. Preserved in Greek as «Ανάφερε τις ομάδες και τις χρονιές…»; the count constraint («three in a row») is content, not format.",
+  "substitution_note": null,
+  "translator_notes": "The «3-peat» wordplay is lost in Greek (only the numeral survives); the inline gloss keeps the task well defined. Team names should stay in their usual Greek/English sports forms in the answer."
+ },
+ {
+  "row_id": "1badc4b5fbed5a03477faafc4541b0d0b8cd1c08183ea910feb5160247f95e4e",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "demographics ranking question",
+  "hazards": ["culture_bound_fact"],
+  "en_register": "neutral",
+  "register_evidence": "Impersonal factual question, no addressee.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Ποιες είναι οι πέντε πιο πολυπληθείς χώρες της Ασίας;",
+  "user_turns_el": ["Ποιες είναι οι πέντε πιο πολυπληθείς χώρες της Ασίας;"],
+  "localization_decisions": [],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "«πέντε» is part of the question's content rather than a format constraint; population figures in the answer must not be rescaled or reformatted with Greek separators in a way that changes the values."
+ },
+ {
+  "row_id": "2eaa05774f091c7c85daf39a74d8a4e837ca4eb365778a20c259f8c60aceb0f4",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "monument fact question",
+  "hazards": ["culture_bound_fact", "proper_names", "us_specific_unit_or_currency"],
+  "en_register": "neutral",
+  "register_evidence": "Impersonal three-part factual question; no addressee or tone markers.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Τι είναι το Άγαλμα της Ελευθερίας; Από τι είναι φτιαγμένο και ποιος το σχεδίασε;",
+  "user_turns_el": ["Τι είναι το Άγαλμα της Ελευθερίας; Από τι είναι φτιαγμένο και ποιος το σχεδίασε;"],
+  "localization_decisions": [
+   {"en": "Statue of Liberty", "el": "Άγαλμα της Ελευθερίας", "why": "Established Greek name of the real monument."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "The prompt itself carries no units, but the reference answer uses feet/inches — the Greek answer should give metres; flag for the answer stage, not here."
+ },
+ {
+  "row_id": "9602a76984d19fd8d9789b183c17f22284a11e9759e29f0f772a8b46ff77d0ed",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "body-modification terminology question",
+  "hazards": [],
+  "en_register": "informal",
+  "register_evidence": "Colloquial phrasing («What are some of the piercings called that you can get…») with generic second-person «you»; casual subject matter.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Πώς λέγονται μερικά από τα piercings που μπορείς να κάνεις στο πρόσωπό σου;",
+  "user_turns_el": ["Πώς λέγονται μερικά από τα piercings που μπορείς να κάνεις στο πρόσωπό σου;"],
+  "localization_decisions": [
+   {"en": "piercings", "el": "piercings", "why": "The English loanword is what Greek speakers actually use for this; «τρυπήματα» would sound clinical and would not match the names of the specific piercings in the answer."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Generic English «you» rendered as Greek generic ενικός, which is the natural colloquial choice; the specific piercing names in the answer (bridge, anti-eyebrow) are English terms in Greek usage too."
+ },
+ {
+  "row_id": "39cdc3c2b2b61f9f37270a6929d05602b1acd0998fcebcde8a066f35efc952ba",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "language-learning game about a third language",
+  "hazards": ["language_game"],
+  "en_register": "informal",
+  "register_evidence": "Personal, chatty framing («I'm trying to learn Swedish… let me see if I can guess»), a playful request to the assistant.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Προσπαθώ να μάθω σουηδικά. Μπορείς να μου δώσεις μια απλή πρόταση στα σουηδικά, να δω αν μπορώ να μαντέψω τι σημαίνει;",
+  "user_turns_el": ["Προσπαθώ να μάθω σουηδικά. Μπορείς να μου δώσεις μια απλή πρόταση στα σουηδικά, να δω αν μπορώ να μαντέψω τι σημαίνει;"],
+  "localization_decisions": [
+   {"en": "Swedish", "el": "σουηδικά", "why": "The target language of the game is Swedish, not English, so the task transfers to a Greek user unchanged — no substitution needed."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "The game survives translation because the language being guessed is Swedish; the assistant's Swedish sentence must be left in Swedish, and only the user's guess would be in Greek. Not REGENERATE-NATIVE."
+ },
+ {
+  "row_id": "f3c182f11b5ca42d2264de728652b383be7febc8b2c9ed5a3e74e629e5813ec8",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "secondary_classes": ["LITERAL"],
+  "subtype": "film history question with an explicit output format",
+  "hazards": ["checkable_constraint", "culture_bound_fact", "proper_names"],
+  "en_register": "neutral",
+  "register_evidence": "Factual question plus a bare formatting imperative («Answer in a bulleted list…»); no relationship cues, but the imperative forces an address form.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Ποιες ήταν οι τρεις πρώτες ταινίες που έφτιαξε η Disney και ποια χρονιά γυρίστηκαν; Απάντησε με λίστα με κουκκίδες, στη μορφή (χρονιά): (γεγονός).",
+  "user_turns_el": ["Ποιες ήταν οι τρεις πρώτες ταινίες που έφτιαξε η Disney και ποια χρονιά γυρίστηκαν; Απάντησε με λίστα με κουκκίδες, στη μορφή (χρονιά): (γεγονός)."],
+  "localization_decisions": [
+   {"en": "Disney", "el": "Disney", "why": "Real studio; kept in Latin script as is standard in Greek."}
+  ],
+  "constraint_notes": "Greek form of the constraint: exactly three bulleted items, each formatted «(χρονιά): (γεγονός)» — i.e. year, colon, then the film/event. Both the item count and the template are mechanically checkable in Greek exactly as in English. Note that Greek uses «·» for some list punctuation but the colon in the template must stay a plain colon.",
+  "substitution_note": null,
+  "translator_notes": "Film titles in the answer will need Greek titles (Χιονάτη, Πινόκιο, Φαντασία) — flag for the answer stage. The (year): (event) template is preserved with translated placeholder words, which keeps it checkable."
+ },
+ {
+  "row_id": "7bb328b9fdc020aefb525c221fa4f7a1859252725ed964f604244e3b265a19df",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "secondary_classes": ["LITERAL"],
+  "subtype": "health list request with a count and format constraint",
+  "hazards": ["checkable_constraint"],
+  "en_register": "neutral",
+  "register_evidence": "Two bare imperatives with a generic «your health»; no politeness markers or relationship, but the imperative forces an address form in Greek.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Ανάφερε πέντε τρόπους με τους οποίους η προπόνηση δύναμης μπορεί να ωφελήσει την υγεία σου. Παρουσίασέ τους σε αριθμημένη λίστα.",
+  "user_turns_el": ["Ανάφερε πέντε τρόπους με τους οποίους η προπόνηση δύναμης μπορεί να ωφελήσει την υγεία σου. Παρουσίασέ τους σε αριθμημένη λίστα."],
+  "localization_decisions": [
+   {"en": "strength training", "el": "προπόνηση δύναμης", "why": "Standard Greek fitness term (also «προπόνηση με αντιστάσεις»); language-neutral concept, no localization of content."}
+  ],
+  "constraint_notes": "Greek form of the constraint: exactly five items, presented as a numbered list («αριθμημένη λίστα», 1.–5.). Both count and format remain mechanically checkable in Greek.",
+  "substitution_note": null,
+  "translator_notes": "Generic «your health» kept as ενικός «την υγεία σου», matching the imperative address; a πληθυντικός variant («Αναφέρετε… σας») would be equally valid if the project prefers formal instruction phrasing — flag as the one genuinely arguable register call in this batch."
+ },
+ {
+  "row_id": "69adf5c5b833591d30b831dd82c615f8763a59a3b2c74c9b1cf8530f92d4a9ec",
+  "translation_class": "LITERAL",
+  "secondary_classes": [],
+  "subtype": "architecture/history question about a Greek monument",
+  "hazards": ["culture_bound_fact", "proper_names"],
+  "en_register": "neutral",
+  "register_evidence": "Impersonal two-part academic question; no addressee or tone markers.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Τι αντιπροσωπεύει ο Παρθενώνας και γιατί είναι σημαντικός από αρχιτεκτονικής άποψης;",
+  "user_turns_el": ["Τι αντιπροσωπεύει ο Παρθενώνας και γιατί είναι σημαντικός από αρχιτεκτονικής άποψης;"],
+  "localization_decisions": [
+   {"en": "the Parthenon", "el": "ο Παρθενώνας", "why": "Native Greek name of the real monument."}
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "translator_notes": "Subject is Greek-native, so the Greek answer can be expected to be richer/more specific than the English reference (Δωρικός ρυθμός, Ακρόπολη, Αθηνά Παρθένος)."
+ }
+]

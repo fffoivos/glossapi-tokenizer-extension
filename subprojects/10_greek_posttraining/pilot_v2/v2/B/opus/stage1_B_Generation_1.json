@@ -1,0 +1,327 @@
+[
+ {
+  "row_id": "4730a5b3414a57b50b653221cb365aae33d2d758f8d7c6a525f4980b4fbd3c62",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["REGISTER-CRITICAL", "LOCALIZE"],
+  "subtype": "five humorous tweets on a comparison theme",
+  "hazards": ["the count 'five' must stay countable in Greek", "'Droid!' is a playful nickname for the assistant — transliterating it as «Ντρόιντ» keeps the spelling and loses the affectionate, jokey summons", "the English reference leans on US-specific props (Tinder, Facebook, Guinness, Sumerians in a phone queue); that is the answer stage's problem, but the prompt must not pre-commit to them", "beer humour needs no localization — beer is fully native to Greek life; the temptation to swap it for ούζο/τσίπουρο would change the content"],
+  "devices": [
+   {"where": "persona name (address to the assistant)", "device": "allusive naming", "effect": "warm and comic — brisk, familiar summons that casts the assistant as a friendly machine sidekick", "english": "Droid!", "greek": "Ρομποτάκι!", "how": "Greek uses a diminutive (-άκι) instead of the sci-fi allusion: the Star Wars word has no affectionate register in Greek, while the diminutive carries exactly the warm-jokey summons the English gets from 'Droid!'"}
+  ],
+  "device_notes": "The Star Wars allusion itself is not reproduced — «Ντρόιντ» would be read as a bare loanword with no affect. The effect (familiar, comic address to a machine helper) is carried by the diminutive «Ρομποτάκι».",
+  "en_register": "informal",
+  "register_evidence": "Vocative nickname for the assistant ('Droid!'), exclamation mark, contracted colloquial framing ('I need to write some funny tweets'), and a casual 'Please write five to start' — a chatty user talking to a bot they treat as a buddy.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Ρομποτάκι! Θέλω να γράψω κάτι αστεία τουίτ για το πώς η μπίρα είναι καλύτερη από τη σύγχρονη τεχνολογία. Γράψε πέντε για αρχή.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "Droid", "el": "Ρομποτάκι", "kind": "name", "why": "Frame: the assistant's nickname decides nothing about whether the tweets are true or funny; it exists to set a playful tone, which the Greek diminutive delivers natively."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Droid → Ρομποτάκι", "en": "exclamatory vocative 'Droid!' opening the turn", "el": "«Ρομποτάκι!» kept in the same opening vocative slot with the exclamation mark", "why": "The nickname's job is the summons; if the replacement were demoted out of the vocative the substitution would lose the tone it was made for."}
+  ],
+  "constraint_notes": "Countable constraint: exactly five tweets. In Greek «πέντε» + «τουίτ» (indeclinable neuter) stays trivially countable by counting the units in the answer. 'to start' («για αρχή») is preserved as a softener, not as a licence to write fewer than five.",
+  "substitution_note": "Only the assistant's nickname was substituted; beer, tweets and 'modern technology' are the content axis of the joke and were left in place.",
+  "guide_gaps": [
+   {"term": "tweet", "decision": "«τουίτ» (indeclinable neuter, plural «τουίτ»)", "why": "This is the form Greek speakers actually use; «ανάρτηση στο Twitter/X» is accurate but heavy and destroys the brevity of a casual request."},
+   {"term": "Droid (assistant nickname)", "decision": "«Ρομποτάκι»", "why": "Establishes the house pattern: affectionate nicknames for the assistant are rendered by a Greek diminutive that reproduces the affect, not by transliteration."}
+  ],
+  "reference_problems": ["The reference delivers only five tweets, which satisfies the count, but the fourth item mixes two jokes (unfriending a beer + being stalked by a pint) and trails a stray space at the end of the line.", "'beer has ghosted me' is a garbled negation — the joke needs 'beer has never ghosted me'; as written it says the opposite of what the comparison requires.", "Heavy US-brand load (Tinder, Facebook, Guinness) for a prompt that names no locale."],
+  "translator_notes": "Check that «Ρομποτάκι» reads as playful rather than condescending to a reviewer's ear; alternative considered and rejected: «Ρομποτάκο μου». The answer stage must produce exactly five tweets and should localize the tech props (e.g. δίωρη ουρά για κινητό, εφαρμογές γνωριμιών) rather than carry Tinder/Facebook/Guinness across."
+ },
+ {
+  "row_id": "f76d87829956fe1fa95c3f3fcfd01e97f8981d6568605663c05491972fcd608a",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LITERAL"],
+  "subtype": "free-verse poem with a typographic constraint",
+  "hazards": ["the all-lowercase rule is the checkable constraint and must survive verbatim into Greek", "a Greek writer may 'helpfully' capitalize the first word of each line or the word Θεός — that would break the constraint", "free verse means no rhyme is required, so this is NOT a regeneration case despite being a poem", "the topic (praying) is religiously neutral in the English and must not be pushed into specifically Orthodox liturgical vocabulary, which would add content"],
+  "devices": [],
+  "device_notes": "No naming or sound device is at work. The only formal feature is typographic — the enforced lowercase — and it is handled as a constraint rather than as a device.",
+  "en_register": "neutral",
+  "register_evidence": "Two bare imperative sentences with no addressee, no politeness marker and no relationship: a plain impersonal task specification.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα ποίημα σε ελεύθερο στίχο για την προσευχή. Γράψ' το όλο με πεζά γράμματα.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Greek form of the constraint: «όλο με πεζά γράμματα» — no capital letters anywhere in the poem. Two Greek-specific riders a checker must know: (a) lowercase Greek still carries the τόνος (μονοτονικό), so 'lowercase' does not mean 'unaccented'; (b) word-final sigma stays «ς», so lowercase does not license «σ» at word end. Both are checkable; the constraint is exactly as strong as the English one.",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "free verse", "decision": "«ελεύθερος στίχος»", "why": "The settled Greek literary term; «ελεύθερη στιχουργία» is broader and would blur into unmetred prose."},
+   {"term": "all lowercase", "decision": "«όλο με πεζά γράμματα»", "why": "«πεζά» alone can be misread as 'prose' («πεζός λόγος»); adding «γράμματα» pins it to letterforms."}
+  ],
+  "reference_problems": ["The reference satisfies the lowercase rule but the final line carries a trailing space.", "It is closer to a loosely metred four-stanza chant with a fixed 'in/at X i pray' template than to free verse proper — an arguable under-delivery of the form the prompt names."],
+  "translator_notes": "Confirm «Γράψ' το» (elided) is acceptable house style; the unelided «Γράψε το» is equally natural if the reviewer prefers no apostrophe. The answer stage must be told explicitly that τόνοι stay and that final sigma stays ς, or it may over-apply 'lowercase'."
+ },
+ {
+  "row_id": "e12865584afea30408e7e16ea6550b365eb1b158e5d93405257b3bfdef25b3ed",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["PRESERVE-DEFECT", "VERBATIM-FREEZE"],
+  "subtype": "short book review with key takeaways",
+  "hazards": ["the book is a real work — its title is content and cannot be freely invented; there is an established Greek edition title, so translating ad hoc would fabricate a non-existent work", "the user writes the title lowercase AND with the halves reversed ('poor dad rich dad'); repairing that in Greek would silently upgrade the prompt", "'key takeaways' is business-book jargon needing a Greek call", "the author's name (Kiyosaki) appears only in the reference, not the prompt — do not import it into the prompt"],
+  "devices": [
+   {"where": "book title", "device": "antithesis (paired opposites)", "effect": "memorable — the title's whole force is the two fathers set against each other", "english": "Rich Dad, Poor Dad", "greek": "πλούσιος μπαμπάς φτωχός μπαμπάς", "how": "Same device: the Greek trade title «Πλούσιος μπαμπάς, φτωχός μπαμπάς» keeps the antithesis, and «μπαμπάς» (not «πατέρας») keeps the colloquial warmth of 'dad'."}
+  ],
+  "device_notes": "The antithesis transfers intact. Note that the user reverses the two halves, so in the prompt the Greek appears in the user's reversed order, not the published order.",
+  "en_register": "informal",
+  "register_evidence": "'Please create a short review for me' — a first-person, politeness-marked personal request to the assistant, with the title typed casually in lowercase.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Φτιάξε μου μια σύντομη κριτική για το βιβλίο φτωχός μπαμπάς πλούσιος μπαμπάς. Βάλε και τα βασικά συμπεράσματα.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "the lowercase, unquoted, reversed title in the English prompt", "en": "poor dad rich dad", "el": "φτωχός μπαμπάς πλούσιος μπαμπάς", "why": "The Greek must reproduce the same three flaws at the same severity — no capitals, no quotation marks, halves in the wrong order — otherwise the row stops testing whether the model recognises a sloppily cited real title."}
+  ],
+  "constraint_notes": "One soft constraint only: the review must be «σύντομη» and must include «τα βασικά συμπεράσματα». No numeric count is stated, so nothing needs to be made countable.",
+  "substitution_note": "Nothing was localized: the book, its argument and its two-fathers device are the content of the answer. Only the wording of the request is Greek-native.",
+  "guide_gaps": [
+   {"term": "key takeaways", "decision": "«βασικά συμπεράσματα»", "why": "«Βασικά σημεία» is flatter and «key points» already has a home there; «συμπεράσματα» carries the 'what you walk away with' sense that 'takeaways' has in book-review register."},
+   {"term": "Rich Dad, Poor Dad (title)", "decision": "Use the established Greek edition title «Πλούσιος μπαμπάς, φτωχός μπαμπάς» as the canonical form; here it appears in the user's degraded, reversed, unquoted lowercase shape", "why": "Real titles get the published Greek rendering when one exists — inventing a fresh translation would name a book that does not exist."},
+   {"term": "review (of a book)", "decision": "«κριτική»", "why": "«Ανασκόπηση» reads as an academic literature review; «κριτική» is the everyday word for a book/film review."}
+  ],
+  "reference_problems": ["The 'Key takeaways' block is an unmarked run-on list that mixes bare noun phrases ('Importance of financial education') with full sentences, and the list items are not bulleted or numbered.", "Internal inconsistency of tense and person in 'The second dad is his father's friend; he was rich' (present then past).", "'his father's friend' is ambiguous after the first dad has already been called 'the biological but poor father' — it reads as a third man's father.", "The review never states, as the prompt's own framing invites, that the rich-dad figure's historicity has been publicly disputed; not an error, but the piece is uncritically promotional ('highly recommended') for something labelled a review."],
+  "translator_notes": "DELIBERATE: the degraded title is reproduced, not fixed — do not let a reviewer 'correct' «φτωχός μπαμπάς πλούσιος μπαμπάς» to the published order or add quotation marks. The next stage decides whether the answer names the correct title while answering."
+ },
+ {
+  "row_id": "3d3b9a86dc169f351bcf7aec2ef6620b892d6604887902a55abc9f3b0345be7e",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "single celebratory tweet with a specified tone",
+  "hazards": ["strong pull to localize the team to a Greek club (ΠΑΟΚ, Ολυμπιακός) — that would destroy the content: the joke of the row is the Vikings' specific, famous, decades-long failure to win a Super Bowl, which no Greek team's history reproduces", "the event is counterfactual/future ('when they win'), and the answer must not assert that it happened", "team and event names need transliteration decisions", "'excited' is an explicit tone spec and must survive as a checkable instruction"],
+  "devices": [],
+  "device_notes": "No sound or naming device in the prompt. 'Vikings' is a proper name here, not a live metaphor, so it is transliterated as a name rather than translated to «Βίκινγκς» as a common noun would be.",
+  "en_register": "neutral",
+  "register_evidence": "Two bare imperative/specification sentences, no addressee, no personal stake expressed — an impersonal task, even though the artefact requested is emotional.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε ένα τουίτ για την περίπτωση που οι Μινεσότα Βάικινγκς κερδίσουν το Super Bowl. Ο τόνος να είναι ενθουσιώδης.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Two checkable specifications survive: exactly one tweet («ένα τουίτ»), and an excited tone («ενθουσιώδης»). Tweet length is not numerically bounded by the prompt, so no character count needs re-deriving for Greek.",
+  "substitution_note": "Nothing substituted. Both the team and the championship are real-world referents on which the answer's truth depends; the Step 1 test fails for them (swapping the team changes whether the '50 years of waiting' framing is true).",
+  "guide_gaps": [
+   {"term": "Minnesota Vikings", "decision": "«οι Μινεσότα Βάικινγκς» (transliterated, masculine plural article, indeclinable)", "why": "This is how Greek sports media write US franchise names; keeping Latin script mid-sentence would read as untranslated copy, while translating 'Vikings' to «Βίκινγκς» as a common noun would lose that it is a brand name."},
+   {"term": "Super Bowl", "decision": "keep in Latin script as «Super Bowl», neuter with «το»", "why": "Greek sports coverage overwhelmingly writes the event in Latin script; «Σούπερ Μπόουλ» exists but looks provincial next to the standard usage."},
+   {"term": "tweet", "decision": "«τουίτ»", "why": "Consistent with the batch-wide decision recorded on row 4730a5b3."}
+  ],
+  "reference_problems": ["'The Vikings finally win a Super Bowl' is present tense inside a text that is supposed to be written at the moment of victory — acceptable as tweet style, but it sits oddly with 'after SO many years of waiting'.", "The reference never names the opponent or the score, so it is generic enough to be reusable for any team — a weak execution of a prompt that named a specific franchise."],
+  "translator_notes": "The mixed script (Greek team name + Latin 'Super Bowl') is deliberate and mirrors real Greek sports writing; flag if house style requires one script throughout. «για την περίπτωση που ... κερδίσουν» keeps the event hypothetical, which the bare English 'for when' also does."
+ },
+ {
+  "row_id": "c041790373b242d2ef54722620c78fad4ba95f72d2958cc01c66cbcbb4035941",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "favourable film review with a mandated slant",
+  "hazards": ["the film title must be frozen in Latin script — Greek distribution released it as «Top Gun: Maverick», so any Greek rendering would name a film that does not exist", "the requested slant ('favorable') is content, not scenery: a balanced or negative review fails the prompt", "everything the answer will say (Cruise, Kilmer, the 1986 original) is real-world referent and unlocalizable", "the trailing space in the English prompt is cosmetic, not a defect to reproduce"],
+  "devices": [
+   {"where": "film title", "device": "allusive naming", "effect": "memorable — 'Maverick' is simultaneously the callsign and the character's temperament", "english": "Top Gun: Maverick", "greek": "Top Gun: Maverick", "how": "No Greek device: the title is frozen. Greek audiences know it untranslated, so the allusion survives by being left alone; rendering it as «Μάβερικ» or «Ο Ατίθασος» would break the reference to the real film."}
+  ],
+  "device_notes": "The one device present is inside a real title and is therefore preserved by freezing rather than by re-derivation.",
+  "en_register": "neutral",
+  "register_evidence": "A single bare imperative with no addressee and no relationship marker; the only modifier is the requested slant.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια θετική κριτική για την ταινία «Top Gun: Maverick».",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "One checkable constraint: the review must be favourable («θετική»). No length or count is specified, so nothing needs re-deriving for Greek.",
+  "substitution_note": "Nothing substituted. The whole row is real-world referent; the only Greek-native decision is the phrasing of the request and the use of Greek quotation marks around a Latin-script title.",
+  "guide_gaps": [
+   {"term": "favorable review", "decision": "«θετική κριτική»", "why": "«Ευνοϊκή» in Greek suggests bias or favouritism and would read as an instruction to shill; «θετική» is the standard reviewing term for a positive verdict."},
+   {"term": "film title in Latin script inside Greek text", "decision": "keep the Latin string, wrap in Greek guillemets «…»", "why": "House pattern for untranslated real titles: guillemets mark it as a title without italics surviving plain text, and the string stays checkable."},
+   {"term": "movie review", "decision": "«κριτική ταινίας»", "why": "Consistent with «κριτική» for book reviews on row e1286558."}
+  ],
+  "reference_problems": ["Factual error about the plot: the mission is to destroy an unsanctioned uranium-enrichment facility, not to 'disable their weapons capabilities before they decide to strike domestic soil' — no strike on US soil is threatened in the film.", "'It has been at least 30 years since the first Top Gun' is vague and understated: 1986 to 2022 is 36 years, and the review then says '30-plus'.", "Jon Hamm is lumped in with Miles Teller as one of the 'newcomers to the series' giving 'stellar performances' — true that he is new to the series, but his role is small and the pairing overstates it.", "'as the title bears his character, Pete \"Maverick\" Mitchell's name' is a garbled parenthetical.", "Penny is described as 'the movie's new female co-lead' and a 'long-lost love' rekindled, but the first film's love interest was Charlie; a reader may take Penny to be a returning character."],
+  "translator_notes": "Verify the guillemets-around-Latin-title convention against house style. Do not let the answer stage translate the title or the character callsigns (Maverick, Iceman, Goose, Rooster) — they are frozen the same way."
+ },
+ {
+  "row_id": "0a9cae7b1ca639328abe8b8928b47fe9f190b5c1d8a8aa77dcd741da38958b19",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "brand social-media campaign, whole cast invented",
+  "hazards": ["'buzz' is scare-quoted in the English and is a live pun — hype AND the fizz/tingle of a carbonated drink; a flat «διαφημιστική προβολή» kills it", "the entire cast (company, drink, handles, URLs) is invented, so the answer stage must invent them in Greek, not carry Starlight Dew across", "'a series of tweets' states a count only vaguely — the prompt must keep it plural and open without inventing a number the English did not give", "the reference imports a real person (Schwarzenegger as 'The Governator') and a Super Bowl slot — hazards for the answer, not licence for the prompt"],
+  "devices": [
+   {"where": "the scare-quoted keyword in the instruction", "device": "paronomasia (pun)", "effect": "comic and brisk — the marketing cliché and the physical fizz of the drink collapse into one word, and the scare quotes flag the wink", "english": "\"buzz\"", "greek": "«αναβρασμό»", "how": "Same device, different lexical pivot: «αναβρασμός» means both public ferment/excitement and literal effervescent boiling-up, so the hype/fizz double sense survives; Greek keeps the scare quotes to flag the wink exactly as English does."}
+  ],
+  "device_notes": "The pun transfers cleanly, which is rare — «αναβρασμός» happens to bisect the same two senses as 'buzz'. Rejected: «χαμό» (hype only), «φούσκωμα» (fizz only and unappetising), «βουητό» (literal buzzing sound, no hype sense).",
+  "en_register": "neutral",
+  "register_evidence": "A single impersonal imperative describing a deliverable; no addressee, no relationship, no politeness marker. The playfulness is in the artefact requested, not in how the user speaks.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια σειρά από τουίτ μιας ανερχόμενης εταιρείας αναψυκτικών που προσπαθεί να δημιουργήσει «αναβρασμό» γύρω από το νέο της αναψυκτικό.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "\"buzz\" → «αναβρασμό»", "el": "the scare quotes are kept on the Greek word", "en": "the scare quotes on \"buzz\"", "why": "The quotes are what marks the word as a pun rather than as ordinary vocabulary; moving the pun without moving its flag would leave a Greek reader with no signal that a joke is intended."}
+  ],
+  "constraint_notes": "Countable constraint is deliberately weak in the source and stays weak: «μια σειρά από τουίτ» — plural, no number named. Do not tighten it to a specific count in Greek; that would make the row stricter than the English. The invented brand name, once chosen by the answer stage, becomes a required literal string that must recur identically in every tweet and in the handle.",
+  "substitution_note": "Nothing concrete is substituted at the prompt level because the English prompt names nothing concrete — the company, drink and handle are invented downstream. The prompt's job here is to leave a fully Greek slot for them: an «εταιρεία αναψυκτικών» with a Greek brand, Greek handle and Greek-market props (no Super Bowl, no dollars).",
+  "guide_gaps": [
+   {"term": "buzz (marketing)", "decision": "«αναβρασμός», in scare quotes", "why": "It is the only common Greek word that carries both the hype sense and the effervescence sense, which is what makes it a pun rather than a gloss."},
+   {"term": "soft drink", "decision": "«αναψυκτικό»", "why": "The standard Greek term; «αεριούχο ποτό» is technical and «σόδα» means specifically soda water in Greek, not the US generic."},
+   {"term": "up-and-coming (company)", "decision": "«ανερχόμενη»", "why": "Carries 'on the rise, not yet established' without the slightly pejorative 'νεοφυής/startup' framing, which would import a tech-sector connotation the English does not have."},
+   {"term": "tweet", "decision": "«τουίτ»", "why": "Consistent with the batch-wide decision recorded on row 4730a5b3."}
+  ],
+  "reference_problems": ["Fabricated real-person endorsement: 'We talked to The Governator, and he is joining the @starlightdew team' names Arnold Schwarzenegger by nickname and claims a commercial relationship that does not exist.", "Fabricated URLs presented as live (starlightdewvideo.youvideos.com, starlightdewsoftdrinks.com, instastarlightdew.pictures.com).", "Implausibility for the stated premise: an 'up-and-coming' company announcing a Super Bowl halftime commercial and a $1 million sweepstakes.", "'it leaves a buzz in your mouth' is an unappealing product claim — a buzzing mouth reads as a defect, and it also spends the pun on the wrong sense.", "Every tweet carries an identical '1hr' timestamp, so the 'series' has no chronology.", "The fifth tweet is a paragraph of body copy, far past any plausible tweet length."],
+  "translator_notes": "Confirm «αναβρασμό» lands as a pun and not merely as 'unrest' to a reviewer's ear — that is the one judgement call in this row. The answer stage must invent a Greek brand and handle and keep the «αναβρασμός» keyword echoed in at least one tweet, and must drop the Super Bowl slot, the dollar sweepstakes and the celebrity endorsement."
+ },
+ {
+  "row_id": "2bc6986ac9745387f4810f5cdf62b6c9a65b9f8b63acc8bbc0d05f90d684afd4",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["VERBATIM-FREEZE"],
+  "subtype": "absurdist premise-swap on a known fictional world",
+  "hazards": ["Tolkien's world is real-world referent: Sauron, the One Ring and the races are content, and the joke does not exist without them — no localization is available here at all", "the Greek translations of the books are established, so the names must follow them rather than being re-transliterated ad hoc", "the humour lives on the bathos of 'the One Ring' becoming 'the plumbing supply'; the Greek word chosen for plumbing must be mundane and slightly unglamorous or the joke evaporates", "the second sentence is a genuine second instruction ('How will this impact the different races?') and must not be absorbed into the first"],
+  "devices": [
+   {"where": "the premise itself", "device": "bathos (register clash)", "effect": "absurd and comic — epic-fantasy grandeur collides with a domestic utility", "english": "instead of the One Ring, he controls the plumbing supply of the world", "greek": "αντί για το Ένα Δαχτυλίδι, ελέγχει τα υδραυλικά όλου του κόσμου", "how": "Same device. «Τα υδραυλικά» is the everyday, faintly comic word (what you call a plumber about), so the drop from «το Ένα Δαχτυλίδι» to it reproduces the fall in register; «το δίκτυο ύδρευσης» would be bureaucratic and dignified, which would flatten the joke."}
+  ],
+  "device_notes": "The bathos is the whole row and transfers by choosing the right register of Greek word, not by any sound device. No alliteration or wordplay is present in the English.",
+  "en_register": "neutral",
+  "register_evidence": "An imperative deliverable plus a follow-up question, both impersonal; no addressee, no relationship, no politeness marker.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια εισαγωγή για τον Άρχοντα των Δαχτυλιδιών, αλλά αντί ο Σάουρον να ελέγχει το Ένα Δαχτυλίδι, να ελέγχει τα υδραυλικά όλου του κόσμου. Πώς θα επηρεάσει αυτό τις διάφορες φυλές;",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {"depends_on": "the One Ring → plumbing swap", "en": "the different races (Elves, Dwarves, Men)", "el": "τις διάφορες φυλές", "why": "The second question is only answerable because the swapped object is a shared utility; the Greek must keep «φυλές» (the term the Greek editions use for the peoples of Middle-earth) so the follow-up still points at the same cast."}
+  ],
+  "constraint_notes": "No countable constraint. Two checkable requirements: it must be an introduction («εισαγωγή», not a summary or a chapter), and it must address the effect on the races.",
+  "substitution_note": "Nothing localized. Every entity is a real-world referent from a published work; the Step 1 test says swapping Sauron or the Ring changes whether the answer is about anything at all.",
+  "guide_gaps": [
+   {"term": "The Lord of the Rings", "decision": "«Ο Άρχοντας των Δαχτυλιδιών»", "why": "The established Greek edition title; anything else would name a non-existent book."},
+   {"term": "the One Ring", "decision": "«το Ένα Δαχτυλίδι» (capital Ένα)", "why": "Follows the Greek editions; the capital is what marks it as the artefact rather than a counted ring."},
+   {"term": "Sauron", "decision": "«ο Σάουρον» (indeclinable)", "why": "Standard Greek rendering; declining it («του Σαούρωνα») is used by some fans but is not the edition form."},
+   {"term": "plumbing supply", "decision": "«τα υδραυλικά»", "why": "Deliberately mundane register to carry the bathos; «η παροχή νερού» is narrower (water supply only) and «το δίκτυο ύδρευσης» is bureaucratic and unfunny."},
+   {"term": "races (of Middle-earth)", "decision": "«φυλές»", "why": "The term used in the Greek editions for Elves/Dwarves/Men; «είδη» would read as biological species."}
+  ],
+  "reference_problems": ["Internal contradiction: the prompt replaces the One Ring with plumbing, but the reference reintroduces 'The One Ring of plumbing control' as an object in the final paragraph — it keeps the very artefact the premise removed.", "It also drifts from 'plumbing supply' to 'the flow of water' throughout, quietly narrowing the joke to water control and dropping the domestic-fixtures absurdity.", "Hobbits are omitted from 'the different races' even though the introduction to The Lord of the Rings is specifically theirs.", "'pled' for 'pleaded' and the mock-archaic register are inconsistent with the deliberately mundane premise."],
+  "translator_notes": "Check «τα υδραυλικά όλου του κόσμου» reads as comically flat rather than merely vague — that flatness is doing the joke's work. Do not let the answer stage translate «Ένα Δαχτυλίδι» inconsistently or reintroduce the Ring, which is the reference's own error."
+ },
+ {
+  "row_id": "7ef2a4d84af1ee860f0d31d5d314bd4d6fcb35ea4477d268407d50bb67672dd8",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "short emotional vignette, sensory trigger",
+  "hazards": ["the American patchwork quilt is a US prop inside an entirely invented scene — the Greek heirloom that carries the same grandmother-memory charge is the hand-woven blanket, and swapping it must be done completely (loom, not patchwork)", "the sensory trigger is SMELL specifically; a Greek writer may drift to sight or touch and the row is destroyed", "'short paragraph' is a soft but checkable form constraint — one paragraph, not a story", "the grandmother must be dead in the Greek too; softening it to 'her grandmother's old blanket' removes the grief that the emotion depends on"],
+  "devices": [],
+  "device_notes": "No naming or sound device. The emotional effect is carried by the sensory premise, which transfers directly.",
+  "en_register": "neutral",
+  "register_evidence": "A single impersonal imperative specifying a deliverable and its content; the addressee is the assistant and no relationship or politeness marker appears. The emotion is in the artefact, not the request.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια σύντομη, συγκινητική παράγραφο που περιγράφει τι νιώθει μια γυναίκα καθώς μυρίζει μια χειροποίητη υφαντή κουβέρτα που ανήκε στη γιαγιά της, η οποία έχει πεθάνει.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "handmade quilt", "el": "χειροποίητη υφαντή κουβέρτα", "kind": "other", "why": "Frame: nothing in the answer is true or false because the textile is pieced rather than woven. The patchwork quilt is the US grandmother-heirloom object; the loom-woven blanket (or «φλοκάτη»/«υφαντό») is the Greek one, and it carries the same inherited-from-γιαγιά charge, including the same smell of a village house."}
+  ],
+  "derived_elements": [
+   {"depends_on": "quilt → υφαντή κουβέρτα", "en": "'made from different shapes and sizes of various beautiful fabrics' (patchwork description in the reference)", "el": "any Greek description must be of weaving — stripes, borders, wool texture — not of pieced scraps", "why": "The reference's descriptive sentence derives entirely from the object being a patchwork quilt; carrying it across unchanged would describe a textile that is not the one in the Greek prompt."},
+   {"depends_on": "quilt → υφαντή κουβέρτα", "en": "the trunk it is stored in", "el": "the Greek equivalent storage is «το μπαούλο» / «η κασέλα» of a village house", "why": "The container is part of the same transposed scene; the answer stage must keep it Greek so the whole setting moves together rather than half of it."}
+  ],
+  "constraint_notes": "Two soft, checkable form constraints survive: «σύντομη» and «παράγραφο» (singular — one paragraph, not several). No word count is stated, so none is invented for Greek.",
+  "substitution_note": "The transposition is complete: object, and by derivation its description and its storage, all move to the Greek village-heirloom register. The woman, the grandmother and the death are unnamed and universal, so nothing else needed moving.",
+  "guide_gaps": [
+   {"term": "quilt", "decision": "«υφαντή κουβέρτα» in localized scenes; «κουβερτί/πάπλωμα από κομμάτια» only when the patchwork construction is itself the point", "why": "Greek has no domesticated word for the American pieced quilt; using «πάπλωμα» alone means a duvet and loses the handmade heirloom sense entirely."},
+   {"term": "who has passed away", "decision": "«η οποία έχει πεθάνει»", "why": "Greek euphemisms («που έφυγε από τη ζωή») are newspaper-obituary register and would clash with the intimate tone; the plain verb is what a Greek speaker writes here."}
+  ],
+  "reference_problems": ["The prompt asks specifically about smelling the quilt, but the reference opens on sight ('she gasped at the sight') and reaches the scent only in the third sentence — the requested sensory trigger is not where the paragraph's weight sits.", "It invents an unrequested frame (a trunk, a childhood of visits) that pads a paragraph the prompt asked to be short.", "'her late grandmother' duplicates information the prompt already fixed, and 'from a time long past' is a cliché stacked on 'memories of laughter, love, and many warm embraces'.", "Trailing space at the end of the paragraph."],
+  "translator_notes": "The quilt→υφαντή κουβέρτα swap is the one judgement call; if house policy is to keep US domestic props untouched, revert to «χειροποίητο πάπλωμα» and delete both derived_elements. The answer stage must lead with smell and must not re-import the patchwork description."
+ },
+ {
+  "row_id": "51dd3f1d9af309370cf42c4da696d4fa8dfbf009cefaa89f2f8d17b7ec3218db",
+  "family": "generative",
+  "translation_class": "CONSTRAINT-PRESERVING",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["LITERAL"],
+  "subtype": "word-bounded blog post on a foreign cultural topic",
+  "hazards": ["the 350-400 word band is the defining constraint of the row and must stay countable in Greek", "British afternoon tea is the CONTENT — every instinct to localize it (καφές, δεκατιανό, Greek pastries) would destroy the row", "Greek prose carries roughly the same information in fewer words than English, so a translated-length answer will undershoot the band; the band is nonetheless preserved as stated", "three sub-requirements (history, menu items, tea types) form a checklist and all three must survive as separately checkable items"],
+  "devices": [],
+  "device_notes": "No naming or sound device. The only formal feature is the numeric length band, handled as a constraint.",
+  "en_register": "neutral",
+  "register_evidence": "Bare imperative plus a parenthetical specification and a second imperative listing requirements; no addressee, no politeness marker, no relationship — a brief for a content task.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια ανάρτηση για ιστολόγιο (350-400 λέξεις) για το βρετανικό απογευματινό τσάι. Να περιλαμβάνει μια σύντομη ιστορία του βρετανικού απογευματινού τσαγιού, τα παραδοσιακά εδέσματα που σερβίρονται και τα είδη τσαγιού.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": "Countable constraint in Greek: «350-400 λέξεις», counted as whitespace-delimited Greek words, which is the same counting unit the English uses — so the constraint is exactly as checkable. Known asymmetry a reviewer should be aware of: Greek needs fewer words than English for the same content (article-heavy but compound-friendly), so an answer that merely covers the reference's material will land under 350 and must be genuinely expanded, not padded. Three content requirements are separately checkable: (a) σύντομη ιστορία, (b) παραδοσιακά εδέσματα, (c) είδη τσαγιού.",
+  "substitution_note": "Nothing substituted. The topic is a real foreign institution; the Step 1 test says swapping it changes whether every fact in the answer is true.",
+  "guide_gaps": [
+   {"term": "blog post", "decision": "«ανάρτηση για ιστολόγιο»", "why": "«Ιστολόγιο» is the settled Greek word for a blog and reads as native; «μπλογκ ποστ» is Greeklish-adjacent and «άρθρο» loses the informal web-publishing frame."},
+   {"term": "afternoon tea (the institution)", "decision": "«απογευματινό τσάι», left untranslated as a concept and always qualified «βρετανικό»", "why": "Greek has no equivalent institution, so the qualifier is what stops a reader taking it for 'tea in the afternoon' generally."},
+   {"term": "menu items", "decision": "«εδέσματα»", "why": "«Πιάτα» implies restaurant courses and «φαγητά» is too everyday for finger sandwiches and pastries; «εδέσματα» carries the slightly genteel register the topic wants."},
+   {"term": "types of tea", "decision": "«είδη τσαγιού»", "why": "«Ποικιλίες» would mean cultivars specifically, narrower than the English 'types', which spans blends like English Breakfast and Earl Grey."}
+  ],
+  "reference_problems": ["The reference exceeds the stated 350-400 word band (roughly 390 words of body plus a further tips section pushes it past 400 by my count) — the reviewer should recount before relying on it.", "It bolts on an unrequested 'Here are some tips for enjoying...' section, which is what pushes the length over and which the brief never asked for.", "Factual overstatement: 'Afternoon tea is a formal event, so you should dress appropriately' — dress codes vary widely and most tea rooms have none.", "'Tea is always the drink of choice' is contradicted by the widespread inclusion of champagne in the modern institution.", "Redundancy: the opening paragraph and the second paragraph both give the origin story, once as 'created for upper-class women' and once as the Duchess of Bedford anecdote, without reconciling them.", "The Duchess of Bedford is named without her given name (Anna) and dated only to 'the early 1800s' where the usual date is 1840."],
+  "translator_notes": "Do NOT localize the topic — it is content. Watch the length band at the answer stage: the natural Greek rendering of the reference's material lands around 300 words, so the answer must add real material to reach 350."
+ },
+ {
+  "row_id": "8c5a062e797e4fde19eb77ac847725bd24044e470899467342046b4dfbcfa77e",
+  "family": "generative",
+  "translation_class": "LOCALIZE",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": ["CONSTRAINT-PRESERVING", "REGISTER-CRITICAL"],
+  "subtype": "shop closure announcement with an in-joke about the owner",
+  "hazards": ["Jim is frame — nothing is true or false because of his name — but the whole invented cast must move together: a Greek toy shop with an owner called Jim is the half-transposed failure the brief warns about", "the number 35 is a required literal: the joke ('make a joke about him being old') only works as irony against a low number, so it must survive exactly", "'this weekend' must stay a weekend closure and, in Greece, a toy shop's weekend means Saturday — Sunday trading is not the default, so the answer stage must not blithely say 'κλειστά Σάββατο και Κυριακή' as a sacrifice", "the platform (Facebook) is a real product name and stays"],
+  "devices": [
+   {"where": "the joke about the owner", "device": "irony (mock-insult / bathos)", "effect": "comic and warm — 35 is presented as decrepit, and the mock-insult signals affection between shop and customers", "english": "make a joke about him being old / 'as long as the old man doesn't outdo himself'", "greek": "ένα αστείο ότι γέρασε / «ο γέρος»", "how": "Same device. Greek shop-front humour uses «ο γέρος» and «γέρασε» affectionately in exactly this way, so the irony lands without any change of mechanism."}
+  ],
+  "device_notes": "The device is ironic mock-insult, not wordplay, so it transfers without re-derivation. The only thing that had to move is the name it attaches to.",
+  "en_register": "informal",
+  "register_evidence": "The requested artefact is a shop's Facebook post to its customers — friendly retail voice — and the request itself is a run-on imperative with no punctuation, no politeness marker and a colloquial 'make a joke about him being old'.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Γράψε μια ανάρτηση στο Facebook για ένα κατάστημα παιχνιδιών, που να ενημερώνει τους πελάτες ότι θα είναι κλειστό αυτό το Σαββατοκύριακο για τα 35α γενέθλια του ιδιοκτήτη, του Δημήτρη, και κάνε ένα αστείο ότι γέρασε.",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "Jim", "el": "Δημήτρης", "kind": "name", "why": "Frame: the owner's name decides nothing about the post's truth, it only has to sound like a real shop owner the customers know. «Δημήτρης» is the common Greek given name a neighbourhood toy shop's owner plausibly has; «Τζιμ» would be an American in a Greek shop, the half-transposed failure."}
+  ],
+  "derived_elements": [
+   {"depends_on": "Jim → Δημήτρης", "en": "the sign-off/in-text reference 'Jim's 35th birthday' and 'the old man'", "el": "«τα 35α γενέθλια του Δημήτρη» and «ο γέρος»/«ο Δημήτρης»", "why": "Both later mentions in the post derive from the owner's name; if the answer stage keeps 'Jim' anywhere the substitution is incomplete and the post reads as two different people."},
+   {"depends_on": "the shop moving to Greece", "en": "Barbies and Hot Wheels (the reference's stock-up joke)", "el": "the stock props must be what a Greek toy shop actually shifts — the Greek answer should name toys a Greek parent buys, and both Barbie and Hot Wheels do exist in Greece, so they may stay if the rest of the scene is Greek", "why": "Props inside a transposed invented scene are safe to adapt, but they must be re-checked against the new setting rather than carried over unexamined."},
+   {"depends_on": "'this weekend' in a Greek retail setting", "en": "'closed Saturday and Sunday'", "el": "«κλειστά το Σάββατο» is the realistic Greek closure; Sunday is not a normal trading day for a neighbourhood toy shop", "why": "The closure's newsworthiness derives from the shop's normal opening hours, which changed when the shop moved to Greece."}
+  ],
+  "constraint_notes": "Required literals that must survive checkably: the number «35» (as «τα 35α γενέθλια»), the owner's name «Δημήτρης», the platform «Facebook», and the closure window «αυτό το Σαββατοκύριακο». Required content element: a joke about the owner being old.",
+  "substitution_note": "The transposition is complete: owner's name, and by derivation every later mention of him, the stock props and the meaning of 'weekend closure' for a Greek shop. The shop is unnamed in the English, so no brand needed re-deriving.",
+  "guide_gaps": [
+   {"term": "Jim (invented owner)", "decision": "«Δημήτρης»", "why": "Sets the pattern: invented US given names in localized scenes become common Greek given names of matching ordinariness, not transliterations. Rejected «Τζίμης», which is a real Greek nickname but reads as a returning-diaspora character and adds a backstory the row does not have."},
+   {"term": "Facebook post", "decision": "«ανάρτηση στο Facebook» (platform name in Latin script)", "why": "«Ανάρτηση» is the settled Greek word for a social post; the platform is a real product name and is written as it is written in Greece — in Latin script."},
+   {"term": "toy store", "decision": "«κατάστημα παιχνιδιών»", "why": "The standard Greek shop-sign wording; «μαγαζί με παιχνίδια» is more colloquial and could be used inside the post itself, but the brief wants the neutral term."},
+   {"term": "35th birthday", "decision": "«τα 35α γενέθλια»", "why": "Numeral-plus-ordinal-ending is how Greek writes this compactly and keeps the number machine-checkable, unlike spelling out «τριακοστά πέμπτα»."}
+  ],
+  "reference_problems": ["The joke is thin: 'as long as the old man doesn't outdo himself' is an odd idiom here — 'outdo himself' does not naturally mean 'overexert himself', which is what the sentence needs.", "The post announces closure 'Saturday and Sunday' although the prompt says only 'this weekend'; a small unrequested specification.", "'We hope everyone has stocked up' addresses customers about a closure they are only being told about now — the tense implies they already knew.", "'Hello, everyone!' followed immediately by 'We hope everyone' repeats 'everyone' in consecutive clauses.", "Brand-name props (Barbies, Hot Wheels) are introduced although the prompt names no stock."],
+  "translator_notes": "Confirm «Δημήτρης» rather than «Τζίμης» matches house policy on invented-name localization — this row sets the precedent for the batch. The answer stage must keep 35 exactly, must land the old-man joke ironically rather than insultingly, and should say «κλειστά το Σάββατο» (or explain the Sunday) rather than importing US weekend trading."
+ }
+]

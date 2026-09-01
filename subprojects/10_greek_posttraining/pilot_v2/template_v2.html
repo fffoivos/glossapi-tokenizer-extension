@@ -1,0 +1,235 @@
+<title>Ρομπότ — Opus vs Sol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#eceee9; --surface:#fbfbf9; --surface2:#f2f4ef; --fg:#1b2129; --mut:#616b74;
+  --en:#6a6f5c; --en-soft:rgba(106,111,92,.10);
+  --op:#1f4b78; --op-soft:rgba(31,75,120,.09);
+  --so:#7a4a86; --so-soft:rgba(122,74,134,.10);
+  --ok:#5b7a2e; --warn:#a8730d; --rej:#ad4a2f;
+  --line:#d7dbd2; --line2:#e5e8e0;
+  --serif:"EB Garamond",Palatino,Georgia,serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#131820; --surface:#1a2029; --surface2:#212832; --fg:#e3e7ec; --mut:#95a0ab;
+  --en:#b2b79c; --en-soft:rgba(178,183,156,.12);
+  --op:#87b1e0; --op-soft:rgba(135,177,224,.13);
+  --so:#c69bd4; --so-soft:rgba(198,155,212,.13);
+  --ok:#a7c66f; --warn:#dfb163; --rej:#e08a6c;
+  --line:#2b323c; --line2:#242b34;
+}}
+:root[data-theme="dark"]{
+  --bg:#131820; --surface:#1a2029; --surface2:#212832; --fg:#e3e7ec; --mut:#95a0ab;
+  --en:#b2b79c; --en-soft:rgba(178,183,156,.12);
+  --op:#87b1e0; --op-soft:rgba(135,177,224,.13);
+  --so:#c69bd4; --so-soft:rgba(198,155,212,.13);
+  --ok:#a7c66f; --warn:#dfb163; --rej:#e08a6c;
+  --line:#2b323c; --line2:#242b34;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg)}
+.wrap{font-family:var(--sans);font-size:16px;line-height:1.6;min-height:100vh}
+code{font-family:var(--mono);font-size:.83em}
+header.hd{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 94%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:14px 22px 0}
+.brand{font-family:var(--serif);font-size:22px;font-weight:600;margin:0;letter-spacing:-.01em}
+.brand .o{color:var(--op)} .brand .s{color:var(--so)}
+.dek{color:var(--mut);font-size:12.5px;margin:2px 0 10px}
+.catbar{display:flex;gap:5px;flex-wrap:wrap;padding-bottom:11px}
+.catb{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--mut);background:var(--surface);
+  border:1px solid var(--line);border-radius:18px;padding:5px 12px;cursor:pointer}
+.catb:hover{color:var(--fg);border-color:var(--op)}
+.catb:focus-visible{outline:2px solid var(--op);outline-offset:2px}
+.catb[aria-pressed="true"]{background:var(--op);border-color:var(--op);color:var(--bg)}
+.catb .cn{font-family:var(--mono);font-size:10.5px;opacity:.7;margin-left:4px}
+main{max-width:1500px;margin:0 auto;padding:16px 22px 90px}
+/* three columns */
+.hdr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;position:sticky;top:96px;z-index:9;
+  background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);padding:6px 0 5px}
+.hdr3 div{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:5px 12px;border-radius:5px}
+.h-en{color:var(--en);background:var(--en-soft)}
+.h-op{color:var(--op);background:var(--op-soft)}
+.h-so{color:var(--so);background:var(--so-soft)}
+.row{border:1px solid var(--line);border-radius:8px;background:var(--surface);margin:10px 0;overflow:hidden}
+.rowbar{display:flex;gap:10px;align-items:center;padding:7px 12px;border-bottom:1px solid var(--line2);
+  background:var(--surface2);flex-wrap:wrap}
+.rid{font-family:var(--mono);font-size:11.5px;color:var(--mut);cursor:copy}
+.rid:hover{color:var(--op);text-decoration:underline}
+.rid.done{color:var(--ok);font-weight:600;text-decoration:none}
+.rcat{font-size:12px;font-weight:600}
+.rsub{font-size:12px;color:var(--mut);flex:1;min-width:120px}
+.smp{font-family:var(--mono);font-size:9.5px;font-weight:700;border-radius:3px;padding:1px 5px;
+  background:var(--surface);border:1px solid var(--line);color:var(--mut)}
+.det{font-family:var(--sans);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--mut);background:transparent;border:1px solid var(--line);border-radius:4px;padding:2px 9px;cursor:pointer}
+.det:hover{color:var(--op);border-color:var(--op)}
+.det:focus-visible{outline:2px solid var(--op);outline-offset:1px}
+.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.col{padding:11px 14px;min-width:0;border-right:1px solid var(--line2)}
+.col:last-child{border-right:none}
+.col.en{background:var(--surface2)}
+.turn{padding:5px 0;font-size:13.6px;line-height:1.55}
+.turn+.turn{border-top:1px solid var(--line2)}
+.role{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700;display:block;margin-bottom:2px}
+.txt{white-space:pre-wrap;overflow-wrap:break-word}
+.gone{color:var(--mut);font-style:italic;font-size:13px;padding:8px 0}
+/* details drawer */
+.drawer{display:none;border-top:1px solid var(--line);background:var(--surface2);padding:12px 16px}
+.row.open .drawer{display:block}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dm{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:10px 13px}
+.dm.op{border-left:3px solid var(--op)} .dm.so{border-left:3px solid var(--so)}
+.dmh{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:7px}
+.dm.op .dmh{color:var(--op)} .dm.so .dmh{color:var(--so)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 11px;font-size:12.8px}
+.kv dt{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:700;padding-top:3px;white-space:nowrap}
+.kv dd{margin:0}
+ul.t{margin:3px 0;padding-left:17px} ul.t li{margin:2px 0;font-size:12.6px;line-height:1.45}
+.tag{display:inline-block;font-family:var(--mono);font-size:9.5px;border-radius:3px;padding:1px 5px;margin:1px 3px 1px 0;
+  border:1px solid var(--line2);color:var(--mut);background:var(--surface2)}
+.pill{font-family:var(--mono);font-size:9.5px;font-weight:700;border-radius:3px;padding:1px 6px;white-space:nowrap}
+.p-cls{background:var(--op-soft);color:var(--op)}
+.p-reg{background:var(--surface2);color:var(--mut);border:1px solid var(--line2)}
+.note{font-size:12.5px;color:var(--mut);border-left:2px solid var(--line);padding-left:11px;margin:8px 0}
+.specbox{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 16px;margin:10px 0 14px}
+.specbox h3{font-family:var(--serif);font-size:17px;margin:0 0 5px}
+.specbox p{margin:3px 0;font-size:13.4px;line-height:1.5}
+.sl{font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);font-weight:700;margin-top:8px}
+.bar{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--mut);margin:0 0 8px}
+.bar b{color:var(--fg)}
+@media (max-width:1100px){.cols,.hdr3,.dgrid{grid-template-columns:1fr}
+  .col{border-right:none;border-bottom:1px solid var(--line2)}
+  .hdr3{position:static}}
+</style>
+<div class="wrap">
+<header class="hd">
+  <h1 class="brand">Ρομπότ · <span class="o">Opus</span> vs <span class="s">Sol</span></h1>
+  <div class="dek">Same rows, same v2 prompts, two models &middot; Opus 5 and gpt-5.6-sol, both at medium reasoning &middot; <span id="cnt"></span></div>
+  <div class="catbar" id="catbar" role="group" aria-label="category"></div>
+</header>
+<main>
+  <div class="bar" id="bar"></div>
+  <div id="specbox"></div>
+  <div class="hdr3"><div class="h-en">original · English</div><div class="h-op">Opus</div><div class="h-so">Sol</div></div>
+  <div id="list"></div>
+</main>
+</div>
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script id="prompts" type="application/json">/*__PROMPTS__*/</script>
+<script>
+const DATA=JSON.parse(document.getElementById('data').textContent);
+const R=DATA.rows,S=DATA.stats,SPEC=DATA.spec;
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let cat='';
+
+/* ---- turn rendering: the three columns show only the conversation ---- */
+function turnsEN(r){
+  const t=[];
+  if(r.sys_en)t.push(['system',r.sys_en]);
+  if(r.u_en.length)r.u_en.forEach((x,i)=>{t.push(['user',x]);if(r.r_en[i])t.push(['assistant',r.r_en[i]])});
+  else{t.push(['prompt',r.p_en]);r.r_en.forEach(x=>t.push(['assistant',x]))}
+  return t;
+}
+function turnsM(m){
+  const t=[];
+  if(!m.has)return null;
+  if(m.sys)t.push(['system',m.sys]);
+  if(m.u&&m.u.length)m.u.forEach((x,i)=>{t.push(['user',x]);if(m.r[i])t.push(['assistant',m.r[i]])});
+  else{t.push(['prompt',m.p]);m.r.forEach(x=>t.push(['assistant',x]))}
+  return t;
+}
+const cell=t=>t?t.map(([role,tx])=>`<div class="turn"><span class="role">${esc(role)}</span><div class="txt">${esc(tx)}</div></div>`).join('')
+                :`<div class="gone">not produced</div>`;
+
+/* ---- the details drawer: everything that is not the conversation ---- */
+function dm(m,key,label){
+  if(!m.has)return `<div class="dm ${key}"><div class="dmh">${label}</div><div class="gone">no output</div></div>`;
+  const L=[];
+  const cls=m.fam==='source-bearing'?`${esc(m.sh||'—')} × ${esc(m.oh||'—')}`:esc(m.cls||'—');
+  L.push(`<dt>class</dt><dd><span class="pill p-cls">${cls}</span> <span class="pill p-reg">${esc(m.regt||'—')}${m.regu&&m.regu!==m.regt?' → '+esc(m.regu):''}</span></dd>`);
+  if(m.haz.length)L.push(`<dt>hazards</dt><dd>${m.haz.map(h=>`<span class="tag">${esc(h)}</span>`).join('')}</dd>`);
+  if(m.dev.length)L.push(`<dt>devices</dt><dd><ul class="t">${m.dev.map(d=>`<li><b>${esc(d.device||'')}</b>${d.effect?' · '+esc(d.effect):''} — ${esc(d.english||'')} → <b>${esc(d.greek||'')}</b>${d.how?' <span style="color:var(--mut)">('+esc(d.how)+')</span>':''}</li>`).join('')}</ul></dd>`);
+  if(m.devn)L.push(`<dt>device note</dt><dd>${esc(m.devn)}</dd>`);
+  if(m.tr.length)L.push(`<dt>transposed</dt><dd><ul class="t">${m.tr.map(d=>`<li>${esc(d.en)} → <b>${esc(d.el)}</b> <span class="tag">${esc(d.kind||'')}</span> ${esc(d.why||'')}</li>`).join('')}</ul></dd>`);
+  if(m.de.length)L.push(`<dt>derived</dt><dd><ul class="t">${m.de.map(d=>`<li>${esc(d.en)} → <b>${esc(d.el)}</b> — depends on ${esc(d.depends_on||'')}</li>`).join('')}</ul></dd>`);
+  if(m.cn)L.push(`<dt>constraint</dt><dd>${esc(m.cn)}</dd>`);
+  if(m.cc)L.push(`<dt>check</dt><dd>${esc(m.cc)}</dd>`);
+  if(m.dn)L.push(`<dt>defect note</dt><dd>${esc(m.dn)}</dd>`);
+  if(m.rp.length)L.push(`<dt>ref problems</dt><dd><ul class="t">${m.rp.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></dd>`);
+  if(m.rc.length)L.push(`<dt>ref fixed</dt><dd><ul class="t">${m.rc.map(x=>`<li>${esc(x.what||'')} — ${esc(x.english||'')} → <b>${esc(x.greek||'')}</b></li>`).join('')}</ul></dd>`);
+  if(m.gg.length)L.push(`<dt>glossary gaps</dt><dd><ul class="t">${m.gg.map(x=>`<li><b>${esc(x.term||'')}</b> → ${esc(x.decision||'')} <span style="color:var(--mut)">${esc(x.why||'')}</span></li>`).join('')}</ul></dd>`);
+  if(m.cd)L.push(`<dt>disagrees</dt><dd>${esc(JSON.stringify(m.cd))}</dd>`);
+  if(m.devi.length)L.push(`<dt>deviations</dt><dd><ul class="t">${m.devi.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></dd>`);
+  if(m.sf.length)L.push(`<dt>flagged</dt><dd><ul class="t">${m.sf.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></dd>`);
+  if(m.tn)L.push(`<dt>notes</dt><dd>${esc(m.tn)}</dd>`);
+  return `<div class="dm ${key}"><div class="dmh">${label}</div><dl class="kv">${L.join('')}</dl></div>`;
+}
+
+function rowHTML(r){
+  return `<div class="row" data-id="${esc(r.id)}">
+    <div class="rowbar">
+      <span class="rid" data-id="${esc(r.id)}" title="copy id">${esc(r.id)}</span>
+      <span class="smp">${esc(r.sample)}</span>
+      <span class="rcat">${esc(r.cat)}</span>
+      <span class="rsub">${esc(r.m.opus.sub||r.m.sol.sub||'')}</span>
+      <button class="det" type="button">details</button>
+    </div>
+    <div class="cols">
+      <div class="col en">${cell(turnsEN(r))}</div>
+      <div class="col">${cell(turnsM(r.m.opus))}</div>
+      <div class="col">${cell(turnsM(r.m.sol))}</div>
+    </div>
+    <div class="drawer"><div class="dgrid">${dm(r.m.opus,'op','Opus')}${dm(r.m.sol,'so','Sol')}</div></div>
+  </div>`;
+}
+
+function specBox(c){
+  const s=SPEC[c];if(!s)return'';
+  return `<div class="specbox"><h3>${esc(c)}</h3><p>${s.key}</p>
+  <div class="sl">essential — lose any of these and the row is destroyed</div>
+  <ul class="t">${s.ess.map(e=>`<li>${e}</li>`).join('')}</ul></div>`;
+}
+
+function render(){
+  const rows=cat?R.filter(r=>r.cat===cat):R;
+  document.getElementById('list').innerHTML=rows.map(rowHTML).join('');
+  document.getElementById('specbox').innerHTML=cat?specBox(cat):'';
+  document.getElementById('cnt').textContent=`${rows.length} of ${R.length} rows shown`;
+  document.querySelectorAll('.catb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.cat===cat?'true':'false'));
+  try{localStorage.setItem('nr-v2',JSON.stringify({cat,y:window.scrollY}))}catch(e){}
+}
+document.getElementById('catbar').innerHTML=
+  `<button type="button" class="catb" data-cat="">All <span class="cn">${R.length}</span></button>`+
+  DATA.cats.map(c=>`<button type="button" class="catb" data-cat="${esc(c)}">${esc(c)} <span class="cn">${R.filter(r=>r.cat===c).length}</span></button>`).join('');
+document.getElementById('catbar').addEventListener('click',e=>{
+  const b=e.target.closest('.catb');if(!b)return;cat=b.dataset.cat;render();window.scrollTo({top:0,behavior:'instant'});});
+
+document.getElementById('list').addEventListener('click',e=>{
+  const d=e.target.closest('.det');
+  if(d){const row=d.closest('.row');row.classList.toggle('open');
+    d.textContent=row.classList.contains('open')?'hide':'details';return;}
+  const id=e.target.closest('.rid');
+  if(id){const t=id.dataset.id;
+    const done=()=>{const o=id.textContent;id.textContent='copied ✓';id.classList.add('done');
+      setTimeout(()=>{id.textContent=o;id.classList.remove('done')},1200)};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(done).catch(()=>{});
+    else done();}
+});
+
+const cov=S.cov||{};
+document.getElementById('bar').innerHTML=
+  `<span><b>${S.n}</b> rows — sample A <b>${S.A}</b> (the ones you reviewed) · sample B <b>${S.B}</b> (proportional)</span>`+
+  `<span>Opus produced <b>${cov.opus||0}</b> · Sol produced <b>${cov.sol||0}</b></span>`+
+  (S.missing&&Object.keys(S.missing).length?`<span style="color:var(--warn)">incomplete: ${esc(JSON.stringify(S.missing))}</span>`:'');
+
+try{const st=JSON.parse(localStorage.getItem('nr-v2')||'{}');if(st.cat!==undefined)cat=st.cat;
+  render();if(st.y)requestAnimationFrame(()=>window.scrollTo({top:st.y,behavior:'instant'}));}
+catch(e){render();}
+let sT=null;
+window.addEventListener('scroll',()=>{clearTimeout(sT);sT=setTimeout(()=>{
+  try{localStorage.setItem('nr-v2',JSON.stringify({cat,y:window.scrollY}))}catch(e){}},250)},{passive:true});
+</script>

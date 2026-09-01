@@ -1,0 +1,197 @@
+{
+  "schema_version": "apertus-production-tokenizer-release-audit-v1",
+  "created_at": "2026-07-29T13:44:09Z",
+  "status": "passed",
+  "base": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/tokenizer_finalization/20260729T094000Z-poly512-1024/candidates/c3p_poly_added_0000",
+    "vocab_size": 148480,
+    "tokenizer_json_sha256": "327827af17c54e3796676c0e1f8ccba932e1a1667f340290010955753f37c432"
+  },
+  "candidate": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/tokenizers/apertus_greek_modern_polytonic_148992",
+    "vocab_size": 148992,
+    "tokenizer_json_sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+    "files": {
+      "tokenizer.json": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b",
+      "tokenizer_config.json": "ea64a17b41e1deaa7469212f413676129f33977ca3a48767f0ca68dc346df502",
+      "special_tokens_map.json": "816ec96e37c6d15e3cbc535dc146c898a7218f209fc154384f31fc1e6ad31ba5"
+    }
+  },
+  "alignment": {
+    "divisor": 256,
+    "quotient": 582,
+    "remainder": 0,
+    "external_padding_tokens": 0
+  },
+  "checks": [
+    {
+      "name": "actual_vocab_size",
+      "passed": true,
+      "evidence": 148992
+    },
+    {
+      "name": "actual_vocab_ids_contiguous",
+      "passed": true,
+      "evidence": {
+        "min": 0,
+        "max": 148991,
+        "unique": 148992
+      }
+    },
+    {
+      "name": "actual_vocab_alignment_without_external_padding",
+      "passed": true,
+      "evidence": {
+        "actual_vocab_size": 148992,
+        "divisor": 256,
+        "quotient": 582,
+        "remainder": 0,
+        "external_padding_tokens": 0
+      }
+    },
+    {
+      "name": "base_vocab_ids_exact",
+      "passed": true,
+      "evidence": {
+        "base_vocab_size": 148480
+      }
+    },
+    {
+      "name": "base_merge_prefix_exact",
+      "passed": true,
+      "evidence": {
+        "base_merge_count": 286851,
+        "candidate_merge_count": 287363
+      }
+    },
+    {
+      "name": "appended_merge_count",
+      "passed": true,
+      "evidence": 512
+    },
+    {
+      "name": "appended_merges_dependency_safe_and_id_sequential",
+      "passed": true,
+      "evidence": {
+        "error_count": 0,
+        "errors": []
+      }
+    },
+    {
+      "name": "no_padded_or_orphan_new_vocab_entries",
+      "passed": true,
+      "evidence": {
+        "new_vocab_entries": 512,
+        "merge_results": 512,
+        "orphan_count": 0,
+        "missing_count": 0
+      }
+    },
+    {
+      "name": "front_end_contract_exact",
+      "passed": true,
+      "evidence": {
+        "differing_keys": []
+      }
+    },
+    {
+      "name": "bpe_model_options_exact",
+      "passed": true,
+      "evidence": {
+        "base": {
+          "type": "BPE",
+          "dropout": null,
+          "unk_token": null,
+          "continuing_subword_prefix": null,
+          "end_of_word_suffix": null,
+          "fuse_unk": false,
+          "byte_fallback": false,
+          "ignore_merges": true
+        },
+        "candidate": {
+          "type": "BPE",
+          "dropout": null,
+          "unk_token": null,
+          "continuing_subword_prefix": null,
+          "end_of_word_suffix": null,
+          "fuse_unk": false,
+          "byte_fallback": false,
+          "ignore_merges": true
+        }
+      }
+    },
+    {
+      "name": "no_new_added_tokens",
+      "passed": true,
+      "evidence": {
+        "base_count": 1000,
+        "candidate_count": 1000
+      }
+    },
+    {
+      "name": "tokenizer_padding_configuration_unchanged",
+      "passed": true,
+      "evidence": {
+        "base": null,
+        "candidate": null
+      }
+    },
+    {
+      "name": "hf_sidecars_exact",
+      "passed": true,
+      "evidence": {
+        "differing_files": [],
+        "hashes": {
+          "tokenizer_config.json": {
+            "base": "ea64a17b41e1deaa7469212f413676129f33977ca3a48767f0ca68dc346df502",
+            "candidate": "ea64a17b41e1deaa7469212f413676129f33977ca3a48767f0ca68dc346df502"
+          },
+          "special_tokens_map.json": {
+            "base": "816ec96e37c6d15e3cbc535dc146c898a7218f209fc154384f31fc1e6ad31ba5",
+            "candidate": "816ec96e37c6d15e3cbc535dc146c898a7218f209fc154384f31fc1e6ad31ba5"
+          }
+        }
+      }
+    },
+    {
+      "name": "transformers_runtime",
+      "passed": true,
+      "evidence": {
+        "status": "passed",
+        "class": "PreTrainedTokenizerFast",
+        "vocab_size": 148992,
+        "len_tokenizer": 148992,
+        "special_token_ids": {
+          "unk": 0,
+          "bos": 1,
+          "eos": 2,
+          "pad": 3
+        },
+        "roundtrips": [
+          {
+            "text": "Η ελληνική γλώσσα είναι ζωντανή.",
+            "token_count": 6,
+            "exact": true
+          },
+          {
+            "text": "Ἐν ἀρχῇ ἦν ὁ Λόγος.",
+            "token_count": 8,
+            "exact": true
+          },
+          {
+            "text": "Ἡ φιλοσοφία τῶν ἀρχαίων Ἑλλήνων.",
+            "token_count": 10,
+            "exact": true
+          },
+          {
+            "text": "Greek and English control: 12345.",
+            "token_count": 13,
+            "exact": true
+          }
+        ],
+        "failures": []
+      }
+    }
+  ],
+  "failed_checks": []
+}

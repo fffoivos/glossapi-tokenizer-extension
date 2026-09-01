@@ -1,0 +1,53 @@
+{
+ "schema_version": "newtok_audit_throughput_evidence_v1",
+ "status": "completed",
+ "slurm_job_id": 3162887,
+ "partition": "debug",
+ "state": "COMPLETED",
+ "elapsed": "00:04:07",
+ "shape": "3 concurrent single-GPU audits on one node, exactly the production shape",
+ "science_held_fixed": [
+  "checkpoints",
+  "corpus",
+  "layers 11/30",
+  "bf16 precision",
+  "max-context 1024",
+  "max-split-tokens 3072"
+ ],
+ "batch_8": {
+  "usable": true,
+  "docs_per_s_per_task": [
+   3.260869565217391,
+   3.1914893617021276,
+   3.4482758620689653
+  ],
+  "slowest_docs_per_s": 3.1914893617021276,
+  "n_docs_probed": 150,
+  "occurrences_per_doc": 391.26666666666665
+ },
+ "batch_24": {
+  "usable": false,
+  "failure": "torch.OutOfMemoryError",
+  "site": "torch.log_softmax(out.logits.float()) in score_batch",
+  "attempted_alloc_gib": 31.48,
+  "gpu_capacity_gib": 95.0,
+  "cause": "full fp32 log-softmax over a 148,992-token vocabulary for [batch, up to 3072, V]"
+ },
+ "known_inefficiency": {
+  "what": "score_batch materialises the full fp32 log-softmax although only the realised token's log-prob is used",
+  "fix_for_future_runs": "chunk over the sequence dimension (chunk=256 gives ~1.2 GiB peak instead of ~14.6 GiB at batch 8), numerically identical per position",
+  "not_applied_now": "the validated batch-8 path already completes in ~50 min; changing scoring code would require re-validation for no schedule benefit",
+  "scope": "experiment-tree science code; not a canonical-repository concern"
+ },
+ "sizing": {
+  "corpus_docs": 9559,
+  "compute_s": 2995.153333333333,
+  "startup_s": 180.0,
+  "echo_s": 20.0,
+  "total_s": 3195.153333333333,
+  "safety_factor": 2.0,
+  "walltime": "02:00:00",
+  "previous_walltime": "08:00:00",
+  "previous_basis": "unmeasured guess"
+ }
+}

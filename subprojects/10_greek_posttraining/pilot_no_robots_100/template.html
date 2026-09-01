@@ -1,0 +1,573 @@
+<title>no_robots → Ρομπότ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#eceee9; --surface:#fbfbf9; --surface2:#f2f4ef; --fg:#1b2129; --mut:#616b74;
+  --en:#6a6f5c; --en-soft:rgba(106,111,92,.11);
+  --el:#1f4b78; --el-soft:rgba(31,75,120,.10);
+  --ok:#5b7a2e; --ok-soft:rgba(91,122,46,.12);
+  --warn:#a8730d; --warn-soft:rgba(168,115,13,.13);
+  --rej:#ad4a2f; --rej-soft:rgba(173,74,47,.10);
+  --line:#d7dbd2; --line2:#e5e8e0;
+  --serif:"EB Garamond",Palatino,Georgia,serif;
+  --sans:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#131820; --surface:#1a2029; --surface2:#212832; --fg:#e3e7ec; --mut:#95a0ab;
+  --en:#b2b79c; --en-soft:rgba(178,183,156,.13);
+  --el:#87b1e0; --el-soft:rgba(135,177,224,.14);
+  --ok:#a7c66f; --ok-soft:rgba(167,198,111,.14);
+  --warn:#dfb163; --warn-soft:rgba(223,177,99,.14);
+  --rej:#e08a6c; --rej-soft:rgba(224,138,108,.13);
+  --line:#2b323c; --line2:#242b34;
+}}
+:root[data-theme="dark"]{
+  --bg:#131820; --surface:#1a2029; --surface2:#212832; --fg:#e3e7ec; --mut:#95a0ab;
+  --en:#b2b79c; --en-soft:rgba(178,183,156,.13);
+  --el:#87b1e0; --el-soft:rgba(135,177,224,.14);
+  --ok:#a7c66f; --ok-soft:rgba(167,198,111,.14);
+  --warn:#dfb163; --warn-soft:rgba(223,177,99,.14);
+  --rej:#e08a6c; --rej-soft:rgba(224,138,108,.13);
+  --line:#2b323c; --line2:#242b34;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg)}
+.wrap{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.62;min-height:100vh}
+code{font-family:var(--mono);font-size:.83em;background:var(--surface2);border:1px solid var(--line2);padding:.05em .38em;border-radius:4px}
+a{color:var(--el)}
+header.hd{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 93%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:20px 28px 0}
+.brand{font-family:var(--serif);font-size:27px;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.brand .ar{color:var(--el);font-style:italic;padding:0 .12em}
+.brand .gr{color:var(--el)}
+.dek{color:var(--mut);font-size:13px;margin:4px 0 14px;max-width:88ch}
+.tabs{display:flex;gap:2px;flex-wrap:wrap}
+.tab{font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--mut);background:none;border:none;border-bottom:2px solid transparent;padding:9px 14px;cursor:pointer}
+.tab .tn{font-family:var(--serif);font-style:italic;color:var(--el);margin-right:6px;opacity:.75}
+.tab:hover{color:var(--fg)}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--el)}
+.tab:focus-visible{outline:2px solid var(--el);outline-offset:2px;border-radius:4px}
+main{max-width:1060px;margin:0 auto;padding:26px 28px 90px}
+.panel{display:none}
+.panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.panel.active{animation:none}}
+h2{font-family:var(--serif);font-size:23px;font-weight:600;margin:30px 0 6px;text-wrap:balance}
+h2:first-child{margin-top:6px}
+h3{font-family:var(--serif);font-size:18.5px;font-weight:600;margin:24px 0 5px;text-wrap:balance}
+p{max-width:74ch}
+.lead{font-size:16.5px;max-width:76ch}
+.note{font-size:13.5px;color:var(--mut);border-left:2px solid var(--line);padding-left:14px;max-width:78ch}
+.funnel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 20px;padding:15px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.fstep{display:flex;flex-direction:column;align-items:center;min-width:78px}
+.fnum{font-family:var(--serif);font-size:33px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.fstep.pass .fnum{color:var(--ok)}
+.fstep.warn .fnum{color:var(--warn)}
+.flab{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em;margin-top:6px;text-align:center}
+.fa{color:var(--mut);font-size:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{border:1px solid var(--line);border-radius:7px;background:var(--surface);padding:14px 17px}
+.card h4{margin:0 0 5px;font-family:var(--serif);font-size:16.5px;font-weight:600}
+.card p{margin:0;font-size:13.8px;color:var(--fg);line-height:1.55}
+table{border-collapse:collapse;width:100%;font-size:13.6px}
+.tw{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:7px;background:var(--surface)}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line2);vertical-align:top}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12.5px}
+.cls{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.02em;border-radius:3px;padding:2px 6px;white-space:nowrap;display:inline-block}
+.c-LITERAL{background:var(--surface2);color:var(--mut);border:1px solid var(--line)}
+.c-LOCALIZE{background:var(--ok-soft);color:var(--ok)}
+.c-REGISTER-CRITICAL{background:var(--el-soft);color:var(--el)}
+.c-CONSTRAINT-PRESERVING{background:var(--warn-soft);color:var(--warn)}
+.c-PRESERVE-DEFECT{background:var(--rej-soft);color:var(--rej)}
+.c-VERBATIM-FREEZE{background:var(--en-soft);color:var(--en)}
+.c-REGENERATE-NATIVE{background:color-mix(in srgb,#6b4fa0 22%,transparent);color:#5b3f90}
+.c-RE-EXECUTE{background:var(--surface2);color:var(--mut);border:1px solid var(--line)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .c-REGENERATE-NATIVE{color:#b9a3e0}}
+:root[data-theme="dark"] .c-REGENERATE-NATIVE{color:#b9a3e0}
+.chip{display:inline-block;font-family:var(--mono);font-size:10px;border-radius:4px;padding:2px 6px;margin:2px 4px 2px 0;border:1px solid var(--line2);color:var(--mut);background:var(--surface2)}
+.chip.f{background:var(--rej-soft);color:var(--rej);border-color:transparent}
+.chip.a{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin:12px 0}
+.side{padding:0;min-width:0}
+.side.en{background:var(--surface2);border-right:1px solid var(--line)}
+.side.el{background:var(--surface)}
+.sidehd{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;padding:8px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.cp{margin-left:auto;font-family:var(--sans);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:inherit;background:transparent;border:1px solid currentColor;border-radius:4px;padding:2px 7px;cursor:pointer;opacity:.62}
+.cp:hover{opacity:1}
+.cp:focus-visible{outline:2px solid var(--el);outline-offset:1px;opacity:1}
+.cp.done{opacity:1;background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.rid{cursor:copy}
+.rid:hover{color:var(--el);text-decoration:underline}
+.rid.done{color:var(--ok);text-decoration:none;font-weight:600}
+.rowacts{display:flex;gap:8px;margin:0 0 4px}
+.rowacts .cp{margin-left:0;color:var(--el);border-color:var(--line);background:var(--el-soft);opacity:.85}
+.rowacts .cp:hover{opacity:1;border-color:var(--el)}
+.side.en .sidehd{color:var(--en);background:var(--en-soft)}
+.side.el .sidehd{color:var(--el);background:var(--el-soft)}
+.sidebody{padding:12px 15px}
+.turn{border-bottom:1px solid var(--line2);padding:8px 0;font-size:13.8px;line-height:1.56}
+.turn:last-child{border-bottom:none}
+.role{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700;display:block;margin-bottom:3px}
+.txt{white-space:pre-wrap;overflow-wrap:break-word}
+.ex{margin:26px 0 30px}
+.exhd{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:6px}
+.exhd h3{margin:0}
+.exhd .meta{font-size:12px;color:var(--mut);font-family:var(--mono)}
+.why{border-left:3px solid var(--el);background:var(--surface);border:1px solid var(--line);border-left-width:3px;border-radius:6px;padding:11px 15px;margin:10px 0;font-size:13.8px;line-height:1.55}
+.why b{color:var(--el)}
+.doc{white-space:pre-wrap;font-family:var(--mono);font-size:11.9px;line-height:1.58;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;overflow-x:auto}
+.toggle{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--el);background:var(--el-soft);border:1px solid var(--line);border-radius:5px;padding:5px 11px;cursor:pointer}
+.toggle:hover{border-color:var(--el)}
+.toggle:focus-visible{outline:2px solid var(--el);outline-offset:1px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 10px;padding:11px 13px;border:1px solid var(--line);border-radius:7px;background:var(--surface)}
+.toolbar label{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700}
+select,input[type=search]{font-family:var(--sans);font-size:13px;padding:5px 9px;border:1px solid var(--line);border-radius:5px;background:var(--surface2);color:var(--fg)}
+select:focus-visible,input:focus-visible{outline:2px solid var(--el);outline-offset:1px}
+.count{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}
+.rowlist{display:flex;flex-direction:column;gap:7px}
+.row{border:1px solid var(--line);border-radius:7px;background:var(--surface);overflow:hidden}
+.rowhd{display:flex;gap:11px;align-items:center;padding:10px 14px;cursor:pointer;width:100%;text-align:left;background:none;border:none;font-family:var(--sans);color:var(--fg);flex-wrap:wrap}
+.rowhd:hover{background:var(--surface2)}
+.rowhd:focus-visible{outline:2px solid var(--el);outline-offset:-2px}
+.rid{font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+.rcat{font-size:12.5px;font-weight:600;min-width:88px}
+.rsub{font-size:12.8px;color:var(--mut);flex:1;min-width:150px}
+.rowbody{display:none;padding:0 14px 14px;border-top:1px solid var(--line2)}
+.row.open .rowbody{display:block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px;margin:11px 0}
+.kv dt{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:700;padding-top:3px;white-space:nowrap}
+.kv dd{margin:0}
+ul.tight{margin:5px 0;padding-left:19px}
+ul.tight li{margin:3px 0;font-size:13.3px;line-height:1.5}
+.matrix td.z{color:var(--line);font-family:var(--mono)}
+.legend{font-size:12.8px;color:var(--mut);margin:6px 0 14px;max-width:80ch}
+.stat{display:flex;gap:22px;flex-wrap:wrap;margin:12px 0}
+.st{min-width:96px}
+.st .v{font-family:var(--serif);font-size:27px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.st .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-top:5px}
+.vfix{border:1px solid var(--line);border-radius:7px;background:var(--surface);padding:0;overflow:hidden;margin:12px 0}
+.vfix .vh{display:flex;gap:12px;align-items:baseline;padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--line)}
+.vv{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--el)}
+.vfix .vb{padding:11px 14px;font-size:13.6px;line-height:1.55}
+/* category switch */
+.catbar{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 10px}
+.catb{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--mut);background:var(--surface);
+  border:1px solid var(--line);border-radius:20px;padding:6px 14px;cursor:pointer}
+.catb:hover{color:var(--fg);border-color:var(--el)}
+.catb:focus-visible{outline:2px solid var(--el);outline-offset:2px}
+.catb[aria-pressed="true"]{background:var(--el);border-color:var(--el);color:var(--bg)}
+.catb .cn{font-family:var(--mono);font-size:11px;opacity:.7;margin-left:4px}
+/* spec cards */
+.spec{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:16px 19px;margin:16px 0}
+.spechd{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;border-bottom:1px solid var(--line2);padding-bottom:7px;margin-bottom:10px}
+.spechd h3{margin:0}
+.spechd .meta{font-size:12px;color:var(--mut);font-family:var(--mono)}
+.fam{font-family:var(--mono);font-size:10px;font-weight:700;border-radius:3px;padding:2px 7px;white-space:nowrap}
+.f-g{background:var(--ok-soft);color:var(--ok)}
+.f-s{background:var(--warn-soft);color:var(--warn)}
+.speckey{font-size:15px;line-height:1.55;border-left:3px solid var(--el);padding-left:13px;margin:0 0 12px}
+.specgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px 22px;margin:10px 0}
+.specgrid p{margin:2px 0 0;font-size:13.5px;line-height:1.52}
+.sl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);font-weight:700;margin-top:9px}
+.spec>p{font-size:13.5px;line-height:1.52;margin:2px 0 0}
+/* causes */
+.cause{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:15px 19px;margin:14px 0}
+.cause.lead{border-left:3px solid var(--el)}
+.causehd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.causehd h3{margin:0;flex:1;min-width:200px}
+.cnum{font-family:var(--serif);font-size:23px;font-weight:600;color:var(--el);font-variant-numeric:tabular-nums;min-width:22px}
+.pill-lead{font-family:var(--mono);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  background:var(--el-soft);color:var(--el);border-radius:3px;padding:2px 7px}
+.cb{margin-top:9px}
+.cb p{margin:2px 0 0;font-size:13.8px;line-height:1.56}
+.cb.fix{background:var(--surface2);border:1px solid var(--line2);border-radius:6px;padding:9px 13px 11px}
+.cb.fix .sl{margin-top:0;color:var(--ok)}
+@media (max-width:820px){.grid2,.pair,.specgrid{grid-template-columns:1fr}.side.en{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+<div class="wrap">
+<header class="hd">
+  <h1 class="brand">no_robots <span class="ar">→</span> <span class="gr">Ρομπότ</span></h1>
+  <div class="dek">A 100-prompt pilot: classify each English prompt, translate it to Greek, then write the Greek answer natively &middot; both stages Claude&nbsp;Opus&nbsp;5, medium reasoning effort &middot; real output, every number measured</div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-t="1"><span class="tn">i</span>The sample</button>
+    <button class="tab" role="tab" aria-selected="false" data-t="2"><span class="tn">ii</span>What the classifier found</button>
+    <button class="tab" role="tab" aria-selected="false" data-t="3"><span class="tn">iii</span>Worked examples</button>
+    <button class="tab" role="tab" aria-selected="false" data-t="4"><span class="tn">iv</span>The prompts</button>
+    <button class="tab" role="tab" aria-selected="false" data-t="5"><span class="tn">v</span>Gates</button>
+    <button class="tab" role="tab" aria-selected="false" data-t="6"><span class="tn">vi</span>All 100 rows</button>
+    <button class="tab" role="tab" aria-selected="false" data-t="7"><span class="tn">vii</span>What each category needs</button>
+    <button class="tab" role="tab" aria-selected="false" data-t="8"><span class="tn">viii</span>Why it broke, and the fixes</button>
+  </div>
+</header>
+<main>
+  <div class="panel active" id="p1" role="tabpanel"></div>
+  <div class="panel" id="p2" role="tabpanel"></div>
+  <div class="panel" id="p3" role="tabpanel"></div>
+  <div class="panel" id="p4" role="tabpanel"></div>
+  <div class="panel" id="p5" role="tabpanel"></div>
+  <div class="panel" id="p6" role="tabpanel"></div>
+  <div class="panel" id="p7" role="tabpanel"></div>
+  <div class="panel" id="p8" role="tabpanel"></div>
+</main>
+</div>
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script id="prompts" type="application/json">/*__PROMPTS__*/</script>
+<script>
+const DATA=JSON.parse(document.getElementById('data').textContent);
+const PR=JSON.parse(document.getElementById('prompts').textContent);
+const R=DATA.rows,S=DATA.stats;
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clsTag=c=>`<span class="cls c-${esc(c)}">${esc(c)}</span>`;
+const by=(f)=>R.filter(f);
+const find=p=>R.find(r=>r.id===p);
+
+/* ---------- i. sample ---------- */
+document.getElementById('p1').innerHTML=`
+<h2>Why these five categories</h2>
+<p class="lead">no_robots ships a <code>category</code> field with ten values. Five of them were chosen here because each one stresses a <b>different way translation can fail</b> — not because they are the biggest. Twenty rows each, drawn with a fixed seed from a complete pull of the training split.</p>
+<div class="tw"><table>
+<tr><th>Category</th><th class="n">In split</th><th class="n">Sampled</th><th>What it stresses</th></tr>
+<tr><td><b>Generation</b></td><td class="n">4,302</td><td class="n">20</td><td>The biggest bucket and the most mixed: ordinary prose sits beside poems, rhyme and acrostics that cannot survive translation at all.</td></tr>
+<tr><td><b>Open QA</b></td><td class="n">1,167</td><td class="n">20</td><td>Facts about real places and people. The trap is <i>over</i>-adaptation — a question about Aberdeen must stay about Aberdeen.</td></tr>
+<tr><td><b>Chat</b></td><td class="n">785</td><td class="n">20</td><td>Persona chatbots. Every sampled row is multi-turn <b>and</b> carries a system prompt, so voice and address form must hold across turns.</td></tr>
+<tr><td><b>Rewrite</b></td><td class="n">618</td><td class="n">20</td><td>Operations <i>on English text</i>. "Make this more formal" uses different machinery in Greek than in English.</td></tr>
+<tr><td><b>Closed QA</b></td><td class="n">240</td><td class="n">20</td><td>Long source passage plus a question. The answer must stay consistent with the <i>translated</i> passage — which makes it self-checking.</td></tr>
+</table></div>
+<p class="note">Sample frame: the full <code>train</code> split pulled page by page from the datasets-server, 9,499 unique <code>prompt_id</code> values recovered of 9,500 (one row lost to a persistent server error on a single page, re-tried five times). Selection is <code>random.Random(20260823).sample()</code> over each category sorted by <code>prompt_id</code>, so the pick is reproducible.</p>
+
+<h2>The category field is necessary, but it is not enough</h2>
+<p>Category tells you what the <i>task</i> is. It does not tell you what the <i>translation</i> has to do, and inside a single category those can differ completely. Two rows both labelled <span class="cls c-LITERAL">Generation</span>:</p>
+<div class="grid2">
+  <div class="card"><h4>“Write an email to my daughter, Jenna”</h4><p>Jenna is a stand-in. Keeping her name English leaves the Greek reading like a dubbed film — this row wants <b>localisation</b>.</p></div>
+  <div class="card"><h4>“Write about the 1971 Ford Pinto”</h4><p>The Pinto is the subject. Localising it destroys the task — this row wants the entity left <b>exactly alone</b>.</p></div>
+</div>
+<p>So stage 1 does not translate first. It <b>classifies first</b>, assigning one of eight translation classes plus hazard flags, and only then translates according to that class. The classes and what they came out as are in the next tab.</p>
+<div class="stat">
+  <div class="st"><div class="v">100</div><div class="l">prompts</div></div>
+  <div class="st"><div class="v">${S.loc_n}</div><div class="l">localisation calls</div></div>
+  <div class="st"><div class="v">${S.dev_n}</div><div class="l">recorded deviations</div></div>
+  <div class="st"><div class="v">${S.sf_n}</div><div class="l">self-flagged for review</div></div>
+</div>`;
+
+/* ---------- ii. classifier ---------- */
+const mat=S.matrix;
+document.getElementById('p2').innerHTML=`
+<h2>Eight classes, assigned before a word is translated</h2>
+<p class="lead">Each class is a different instruction to the translator. The distribution is the first real result of the pilot: the five categories map onto the classes <b>unevenly and non-obviously</b>.</p>
+<div class="tw"><table class="matrix">
+<tr><th>Class</th>${DATA.cats.map(c=>`<th class="n">${esc(c)}</th>`).join('')}<th class="n">All</th></tr>
+${DATA.clss.filter(cl=>S.cls[cl]).map(cl=>`<tr><td>${clsTag(cl)}</td>${
+  DATA.cats.map(c=>{const v=mat[c+'|'+cl]||0;return `<td class="n${v?'':' z'}">${v||'·'}</td>`}).join('')
+}<td class="n"><b>${S.cls[cl]}</b></td></tr>`).join('')}
+</table></div>
+<p class="legend">Read across: <b>Chat</b> is almost entirely register-critical (16/20). <b>Closed QA</b> is almost entirely literal (18/20) — its long source passages leave little room for adaptation. <b>Generation</b> is the most scattered, which is exactly why its category label alone is not actionable.</p>
+
+<h2>Hazards</h2>
+<p>Flags are independent of class; a row can carry several. The two that dominate are the ones that decide whether an entity may be touched.</p>
+<div class="tw"><table>
+<tr><th>Hazard</th><th class="n">Rows</th><th>Consequence</th></tr>
+${[['culture_bound_fact','A real entity is the subject — do not localise it.'],
+   ['proper_names','Names present; each needs a keep / transliterate / replace decision.'],
+   ['answer_depends_on_source_text','The answer must stay true to the translated passage, not the English one.'],
+   ['persona_voice','A voice must be sustained; a neutral assistant tone is a failure.'],
+   ['checkable_constraint','A constraint must survive into Greek and remain machine-checkable.'],
+   ['invented_scenario','Stand-in people and places — safe to localise.'],
+   ['verbatim_source_text','Text whose exact wording is the object of the task.'],
+   ['us_specific_unit_or_currency','Units and currency need relabelling without rescaling numbers.'],
+   ['rhyme_or_metre','Form will not survive translation.'],
+   ['wordplay','Meaning rides on English sound or spelling.'],
+   ['english_grammar_or_spelling_task','The task is about English itself.'],
+   ['language_game','A rule-based word game with no Greek equivalent by default.'],
+   ['acrostic_or_spelling','Initial letters carry information.']]
+  .filter(([h])=>S.haz[h]).map(([h,d])=>`<tr><td><code>${esc(h)}</code></td><td class="n">${S.haz[h]}</td><td>${esc(d)}</td></tr>`).join('')}
+</table></div>
+
+<h2>Register was read, not guessed</h2>
+<p>English has no singular/plural address distinction, so stage 1 had to infer one and say what it inferred it from. The provisional project policy under test is <b>mirroring</b>: the Greek answer takes the register of the Greek prompt.</p>
+<div class="stat">
+  <div class="st"><div class="v">${S.regt['neutral']||0}</div><div class="l">neutral</div></div>
+  <div class="st"><div class="v">${S.regt['ενικός']||0}</div><div class="l">ενικός</div></div>
+  <div class="st"><div class="v">${S.regt['πληθυντικός']||0}</div><div class="l">πληθυντικός</div></div>
+</div>
+<p class="note">Nearly two thirds came back <b>neutral</b> — meaning the Greek could be written without committing to an address form at all. That is a useful finding on its own: the εσύ/εσείς decision is <i>forced</i> on only about a third of rows, and those are concentrated in Chat and in personal-message Generation rows. The remaining choice is where review effort should go.</p>`;
+
+/* ---------- iii. worked examples ---------- */
+function pane(r){
+  const enT=[],elT=[];
+  if(r.sys_en)enT.push(['system',r.sys_en]); if(r.sys_el)elT.push(['system',r.sys_el]);
+  if(r.u_en.length){r.u_en.forEach((t,i)=>{enT.push(['user',t]);if(r.r_en[i])enT.push(['assistant',r.r_en[i]])});}
+  else{enT.push(['prompt',r.p_en]);r.r_en.forEach(t=>enT.push(['assistant',t]))}
+  if(r.u_el.length){r.u_el.forEach((t,i)=>{elT.push(['user',t]);if(r.r_el[i])elT.push(['assistant',r.r_el[i]])});}
+  else{elT.push(['prompt',r.p_el]);r.r_el.forEach(t=>elT.push(['assistant',t]))}
+  const cell=(t)=>t.map(([role,tx])=>`<div class="turn"><span class="role">${esc(role)}</span><div class="txt">${esc(tx)}</div></div>`).join('');
+  return `<div class="pair"><div class="side en"><div class="sidehd">English source<button class="cp" type="button" data-cp="${esc(r.id)}" data-side="en">copy</button></div><div class="sidebody">${cell(enT)}</div></div>
+  <div class="side el"><div class="sidehd">Greek output<button class="cp" type="button" data-cp="${esc(r.id)}" data-side="el">copy</button></div><div class="sidebody">${cell(elT)}</div></div></div>`;
+}
+
+/* ---- copy helpers: build plain text for a row, and put it on the clipboard ---- */
+function turnsOf(r,lang){
+  const t=[];
+  if(lang==='en'){
+    if(r.sys_en)t.push(['system',r.sys_en]);
+    if(r.u_en.length)r.u_en.forEach((x,i)=>{t.push(['user',x]);if(r.r_en[i])t.push(['assistant',r.r_en[i]])});
+    else{t.push(['prompt',r.p_en]);r.r_en.forEach(x=>t.push(['assistant',x]))}
+  }else{
+    if(r.sys_el)t.push(['system',r.sys_el]);
+    if(r.u_el.length)r.u_el.forEach((x,i)=>{t.push(['user',x]);if(r.r_el[i])t.push(['assistant',r.r_el[i]])});
+    else{t.push(['prompt',r.p_el]);r.r_el.forEach(x=>t.push(['assistant',x]))}
+  }
+  return t;
+}
+function rowText(r,side){
+  const head=`[${r.id} · ${r.cat} · ${r.cls} · target ${r.reg_t}${r.reg_u?` · written ${r.reg_u}`:''}]`;
+  const fmt=(lang)=>turnsOf(r,lang).map(([role,tx])=>`${role.toUpperCase()} (${lang}):\n${tx}`).join('\n\n');
+  if(side==='en')return `${head}\n\n${fmt('en')}`;
+  if(side==='el')return `${head}\n\n${fmt('el')}`;
+  let s=`${head}\n\n--- ENGLISH SOURCE ---\n${fmt('en')}\n\n--- GREEK OUTPUT ---\n${fmt('el')}`;
+  if(r.haz.length)s+=`\n\nhazards: ${r.haz.join(', ')}`;
+  if(r.loc.length)s+=`\nlocalisation: ${r.loc.map(d=>`${d.en} -> ${d.el}`).join(' | ')}`;
+  if(r.tn)s+=`\ntranslator notes: ${r.tn}`;
+  if(r.dev.length)s+=`\ndeviations: ${r.dev.join(' | ')}`;
+  if(r.sf.length)s+=`\nflagged: ${r.sf.join(' | ')}`;
+  if(r.flags.length||r.adv.length)s+=`\ngates: ${[...r.flags,...r.adv].join(', ')||'clean'}`;
+  return s;
+}
+function copyText(txt,btn){
+  const done=()=>{if(!btn)return;const o=btn.textContent;btn.textContent='copied ✓';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent=o;btn.classList.remove('done')},1300)};
+  const fallback=()=>{try{const ta=document.createElement('textarea');ta.value=txt;
+    ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.top='-1000px';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done();
+  }catch(e){if(btn){btn.textContent='press ⌘C';setTimeout(()=>{btn.textContent='copy'},1600)}}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(fallback);
+  }else fallback();
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-cp]');
+  if(b){e.stopPropagation();const r=find(b.dataset.cp);if(r)copyText(rowText(r,b.dataset.side||'all'),b);return;}
+  const id=e.target.closest('.rid');
+  if(id){e.stopPropagation();copyText(id.dataset.id||id.textContent.trim(),id);}
+});
+function exBlock(id,title,why){
+  const r=find(id); if(!r)return '';
+  return `<section class="ex"><div class="exhd"><h3>${esc(title)}</h3>${clsTag(r.cls)}<span class="meta">${esc(r.cat)} · <span class="rid" data-id="${esc(r.id)}" title="copy this row id">${esc(r.id)}</span> · ${esc(r.reg_t)}</span></div>
+  <div class="why">${why}</div>${pane(r)}
+  ${r.loc.length?`<div class="vfix"><div class="vh"><span class="vv">localisation calls</span></div><div class="vb"><ul class="tight">${r.loc.map(d=>`<li><b>${esc(d.en)}</b> → <b>${esc(d.el)}</b> — ${esc(d.why)}</li>`).join('')}</ul></div></div>`:''}
+  ${r.sn?`<div class="vfix"><div class="vh"><span class="vv">substitution note</span></div><div class="vb">${esc(r.sn)}</div></div>`:''}
+  ${r.sf.length?`<div class="vfix"><div class="vh"><span class="vv">flagged by the model for a human</span></div><div class="vb"><ul class="tight">${r.sf.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>`:''}
+  </section>`;
+}
+document.getElementById('p3').innerHTML=`
+<h2>Five rows that show what the classes actually do</h2>
+<p class="lead">These are unedited pipeline outputs. Each was chosen because the class assignment visibly changed what got written.</p>
+${exBlock('6d2fe44a','A chatbot that answers in pig latin',
+ 'Pig latin is an <b>English</b> game: it moves the onset to the end and adds <i>-ay</i>. Translating it produces nonsense, and translating the <i>answers</i> produces plain Greek — the persona simply disappears. The classifier substituted <b>κορακίστικα</b>, the Greek children’s syllable-insertion language, and regenerated every assistant turn under that rule. The user questions are untouched; only the game changed.')}
+${exBlock('dca7c1d3','Why is Aberdeen called the Granite City?',
+ 'The mirror-image case. Here the foreign entity <b>is the question</b>, so the localisation instinct has to be suppressed: Aberdeen is transliterated, not swapped for a Greek city, and the English nickname is kept in brackets so the Greek answer can still explain the actual epithet it is translating. Incidentally the Greek is <i>more</i> correct than its source — the human-written English answer misspells both “Alberdeen” and “Nort-East”, and the model fixed them and recorded that it had.')}
+${exBlock('591f26b0','A question that asks “when” twice',
+ 'The English prompt contains a defect — it asks <i>when</i> twice, where the second almost certainly meant <i>by whom</i>. A helpful translator silently repairs this, and the training signal is destroyed. Under <b>PRESERVE-DEFECT</b> the flaw is reproduced in Greek, and the answer does what a good assistant should: names the ambiguity, then answers what it can.')}
+${exBlock('425a5425','An email to my daughter, Jenna',
+ 'An invented family scenario, so localisation is safe and improves it: <b>Jenna</b> becomes <b>Ελένη</b>, while <b>Italy</b> stays Italy — a real destination a Greek traveller would actually name. Register is forced here: a parent writing to a daughter is <b>ενικός</b>, and English gave no signal either way.')}
+${exBlock('b4bbd3c8','A Craigslist rental ad, rewritten for a Greek reader',
+ 'The clearest demonstration of <b>relabel, never rescale</b> — and of when to break it. Prices move from <code>$480.00</code> to <code>480,00 ευρώ</code>: the currency is relabelled and the decimal comma switched, but the <i>number</i> is untouched, because in an invented ad the figure is a stand-in and rescaling it would be inventing a fact. <code>650 square feet</code>, by contrast, is genuinely converted to <b>~60 τετραγωνικά μέτρα</b> — a physical measurement has to stay true, and a Greek ad would never quote square feet. <code>Craigslist</code> stays as it is. The source ad also screens tenants on grounds unlawful to advertise; the human-written English answer had already dropped those, and the Greek follows it rather than reintroducing them — the model recorded that decision instead of leaving it implicit.')}`;
+
+/* ---------- iv. prompts ---------- */
+document.getElementById('p4').innerHTML=`
+<h2>The two prompts, verbatim</h2>
+<p class="lead">Both stages ran on <b>Claude Opus 5 at medium reasoning effort</b>, five batches of twenty — one batch per category — with stage 2 reading stage 1's output for its batch. Nothing was hand-edited between them.</p>
+<h3>Stage 1 · classify, then translate</h3>
+<p class="legend">The ordering is the point: the class is decided before any Greek is written, because the class is what determines whether an entity may be touched, whether a defect may be fixed, and which address form the answer must later take.</p>
+<pre class="doc">${esc(PR.s1)}</pre>
+<h3>Stage 2 · write the Greek answer natively</h3>
+<p class="legend">The English answer is passed in as an <b>anchor</b>, not a source text. These rows were written by human annotators, so their content coverage and length are worth keeping; their sentences are not. The class assigned in stage 1 travels with the row and changes what counts as a correct answer.</p>
+<pre class="doc">${esc(PR.s2)}</pre>`;
+
+/* ---------- v. gates ---------- */
+document.getElementById('p5').innerHTML=`
+<h2>Deterministic gates, and three rounds of being wrong</h2>
+<div class="funnel">
+  <div class="fstep"><span class="fnum">100</span><span class="flab">sampled</span></div><span class="fa">→</span>
+  <div class="fstep"><span class="fnum">100</span><span class="flab">classified<br>+ translated</span></div><span class="fa">→</span>
+  <div class="fstep"><span class="fnum">100</span><span class="flab">answered</span></div><span class="fa">→</span>
+  <div class="fstep pass"><span class="fnum">${S.clean}</span><span class="flab">pass hard gates</span></div><span class="fa">→</span>
+  <div class="fstep warn"><span class="fnum">${S.clean_adv}</span><span class="flab">no advisory<br>either</span></div>
+</div>
+<p class="lead">The gates are stdlib Python, no model involved: NFC, Greek-letter ratio, mixed-script tokens, final sigma, accents in all-caps, polytonic bleed, identity leakage, register markers, length ratio. They are cheap and they run before any human looks at a row. <b>They were also wrong three times in a row</b>, and that is the most useful result on this page.</p>
+<div class="tw"><table>
+<tr><th>Version</th><th class="n">"Clean"</th><th>What it was actually measuring</th></tr>
+<tr><td><b>v1</b></td><td class="n">74/100</td><td>Flagged 7 rows for a word ending in σ. <b>All seven were elisions</b> — <code>σ' αγαπώ</code>, <code>Δώσ' μου</code> — where the apostrophe had been stripped by the tokenizer. Also sank 11 rows for "low Greek ratio" that were simply full of preserved proper names: band names, game titles, piercing terms.</td></tr>
+<tr><td><b>v2</b></td><td class="n">97/100</td><td>Apostrophe elision excused; proper nouns excluded from the ratio. Two sigma flags survived — one was <code>κ.σ.</code> (tablespoon) tokenised into a bare <code>σ</code>, the other was <code>τραγουδίστριατραγουδοποιόςηθοποιός</code>, which faithfully mirrors the English source's own run-together <code>Singersongwriteractress</code>.</td></tr>
+<tr><td><b>v3</b></td><td class="n">${S.clean}/100</td><td>Abbreviations and concatenation artefacts demoted to advisories. <b>Across all three versions, every single sigma hard-flag was a false positive.</b></td></tr>
+</table></div>
+<div class="why"><b>The register gate cannot do the job it was built for.</b> It counts second-person markers, so it reported one row as mixed-register. That row is <i>The Three Little Pigs</i>: the wolf says <code>το σπίτι σου</code> to one pig and <code>το σπίτι σας</code> to two. Correct Greek — grammatical <b>number</b>, not formality. A marker-counting heuristic cannot separate the two, which is precisely why register-critical rows are the ones that must reach a human.</div>
+<h3>What survived as real</h3>
+<div class="tw"><table>
+<tr><th>Signal</th><th class="n">Rows</th><th>Status</th></tr>
+${Object.entries(S.hard).map(([k,v])=>`<tr><td><code>${esc(k)}</code></td><td class="n">${v}</td><td><b style="color:var(--rej)">hard flag</b> — the single remaining one is a Greek answer that keeps English piercing jargon (<i>septum</i>, <i>bridge</i>, <i>anti-eyebrow</i>) at a 0.76 Greek ratio. Whether that is correct usage or leakage is a native-speaker call.</td></tr>`).join('')}
+${Object.entries(S.adv).map(([k,v])=>`<tr><td><code>${esc(k)}</code></td><td class="n">${v}</td><td><b style="color:var(--warn)">advisory</b> — routed to a human, not counted as a defect.</td></tr>`).join('')}
+</table></div>
+<p class="note">Zero rows failed on NFC, mixed-script (Latin/Greek homoglyphs), accented all-caps, polytonic bleed, or model-identity leakage — the five failure modes that were most expected going in. The gates that mattered were the ones nobody writes first.</p>
+<h3>gates.py</h3>
+<pre class="doc">${esc(PR.gates)}</pre>`;
+
+/* ---------- vii. spec ---------- */
+const SPEC=DATA.spec,FAM=DATA.family;
+function specCard(c){
+  const s=SPEC[c];if(!s)return'';
+  return `<section class="spec" id="spec-${esc(c)}">
+  <div class="spechd"><h3>${esc(c)}</h3>
+    <span class="fam f-${s.fam==='generative'?'g':'s'}">${esc(s.fam)}</span>
+    <span class="meta">${s.n.toLocaleString()} rows · ${esc(s.share)} of the split${s.piloted?'':' · <b style="color:var(--warn)">never piloted</b>'}</span></div>
+  <p class="speckey">${s.key}</p>
+  <div class="specgrid">
+    <div><div class="sl">shape</div><p>${s.shape}</p></div>
+    <div><div class="sl">safe to adapt</div><p>${s.safe}</p></div>
+  </div>
+  <div class="sl">essential — lose any of these and the row is destroyed</div>
+  <ul class="tight">${s.ess.map(e=>`<li>${e}</li>`).join('')}</ul>
+  <div class="specgrid">
+    <div><div class="sl">default class</div><p>${s.cls}</p></div>
+    <div><div class="sl">what a checker can assert</div><p>${s.chk}</p></div>
+  </div>
+  <div class="sl">review priority</div><p>${s.pri}</p>
+  </section>`;
+}
+document.getElementById('p7').innerHTML=`
+<h2>Two families before ten categories</h2>
+<p class="lead">The ten categories are really <b>two structural families</b>, and almost every decision follows from which one a row is in. The discriminator is how much of the answer's vocabulary already appears in the prompt — a free, language-independent test.</p>
+<div class="grid2">
+${Object.entries(FAM).map(([k,f])=>`<div class="card"><h4>${esc(k)} <span class="fam f-${k==='generative'?'g':'s'}">${esc(f.recall)}</span></h4>
+<p>${f.desc}</p><p style="margin-top:7px;color:var(--mut)"><b>${esc(f.cats.join(' · '))}</b></p>
+<p style="margin-top:7px">Defect notes: ${f.defect}.</p></div>`).join('')}
+</div>
+<p class="note">Your transposition decision applies almost entirely to the first family — in the second, the source <i>is</i> the ground truth and there is nothing to transpose. It is also why the defect-note rule splits: naming an ambiguity is good behaviour in a chat, but Closed QA answers have a median length of 110 characters and terseness is the point.</p>
+<h2>The ten categories</h2>
+<p class="legend">Ordered by share of the dataset. Five of these were never in the pilot.</p>
+${Object.keys(SPEC).sort((a,b)=>SPEC[b].n-SPEC[a].n).map(specCard).join('')}`;
+
+/* ---------- viii. causes ---------- */
+document.getElementById('p8').innerHTML=`
+<h2>Eleven causes behind fifteen findings</h2>
+<p class="lead">Each is what went wrong, why, and <b>what I would build</b> — not just the diagnosis. Nothing here has been applied; this is the thing to argue with before we spend another run.</p>
+${DATA.causes.map((c,i)=>`<section class="cause${c.lead?' lead':''}">
+  <div class="causehd"><span class="cnum">${i+1}</span><h3>${c.t}</h3>${c.lead?'<span class="pill-lead">high leverage</span>':''}</div>
+  <div class="cb"><div class="sl">what went wrong</div><p>${c.wrong}</p></div>
+  <div class="cb"><div class="sl">why</div><p>${c.why}</p></div>
+  <div class="cb fix"><div class="sl">the fix</div><ul class="tight">${c.fix.map(f=>`<li>${f}</li>`).join('')}</ul></div>
+  <div class="cb"><div class="sl">how we'll know it worked</div><p>${c.know}</p>${c.block?`<p style="color:var(--warn);margin-top:6px">${c.block}</p>`:''}</div>
+</section>`).join('')}`;
+
+/* ---------- vi. browser ---------- */
+const p6=document.getElementById('p6');
+p6.innerHTML=`
+<h2>All 100 rows</h2>
+<p class="lead">Every row the pipeline produced, unfiltered — English source beside Greek output, with the classifier's reasoning and anything it asked a human to check. Rows are open by default so this reads as one scroll. Click a row's <b>id</b> to copy just that id — the quickest way to point me at a row. Use <b>copy</b> on either pane for that side's text, or <b>copy whole row</b> for everything including the notes and gate results.</p>
+<div class="catbar" role="group" aria-label="category">
+  <button type="button" class="catb" data-cat="">All <span class="cn">${R.length}</span></button>
+  ${DATA.cats.map(c=>`<button type="button" class="catb" data-cat="${esc(c)}">${esc(c)} <span class="cn">${R.filter(r=>r.cat===c).length}</span></button>`).join('')}
+</div>
+<div id="catprofile"></div>
+<div class="toolbar">
+  <label for="fc">Category</label><select id="fc"><option value="">all</option>${DATA.cats.map(c=>`<option>${esc(c)}</option>`).join('')}</select>
+  <label for="fk">Class</label><select id="fk"><option value="">all</option>${DATA.clss.filter(c=>S.cls[c]).map(c=>`<option>${esc(c)}</option>`).join('')}</select>
+  <label for="ff">Show</label><select id="ff"><option value="">everything</option><option value="flag">flagged only</option><option value="adv">advisories only</option><option value="loc">has localisation calls</option></select>
+  <input type="search" id="fq" placeholder="search text…" aria-label="search">
+  <button type="button" id="fx" class="toggle" aria-pressed="true">Collapse all</button>
+  <span class="count" id="cnt"></span>
+</div>
+<div class="rowlist" id="list"></div>`;
+const list=document.getElementById('list'),cnt=document.getElementById('cnt');
+let expanded=true;   /* rows open by default so the sample reads as one scroll, not 100 clicks */
+function syncCatUI(){
+  const c=document.getElementById('fc').value;
+  document.querySelectorAll('.catb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.cat===c?'true':'false'));
+  /* show that category's essential-features profile right above its rows */
+  document.getElementById('catprofile').innerHTML=c?specCard(c):'';
+}
+function render(){
+  syncCatUI();
+  const c=document.getElementById('fc').value,k=document.getElementById('fk').value,
+        f=document.getElementById('ff').value,q=document.getElementById('fq').value.trim().toLowerCase();
+  const out=R.filter(r=>(!c||r.cat===c)&&(!k||r.cls===k)
+    &&(!f||(f==='flag'&&r.flags.length)||(f==='adv'&&r.adv.length)||(f==='loc'&&r.loc.length))
+    &&(!q||(r.p_en+' '+r.p_el+' '+r.sub+' '+r.r_el.join(' ')).toLowerCase().includes(q)));
+  cnt.textContent=out.length+' / '+R.length;
+  list.innerHTML=out.map(r=>`<div class="row${expanded?' open':''}" data-id="${esc(r.id)}">
+    <button class="rowhd" aria-expanded="${expanded?'true':'false'}"><span class="rid" data-id="${esc(r.id)}" title="copy this row id">${esc(r.id)}</span><span class="rcat">${esc(r.cat)}</span>${clsTag(r.cls)}<span class="rsub">${esc(r.sub)}</span>
+    ${r.flags.map(x=>`<span class="chip f">${esc(x)}</span>`).join('')}${r.adv.map(x=>`<span class="chip a">${esc(x)}</span>`).join('')}</button>
+    <div class="rowbody">
+      <dl class="kv">
+        <dt>register</dt><dd>English read as <b>${esc(r.reg_en)}</b> → target <b>${esc(r.reg_t)}</b>${r.reg_u?`, written as <b>${esc(r.reg_u)}</b>`:''} <span style="color:var(--mut)">— ${esc(r.reg_ev)}</span></dd>
+        ${r.haz.length?`<dt>hazards</dt><dd>${r.haz.map(h=>`<span class="chip">${esc(h)}</span>`).join('')}</dd>`:''}
+        ${r.cn?`<dt>constraint</dt><dd>${esc(r.cn)}</dd>`:''}
+        ${r.cc?`<dt>check</dt><dd>${esc(r.cc)}</dd>`:''}
+        ${r.tn?`<dt>notes</dt><dd>${esc(r.tn)}</dd>`:''}
+        <dt>measured</dt><dd>Greek ratio ${r.gr} · length vs English ${r.lr==null?'—':r.lr}× · markers read as ${esc(r.rd)}</dd>
+      </dl>
+      <div class="rowacts"><button class="cp" type="button" data-cp="${esc(r.id)}" data-side="all">copy whole row</button></div>
+      ${pane(r)}
+      ${r.loc.length?`<div class="vfix"><div class="vh"><span class="vv">localisation calls</span></div><div class="vb"><ul class="tight">${r.loc.map(d=>`<li><b>${esc(d.en)}</b> → <b>${esc(d.el)}</b> — ${esc(d.why)}</li>`).join('')}</ul></div></div>`:''}
+      ${r.sn?`<div class="vfix"><div class="vh"><span class="vv">substitution</span></div><div class="vb">${esc(r.sn)}</div></div>`:''}
+      ${r.dev.length?`<div class="vfix"><div class="vh"><span class="vv">deviations from the English answer</span></div><div class="vb"><ul class="tight">${r.dev.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>`:''}
+      ${r.sf.length?`<div class="vfix"><div class="vh"><span class="vv">flagged for a human</span></div><div class="vb"><ul class="tight">${r.sf.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div>`:''}
+    </div></div>`).join('');
+}
+list.addEventListener('click',e=>{
+  /* copy targets are handled by the document-level listener; don't also toggle the row */
+  if(e.target.closest('[data-cp]')||e.target.closest('.rid'))return;
+  const b=e.target.closest('.rowhd');if(!b)return;
+  const row=b.parentElement,open=row.classList.toggle('open');b.setAttribute('aria-expanded',open?'true':'false');});
+['fc','fk','ff'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{render();saveState()}));
+document.getElementById('fq').addEventListener('input',()=>{render();saveState()});
+document.querySelectorAll('.catb').forEach(b=>b.addEventListener('click',()=>{
+  document.getElementById('fc').value=b.dataset.cat;render();saveState();}));
+const fx=document.getElementById('fx');
+fx.addEventListener('click',()=>{expanded=!expanded;fx.textContent=expanded?'Collapse all':'Expand all';
+  fx.setAttribute('aria-pressed',expanded?'true':'false');render();saveState();});
+/* initial render happens in the restore block below, once saved filters are applied */
+
+/* ---- reading position, durable across reloads ----
+   A republish reloads the page, so in-memory state alone loses the reader's place.
+   Persist tab + per-tab scroll + filter state; restore on load. Storage may be
+   unavailable in a sandboxed frame, so every access is guarded. */
+const KEY='nr-el-pilot-v1';
+let scrollPos={},curTab='1';
+function loadState(){try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');
+  if(s&&typeof s==='object'){scrollPos=s.scrollPos||{};curTab=s.tab||'1';return s}}catch(e){}return {}}
+function saveState(){try{localStorage.setItem(KEY,JSON.stringify({
+  tab:curTab,scrollPos,expanded,
+  f:{c:document.getElementById('fc').value,k:document.getElementById('fk').value,
+     s:document.getElementById('ff').value,q:document.getElementById('fq').value}}))}catch(e){}}
+function showTab(n,restore){
+  document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x.dataset.t===n?'true':'false'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='p'+n));
+  curTab=n;
+  if(restore!==false)requestAnimationFrame(()=>window.scrollTo({top:scrollPos[n]||0,behavior:'instant'}));
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  scrollPos[curTab]=window.scrollY||document.documentElement.scrollTop||0;
+  showTab(t.dataset.t); saveState();
+}));
+let sTimer=null;
+window.addEventListener('scroll',()=>{clearTimeout(sTimer);
+  sTimer=setTimeout(()=>{scrollPos[curTab]=window.scrollY||document.documentElement.scrollTop||0;saveState()},220)},{passive:true});
+window.addEventListener('pagehide',()=>{scrollPos[curTab]=window.scrollY||0;saveState()});
+
+/* restore the previous session's place */
+(function(){
+  const s=loadState();
+  if(s.f){const g=id=>document.getElementById(id);
+    if(s.f.c!=null)g('fc').value=s.f.c; if(s.f.k!=null)g('fk').value=s.f.k;
+    if(s.f.s!=null)g('ff').value=s.f.s; if(s.f.q!=null)g('fq').value=s.f.q;}
+  if(typeof s.expanded==='boolean'){expanded=s.expanded;
+    fx.textContent=expanded?'Collapse all':'Expand all';fx.setAttribute('aria-pressed',String(expanded));}
+  render();
+  showTab(curTab);
+})();
+</script>

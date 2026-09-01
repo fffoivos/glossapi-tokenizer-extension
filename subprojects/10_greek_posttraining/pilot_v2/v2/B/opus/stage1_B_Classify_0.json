@@ -1,0 +1,205 @@
+[
+ {
+  "row_id": "5328c63fb7ec32ab6d74b12765ec0f28dcf8cfe4c78ecf3fa8dfe894c84d5796",
+  "family": "source-bearing",
+  "translation_class": null,
+  "source_handling": "LITERAL",
+  "output_handling": "CLASSIFY",
+  "secondary_classes": ["REGISTER-CRITICAL"],
+  "subtype": "metalinguistic classification of a descriptive passage",
+  "hazards": [
+   "The object of the task is the STYLE of the passage, not its facts: the Greek source must stay adjective-dense and overtly evaluative (γκρινιάρης, άπληστος, μικροπρεπής, εύπιστος…), otherwise the expected answer 'descriptive and evaluative' stops being derivable.",
+   "Pantalone, Commedia dell'arte, Venice and the Venetian dialect are content — the passage is about a real stock character; localizing any of them destroys the row.",
+   "Freezing the passage in English would turn this into an English-analysis task and the row would no longer be Greek-native; a faithful Greek rendering preserves the evaluative register, so LITERAL rather than VERBATIM-FREEZE.",
+   "The internal quotation ‘debased citizen-merchant’ must stay a quotation in Greek (guillemets) — it is marked as a cited label in the source."
+  ],
+  "devices": [],
+  "device_notes": "No naming device at work. 'Pantalone' is a fixed theatrical mask name, not a charactonym coined for this row; it is transliterated by the established Greek convention (Πανταλόνε), not re-derived.",
+  "en_register": "neutral",
+  "register_evidence": "A bare imperative task line ('classify the type of language…') followed by an encyclopedic third-person passage; no addressee, no relationship, no persona. The passage itself is expository written register.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Ταξινόμησε το είδος του λόγου με τον οποίο περιγράφεται ο Πανταλόνε, χαρακτήρας της Commedia dell'arte.\n\nΕίτε παρουσιάζεται πλούσιος είτε φτωχός, εργένης, παντρεμένος ή χήρος, ο Πανταλόνε είναι πάντοτε γκρινιάρης, αυστηρός, λάγνος, ζηλιάρης, δόλιος, εγωιστής και γεμάτος έπαρση, πάνω απ' όλα όμως είναι άπληστος.\n\nΞανά και ξανά ο χαρακτήρας του Πανταλόνε εκπίπτει από ευυπόληπτος πολίτης σε «ξεπεσμένο πολίτη-έμπορο». Θεωρεί ότι τα πάντα αγοράζονται και πωλούνται και, όταν τα πράγματα δεν εξελίσσονται όπως θέλει (όπως αναπόφευκτα συμβαίνει στην Commedia), εξοργίζεται αμέσως και παρεμβαίνει στην ευτυχία των άλλων.\n\nΟ Πανταλόνε ελέγχει όλο το χρήμα στην Commedia και τον πιάνει τρόμος όταν πρέπει να αποχωριστεί έστω και λίγο από αυτό. Κινούμενος από απληστία και δίψα για πλούτη, είναι τσιγκούνης στα άκρα και μοναδική του φιλοδοξία είναι να προωθεί τα οικονομικά του συμφέροντα. Παρά τη φιλαργυρία και την αρπακτικότητά του, το κοινό βλέπει έναν μικροπρεπή, αδιάλλακτο, φτηνιάρη και εύπιστο έμπορο από τη Βενετία, που προσπαθεί να κρύψει την ηλικία του πίσω από τη γελοία του ενδυμασία.\n\nΟ ρόλος του Πανταλόνε παίζεται συνήθως εξ ολοκλήρου στη βενετσιάνικη διάλεκτο.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {
+    "depends_on": "the evaluative adjective chain of the source",
+    "en": "crotchety, stern, lustful, jealous, deceitful, selfish, and full of himself … greedy",
+    "el": "γκρινιάρης, αυστηρός, λάγνος, ζηλιάρης, δόλιος, εγωιστής και γεμάτος έπαρση … άπληστος",
+    "why": "The expected answer classifies the language as descriptive AND evaluative; the evidence for 'evaluative' is exactly this pile-up of judgement-laden adjectives, so each one must survive as a judgement word rather than a neutral paraphrase."
+   }
+  ],
+  "constraint_notes": null,
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "Pantalone", "decision": "Πανταλόνε (indeclinable)", "why": "Established Greek theatrical usage for the Commedia dell'arte mask; Πανταλόνε avoids collision with «πανταλόνι» (trousers) which a form like Πανταλόνης would invite."},
+   {"term": "La Commedia dell'arte", "decision": "Keep in Latin script as «Commedia dell'arte», dropping the article 'La' as Greek usage does", "why": "Real proper title of a real tradition; a Greek translation («Κωμωδία της Τέχνης») would name a non-existent work, and Greek scholarship uses the Italian form."},
+   {"term": "Venetian dialect", "decision": "βενετσιάνικη διάλεκτο", "why": "The everyday Greek adjective for Venice-related things; «βενετική» reads institutional/historical (the Venetian state) rather than linguistic."}
+  ],
+  "reference_problems": [
+   "The reference is internally repetitive: it says 'The language portrays Pantalone…' and then 'the language paints a vivid and critical picture of Pantalone as a character', restating the same claim with 'as a character' redundantly appended.",
+   "The reference offers no evidence from the passage for its label, although the prompt supplies plenty; it asserts 'descriptive and evaluative' without citing a single trait word."
+  ],
+  "translator_notes": "Check that the Greek passage still reads as clearly evaluative (not just descriptive) — that is the whole basis of the expected label. Two wording calls to review: 'degenerates' → «εκπίπτει» (chosen over «εκφυλίζεται», which in Greek carries a biological/pathological overtone the English lacks), and 'cheap' → «φτηνιάρη» (kept distinct from «τσιγκούνης» used earlier for 'stingy', since English uses two different words)."
+ },
+ {
+  "row_id": "a9575bb9e4bc90cf7bfd7e3ab5d87f9d3ae7cd46bb273bbb3ab43584d0fd9c3b",
+  "family": "source-bearing",
+  "translation_class": null,
+  "source_handling": "PRESERVE-DEFECT",
+  "output_handling": "CLASSIFY",
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "closed-set single-label categorization with a misspelled option",
+  "hazards": [
+   "Closed-set membership: the answer must be lexically identical to one option in the prompt. «Είδη κουζίνας» must be reused character-for-character as the answer string; a second independent rendering (e.g. «κουζινικά», «σκεύη κουζίνας») silently breaks the row.",
+   "The English option list contains the misspelling 'Funiture' (for 'Furniture'). It is a distractor, not the answer, so preserving it costs nothing and repairing it would change the row's noise profile.",
+   "'Silverware' followed by 'Forks, Spoons, Knives' is already redundant in English; a Greek rendering as «μαχαιροπίρουνα» would make the redundancy total and could look like a translation error, so the more literal «Ασημικά» is used.",
+   "Every listed item must stay unambiguously a kitchen object — if any item drifts (e.g. 'Bowls' → a bathroom bowl) the single-label answer is no longer forced."
+  ],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "neutral",
+  "register_evidence": "Bare imperative task with a machine-like option list; no addressee, persona or relationship. Only the imperative verb forces an address form at all.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Κατηγοριοποίησε τα εξής αντικείμενα: Ασημικά, Πιάτα, Μπολ, Κούπες, Πιρούνια, Κουτάλια, Μαχαίρια, Κατσαρόλες και Τηγάνια. Ποια κατηγορία είναι η κατάλληλη; Επιλογές κατηγοριών: Μπάνιο, Έπιλα, Είδη κουζίνας, Περιοδικά",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {
+    "depends_on": "the option string «Είδη κουζίνας» in the prompt",
+    "en": "Kitchenware (answer)",
+    "el": "Είδη κουζίνας",
+    "why": "The reference answer is a verbatim copy of one option; the answer stage must reuse this exact Greek string, capitalization included, or prompt and answer stop agreeing and the row is no longer a classification."
+   }
+  ],
+  "constraint_notes": "Closed label set, exactly four members, exactly one correct: {«Μπάνιο», «Έπιλα», «Είδη κουζίνας», «Περιοδικά»}. Checkable in Greek by exact string match of the answer against this set; the correct member is «Είδη κουζίνας». The distractors keep their English roles: a room, a furniture class, and a print-media class — none of which any listed item belongs to.",
+  "substitution_note": "Defect reproduced, not repaired: English 'Funiture' is a single-letter-deletion misspelling of 'Furniture'. The Greek option «Έπιπλα» is misspelled the same way and to the same severity — one letter deleted, «Έπιλα» — so the option remains instantly recognizable as 'furniture' while carrying an equivalent typo. No other word in the row is defective.",
+  "guide_gaps": [
+   {"term": "Kitchenware", "decision": "Είδη κουζίνας", "why": "The standard Greek retail/category label; «κουζινικά» is colloquial and «σκεύη κουζίνας» would wrongly exclude cutlery, which the item list leads with."},
+   {"term": "Silverware", "decision": "Ασημικά", "why": "Keeps the English item list's own redundancy with the separately listed forks/spoons/knives instead of collapsing it; «μαχαιροπίρουνα» would make the list read as a mistranslation."},
+   {"term": "Bowls", "decision": "Μπολ (indeclinable)", "why": "The everyday modern Greek word; «κύπελλα» would collide with «Κούπες» (Cups) and «γαβάθες» is dialectal/rustic."}
+  ],
+  "reference_problems": [
+   "No error in the reference answer itself — 'Kitchenware' is correct and is a verbatim option. The misspelling 'Funiture' is in the prompt, not the reference, and is left unrepaired by design."
+  ],
+  "translator_notes": "Verify the deliberate typo «Έπιλα» is not 'corrected' by any later spell-checking pass — it is the preserved defect. Also verify the answer stage emits «Είδη κουζίνας» exactly as spelled here."
+ },
+ {
+  "row_id": "586d18d65cfc4651de4468e3012a1d8d747dbb89ef2a2cf9dddb223a12a61672",
+  "family": "source-bearing",
+  "translation_class": null,
+  "source_handling": "LOCALIZE",
+  "output_handling": "CLASSIFY",
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "numbered batch labelling, 10 items, binary label set",
+  "hazards": [
+   "Label↔item alignment: the reference is ten bare labels keyed only by position. The Greek list must keep exactly ten items in an order whose gender sequence reproduces M,M,F,M,F,M,F,M,F,F, or the row breaks invisibly while still looking well-formed.",
+   "World knowledge the prompt does not supply: which names are male or female is the knowledge being tested. Transliterating English names (Τζέιμς, Τζένιφερ, Μπόμπι/Μπόμπι) both destroys the minimal pairs — Bobby and Bobbi are homophones and would transliterate identically, collapsing items 8 and 9 into one string — and tests English onomastics rather than Greek.",
+   "The English list is engineered: item pairs 4/5 (Michael/Michaela, overt feminine derivation) and 8/9 (Bobby/Bobbi, distinguished by spelling alone) carry the difficulty. A flat list of ten obvious Greek names would be a much easier row.",
+   "Greek names are morphologically gendered by ending, so the task is intrinsically easier in Greek; the difficulty must be reinstated through the near-minimal pairs rather than assumed."
+  ],
+  "devices": [
+   {
+    "where": "items 4 and 5 of the list",
+    "device": "morphological derivation pair",
+    "effect": "makes the reader look at the suffix rather than recognize the name",
+    "english": "Michael / Michaela",
+    "greek": "Μιχάλης / Μιχαέλα",
+    "how": "Same device — a masculine name and its feminine derivative, and the Greek pair is the direct cognate, so it transfers intact."
+   },
+   {
+    "where": "items 8 and 9 of the list",
+    "device": "near-minimal spelling pair",
+    "effect": "the hard item: the two names differ by a single letter and are pronounced almost identically, so only the spelling decides the label",
+    "english": "Bobby / Bobbi",
+    "greek": "Νίκος / Νίκη",
+    "how": "Different device. English distinguishes them by an orthographic convention (-y masculine, -i feminine) with no sound difference; Greek has no such convention, so the effect is reproduced with a pair sharing the same stem and differing only in the final syllable — the closest Greek affords while staying real names a Greek would recognize."
+   }
+  ],
+  "device_notes": "The English row's hardest device — a purely orthographic gender signal with zero phonetic realization (Bobby/Bobbi) — cannot be reproduced: Greek marks name gender in the ending itself, audibly. The effect (a pair you must inspect letter by letter, not recognize) is approximated by Νίκος/Νίκη, which share a stem and differ minimally. The Greek row is therefore slightly easier than the English at that item; flagged for the reviewer rather than papered over.",
+  "en_register": "neutral",
+  "register_evidence": "Impersonal imperative followed by a bare numbered list; no addressee, no tone, no relationship. Only the imperative verb forces an address form.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Ταξινόμησε τα παρακάτω ονόματα ανάλογα με το αν παραδοσιακά ανήκουν σε άνδρες ή σε γυναίκες.\n\n1. Γιάννης\n2. Θεόδωρος\n3. Ελένη\n4. Μιχάλης\n5. Μιχαέλα\n6. Χρήστος\n7. Αφροδίτη\n8. Νίκος\n9. Νίκη\n10. Ξανθή",
+  "user_turns_el": [],
+  "transpositions": [
+   {"en": "James", "el": "Γιάννης", "kind": "name", "why": "Item 1, male. The plainest common Greek male name, matching the plainness of 'James' in the English list."},
+   {"en": "Edward", "el": "Θεόδωρος", "kind": "name", "why": "Item 2, male. A second unambiguous, slightly more formal male name, mirroring 'Edward' against 'James'."},
+   {"en": "Jennifer", "el": "Ελένη", "kind": "name", "why": "Item 3, female. The first female item and unambiguous, as in the English."},
+   {"en": "Michael", "el": "Μιχάλης", "kind": "name", "why": "Item 4, male. Direct cognate, preserving the derivation pair with item 5."},
+   {"en": "Michaela", "el": "Μιχαέλα", "kind": "name", "why": "Item 5, female. Direct cognate; the feminine derived from item 4, keeping the pair's function."},
+   {"en": "Robert", "el": "Χρήστος", "kind": "name", "why": "Item 6, male. An unambiguous male name resetting the list before the hard pair, as 'Robert' does."},
+   {"en": "Tiffany", "el": "Αφροδίτη", "kind": "name", "why": "Item 7, female. Unambiguously female and, like 'Tiffany', slightly ornamental relative to the other names."},
+   {"en": "Bobby", "el": "Νίκος", "kind": "name", "why": "Item 8, male. First half of the near-minimal pair replacing Bobby/Bobbi."},
+   {"en": "Bobbi", "el": "Νίκη", "kind": "name", "why": "Item 9, female. Second half of the near-minimal pair; shares the stem with item 8 and differs only in the ending."},
+   {"en": "Heather", "el": "Ξανθή", "kind": "name", "why": "Item 10, female. Like 'Heather', a real given name that is transparently also a common noun/adjective, so the list closes on the same kind of name."}
+  ],
+  "derived_elements": [
+   {
+    "depends_on": "the substituted name list",
+    "en": "1. Male 2. Male 3. Female 4. Male 5. Female 6. Male 7. Female 8. Male 9. Female 10. Female",
+    "el": "1. Ανδρικό 2. Ανδρικό 3. Γυναικείο 4. Ανδρικό 5. Γυναικείο 6. Ανδρικό 7. Γυναικείο 8. Ανδρικό 9. Γυναικείο 10. Γυναικείο",
+    "why": "The whole answer is derived from the names; it was re-derived from the Greek list, and the substitutions were chosen so the gender sequence is identical to the English reference position by position."
+   }
+  ],
+  "constraint_notes": "Binary closed label set for every item: {«Ανδρικό», «Γυναικείο»} (the Greek prompt's own wording is «σε άνδρες ή σε γυναίκες», so «Άνδρας»/«Γυναίκα» is the equally licensed alternative — the answer stage must pick one and use it for all ten). Exactly ten numbered items, answered in the same numbering; checkable by counting labels and matching indices. Gender sequence M,M,F,M,F,M,F,M,F,F is preserved from the English.",
+  "substitution_note": "Full localization of all ten names: transliteration would test English onomastics and, at items 8/9, would collapse the two names into a single Greek string. The list's engineering was carried over — an overt derivation pair at 4/5 and a near-minimal pair at 8/9 — and the male/female sequence was held fixed so the reference answer's shape survives unchanged.",
+  "guide_gaps": [
+   {"term": "Male / Female (as classification labels for names)", "decision": "Ανδρικό / Γυναικείο", "why": "Greek labels the NAME, not the person, so the neuter adjectives agreeing with «όνομα» are the natural answer form; «Άνδρας»/«Γυναίκα» reads as classifying people and is a defensible second choice, but one of the two must be used consistently."},
+   {"term": "traditionally belong to", "decision": "παραδοσιακά ανήκουν σε", "why": "Keeps the hedge the English uses ('traditionally') rather than asserting that names are inherently gendered."}
+  ],
+  "reference_problems": [
+   "The reference answer is unverifiable in isolation: ten bare labels with no restatement of the name, so a single insertion or deletion silently misaligns every subsequent item.",
+   "The prompt asks to classify by tradition, but 'Bobby'/'Bobbi' are both attested for both genders in English; the reference presents its labels as unqualified fact for a genuinely ambiguous pair."
+  ],
+  "translator_notes": "Check the gender sequence position by position against the English (M,M,F,M,F,M,F,M,F,F) — this is the row's silent failure mode. Also confirm the acknowledged difficulty drop at items 8/9: Νίκος/Νίκη is audibly distinguished, whereas Bobby/Bobbi is not, so the Greek row is easier there than the English. If a stricter difficulty match is required, the reviewer should propose a Greek pair distinguished by orthography alone (none was found among names a Greek reader would accept as real)."
+ },
+ {
+  "row_id": "41414834dc92e99f00e16af99da40b51959e2945f179a122e4a5118d8bf1f86a",
+  "family": "source-bearing",
+  "translation_class": null,
+  "source_handling": "LITERAL",
+  "output_handling": "CLASSIFY",
+  "secondary_classes": ["CONSTRAINT-PRESERVING"],
+  "subtype": "three-way sentiment classification of a news headline about a named company",
+  "hazards": [
+   "Closed set of exactly three options stated in the prompt: the answer must reuse one of «θετικό» / «ουδέτερο» / «αρνητικό» verbatim. Independently rendering the answer (e.g. «αρνητική εικόνα») breaks the prompt↔answer identity.",
+   "Tesla is content, not frame — the question is what the text says ABOUT Tesla, and the headline is a real reported news item. Swapping in a Greek company would fabricate a false report about a real business.",
+   "The evidence for the negative label lives in specific clauses — verbal-only communication about complaints, the avoidance of a written record, and 'leaked documents'. Softening any of them (e.g. rendering 'leaked' as 'δημοσιευμένα') removes the basis of the answer.",
+   "'so there was no written record' states the alleged PURPOSE of the instruction; a Greek rendering as a mere consequence would weaken the imputation of intent that drives the negative reading."
+  ],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "informal",
+  "register_evidence": "'Do you think…' addresses the assistant directly and asks for its opinion rather than issuing a task; this is conversational second-person address to a bot, with no formality markers and no institutional framing.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Πιστεύεις ότι αυτό το κείμενο λέει κάτι θετικό, ουδέτερο ή αρνητικό για την Tesla;\n\nΗ Tesla έδωσε οδηγίες στους εργαζομένους να επικοινωνούν μόνο προφορικά για τα παράπονα, ώστε να μην υπάρχει γραπτό αρχείο, όπως δείχνουν έγγραφα που διέρρευσαν.",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [
+   {
+    "depends_on": "the option words «θετικό, ουδέτερο ή αρνητικό» in the question",
+    "en": "This text is saying something negative about Tesla.",
+    "el": "«αρνητικό» — the answer must reuse this exact adjective from the prompt's own option list.",
+    "why": "The label is drawn from the closed set the prompt states; the neuter singular form «αρνητικό» is fixed by «κάτι» in the question, so the answer's grammatical form is derived from the prompt's wording and cannot be chosen freely."
+   }
+  ],
+  "constraint_notes": "Closed label set of three, stated inline in the prompt: {«θετικό», «ουδέτερο», «αρνητικό»}, neuter singular to agree with «κάτι». Checkable by exact string match; the correct member is «αρνητικό». If the answer stage writes a full sentence, the label word must appear in exactly this form (e.g. «Αυτό το κείμενο λέει κάτι αρνητικό για την Tesla.»).",
+  "substitution_note": null,
+  "guide_gaps": [
+   {"term": "Tesla", "decision": "Keep in Latin script, feminine gender («η Tesla»)", "why": "Real company reported on in a real news item; Greek press keeps the Latin brand form, and the feminine follows the implicit «εταιρεία»."},
+   {"term": "leaked documents", "decision": "έγγραφα που διέρρευσαν", "why": "Standard Greek press phrasing; the intransitive «διέρρευσαν» carries the same unauthorized-disclosure implication as English 'leaked', which is part of the negative evidence."},
+   {"term": "written record", "decision": "γραπτό αρχείο", "why": "«αρχείο» here means a documentary record, not a computer file; chosen over «γραπτά τεκμήρια» which is legalistic and over «γραπτό ίχνος» which is a calque."},
+   {"term": "complaints (workplace)", "decision": "παράπονα", "why": "The everyday word covering both grievances and complaints; «καταγγελίες» would narrow it to formal/legal reports and overstate the source."}
+  ],
+  "reference_problems": [
+   "The reference asserts the label with no reasoning, so it gives no check on whether the classifier read the headline's alleged intent ('so there was no written record') or merely reacted to the word 'leaked'.",
+   "The prompt asks what the text says about Tesla and offers a sentiment triple; strictly the headline is neutrally-worded reporting of unflattering content, so 'neutral' is defensible under a tone-based reading. The prompt does not disambiguate tone from content, and the reference commits to one reading without acknowledging the ambiguity."
+  ],
+  "translator_notes": "Confirm the Greek keeps the purpose clause («ώστε να μην υπάρχει γραπτό αρχείο») rather than a result clause — the imputed intent is what makes the item read as negative. Also confirm the answer stage reuses «αρνητικό» in the neuter singular form fixed by «κάτι» in the question."
+ }
+]

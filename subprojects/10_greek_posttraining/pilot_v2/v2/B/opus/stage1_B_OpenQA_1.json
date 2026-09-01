@@ -1,0 +1,104 @@
+[
+ {
+  "row_id": "796c216b7cb8f960c0116c166ebb69b24a97d405a256029383924aa70c021766",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [],
+  "subtype": "open factual question about a field of study and its career paths",
+  "hazards": [
+   "Temptation to localize the field to the Greek institutional label «Επιστήμη Φυσικής Αγωγής και Αθλητισμού» (ΤΕΦΑΑ) — that would swap the referent and change which careers are correct.",
+   "Temptation to add «στην Ελλάδα» to the prompt; the English is unscoped and the answer would then have to be about Greek licensure, changing what is true.",
+   "The generic English 'you' can be misread as address to the assistant."
+  ],
+  "devices": [],
+  "device_notes": null,
+  "en_register": "neutral",
+  "register_evidence": "A bare, sourceless factual question with no addressee, no greeting and no relationship cues; the 'you' is the generic/impersonal 'you', not the assistant.",
+  "target_register": "ενικός",
+  "system_el": null,
+  "prompt_el": "Τι μπορείς να κάνεις με ένα πτυχίο κινησιολογίας;",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": null,
+  "substitution_note": "No substitutions made. «Κινησιολογία» is content: swapping it for the Greek degree name ΤΕΦΑΑ would change the correct answer, so the referent is frozen.",
+  "guide_gaps": [
+   {
+    "term": "kinesiology",
+    "decision": "κινησιολογία",
+    "why": "Established Greek term for the discipline (κίνησις + -λογία), used in Greek academic and clinical writing; keeps the referent identical rather than mapping it onto the Greek ΤΕΦΑΑ degree, which is a different institution and would change which careers follow."
+   },
+   {
+    "term": "degree (bachelor's degree)",
+    "decision": "πτυχίο",
+    "why": "Unmarked Greek word for a first university degree; «πτυχίο» leaves the level unspecified in the same way the English 'a degree' does, whereas «δίπλωμα» would suggest a different qualification type."
+   },
+   {
+    "term": "generic 'you'",
+    "decision": "ενικός (β΄ ενικό, γενικευτικό)",
+    "why": "Greek expresses the impersonal/generic 'you' with the second person singular; the plural would read as formal address to a specific person, which the English does not do. Greek forces an address form here, so committed to ενικός and the Greek answer should mirror it."
+   }
+  ],
+  "reference_problems": [
+   "The reference is US-specific without saying so: 'physical therapy graduate programs', 'Master of Public Health', 'corporate wellness program administrators' and several listed professions (athletic trainer, sports medicine physician, orthopedic surgeon) describe US credentialing routes, while the prompt is unscoped.",
+   "Internal inconsistency in the definition: it says kinesiology 'is the study of movement' and then lists physics, biology and chemistry as part of it — these are prerequisites/foundations, not components of the field.",
+   "It lists 'orthopedic surgeon' as a job a kinesiology degree leads to; that requires medical school, which the reference does not state.",
+   "The list mixes duplicated items ('personal trainer' appears both in the prose and in the list; 'physical therapist' likewise) and is padded with near-tautological entries ('kinesiologist', 'kinesiology professor', 'kinesiology researcher')."
+  ],
+  "translator_notes": "Check that the reviewer agrees the field name stays κινησιολογία and is not silently converted to ΤΕΦΑΑ/«Φυσική Αγωγή» — that is the single decision that can destroy this row. Also check the generic-ενικός call: the prompt commits to β΄ ενικό, so the Greek answer must mirror it and must not slip into πληθυντικός or an impersonal «κανείς» construction mid-answer. The prompt was deliberately left unscoped geographically, matching the English; if the answer stage wants Greek career paths, that is a separate, flagged decision, not something the prompt licenses."
+ },
+ {
+  "row_id": "23eae30a6086da0783bdc1eac89ba7317e947e5943547afe1870e84c24959564",
+  "family": "generative",
+  "translation_class": "LITERAL",
+  "source_handling": null,
+  "output_handling": null,
+  "secondary_classes": [],
+  "subtype": "who-is question about a real person",
+  "hazards": [
+   "The person is the question — the referent must survive exactly; any renaming or localization destroys the row.",
+   "Transliteration risk: an unfamiliar Greek transliteration of a Japanese name could make the referent unrecoverable for the reader or the model.",
+   "'Joe Hisaishi' is itself a stage name derived from Quincy Jones; a reader may not know this, but it must not be 'corrected' to the birth name in the prompt, since the English asks about the stage name."
+  ],
+  "devices": [],
+  "device_notes": "The English contains no rhetorical device. The stage name 'Joe Hisaishi' is an allusive coinage (a Japanese reading of 'Quincy Jones'), but the allusion is invisible in the English prompt and is not doing work on the reader there, so nothing needs reproducing in Greek — it is simply frozen as a proper name.",
+  "en_register": "neutral",
+  "register_evidence": "Two bare interrogatives, no addressee, no politeness marking, no relationship cues — an impersonal information request.",
+  "target_register": "neutral",
+  "system_el": null,
+  "prompt_el": "Ποιος είναι ο Τζο Χισάισι; Για ποιο πράγμα είναι γνωστός;",
+  "user_turns_el": [],
+  "transpositions": [],
+  "derived_elements": [],
+  "constraint_notes": null,
+  "substitution_note": "No substitutions. The name is content under the Step-1 test: swapping it changes what the answer is about, so it is frozen and only rendered in Greek script.",
+  "guide_gaps": [
+   {
+    "term": "Joe Hisaishi",
+    "decision": "Τζο Χισάισι (Greek transliteration, no Latin gloss in the prompt)",
+    "why": "Greek prose habitually transliterates personal names, and this is the form used in Greek music/film writing. A Latin-script 'Joe Hisaishi' inside the prompt would read as an untranslated leftover and would signal the row's English origin. The referent is unchanged; only the script is."
+   },
+   {
+    "term": "famous for",
+    "decision": "«γνωστός» rather than «διάσημος»",
+    "why": "Greek «διάσημος» skews toward celebrity/fame-as-status; «γνωστός για» is the unmarked Greek way to ask what someone is known for, matching the neutral register of the English question."
+   },
+   {
+    "term": "grammatical gender/article for the name",
+    "decision": "masculine article «ο Τζο Χισάισι», name left undeclined",
+    "why": "Greek requires an article before a personal name in this construction; foreign surnames are conventionally left undeclined. The subject is male, which the English question presupposes with 'he'."
+   }
+  ],
+  "reference_problems": [
+   "'conductor, director, conductor' — 'conductor' is listed twice in the same enumeration.",
+   "It omits the single most important descriptor: Hisaishi is primarily a composer. 'Film scoring' appears only later, and 'composer' never appears as a noun.",
+   "'musical director for Hayao Miyazaki movies' is inaccurate — he is the composer of the scores for Miyazaki's films, which is a different role from musical director.",
+   "'violinist' is dubious; Hisaishi is known as a pianist and studied composition, and he is not generally described as a violinist.",
+   "Birthplace is imprecise: he was born in Nakano, Nagano Prefecture — 'born in Nagano, Japan' conflates the city and the prefecture.",
+   "The name-gloss order is inverted relative to the question: the prompt asks about 'Joe Hisaishi', and the answer opens with the birth name 'Mamoru Fujisawa' as if that were the entity asked about."
+  ],
+  "translator_notes": "Verify the transliteration Τζο Χισάισι is the form the reviewer wants as the house standard for Japanese names (Χισάισι vs Χισαΐσι stress/diaeresis is a live choice — I chose Χισάισι, stressed on the second syllable, matching the Japanese ひさいし and avoiding a διαλυτικά that would suggest a hiatus Greek readers do not need here). The prompt deliberately does NOT gloss the Latin spelling; if the reviewer wants «Τζο Χισάισι (Joe Hisaishi)», that is a house-style change and would apply to every foreign name in the dataset, not just this row. The two questions were kept as two separate sentences, as in the English."
+ }
+]

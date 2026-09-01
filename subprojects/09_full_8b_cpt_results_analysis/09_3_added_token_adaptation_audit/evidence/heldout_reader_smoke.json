@@ -1,0 +1,48 @@
+{
+ "schema_version": "newtok_audit_coverage_v1",
+ "status": "completed",
+ "slurm_job_id": 3162848,
+ "partition": "debug",
+ "state": "COMPLETED",
+ "elapsed": "00:00:25",
+ "produced_at": "2026-08-23T13:30:00Z",
+ "input": {
+  "root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/cpt25b_midtraining/20260731T124000Z-cpt25b-v1/heldouts/sets",
+  "sets": [
+   "val_historical_polytonic",
+   "val_forget_old_greek",
+   "val_greek_phd",
+   "val_openarchives",
+   "val_non_hplt",
+   "val_hplt"
+  ],
+  "held_out_from_training": true,
+  "manifest_schema": "full_cpt_training_heldouts_v1"
+ },
+ "output": {
+  "path": "/iopsstor/scratch/cscs/fffoivos/newtok_audit_20260823/out/coverage_corpus.jsonl",
+  "documents": 9559
+ },
+ "coverage": {
+  "floor": 16,
+  "n_docs_kept": 9559,
+  "n_added_tokens": 17920,
+  "n_below_floor": 670,
+  "n_zero": 39,
+  "modern_below_floor": 505,
+  "polytonic_below_floor": 165,
+  "count_percentiles": {
+   "0": 0.0,
+   "1": 4.0,
+   "5": 18.950000000000045,
+   "25": 57.0,
+   "50": 99.0,
+   "75": 181.0,
+   "95": 482.0,
+   "100": 10377.0
+  },
+  "elapsed_s": 10.623637676239014
+ },
+ "coverage_statement": "17250 of 17920 added tokens (96.3%) reach the 16-occurrence floor; 39 have zero occurrences. Per-token results for the 670 below-floor tokens (505 modern, 165 polytonic) must be reported as under-sampled, not as null findings.",
+ "selection_policy": "greedy supply-first: a document is kept only if it supplies an added token still below the floor"
+}

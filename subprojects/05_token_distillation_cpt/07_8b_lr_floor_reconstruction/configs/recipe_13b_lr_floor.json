@@ -1,0 +1,167 @@
+{
+  "schema_version": "apertus8b_lr_floor_reconstruction_v1",
+  "recipe_id": "apertus8b_13b_hplt_glossapi_lr_floor_v4",
+  "status": "frozen",
+  "seed": 20260609,
+  "source_stage": {
+    "root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/cpt25b_midtraining/20260731T124000Z-cpt25b-v1",
+    "input_receipt_sha256": "f94bfa4742d6431802f0fbf6b5ec32a93dea793096c7db2ab4194d80f704d0b5",
+    "heldout_manifest_sha256": "45c362dffd6bd571510edea6a7ca5015d7a1f34f8ebe8a873a5670b6faa3c0c0",
+    "training_tasks": 1457,
+    "heldout_sets": 12
+  },
+  "replay_repartition": {
+    "root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/lr_floor_13b/20260801T161442Z-lr-floor-13b-v2/replay_repartition",
+    "phase_1_numerator": 2253,
+    "phase_denominator": 3218,
+    "expected_tasks": 164,
+    "input_receipt_sha256": "bb2970f09ecd2b7fa165eaee0ea96d61add7083ce4ed94094e0abb370be84868",
+    "heldout_manifest_sha256": "1135183ac22a82d2b6d2b61a9071c76d01500c76fb25e40c1e3521e0f256a55f",
+    "source_input_receipt_sha256": "f94bfa4742d6431802f0fbf6b5ec32a93dea793096c7db2ab4194d80f704d0b5"
+  },
+  "replay_supplements": {
+    "root": "/capstor/scratch/cscs/fffoivos/cpt_corpus_clariden/lr_floor_13b/20260801T165052Z-lr-floor-13b-v3/replay_supplements",
+    "download_receipt_sha256": "c351a8ac93976a9a0da72adb284c12bbc494a2b191ed96e8fbeb10483b6d5d5a",
+    "input_receipt_sha256": "6cbbf2401e56e0b846bfb4386a47e9493219d683b34bd74238c72ab6ea28736e",
+    "heldout_manifest_sha256": "b13889ba95160ec97688c117e9e0ef8a708bb6355e4b3ccef694643328fb2e36",
+    "repo_id": "epfml/FineWeb2-HQ",
+    "revision": "c0c06e94fd3a44ae9e802b2b0fc533817601eb5e",
+    "expected_files": 4,
+    "expected_tasks": 8,
+    "files": [
+      {
+        "source_name": "replay_t1_cmn_Hani",
+        "path": "cmn_Hani/000_00000.parquet",
+        "bytes": 1191517839,
+        "sha256": "2351db837617219c0eaffdfb31aeda41f56abffbfd8a0547dd15d40b695089f3"
+      },
+      {
+        "source_name": "replay_t1_rus_Cyrl",
+        "path": "rus_Cyrl/000_00000.parquet",
+        "bytes": 1629162947,
+        "sha256": "0e89c55f25cd6ef46acbd0aa310e6620c3f9928583cb61e0ecbc994cb75e92ef"
+      },
+      {
+        "source_name": "replay_t1_spa_Latn",
+        "path": "spa_Latn/000_00000.parquet",
+        "bytes": 1627263773,
+        "sha256": "98072ae2d29897357a8617a4f6945bdb78a014c6e61911ddcd1a89542acea66f"
+      },
+      {
+        "source_name": "replay_t2_jpn_Jpan",
+        "path": "jpn_Jpan/000_00000.parquet",
+        "bytes": 1007743807,
+        "sha256": "7d330f80e3b1554a9609a9de30791f5e37c1fc2f1c19d9e0c1d5613035efc9be"
+      }
+    ]
+  },
+  "tokenizer": {
+    "repo_id": "fffoivos/apertus-tokenizer-extension",
+    "revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+    "subfolder": "greek-modern-polytonic-tokenizer",
+    "vocab_size": 148992,
+    "make_vocab_size_divisible_by": 256,
+    "padding_tokens": 0,
+    "tokenizer_json_sha256": "bbb08e71929b519c5c2362338b0fc6a0e99955cb8fdbf0729ae1311117e6561b"
+  },
+  "initialization": {
+    "model": "swiss-ai/Apertus-8B-2509",
+    "target_layer": 11,
+    "checkpoint": "/capstor/scratch/cscs/fffoivos/models/greek-cpt25b-init-roundtrip/20260731T124000Z-cpt25b-v1/megatron_tp2_r17patched",
+    "verification": "/capstor/scratch/cscs/fffoivos/models/greek-cpt25b-init/20260731T124000Z-cpt25b-v1/production_init_verification.json",
+    "verification_sha256": "7b4adb065f401305064cda8c45cc1b2c1430366ef8fbf5ee060f154be5b48e26",
+    "roundtrip_verification": "/capstor/scratch/cscs/fffoivos/models/greek-cpt25b-init-roundtrip/20260731T124000Z-cpt25b-v1/work/verification.json",
+    "roundtrip_verification_sha256": "06ddc69f4787f470b85d4be55992f898b98d8ab4fd8ab34a89a4d3bb96eb7e33"
+  },
+  "geometry": {
+    "nominal_tokens": 13500000000,
+    "sequence_length": 4096,
+    "global_batch_sequences": 1024,
+    "global_batch_tokens": 4194304,
+    "train_samples": 3295898,
+    "train_iterations": 3218,
+    "effective_tokens": 13497270272,
+    "floor_residual_tokens": 2729728,
+    "phase_boundary_iteration": 2253,
+    "cooldown_branch_iteration": 2574,
+    "cooldown_threshold_samples": 2636719,
+    "tail_save_interval": 107,
+    "tail_averaging_checkpoints": [2675, 2782, 2889, 2996, 3103, 3210],
+    "terminal_iteration": 3218
+  },
+  "phases": {
+    "phase_1": {
+      "iteration_start": 0,
+      "iteration_end": 2253,
+      "source_phase": 1,
+      "pool_remap": {
+        "hplt_new_greek": "hplt_new_greek",
+        "foreign_replay": "foreign_replay",
+        "old_greek_replay": "old_greek_replay"
+      },
+      "mix_exact": {
+        "hplt_new_greek": "0.740740740740740741",
+        "foreign_replay": "0.222222222222222222",
+        "old_greek_replay": "0.037037037037037037"
+      }
+    },
+    "phase_2": {
+      "iteration_start": 2253,
+      "iteration_end": 3218,
+      "source_phase": 2,
+      "pool_remap": {
+        "non_hplt_new_greek": "non_hplt_new_greek",
+        "foreign_replay": "foreign_replay",
+        "old_greek_replay": "old_greek_replay"
+      },
+      "mix_exact": {
+        "non_hplt_new_greek": "0.740740740740740741",
+        "foreign_replay": "0.222222222222222222",
+        "old_greek_replay": "0.037037037037037037"
+      }
+    }
+  },
+  "training": {
+    "optimizer": "AdEMAMix",
+    "beta1": "0.9",
+    "beta2": "0.999",
+    "beta3": "0.999",
+    "alpha": "4.0",
+    "weight_decay": "0.1",
+    "gradient_clip": "0.1",
+    "init_std": "0.008944",
+    "lr_peak": "5.5e-5",
+    "lr_warmup_init": "5.5e-6",
+    "lr_warmup_iterations": 400,
+    "lr_schedule": "WSD",
+    "lr_decay": "1-sqrt",
+    "lr_decay_samples": 659179,
+    "lr_floors": {
+      "T10": "5.5e-6",
+      "T20": "1.10e-5",
+      "T30": "1.65e-5"
+    },
+    "precision": "bf16",
+    "main_grads_dtype": "fp32",
+    "tensor_parallel_size": 2,
+    "pipeline_parallel_size": 1,
+    "rotary_base": 500000,
+    "rope_scaling_factor": "8.0",
+    "loss": "goldfish",
+    "goldfish_k": 50,
+    "goldfish_h": 50,
+    "data_order": "randomized_within_abrupt_phases"
+  },
+  "runtime": {
+    "source_repository": "/iopsstor/scratch/cscs/fffoivos/repo/train-apertus-with-glossapi-cpt25b-86c1b8fe",
+    "source_repository_commit": "28a2a7aebba3f153a732b5f60173a8166c21f1ff",
+    "megatron": "/iopsstor/scratch/cscs/fffoivos/experiments/lr-floor-13b-v4/megatron-extra-valid",
+    "megatron_commit": "f8d8a30ba22a807321ec5875abbd9692b9282940",
+    "uenv": "pytorch/v2.9.1:v2",
+    "cluster": "clariden",
+    "account": "a0140",
+    "partition": "normal",
+    "nodes": 16,
+    "gpus_per_node": 4
+  }
+}

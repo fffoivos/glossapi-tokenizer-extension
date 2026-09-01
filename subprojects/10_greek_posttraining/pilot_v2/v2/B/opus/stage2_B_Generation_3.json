@@ -1,0 +1,505 @@
+[
+ {
+  "row_id": "ce7831756f6a031ec5300490ae4b9621e9a60ea131c4effece13a34d70fa94df",
+  "response_el": "«Ο Τελευταίος Αυστριακός»\n\nΗ ταινία διαδραματίζεται σε έναν φανταστικό κόσμο όπου η Αυστρία και οτιδήποτε αυστριακό έχουν απαγορευτεί. Ο Πάουλ Βάγκνερ (τον υποδύεται ο Άρνολντ Σβαρτσενέγκερ) βγάζει το ψωμί του πουλώντας στρούντελ και σνίτσελ στη μαύρη αγορά, από την πίσω πόρτα ενός υπογείου που μυρίζει κανέλα και καμένο βούτυρο.\n\nΈνα βράδυ τον πλησιάζει ένας μυστηριώδης άγνωστος και του μιλάει για μια μυστική υπόγεια κοινότητα που παλεύει να επαναφέρει τους απαγορευμένους πολιτισμούς. Ο Πάουλ αρνείται· δεν θέλει μπλεξίματα, θέλει μόνο να πουλήσει την πραμάτεια του. Λίγες μέρες αργότερα παραλίγο να τον χτυπήσει ένα αυτοκίνητο καθώς διασχίζει τον δρόμο. Το ίδιο βράδυ λαμβάνει ένα ανώνυμο μήνυμα: δεν ήταν ατύχημα, ήταν απόπειρα δολοφονίας, και «εκείνοι» δεν θα σταματήσουν μέχρι να τον δουν νεκρό.\n\nΤο επόμενο πρωί, την ώρα που η αστυνομία ορμάει στο υπόγειο, ο Πάουλ γλιτώνει τη σύλληψη την τελευταία στιγμή: ένα αυτοκίνητο φρενάρει δίπλα του και στο τιμόνι κάθεται ο ίδιος άγνωστος. Έτσι αρχίζει η εκπαίδευσή του στην αντίσταση — κρυφά σημεία συνάντησης, ψεύτικα χαρτιά, συνταγές που μαθαίνονται απ' έξω γιατί απαγορεύεται να γραφτούν.\n\nΠερνούν λίγα χρόνια. Ο Πάουλ είναι πια πλήρες μέλος της οργάνωσης, από τα πιο έμπιστα στελέχη της, κι εκείνοι που τον κυνηγούσαν ξέρουν πλέον το όνομα με το οποίο υπογράφει: ο Τελευταίος Αυστριακός.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The deliverable is a synopsis with no addressee; ενικός is carried only implicitly from the prompt, which does not recur inside the answer.",
+  "constraint_check": "Both content constraints satisfied: the lead has a typical Austrian name (Πάουλ Βάγκνερ) and the film ends with him a full member of the resistance («πλήρες μέλος της οργάνωσης»). Austrian food props kept Austrian (στρούντελ, σνίτσελ); no Greek food introduced.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "narrative gap: Paul refuses the stranger, then is rescued by that same stranger with no reconciliation beat",
+    "english": "Soon after resisting the stranger's overtures, Paul narrowly avoids being hit by a car... He narrowly escapes arrest when a car driven by the stranger from before picks him up.",
+    "greek": "Ο Πάουλ αρνείται· ... ένα αυτοκίνητο φρενάρει δίπλα του και στο τιμόνι κάθεται ο ίδιος άγνωστος.",
+    "why": "Kept the same beats but made the refusal explicit and motivated (he wants no trouble) so the later rescue reads as the stranger having watched over him, closing the gap without adding a scene."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "strudel / Wiener schnitzel",
+    "decision": "στρούντελ / σνίτσελ",
+    "why": "Established naturalized Greek spellings of the Austrian dishes; translating them («μηλόπιτα») would erase the Austrian premise the row is built on."
+   },
+   {
+    "term": "Paul Wagner",
+    "decision": "Πάουλ Βάγκνερ",
+    "why": "Transliterated by German phonetics, as Greek press does with German names; the name must stay Austrian, so it is not replaced with a Greek one."
+   }
+  ],
+  "deviations": [
+   "Added two brief sensory details (the cinnamon-and-burnt-butter basement, the memorised recipes) that the reference does not have, to carry the same length in Greek without padding.",
+   "The reference's bare 'A few years pass' is kept but given a closing image (the signature name) so the title lands as the film's last beat."
+  ],
+  "self_flags": [
+   "Check that Πάουλ Βάγκνερ reads as Austrian rather than generic German to a Greek reader — I judged it does."
+  ]
+ },
+ {
+  "row_id": "b7a4848c46c29e63dcc6ad6dde25627a9839e8eee4fb7e9be8ba6ff7aeb8c050",
+  "response_el": "Η ζωή του ζόμπι είναι δύσκολη υπόθεση. Δεν μπορώ να κινηθώ γρήγορα. Το δέρμα μου πέφτει όποτε του καπνίσει. Μου έρχονται οι πιο παράξενες λιγούρες. Το χειρότερο απ' όλα όμως είναι η μοναξιά. Φίλους δεν έχω. Κάθε φορά που προσπαθώ να πιάσω κουβέντα με κάποιον, εκείνος το βάζει στα πόδια ουρλιάζοντας. Και το καταλαβαίνω, ειλικρινά το καταλαβαίνω. Ξέρω τι λέει ο κόσμος για εμάς. Αλλά σας ορκίζομαι, εγώ δεν είμαι έτσι. Τρώω μόνο ζώα, ανθρώπους ποτέ. Καλά, μπορεί κανέναν δυο, αλλά δεν μου άφησαν περιθώριο. Με κυνηγούσαν με σφυριά και με λοστούς μέσα στη νύχτα. Πολύ κακοί άνθρωποι. Για να λέμε και του στραβού το δίκιο, μάλλον καλύτερα που δεν κυκλοφορούν πια.\n\nΘα μου πείτε, κάνε παρέα με τα άλλα ζόμπι. Μόνο που είναι αφόρητα βαρετά. Το μόνο που τα απασχολεί είναι τα μυαλά. Σοβαρά τώρα, θα νόμιζες πως είναι η μοναδική λέξη που ξέρουν. Τους λέω «Ρε παιδιά, είδε κανείς τον αγώνα χθες;» και μου απαντούν με ένα βαθυστόχαστο «ΜΥΑΛΑΑΑ». Καταπληκτική συζήτηση, πραγματικά. Είναι σαν να παίζεις τένις με τον τοίχο: όσο έξυπνος κι αν νομίζεις ότι είσαι, τον τελευταίο λόγο τον έχουν πάντα εκείνα.\n\nΜάλλον είμαι απλώς διαφορετικός από τα υπόλοιπα ζόμπι. Εντάξει, μου έρχεται κι εμένα καμιά λιγούρα για σάπιο κρέας πού και πού — σε ποιον δεν έρχεται; Καλά, μπορεί στους περισσότερους να μην έρχεται. Δεν σημαίνει όμως ότι είμαι κανένα τέρας. Θέλω να κάνω κουβέντες που να μην έχουν να κάνουν με μυαλά, να λέω αστεία, να πηγαίνω σε μπαρ, να ρίχνω και κανένα καμάκι. Αλλά μάλλον είναι γραφτό μου να τριγυρνάω μόνος.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The story is a first-person monologue; the narrator occasionally addresses the reader in πληθυντικός («σας ορκίζομαι», «θα μου πείτε») as a stand-up-style aside to a general audience, which is the Greek idiom for that move and does not conflict with the prompt's ενικός.",
+  "constraint_check": "First person throughout (verb morphology: μπορώ, τρώω, θέλω). No ending — the story stops on an open, unresolved line. Tone is melancholic (μοναξιά, «γραφτό μου να τριγυρνάω μόνος») and comic at once (the ΜΥΑΛΑΑΑ exchange, the tennis-with-a-wall simile).",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "repeated intensifier in two consecutive sentences",
+    "english": "Scintillating conversation truly. It's truly like playing tennis with a wall.",
+    "greek": "Καταπληκτική συζήτηση, πραγματικά. Είναι σαν να παίζεις τένις με τον τοίχο.",
+    "why": "The English repeats 'truly' back-to-back, which reads as a slip rather than a rhetorical echo; Greek keeps one intensifier so the joke lands cleanly."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "BRAINSSS",
+    "decision": "ΜΥΑΛΑΑΑ",
+    "why": "The Greek zombie catchphrase; capitals plus the drawn-out vowel reproduce the English's shouted, dim-witted effect."
+   },
+   {
+    "term": "baseball bats",
+    "decision": "λοστούς",
+    "why": "Baseball bats are not a Greek weapon-of-opportunity; a crowbar is what a Greek mob would actually be carrying, and the prop is pure scenery."
+   },
+   {
+    "term": "hit on girls",
+    "decision": "να ρίχνω και κανένα καμάκι",
+    "why": "The idiomatic Greek for the same casual, faintly self-deprecating act; a literal rendering has no equivalent."
+   }
+  ],
+  "deviations": [
+   "'Chasing me around with hammers and baseball bats' → σφυριά και λοστούς: the American prop is replaced by the Greek equivalent.",
+   "Added the small framing tag «μέσα στη νύχτα» and «Για να λέμε και του στραβού το δίκιο» (a Greek fixed phrase) in place of the English's flatter 'Honestly, probably better for everyone'."
+  ],
+  "self_flags": [
+   "Grammatical-gender decision: «ζόμπι» is neuter in Greek, but the first-person narrator takes masculine agreement («διαφορετικός», «μόνος»), as stage 1 permitted. A reviewer should confirm the mix is acceptable house style; a fully neuter narrator («διαφορετικό», «μόνο μου») is the alternative and would read stranger."
+  ]
+ },
+ {
+  "row_id": "f908727f5589503a74039d1a6dca55a1a965f5034df54719d549732725c99080",
+  "response_el": "Η κυρία με την τσάντα\n\nΉμουν πέντε χρονών. Περπατούσαμε με τη μαμά μου μέσα στο ψιλικατζίδικο της γειτονιάς, ένα μαγαζί που είχε λίγο απ' όλα: κλωστές, τετράδια, πλαστικές λεκάνες, καραμέλες. Δεν είμαι σίγουρη αν θυμάμαι πραγματικά εκείνη τη μέρα ή αν η ανάμνηση είναι φτιαγμένη από τις τόσες φορές που άκουσα τη μαμά να τη διηγείται. Μου το είχε πει πολλές φορές να μην ξεμακραίνω. Κι εγώ, ξανά και ξανά, ξεγλιστρούσα να δω το ένα και το άλλο, κι εκείνη ερχόταν από πίσω και μου χτυπούσε απαλά το μπράτσο.\n\nΝομίζω πως θυμάμαι τον εαυτό μου μπροστά στα μεγάλα γυάλινα βάζα με τα ζαχαρωτά. Βουναλάκια κόκκινα, πράσινα, κίτρινα, το ένα δίπλα στο άλλο πίσω από το γυαλί. Είχα μαγευτεί. Δεν είχα δοκιμάσει ποτέ και μου φαίνονταν πράγματα από άλλον κόσμο. Δεν είχα ιδέα ότι, όταν θα μεγάλωνα, θα τα έπαιρνα με τη χούφτα από το ράφι του σούπερ μάρκετ χωρίς καν να τα κοιτάξω.\n\nΞαφνικά κατάλαβα πως δεν ήξερα πού ήταν η μαμά μου. Πανικοβλήθηκα. Γύριζα το κεφάλι δεξιά αριστερά χωρίς να τη βρίσκω, και ο φόβος με τύλιγε. Είδα την πόρτα του μαγαζιού και έτρεξα προς τα εκεί. Με είχε αφήσει, ήμουν σίγουρη.\n\nΒγήκα στο πεζοδρόμιο και να την, μπροστά μου. Πλησίασα αθόρυβα από πίσω, πιάστηκα από το λουρί της τσάντας της και προχώρησα πίσω της. Ύστερα από λίγα βήματα άκουσα το όνομά μου — αλλά η φωνή ερχόταν από πίσω μου. Τράβηξα δυνατά την τσάντα και, τη στιγμή που άπλωνα το χέρι να την πιάσω από το μπράτσο, η μαμά μου φάνηκε δίπλα μου. Αν η μαμά ήταν δίπλα μου, ποιανού τσάντα κρατούσα; Ποιανού το μπράτσο τραβούσα; Θεέ μου, πού βρισκόμουν;\n\nΗ μαμά με σήκωσε στην αγκαλιά της και ζήτησε συγγνώμη από την κυρία που τραβούσα. Ώσπου να φτάσουμε στο σπίτι είχε αρχίσει να γελάει, κι ύστερα από λίγο γελούσα κι εγώ. Και σε όλες τις φορές που την άκουσα να το διηγείται, γελούσε πάντα.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The deliverable is a first-person narrative with no addressee, so no address form is forced inside the story itself.",
+  "constraint_check": "Word count: 316 whitespace-separated Greek tokens including the title line — under the 342-word cap, counted mechanically, not estimated. Tone νοσταλγικός/ελαφρύς/ευχάριστος; a childhood experience recalled by an adult; the props (ψιλικατζίδικο, γυάλινα βάζα με ζαχαρωτά) are of a period a Greek reader of grandparent age lived through.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "tense break mid-narrative",
+    "english": "I push out the door and there she was.",
+    "greek": "Βγήκα στο πεζοδρόμιο και να την, μπροστά μου.",
+    "why": "The English slips into the present tense inside an otherwise consistent past-tense story; the Greek stays in the past throughout."
+   },
+   {
+    "what": "internally inconsistent shop gloss",
+    "english": "the 88 Cent Store... a local dime store",
+    "greek": "το ψιλικατζίδικο της γειτονιάς, ένα μαγαζί που είχε λίγο απ' όλα",
+    "why": "'88 Cent Store' glossed as a 'dime store' contradicts itself (a dime is ten cents), and neither exists in Greece; the Greek names the functional equivalent and drops the arithmetic problem entirely."
+   },
+   {
+    "what": "inconsistent capitalisation of the mother",
+    "english": "my mom / my Mom in the same paragraph",
+    "greek": "η μαμά / η μαμά μου (uniform)",
+    "why": "Greek does not capitalise «μαμά», so the inconsistency cannot be reproduced and is silently resolved by the orthography — recorded here for completeness."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "dime store / 88 Cent Store",
+    "decision": "ψιλικατζίδικο",
+    "why": "The Greek neighbourhood shop that sold a bit of everything cheaply — the exact functional counterpart, and a strong nostalgia trigger for the target readership."
+   },
+   {
+    "term": "pistachio case (red-dyed pistachios)",
+    "decision": "γυάλινα βάζα με ζαχαρωτά",
+    "why": "Red-dyed pistachios in a turntable case are a specifically American memory with no Greek counterpart; the jars of boiled sweets on the counter are the Greek shop's equivalent object of a child's fascination, and they support the same 'and later they were everywhere and I stopped noticing' beat."
+   }
+  ],
+  "deviations": [
+   "The red-pistachios-turned-green detail is replaced by the sweets-taken-by-the-handful-at-the-supermarket beat, because the pistachio dye history is not part of Greek memory and the sentence would explain nothing.",
+   "A short title was added, as a magazine submission would carry one; it is counted inside the 342-word budget.",
+   "The narrator is voiced as female (Δεν είμαι σίγουρη), a choice the English leaves open — Greek forces the agreement."
+  ],
+  "self_flags": [
+   "Word count is the hard constraint: re-count mechanically after any edit; the story is at 316 of a maximum 342.",
+   "The narrator's gender is a forced choice; if the corpus prefers a male narrator, «σίγουρη» → «σίγουρος» and the count is unchanged."
+  ]
+ },
+ {
+  "row_id": "81413efab6c6c8e3588573f31d231497f579ccb425721ff1f58fb50eea6b6902",
+  "response_el": "(Φανταστική βιογραφία)\n\nΤο όνομα Στίβεν Χέις μάλλον δεν σου λέει κάτι — αυτό όμως πρόκειται να αλλάξει. Κι αν τυχόν το ξέρεις, είναι επειδή μένεις στο Ντάλας του Τέξας, τη γενέτειρά του. Εκεί γύριζε από μαγαζί σε μαγαζί τραγουδώντας δικές του εκδοχές κομματιών του Εντ Σίραν, του Χάρι Στάιλς, της Κέλι Κλάρκσον και της Pink.\n\nΤον Ιανουάριο αποφάσισε να κυνηγήσει το όνειρό του και πήγε στις οντισιόν του American Idol. Το όνειρο κόπηκε νωρίς: δεν κατάφερε να περάσει τους πρώτους γύρους του διαγωνισμού. Δεν το έβαλε όμως κάτω. Άκουσε τη συμβουλή των φίλων και της οικογένειάς του και συνέχισε τις ζωντανές εμφανίσεις στο Ντάλας, αυτή τη φορά επαγγελματικά.\n\nΈνα βράδυ, ενώ έπαιζε σε ένα μικρό μαγαζί στο κέντρο της πόλης, τον ανακάλυψε ένας παραγωγός δισκογραφικής. Μετά το τέλος της εμφάνισης τον πήραν παράμερα και κανόνισαν ένα επίσημο ραντεβού για το μέλλον του. Λίγο μετά από εκείνη τη συνάντηση, ο Στίβεν μάζεψε τα πράγματά του και μετακόμισε στο Λος Άντζελες. Άρχισε να ηχογραφεί τον πρώτο του δίσκο, δουλεύοντας με γνωστούς στιχουργούς και συνθέτες του χώρου. Μέσα από τις νέες του γνωριμίες τον σύστησαν στον Χάρι Στάιλς. Το φθινόπωρο αναμένεται να κυκλοφορήσουν μαζί ένα ντουέτο με τίτλο «Boys Know Better».\n\nΜείνετε συντονισμένοι για να δείτε αυτό το ανερχόμενο αστέρι να κάνει τα όνειρά του πραγματικότητα.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The bio's own voice is music-press promo, which addresses its reader in ενικός («δεν σου λέει κάτι»), matching the prompt's register; the closing «Μείνετε συντονισμένοι» is a fixed broadcast formula in Greek and is not a register slip.",
+  "constraint_check": "All four biographical facts present: (1) he competed on American Idol; (2) he was eliminated in the early rounds; (3) he was scouted while gigging in his hometown (Ντάλας); (4) an upcoming duet with Χάρι Στάιλς. The bio is explicitly framed as fictional by the opening label «(Φανταστική βιογραφία)».",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "misspelled real artist's name",
+    "english": "Ed Sheran",
+    "greek": "Εντ Σίραν",
+    "why": "The singer is Ed Sheeran; the Greek uses the correct, standard transliteration rather than reproducing the typo."
+   },
+   {
+    "what": "unreadable parenthetical pun in the song title",
+    "english": "Boys K(no)w Better",
+    "greek": "Boys Know Better",
+    "why": "The parenthesis makes the intended reading ambiguous ('Know' or 'Now') and the joke does not survive as a printed title; the Greek keeps the English-language title, as a Greek-market single by an anglophone duo would be, and resolves it to the readable form."
+   },
+   {
+    "what": "a real record label named as the signer of a fictional artist",
+    "english": "scouted by a producer from Interscope Records",
+    "greek": "τον ανακάλυψε ένας παραγωγός δισκογραφικής",
+    "why": "The bio is explicitly fake; asserting that a specific real company signed an invented singer is a fabricated claim about a real entity, so the label is left unnamed while the beat is unchanged."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "American Idol",
+    "decision": "kept in Latin script, undeclined",
+    "why": "Greek media never translate the show's title; a Greek rendering would name a programme that does not exist."
+   },
+   {
+    "term": "Boys Know Better (song title)",
+    "decision": "kept in Latin script",
+    "why": "Singles by anglophone artists keep their English titles in the Greek music press; translating it would invent a release that does not exist."
+   },
+   {
+    "term": "Pink (the artist)",
+    "decision": "kept in Latin script",
+    "why": "Her name is a stage name written as a word; the Greek press writes it as Pink, unlike ordinary personal names which are transliterated."
+   }
+  ],
+  "deviations": [
+   "The record label is unnamed (see corrections).",
+   "An explicit fiction label was added at the top, because the prompt asks for a fake biography and the Greek text would otherwise read as a genuine press release about a real person's collaborator.",
+   "Left the whole cast and geography American, per stage 1: no relocation to Greece."
+  ],
+  "self_flags": [
+   "Confirm the fiction label «(Φανταστική βιογραφία)» is wanted; without it the piece asserts a fabricated collaboration with a real, living artist."
+  ]
+ },
+ {
+  "row_id": "4e4b3375f2c5ac38cf0cf522d59610429ebb3542fe05126d776e2ff23da2007b",
+  "response_el": "ΤΡΕΛΑ ΣΤΑ ΟΠΩΡΟΛΑΧΑΝΙΚΑ\nΙ. Π. Ζυμωτός\n\nΣΚΗΝΙΚΟ\n\nΕποχή (χρονικό πλαίσιο): Η δεκαετία του '80.\n\nΤόπος: Το σούπερ μάρκετ της γειτονιάς «Ο Φρουτοπαράδεισος», τμήμα οπωρολαχανικών.\n\nΛΙΣΤΑ ΣΚΗΝΩΝ\n\nΣκηνή Πρώτη: Οι πάγκοι με τα μαρούλια, τα λάχανα και τα χορταρικά.\nΣκηνή Δεύτερη: Τα τελάρα με τις ντομάτες.\nΣκηνή Τρίτη: Το ψυγείο με τα τυποποιημένα σάντουιτς και τις έτοιμες σαλάτες.\nΣκηνή Τέταρτη: Οι πάγκοι με τα σταφύλια και τις φράουλες.\nΣκηνή Πέμπτη: Το καφάσι με τα πορτοκάλια και τα λεμόνια.\n\nΠΕΡΙΓΡΑΦΗ ΣΚΗΝΙΚΟΥ\n\nΤα σκηνικά μπορούν να είναι σχετικά απλά. Πλαστικά φρούτα και λαχανικά ανακατεμένα με αληθινά κάνουν άνετα τη δουλειά. Πτυσσόμενα τραπέζια και χαρτόκουτα αρκούν για να στηθούν οι πάγκοι.\n\nΟ πάγκος με τα χορταρικά πρέπει να αποπνέει φρεσκάδα. Στην πρώτη σκηνή χρειάζεται να καταλαμβάνει το μεγαλύτερο μέρος της σκηνής, με τους δύο άντρες να συζητούν μπροστά του. Ένας προβολέας που φωτίζει μόνο αυτό το σημείο είναι ιδανικός.\n\nΤα τελάρα με τις ντομάτες πρέπει να δείχνουν λίγο ακατάστατα. Δυο τρεις ντομάτες κείτονται στο πάτωμα μπροστά τους. Εδώ καλό είναι να χρησιμοποιηθούν αληθινές ντομάτες.\n\nΤο ψυγείο με τα τυποποιημένα σάντουιτς και τις σαλάτες βρίσκεται στο κέντρο της σκηνής στην Τρίτη Σκηνή. Δεξιά και αριστερά του υπάρχει άπλετος χώρος για να σταθούν οι δύο βασικοί χαρακτήρες.\n\nΤο τμήμα με τα σταφύλια και τις φράουλες είναι ανακατεμένο, και γύρω του κυκλοφορούν τρεις τέσσερις κομπάρσοι, ανάμεσά τους και κάνα δυο παιδιά που τσιμπολογούν σταφύλια. Το πάτωμα είναι στρωμένο με ρώγες κάθε λογής.\n\nΤο καφάσι με τα πορτοκάλια και τα λεμόνια στήνεται μπροστά αριστερά στην τελευταία σκηνή, ώστε να μην επαναλαμβάνεται η κεντρική τοποθέτηση της Τρίτης Σκηνής. Γύρω του, σκορπισμένα παντού στο πάτωμα, βρίσκονται φρούτα και λαχανικά από όλες τις προηγούμενες σκηνές.\n\nΤο βασικό φόντο σε όλες τις σκηνές είναι μια σειρά από τεράστιες αφίσες σε έντονα χρώματα, με τιμές προσφορών σε δραχμές. Η εικονογράφηση είναι καθαρά της δεκαετίας του '80, με φωσφορίζοντα χρώματα που τονίζουν τους αριθμούς. Οι αφίσες απλώνονται σε όλο το πλάτος του βάθους της σκηνής και τις φωτίζουν προβολείς.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The deliverable is an impersonal technical document (a setting page), so no address form surfaces inside it; the prompt's ενικός is not contradicted.",
+  "constraint_check": "All four required sections present and labelled: Εποχή (χρονικό πλαίσιο), Τόπος, ΛΙΣΤΑ ΣΚΗΝΩΝ, ΠΕΡΙΓΡΑΦΗ ΣΚΗΝΙΚΟΥ. The scene list has exactly five entries (Πρώτη–Πέμπτη). The two main characters are two men shopping in the produce section. All prices are in δραχμές, consistent with a Greek 1980s setting.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "the era is not stated under the label the prompt asked for",
+    "english": "Time: The 1980s",
+    "greek": "Εποχή (χρονικό πλαίσιο): Η δεκαετία του '80.",
+    "why": "The prompt names the section 'era (time frame)'; the reference heads it 'Time', a small spec drift the Greek does not reproduce."
+   },
+   {
+    "what": "repetitive staging — two different scenes both occupy centre stage",
+    "english": "The prepackaged sandwich/salad display holds center stage in Scene Three... The orange/lemon bin occupies center stage in the final scene.",
+    "greek": "Το καφάσι ... στήνεται μπροστά αριστερά στην τελευταία σκηνή, ώστε να μην επαναλαμβάνεται η κεντρική τοποθέτηση της Τρίτης Σκηνής.",
+    "why": "Two identical staging instructions give the director no variation across the play's climax; the Greek moves the final bin downstage left and says why."
+   },
+   {
+    "what": "misplaced apostrophe for a decade and mixed apostrophe glyphs",
+    "english": "80’s style artwork; Ferdy’s",
+    "greek": "της δεκαετίας του '80",
+    "why": "Greek writes the decade as «του '80» with a single consistent apostrophe; the English's inconsistent typography is an error, not a device."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "J.P. Dough (playwright byline pun)",
+    "decision": "Ι. Π. Ζυμωτός",
+    "why": "Re-derived, not transliterated: «ζυμωτός» is what Greek says of bread kneaded by hand, so the byline is a food pun on a plausible Greek surname, matching the English's 'play dough' joke through the same device (a punning author name) rather than the same words."
+   },
+   {
+    "term": "Ferdy's Grocery Bonanza",
+    "decision": "«Ο Φρουτοπαράδεισος»",
+    "why": "A Greek neighbourhood supermarket would carry a cheerful compound name of this type; a transliterated American shop name would break the transposed setting."
+   },
+   {
+    "term": "card tables",
+    "decision": "πτυσσόμενα τραπέζια",
+    "why": "Greek has no 'card table' as a household object; the folding table is the prop a Greek stage manager would reach for."
+   }
+  ],
+  "deviations": [
+   "'Grapes/berries' became «σταφύλια και φράουλες»: Greek greengrocers of the period sold strawberries, not the mixed-berry assortment implied by the English.",
+   "The final scene's bin was moved off centre stage (see corrections).",
+   "The play title and byline are invented afresh in Greek rather than translated, since both are wordplay."
+  ],
+  "self_flags": [
+   "The byline pun «Ι. Π. Ζυμωτός» is a judgement call — a reviewer should confirm it reads as a joke and not as an ordinary surname."
+  ]
+ },
+ {
+  "row_id": "0db86f789a8c54ed9c2eb50a86bee95e5443a9386b52d6abea9e2e090f052c13",
+  "response_el": "1. Δύο επιπλέον χαρακτηριστικά για τη Δούκισσα. Πρώτον, της αρέσει να ξαπλώνει για ώρες στο λιακωτό της αυλής τις ηλιόλουστες μέρες, να απλώνεται και να χαλαρώνει στη ζέστη — μια μικρή τελετουργία που δίνει και μια όμορφη αφετηρία σε κάθε ιστορία. Δεύτερον, όταν μπαίνει στο δάσος, αυτό που λατρεύει περισσότερο απ' όλα είναι η εξερεύνηση: να χώνει τη μύτη της σε μονοπάτια που δεν έχει ξαναπερπατήσει και να ψάχνει να βρει τι κρύβεται πιο πέρα. Αυτό το δεύτερο μπορεί να θεμελιώσει το θέμα ολόκληρης της σειράς — η περιέργεια που ανοίγει καινούριους κόσμους — και δίνει σε κάθε ιστορία τη δική της περιπέτεια.\n\n2. Κάτι που δεν της αρέσει. Η Δούκισσα φοβάται ένα γεράκι που έχει φωλιάσει στην περιοχή. Όποτε το γεράκι κάνει την εμφάνισή του ενώ εκείνη είναι έξω, πρέπει να τρέξει και να κρυφτεί. Έτσι προκύπτει σύγκρουση και ένταση, γιατί η Δούκισσα πρέπει να το ξεγελάσει για να μην την πιάσει. Και βέβαια, αφού οι ιστορίες είναι οικογενειακές και κατάλληλες για παιδιά, η Δούκισσα καταφέρνει πάντα να ξεφύγει και δεν την πιάνει ποτέ.\n\n3. Πρόταση για μια ιστορία της σειράς «Η Δούκισσα, η Γάτα του Δάσους». Στην αρχή της ιστορίας η Δούκισσα λιάζεται στην αυλή, με τα αφεντικά της ακόμα στο σπίτι. Μόλις εκείνα φεύγουν για τη δουλειά, η περιέργειά της την τραβάει σε μια άκρη του δάσους που δεν έχει ξαναεπισκεφθεί, παρά τις προειδοποιήσεις του Μπόμπη ότι κανείς τους δεν ξέρει τι υπάρχει εκεί. Καθώς εξερευνά το άγνωστο μέρος, εμφανίζεται το γεράκι και η Δούκισσα πρέπει να τρέξει και να κρυφτεί κάτω από μια ρίζα. Ευτυχώς φτάνει ο Μπόμπης, που γαβγίζει και τρομάζει το γεράκι, και τη γλιτώνει. Οι δυο τους γυρίζουν στο σπίτι πριν επιστρέψουν τα αφεντικά τους, με μια καινούρια γωνιά του δάσους στον χάρτη τους και μια ιστορία να λένε.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": null,
+  "constraint_check": "(1) Exactly two additional qualities (λιάζεται στο λιακωτό· εξερεύνηση), and exactly one of them is nominated as the series-wide theme (η περιέργεια που ανοίγει καινούριους κόσμους). (2) Exactly one disliked thing (το γεράκι) that generates conflict. (3) The pitch in item 3 is exactly five sentences, counted by sentence-final punctuation — inside the requested four-to-five range, which the English reference violated at six. Numbered format, three items, in order. The story ends happily and the series title «Η Δούκισσα, η Γάτα του Δάσους» is reproduced character-for-character.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "the pitch exceeds the prompt's own sentence count",
+    "english": "Answer 3 runs six sentences, against a requested four to five.",
+    "greek": "Η πρόταση της ιστορίας γράφτηκε σε πέντε ακριβώς προτάσεις.",
+    "why": "The count is the prompt's explicit constraint; reproducing the reference's overrun would reproduce a failure."
+   },
+   {
+    "what": "non sequitur generalisation",
+    "english": "Like most cats, Fancy is also scared of a hawk that is known for living in the area.",
+    "greek": "Η Δούκισσα φοβάται ένα γεράκι που έχει φωλιάσει στην περιοχή.",
+    "why": "'Like most cats' does not license fear of one specific local hawk; the appeal to cats in general is dropped and the specific fear stated directly."
+   },
+   {
+    "what": "one of the 'additional' qualities restates a quality the user already supplied",
+    "english": "what she loves to do most is explore... due to her curious and adventurous nature",
+    "greek": "αυτό που λατρεύει περισσότερο απ' όλα είναι η εξερεύνηση: να χώνει τη μύτη της σε μονοπάτια που δεν έχει ξαναπερπατήσει",
+    "why": "The user already established that the cat is adventurous, so 'adventurous nature' adds nothing; the Greek gives exploration a concrete behaviour instead of restating the trait."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "sunbathe (of a cat)",
+    "decision": "λιάζεται στο λιακωτό",
+    "why": "«Λιάζομαι» is the ordinary Greek verb for an animal basking; «κάνω ηλιοθεραπεία» is a human beach activity and would be comic in the wrong way."
+   },
+   {
+    "term": "hawk",
+    "decision": "γεράκι",
+    "why": "The Greek bird of prey a country cat would actually fear, and the standard word; «αετός» would be too large and «κιρκινέζι» too specialised."
+   }
+  ],
+  "deviations": [
+   "The pitch was tightened from six sentences to five (see corrections) and gains a small closing image (the new corner of the forest on their map) so the compression does not read as a truncation.",
+   "'Happily ever after' is rendered as a concrete homecoming rather than the fairy-tale formula, which in Greek («έζησαν αυτοί καλά») would signal the end of a whole tale, not of one episode in a series."
+  ],
+  "self_flags": [
+   "Sentence count in item 3 should be re-verified mechanically after any edit — it sits at the top of the allowed range.",
+   "Μπόμπης is masculine throughout («ο Μπόμπης», «του Μπόμπη»), as stage 1 required."
+  ]
+ },
+ {
+  "row_id": "f9a5324c3d5cd34bc98a76991c963fe9850ba0b7e82575e0098e691bdce2a0ce",
+  "response_el": "Η Μυρτώ πήρε μια βαθιά ανάσα και την κράτησε. Η καρδιά της χτυπούσε στα πλευρά της τόσο δυνατά που πονούσε. Δεν φοβόταν τα αεροπλάνα· τουλάχιστον δεν τα φοβόταν όσο ήταν μικρή. Εκείνη τη στιγμή όμως ήταν σίγουρη πως θα πέθαινε από τον τρόμο.\n\nΈνιωσε κάποιον δίπλα της και γύρισε το κεφάλι. Ένας νεαρός με κόκκινα μαλλιά έβαζε τη χειραποσκευή του στο ντουλάπι από πάνω. Όταν τελείωσε, κάθισε στη διπλανή θέση και της έγνεψε. Η Μυρτώ ανταπέδωσε το νεύμα, αιφνιδιασμένη από την εμφάνισή του. Ήταν όμορφος, με έναν τρόπο που δεν τον περίμενε. Είχε κοφτερά πράσινα μάτια, με σκούρους κύκλους από κάτω που πρόδιδαν αϋπνίες. Το στόμα του ήταν μια ίσια, ανέκφραστη γραμμή. Τα μαλλιά του ήταν αφύσικα κόκκινα, σαν πυροσβεστικό όχημα, βαμμένα όμως πολύ προσεκτικά.\n\nΗ αεροσυνοδός πέρασε από τον διάδρομο, ρωτώντας αν ήταν όλα εντάξει και ελέγχοντας ότι τα ντουλάπια είχαν κλείσει σωστά. Η Μυρτώ προσπαθούσε να ηρεμήσει την καρδιά της και να διώξει τις μαύρες σκέψεις που απειλούσαν να την καταπιούν.\n\n«Φοβάσαι τις πτήσεις;» ακούστηκε μια βραχνή φωνή.\n\nΚοίταξε τον διπλανό της, έκπληκτη που τον άκουσε να μιλάει για πρώτη φορά.\n\n«Λιγάκι», παραδέχτηκε, χωρίς να τον κοιτάξει.\n\n«Πρώτη φορά;»\n\n«Όχι, έχω ξαναπετάξει.»\n\n«Αν χρειάζεσαι κάτι να σου αποσπάσει την προσοχή, ευχαρίστως να σου πιάσω κουβέντα.»\n\nΗ Μυρτώ τον ζύγισε για μια στιγμή με το βλέμμα. Εκείνος χαμογέλασε, και η απόφασή της πάρθηκε μόνη της.\n\n«Με λένε Μυρτώ.»\n\n«Αντρέας», είπε εκείνος, και το χαμόγελό του άνοιξε ακόμα πιο πολύ.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The narrative has no addressee; the dialogue between the two characters is in ενικός, which is what two young strangers of the same age use on a plane in Greek.",
+  "constraint_check": "Word count: exactly 240 whitespace-separated Greek tokens, counted mechanically (not estimated). Content checks: Αντρέας is handsome, young, green-eyed with dyed red hair; Μυρτώ is visibly afraid of flying; he offers conversation and she is taken aback («αιφνιδιασμένη», «έκπληκτη»); the scene closes on the exchange of names Μυρτώ / Αντρέας.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "continuity error — the heroine is called by a different name once",
+    "english": "Sakura nodded back, taken aback by his appearance.",
+    "greek": "Η Μυρτώ ανταπέδωσε το νεύμα, αιφνιδιασμένη από την εμφάνισή του.",
+    "why": "'Sakura' is a leftover from another draft; the character is Samantha/Μυρτώ throughout. This is an error, not a defect to preserve."
+   },
+   {
+    "what": "the reference contradicts the prompt's premise",
+    "english": "He was handsome, sort of.",
+    "greek": "Ήταν όμορφος.",
+    "why": "The prompt states flatly that Aiden is handsome; 'sort of' undercuts a given fact of the brief."
+   },
+   {
+    "what": "the exact word count is not met by the reference",
+    "english": "The word count should be exactly 240 words.",
+    "greek": "Το ελληνικό κείμενο μετρήθηκε μηχανικά στις 240 λέξεις ακριβώς.",
+    "why": "The reference does not verifiably hit 240 words; the constraint is the row's hardest and was satisfied here by counting, not by imitation."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "air stewardess",
+    "decision": "αεροσυνοδός",
+    "why": "The standard Greek term, common gender; no need for the older «ιπτάμενη συνοδός»."
+   },
+   {
+    "term": "overhead compartment",
+    "decision": "ντουλάπι από πάνω",
+    "why": "What Greek passengers actually say; «θάλαμος αποσκευών καμπίνας» is airline-manual language."
+   }
+  ],
+  "deviations": [
+   "The English 'She wasn't scared of flying - or at least, she hadn't been growing up' is kept as a childhood contrast rather than a flat denial, so it no longer contradicts the prompt's premise that she is visibly afraid.",
+   "Three short clauses («με έναν τρόπο που δεν τον περίμενε», «για πρώτη φορά», «χωρίς να τον κοιτάξει») were added to land the count exactly on 240; each carries characterisation rather than padding."
+  ],
+  "self_flags": [
+   "The count is EXACT, not a cap: any edit at all, including a single added article, breaks the row's defining constraint. Re-count mechanically after any change.",
+   "Token counting assumes whitespace splitting; punctuation attached to words (e.g. «Μυρτώ.») counts as one token, and the Greek guillemets are attached to their words."
+  ]
+ },
+ {
+  "row_id": "1be5854c67756660c5a9a3990375a7a4c270f5661add4e71737c39f6364905a5",
+  "response_el": "Αγαπητέ μου Μενέλαε,\n\nΘέλω να σας ευχαριστήσω για τη φιλοξενία που δείξατε σε εμένα και στους ανθρώπους μου κατά την πρόσφατη επίσκεψή μας στη χώρα σας. Πραγματικά, η κουζίνα και ο πολιτισμός της Σπάρτης ανθούν. Επιστρέψαμε όλοι στην Τροία με υγεία και με την καλύτερη διάθεση, και το τραπέζι σας μας συντροφεύει ακόμα στις κουβέντες μας.\n\nΕύχομαι και για τη δική σας υγεία και για την ευημερία του οίκου σας. Μια και ο λόγος για τον οίκο σας: πώς είναι η σύζυγός σας, η Ελένη; Δυστυχώς, μέσα στη βιασύνη της αναχώρησης, δεν προλάβαμε να την αποχαιρετήσουμε όπως θα άρμοζε. Παρακαλώ, διαβιβάστε της και τις δικές μου ευχές.\n\nΕλπίζω να σας ξαναδώ όλους κάποτε — αυτή τη φορά, ας είναι γύρω από το βασιλικό τραπέζι της Τροίας.\n\nΜε τις θερμότερες ευχές,\n\nΠάρις, πρίγκιπας της Τροίας",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "The letter is πληθυντικός throughout, as a Trojan prince writing to a foreign king; the salutation «Αγαπητέ μου Μενέλαε» is a vocative singular of address form, which is the formal-epistolary Greek formula and does not break the πληθυντικός (all verbs and pronouns are plural: δείξατε, σας, διαβιβάστε).",
+  "constraint_check": "The deliverable is a letter from Paris to Menelaus; it thanks him for his hospitality; it asks after Helen. The concealed motive is preserved negatively: nowhere does the letter admit or imply that Helen is in Troy.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "the ruse half-admits the very thing it is meant to conceal",
+    "english": "Unfortunately, we were not able to properly say goodbye on our departure.",
+    "greek": "Δυστυχώς, μέσα στη βιασύνη της αναχώρησης, δεν προλάβαμε να την αποχαιρετήσουμε όπως θα άρμοζε.",
+    "why": "In the English, 'not able to say goodbye' invites the question of why; attributing it to the haste of departure gives an innocent reason and keeps the deniability the prompt requires."
+   },
+   {
+    "what": "salutation too intimate for a letter whose purpose is deniable distance",
+    "english": "Dearest Menelaus,",
+    "greek": "Αγαπητέ μου Μενέλαε,",
+    "why": "«Αγαπητέ μου» is the warmest form Greek diplomatic correspondence tolerates without becoming personal; a literal 'Προσφιλέστατε' would read as mockery, which would leak the ruse."
+   },
+   {
+    "what": "typos in the English prompt",
+    "english": "Paris's rouse ... Menelaus would thing she wasn't with Paris",
+    "greek": "τέχνασμα ... θα νομίσει ότι εκείνη δεν βρίσκεται μαζί του",
+    "why": "'rouse' for 'ruse' and 'thing' for 'think' are mechanical slips in the instruction, not a designed defect; the Greek is written clean."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "your fair land",
+    "decision": "τη χώρα σας",
+    "why": "Greek diplomatic prose does not take the ornamental epithet; «την ωραία σας χώρα» would sound like sarcasm, which would leak the deception."
+   },
+   {
+    "term": "the food and culture of Sparta",
+    "decision": "η κουζίνα και ο πολιτισμός της Σπάρτης",
+    "why": "«Κουζίνα» is what Greek says of a place's food as a cultural fact; «το φαγητό» would be the meals on the table."
+   }
+  ],
+  "deviations": [
+   "The reason for the missed farewell was made explicit (see corrections), because in Greek the bare statement reads as an admission.",
+   "Added a short bridging clause about the host's table lingering in their conversation, to keep the flattery working across three short paragraphs instead of one block.",
+   "Modern Greek throughout, not archaising: the letter is a modern text about ancient people, per stage 1."
+  ],
+  "self_flags": [
+   "Register is the crux of this row: verify no ενικός slips and no καθαρεύουσα/Homeric forms.",
+   "«Πάρις» is used in the nominative signature; oblique forms would be «του Πάρη / τον Πάρη» and do not occur in the letter."
+  ]
+ },
+ {
+  "row_id": "f26cd4598a70efbb6a439d6c28813976039ec784b6b6803cb6b59701d61fd1e9",
+  "response_el": "Προς τον υπεύθυνο του καταστήματος,\n\nΈφαγα πρόσφατα στο εστιατόριό σας και θα ήθελα να σας μεταφέρω την εμπειρία μου. Παρήγγειλα ένα πιάτο που έχω παραγγείλει αρκετές φορές στο παρελθόν και το απολαμβάνω ιδιαίτερα· αυτή τη φορά όμως η εμπειρία δεν ήταν καθόλου καλή. Μετά τις πρώτες μπουκιές αντιλήφθηκα ένα ξένο σώμα μέσα στο φαγητό, το οποίο έφτυσα αμέσως και διαπίστωσα ότι επρόκειτο για φλούδα από αβοκάντο. Ίσως αυτό να ακούγεται ασήμαντο, για εμένα όμως δεν ήταν: όταν βρίσκω στο φαγητό μου κάτι ξένο και απροσδόκητο, μου προκαλεί αδιαθεσία, όπως συνέβη και εκείνο το βράδυ. Κατανοώ απολύτως ότι τα λάθη συμβαίνουν, θεωρώ ωστόσο ότι για το ποσό που πλήρωσα δικαιούμαι καλύτερη προσοχή, ιδίως ως τακτικός πελάτης σας εδώ και χρόνια. Σας το γνωστοποιώ ώστε να δοθεί μεγαλύτερη προσοχή στην προετοιμασία των πιάτων και να μην επαναληφθεί κάτι τέτοιο στο μέλλον. Σας ευχαριστώ εκ των προτέρων για τον χρόνο σας και για την προσοχή που θα δώσετε στο ζήτημα.\n\nΜε εκτίμηση,\nΜάκης",
+  "assistant_turns_el": [],
+  "register_used": "πληθυντικός",
+  "register_note": "Formal business πληθυντικός throughout (σας, δώσετε, πλήρωσα/δικαιούμαι in first person singular but addressing the restaurant in plural), as the 'professional-sounding' spec requires.",
+  "constraint_check": "One paragraph: the body is a single unbroken paragraph, with the salutation and the sign-off on their own lines — the same reading of the constraint that the English reference applies, adopted here consistently. Required content present: φλούδα από αβοκάντο found in the food, and it caused αδιαθεσία because it was an unexpected foreign object. Required signature string: «Μάκης», exactly.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "an idiosyncratic sensitivity asserted as a general fact",
+    "english": "If I get an unexpected object or unexpected texture in my food, it causes me to get sick.",
+    "greek": "όταν βρίσκω στο φαγητό μου κάτι ξένο και απροσδόκητο, μου προκαλεί αδιαθεσία, όπως συνέβη και εκείνο το βράδυ",
+    "why": "The English states a standing rule about the writer as though it were a law of nature; the Greek keeps it personal and ties it to the incident actually being complained about."
+   },
+   {
+    "what": "wrong-register word",
+    "english": "this may seem like a minute thing",
+    "greek": "Ίσως αυτό να ακούγεται ασήμαντο",
+    "why": "'Minute' is a near-miss for 'minor' and reads oddly in a complaint; the Greek uses the ordinary word."
+   },
+   {
+    "what": "internally awkward sequence",
+    "english": "I understand that mistakes happen. However, for the price I paid, I expect better. I've also been a long-time customer, and nothing like this has ever happened.",
+    "greek": "Κατανοώ απολύτως ότι τα λάθη συμβαίνουν, θεωρώ ωστόσο ότι για το ποσό που πλήρωσα δικαιούμαι καλύτερη προσοχή, ιδίως ως τακτικός πελάτης σας εδώ και χρόνια.",
+    "why": "The English concedes and then withdraws the concession twice over; the Greek folds the long-standing-customer point into the same sentence so it supports the complaint instead of contradicting the concession."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "To Whom It May Concern",
+    "decision": "Προς τον υπεύθυνο του καταστήματος",
+    "why": "The Greek business-letter opening for an unnamed addressee; a literal rendering does not exist in Greek correspondence."
+   },
+   {
+    "term": "Regards",
+    "decision": "Με εκτίμηση",
+    "why": "The standard Greek closing at this level of formality."
+   }
+  ],
+  "deviations": [
+   "The three-way concession sequence was compressed into one sentence (see corrections), which also helps the one-paragraph constraint.",
+   "The reference's 'I wanted to bring this to your attention, so greater care can be taken' is kept but made concrete («στην προετοιμασία των πιάτων»), because the Greek passive alone would be vague."
+  ],
+  "self_flags": [
+   "The one-paragraph constraint is read as applying to the body, not to the salutation and sign-off — the same reading the English reference uses. If the corpus rule is stricter, the salutation and sign-off would have to be folded into the paragraph.",
+   "Signature must remain exactly «Μάκης»."
+  ]
+ },
+ {
+  "row_id": "f1776539dc5c88c28c518c3dd7e5c4aaf29e3fc55f89466bc89f632fadea1ef5",
+  "response_el": "Υπάρχουν αρκετά αρχαία μνημεία που, λόγω του μεγέθους ή της ακρίβειας της κατασκευής τους, έχουν τροφοδοτήσει τη θεωρία ότι δεν τα έχτισαν άνθρωποι αλλά εξωγήινοι. Η αρχαιολογία απαντά ότι τα έχτισαν άνθρωποι, με πολύ χρόνο, πολύ κόπο και έξυπνη οργάνωση της εργασίας. Να τρία από τα πιο γνωστά παραδείγματα:\n\n- Οι πυραμίδες της Γκίζας στην Αίγυπτο χτίστηκαν από τους αρχαίους Αιγυπτίους πριν από περισσότερα από 4.500 χρόνια, ως ταφικά μνημεία των φαραώ. Το τεράστιο μέγεθος του εγχειρήματος έχει κάνει πολλούς να υποθέσουν ότι κάποιος τους βοήθησε από αλλού. Οι πυραμίδες αποτελούνται από εκατομμύρια λίθους, με τους μεγαλύτερους να ζυγίζουν αρκετούς τόνους ο καθένας.\n- Το Σαξαϊουαμάν είναι ένα τεράστιο οχυρό στις περουβιανές Άνδεις, που χτίστηκε από τους Ίνκας επί αυτοκράτορα Πατσακούτεκ, δηλαδή γύρω στα μέσα του 15ου αιώνα. Οι ογκόλιθοί του είναι λαξεμένοι με τέτοια ακρίβεια ώστε εφαρμόζουν μεταξύ τους σαν κομμάτια παζλ, χωρίς κονίαμα. Οι πέτρες μεταφέρθηκαν από λατομεία που απέχουν πάνω από τριάντα χιλιόμετρα από το σημείο όπου χτίστηκε το οχυρό.\n- Η Τεοτιουακάν, η «πόλη των θεών», ήταν μια αρχαία πόλη κοντά στη σημερινή Πόλη του Μεξικού, που στην ακμή της φιλοξενούσε πάνω από 100.000 κατοίκους. Η ανέγερσή της ξεκίνησε πριν από περίπου 2.000 χρόνια, και οι δρόμοι και τα μνημεία της παρουσιάζουν πολλές ευθυγραμμίσεις με αστρονομικά φαινόμενα. Για πολλά χρόνια πιστευόταν ότι την έχτισαν οι Τολτέκοι, σήμερα όμως γνωρίζουμε ότι η πόλη είναι αρκετούς αιώνες παλαιότερη από εκείνους, και ο λαός που την έχτισε παραμένει άγνωστος.",
+  "assistant_turns_el": [],
+  "register_used": "ενικός",
+  "register_note": "The answer is expository and contains no direct address, so the prompt's ενικός is not contradicted anywhere in it.",
+  "constraint_check": "Structure: an introductory paragraph precedes the list (the English reference omitted this). The list is a bulleted list of exactly three distinct structures (≥3 required). Every bullet is written in complete sentences, not fragments. Each bullet names the civilization that built the structure and when it was likely built.",
+  "defect_note": null,
+  "reference_corrections": [
+   {
+    "what": "date contradicts the ruler named in the same sentence",
+    "english": "Sacsayhuamán... built by the Incan Emperor Pachacuti... This structure was built around 1000 years ago",
+    "greek": "επί αυτοκράτορα Πατσακούτεκ, δηλαδή γύρω στα μέσα του 15ου αιώνα",
+    "why": "Pachacuti reigned in the 15th century, so the site is roughly 550–600 years old, not 1,000; the English bullet contradicts its own attribution."
+   },
+   {
+    "what": "unsupported 'at least' on stone weights",
+    "english": "millions of stones that each weigh at least 4000 pounds",
+    "greek": "εκατομμύρια λίθους, με τους μεγαλύτερους να ζυγίζουν αρκετούς τόνους ο καθένας",
+    "why": "Block weights at Giza vary widely and many are well under that figure; 'at least' asserts a floor that is false, so the Greek states the range's upper end instead."
+   },
+   {
+    "what": "two irreconcilable datings in one bullet",
+    "english": "built more than 2000 years ago... this city predated that culture by a few hundred years",
+    "greek": "Η ανέγερσή της ξεκίνησε πριν από περίπου 2.000 χρόνια... η πόλη είναι αρκετούς αιώνες παλαιότερη από εκείνους",
+    "why": "The English leaves the two datings unreconciled; the Greek makes the first a start-of-construction date so the Toltec comparison follows from it."
+   },
+   {
+    "what": "the required introduction is missing",
+    "english": "the reference begins directly with the first bullet",
+    "greek": "Υπάρχουν αρκετά αρχαία μνημεία που... Να τρία από τα πιο γνωστά παραδείγματα:",
+    "why": "The prompt explicitly requires an introduction before the list; the reference fails its own structural constraint."
+   }
+  ],
+  "class_disagreement": null,
+  "guide_gaps": [
+   {
+    "term": "Sacsayhuamán",
+    "decision": "Σαξαϊουαμάν",
+    "why": "No settled Greek form exists; this transliteration follows the Spanish pronunciation, which is how Greek renders Andean place names."
+   },
+   {
+    "term": "Teotihuacán",
+    "decision": "Τεοτιουακάν",
+    "why": "The form used in Greek archaeological writing and encyclopaedias."
+   },
+   {
+    "term": "Pachacuti",
+    "decision": "Πατσακούτεκ",
+    "why": "The Quechua form Pachacutec as Greek renders it; «Παχακούτι» would follow the English spelling rather than the pronunciation."
+   }
+  ],
+  "deviations": [
+   "Units converted, not transliterated: 'more than 20 miles' → «πάνω από τριάντα χιλιόμετρα»; the pounds figure was replaced by a corrected weight statement in tonnes (see corrections).",
+   "The introduction adds a one-sentence archaeological counterpoint, which the reference does not have, so the answer reports the belief without endorsing it.",
+   "The three real sites are kept exactly as in the reference — no substitution of Greek monuments, per stage 1."
+  ],
+  "self_flags": [
+   "The transliterations Σαξαϊουαμάν / Τεοτιουακάν / Πατσακούτεκ are house decisions made here for the first time and should be added to the glossary.",
+   "The Teotihuacán dating is a genuine scholarly range; my reconciliation (start of construction ~2,000 years ago) is defensible but a specialist should confirm the phrasing."
+  ]
+ }
+]
