@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -23,10 +24,14 @@ import submit_agent1_v5_eiger as submitter  # noqa: E402
 
 def write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True), encoding="utf-8")
+    path.write_text(
+        json.dumps(value, ensure_ascii=False, sort_keys=True), encoding="utf-8"
+    )
 
 
-def canonical_row(source: str, document: str, text: str, quality: float = 0.0) -> dict[str, object]:
+def canonical_row(
+    source: str, document: str, text: str, quality: float = 0.0
+) -> dict[str, object]:
     row = {name: None for name in pipeline.CANONICAL_FIELD_NAMES}
     row.update(
         {
@@ -54,11 +59,18 @@ def make_combined(tmp_path: Path) -> tuple[Path, Path, Path]:
     base_rows = [canonical_row("nanochat", "base-duplicate", duplicate_text, 99.0)]
     candidate_rows = [
         canonical_row("candidate", "candidate-duplicate", duplicate_text, 0.0),
-        canonical_row("candidate", "candidate-unique", "Ένα τελείως διαφορετικό κείμενο.", 0.0),
+        canonical_row(
+            "candidate", "candidate-unique", "Ένα τελείως διαφορετικό κείμενο.", 0.0
+        ),
     ]
     paths = [data / "000000.parquet", data / "000001.parquet"]
-    pq.write_table(pa.Table.from_pylist(base_rows, schema=pipeline.canonical_schema()), paths[0])
-    pq.write_table(pa.Table.from_pylist(candidate_rows, schema=pipeline.canonical_schema()), paths[1])
+    pq.write_table(
+        pa.Table.from_pylist(base_rows, schema=pipeline.canonical_schema()), paths[0]
+    )
+    pq.write_table(
+        pa.Table.from_pylist(candidate_rows, schema=pipeline.canonical_schema()),
+        paths[1],
+    )
     files = []
     for rank, (origin, path, rows) in enumerate(
         (("nanochat_base", paths[0], 1), ("candidate", paths[1], 2))
@@ -152,7 +164,9 @@ def test_config_locks_all_eighteen_source_adapters_and_schema() -> None:
     assert config["pins"]["glossapi_bundle"].endswith("glossapi-a2aace04fbae.bundle")
 
 
-def test_clariden_wrapper_isolates_venv_and_setup_avoids_unused_glossapi_extras() -> None:
+def test_clariden_wrapper_isolates_venv_and_setup_avoids_unused_glossapi_extras() -> (
+    None
+):
     slurm = ROOT / "slurm" / "agent1_v5_eiger"
     for name in ("clariden_debug_stage.sh", "clariden_debug_bundle.sh"):
         wrapper = (slurm / name).read_text(encoding="utf-8")
@@ -171,7 +185,9 @@ def test_clariden_wrapper_isolates_venv_and_setup_avoids_unused_glossapi_extras(
         assert f"  {stage_name})" in setup
     assert '--pair-audit "${RUN_ROOT}/lsh_pairs.audit.json"' in setup
     assert '--cluster-audit "${RUN_ROOT}/removals.audit.json"' in setup
-    assert setup.count('--full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json"') >= 5
+    assert (
+        setup.count('--full-input-audit "${RUN_ROOT}/dedup_full_input_audit.json"') >= 5
+    )
 
 
 def test_debug_bundle_batches_preserve_task_width_and_qos_limit() -> None:
@@ -181,7 +197,9 @@ def test_debug_bundle_batches_preserve_task_width_and_qos_limit() -> None:
     assert submitter.bundle_batches(3, 8, 2) == [(0, 0)]
 
 
-def test_bounded_stage_runner_executes_each_task_once_and_emits_metrics(tmp_path: Path) -> None:
+def test_bounded_stage_runner_executes_each_task_once_and_emits_metrics(
+    tmp_path: Path,
+) -> None:
     pipeline_root = tmp_path / "pipeline"
     runner_dir = pipeline_root / "slurm" / "agent1_v5_eiger"
     runner_dir.mkdir(parents=True)
@@ -193,7 +211,7 @@ def test_bounded_stage_runner_executes_each_task_once_and_emits_metrics(tmp_path
     stage.write_text(
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n"
-        "printf '%s\\n' \"$TASK_INDEX\" >> \"$RUN_ROOT/tasks.txt\"\n",
+        'printf \'%s\\n\' "$TASK_INDEX" >> "$RUN_ROOT/tasks.txt"\n',
         encoding="utf-8",
     )
     stage.chmod(0o755)
@@ -201,9 +219,9 @@ def test_bounded_stage_runner_executes_each_task_once_and_emits_metrics(tmp_path
     fake_time.write_text(
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n"
-        "test \"$1\" = -v; test \"$2\" = -o; report=$3; shift 3\n"
+        'test "$1" = -v; test "$2" = -o; report=$3; shift 3\n'
         "printf 'Maximum resident set size (kbytes): 42\\n' > \"$report\"\n"
-        "exec \"$@\"\n",
+        'exec "$@"\n',
         encoding="utf-8",
     )
     fake_time.chmod(0o755)
@@ -305,12 +323,15 @@ def test_submitter_resume_reuses_only_matching_persisted_jobs(tmp_path: Path) ->
     config = {"execution": {"cluster": "clariden"}}
     resumed = submitter.Submitter(args, config)
     assert resumed.jobs["setup"]["job_id"] == "12345"
-    assert resumed.submit(
-        "setup",
-        "setup",
-        partition="debug",
-        walltime="01:25:00",
-    ) == "12345"
+    assert (
+        resumed.submit(
+            "setup",
+            "setup",
+            partition="debug",
+            walltime="01:25:00",
+        )
+        == "12345"
+    )
 
     state = json.loads(state_path.read_text(encoding="utf-8"))
     state["run_id"] = "different-run"
@@ -345,7 +366,9 @@ def test_root_job_state_excludes_diagnostic_job_steps(monkeypatch) -> None:
     class QueueResult:
         stdout = ""
 
-    monkeypatch.setattr(submitter.subprocess, "run", lambda *args, **kwargs: QueueResult())
+    monkeypatch.setattr(
+        submitter.subprocess, "run", lambda *args, **kwargs: QueueResult()
+    )
 
     def accounting(*command: str) -> str:
         commands.append(command)
@@ -371,9 +394,9 @@ def test_bundle_runs_every_task_and_propagates_child_failure(tmp_path: Path) -> 
     stage.parent.mkdir(parents=True)
     stage.write_text(
         "#!/usr/bin/env bash\n"
-        "mkdir -p \"${RUN_ROOT}/seen\"\n"
-        "printf '%s\\n' \"${TASK_INDEX}\" > \"${RUN_ROOT}/seen/${TASK_INDEX}\"\n"
-        "if [[ \"${FAIL_TASK:-}\" == \"${TASK_INDEX}\" ]]; then exit 9; fi\n",
+        'mkdir -p "${RUN_ROOT}/seen"\n'
+        'printf \'%s\\n\' "${TASK_INDEX}" > "${RUN_ROOT}/seen/${TASK_INDEX}"\n'
+        'if [[ "${FAIL_TASK:-}" == "${TASK_INDEX}" ]]; then exit 9; fi\n',
         encoding="utf-8",
     )
     stage.chmod(0o755)
@@ -390,12 +413,20 @@ def test_bundle_runs_every_task_and_propagates_child_failure(tmp_path: Path) -> 
     }
     assert subprocess.run([bundle], env=base_env, check=False).returncode == 0
     assert sorted(path.name for path in (tmp_path / "run" / "seen").iterdir()) == [
-        "0", "1", "2", "3", "4"
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
     ]
     failed_env = {**base_env, "RUN_ROOT": str(tmp_path / "failed"), "FAIL_TASK": "2"}
     assert subprocess.run([bundle], env=failed_env, check=False).returncode == 1
     assert sorted(path.name for path in (tmp_path / "failed" / "seen").iterdir()) == [
-        "0", "1", "2", "3", "4"
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
     ]
 
 
@@ -421,7 +452,9 @@ def test_bundled_stage_requeues_timeout_while_receipts_advance(
 
     progress = iter([154, 154, 160])
     monkeypatch.setattr(submitter.Submitter, "submit", fake_submit)
-    monkeypatch.setattr(submitter.Submitter, "checkpoint_progress", lambda self, stage: next(progress))
+    monkeypatch.setattr(
+        submitter.Submitter, "checkpoint_progress", lambda self, stage: next(progress)
+    )
     outcomes = iter([False, False, True])
 
     def fake_wait(job_ids, poll_seconds):
@@ -431,14 +464,17 @@ def test_bundled_stage_requeues_timeout_while_receipts_advance(
 
     monkeypatch.setattr(submitter, "wait_for_jobs", fake_wait)
     monkeypatch.setattr(submitter, "root_job_state", lambda job_id: ("TIMEOUT", "0:0"))
-    assert instance.bundled(
-        "transform",
-        "transform",
-        32,
-        32,
-        ["canary"],
-        poll_seconds=1,
-    )[-1] == "103"
+    assert (
+        instance.bundled(
+            "transform",
+            "transform",
+            32,
+            32,
+            ["canary"],
+            poll_seconds=1,
+        )[-1]
+        == "103"
+    )
     assert [row[0] for row in submitted] == [
         "transform-part000",
         "transform-part000-retry001",
@@ -461,7 +497,9 @@ def test_transform_task_checkpoints_and_resumes_without_recleaning(
             {
                 "id": [f"doc-{index}" for index in range(5)],
                 "markdown_text": [f"κείμενο {index}" for index in range(5)],
-                "metadata_json": [json.dumps({"subject": f"τίτλος {index}"}) for index in range(5)],
+                "metadata_json": [
+                    json.dumps({"subject": f"τίτλος {index}"}) for index in range(5)
+                ],
             }
         ),
         input_path,
@@ -545,7 +583,9 @@ def test_transform_task_checkpoints_and_resumes_without_recleaning(
     assert len(list(checkpoint_root.glob("part-*.receipt.json"))) == 3
     output_path = run_root / "10-transform" / "shards" / "task-000000.parquet"
     receipt_path = run_root / "10-transform" / "receipts" / "task-000000.json"
-    assert pq.read_table(output_path).column("source_row_index").to_pylist() == list(range(5))
+    assert pq.read_table(output_path).column("source_row_index").to_pylist() == list(
+        range(5)
+    )
 
     receipt_path.unlink()
     output_path.unlink()
@@ -617,7 +657,9 @@ def test_actual_jaccard_uses_full_unique_shingle_sets() -> None:
 
 def test_merge_lsh_pairs_blocks_unresolved_oversized_groups(tmp_path: Path) -> None:
     run_root, contract, combined = make_combined(tmp_path)
-    config = json.loads((ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text())
+    config = json.loads(
+        (ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text()
+    )
     config["dedup"].update(
         {
             "num_buckets": 1,
@@ -634,8 +676,7 @@ def test_merge_lsh_pairs_blocks_unresolved_oversized_groups(tmp_path: Path) -> N
     bucket = run_root / "60-dedup" / "minhash-buckets" / "00000_00.dups"
     bucket.parent.mkdir(parents=True)
     bucket.write_bytes(
-        dedup.PAIR_STRUCT.pack(0, 0, 0, 1)
-        + dedup.PAIR_STRUCT.pack(0, 1, 0, 2)
+        dedup.PAIR_STRUCT.pack(0, 0, 0, 1) + dedup.PAIR_STRUCT.pack(0, 1, 0, 2)
     )
     bucket_receipt = bucket.parent / "receipts" / "000000.json"
     write_json(
@@ -745,9 +786,13 @@ def test_merge_signatures_reuses_full_input_audit_without_payload_rehash(
     assert manifest["bucket_count"] == 32
 
 
-def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(tmp_path: Path) -> None:
+def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(
+    tmp_path: Path,
+) -> None:
     run_root, contract, combined = make_combined(tmp_path)
-    config = json.loads((ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text())
+    config = json.loads(
+        (ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text()
+    )
     config["dedup"].update(
         {
             "num_buckets": 1,
@@ -764,8 +809,7 @@ def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(tmp_path: Pa
     bucket = run_root / "60-dedup" / "minhash-buckets" / "00000_00.dups"
     bucket.parent.mkdir(parents=True)
     bucket.write_bytes(
-        dedup.PAIR_STRUCT.pack(0, 0, 0, 1)
-        + dedup.PAIR_STRUCT.pack(0, 1, 0, 2)
+        dedup.PAIR_STRUCT.pack(0, 0, 0, 1) + dedup.PAIR_STRUCT.pack(0, 1, 0, 2)
     )
     write_json(
         bucket.parent / "receipts" / "000000.json",
@@ -820,9 +864,13 @@ def test_merge_lsh_pairs_promotes_candidate_when_groups_are_bounded(tmp_path: Pa
         raise AssertionError("pair database stat drift was not detected")
 
 
-def test_merge_lsh_pairs_checksum_promotes_node_local_work_database(tmp_path: Path) -> None:
+def test_merge_lsh_pairs_checksum_promotes_node_local_work_database(
+    tmp_path: Path,
+) -> None:
     run_root, contract, combined = make_combined(tmp_path)
-    config = json.loads((ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text())
+    config = json.loads(
+        (ROOT / "configs" / "agent1_v5_eiger_pipeline.json").read_text()
+    )
     config["dedup"].update(
         {
             "num_buckets": 1,
@@ -838,8 +886,7 @@ def test_merge_lsh_pairs_checksum_promotes_node_local_work_database(tmp_path: Pa
     bucket = run_root / "60-dedup" / "minhash-buckets" / "00000_00.dups"
     bucket.parent.mkdir(parents=True)
     bucket.write_bytes(
-        dedup.PAIR_STRUCT.pack(0, 0, 0, 1)
-        + dedup.PAIR_STRUCT.pack(0, 1, 0, 2)
+        dedup.PAIR_STRUCT.pack(0, 0, 0, 1) + dedup.PAIR_STRUCT.pack(0, 1, 0, 2)
     )
     write_json(
         bucket.parent / "receipts" / "000000.json",
@@ -915,7 +962,9 @@ def test_exact_cluster_protects_nanochat_and_filters_candidate(tmp_path: Path) -
     runtime, full_audit = make_dedup_input_audit(run_root, contract, combined)
     for rank in range(2):
         dedup.exact_index_task(
-            argparse.Namespace(contract=contract, combined_manifest=combined, task_index=rank)
+            argparse.Namespace(
+                contract=contract, combined_manifest=combined, task_index=rank
+            )
         )
     exact_manifest = run_root / "exact_manifest.json"
     dedup.merge_exact_index(
@@ -1037,10 +1086,15 @@ def test_merge_transform_records_quarantined_blank_rows_without_blocking(
         ),
     ):
         index = task["task_index"]
-        shard, receipt_path = pipeline._task_output_paths(run_root, "10-transform", index)
+        shard, receipt_path = pipeline._task_output_paths(
+            run_root, "10-transform", index
+        )
         shard.parent.mkdir(parents=True, exist_ok=True)
         pq.write_table(
-            pa.Table.from_pylist([{"source_id": task["source_id"]}], schema=pipeline.transform_schema()), shard
+            pa.Table.from_pylist(
+                [{"source_id": task["source_id"]}], schema=pipeline.transform_schema()
+            ),
+            shard,
         )
         audit = run_root / "10-transform" / "audits" / f"task-{index:06d}.jsonl.gz"
         issues = run_root / "10-transform" / "issues" / f"task-{index:06d}.jsonl.gz"
@@ -1063,12 +1117,22 @@ def test_merge_transform_records_quarantined_blank_rows_without_blocking(
     monkeypatch.setattr(
         pipeline,
         "load_config",
-        lambda _path: {"sources": {"complete_source": {}, "partially_blank_source": {}}},
+        lambda _path: {
+            "sources": {"complete_source": {}, "partially_blank_source": {}}
+        },
     )
     output = run_root / "transform_manifest.json"
-    assert pipeline.merge_transform(
-        argparse.Namespace(config=tmp_path / "config.json", contract=contract, tasks=task_path, output=output)
-    ) == 0
+    assert (
+        pipeline.merge_transform(
+            argparse.Namespace(
+                config=tmp_path / "config.json",
+                contract=contract,
+                tasks=task_path,
+                output=output,
+            )
+        )
+        == 0
+    )
 
     manifest = json.loads(output.read_text(encoding="utf-8"))
     assert manifest["status"] == "passed"
@@ -1097,7 +1161,10 @@ def test_merge_glossapi_records_empty_rows_without_blocking(tmp_path: Path) -> N
     transform_shard = run_root / "10-transform" / "shards" / "task-000000.parquet"
     transform_shard.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(
-        pa.Table.from_pylist([{"source_id": "candidate"}], schema=pipeline.transform_schema()), transform_shard
+        pa.Table.from_pylist(
+            [{"source_id": "candidate"}], schema=pipeline.transform_schema()
+        ),
+        transform_shard,
     )
     transform_manifest = run_root / "transform_manifest.json"
     write_json(
@@ -1112,7 +1179,10 @@ def test_merge_glossapi_records_empty_rows_without_blocking(tmp_path: Path) -> N
     output_shard, receipt_path = pipeline._task_output_paths(run_root, "20-glossapi", 0)
     output_shard.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(
-        pa.Table.from_pylist([canonical_row("candidate", "doc", "κείμενο")], schema=pipeline.canonical_schema()),
+        pa.Table.from_pylist(
+            [canonical_row("candidate", "doc", "κείμενο")],
+            schema=pipeline.canonical_schema(),
+        ),
         output_shard,
     )
     issues = run_root / "20-glossapi" / "issues" / "task-000000.jsonl.gz"
@@ -1122,16 +1192,29 @@ def test_merge_glossapi_records_empty_rows_without_blocking(tmp_path: Path) -> N
         receipt_path,
         {
             "schema_version": pipeline.GLOSSAPI_RECEIPT_SCHEMA,
-            "input": {"sha256": pipeline.file_receipt(transform_shard, root=run_root, rows=2)["sha256"]},
+            "input": {
+                "sha256": pipeline.file_receipt(transform_shard, root=run_root, rows=2)[
+                    "sha256"
+                ]
+            },
             "output": pipeline.file_receipt(output_shard, root=run_root, rows=1),
             "issues": pipeline.file_receipt(issues, root=run_root),
-            "counters": {"input_rows": 2, "output_rows": 1, "quarantined_empty_after_glossapi": 1},
+            "counters": {
+                "input_rows": 2,
+                "output_rows": 1,
+                "quarantined_empty_after_glossapi": 1,
+            },
         },
     )
     output = run_root / "glossapi_manifest.json"
-    assert pipeline.merge_glossapi(
-        argparse.Namespace(contract=contract, transform_manifest=transform_manifest, output=output)
-    ) == 0
+    assert (
+        pipeline.merge_glossapi(
+            argparse.Namespace(
+                contract=contract, transform_manifest=transform_manifest, output=output
+            )
+        )
+        == 0
+    )
 
     manifest = json.loads(output.read_text(encoding="utf-8"))
     assert manifest["status"] == "passed"
@@ -1178,3 +1261,42 @@ def test_publisher_waits_out_hub_rate_limit_without_requeueing(monkeypatch) -> N
     assert pauses == [publisher.HUB_RATE_LIMIT_BACKOFF_SECONDS]
     assert api.commit_calls == 2
     assert api.upload_kwargs["num_workers"] == publisher.HUB_UPLOAD_WORKERS
+
+
+def test_publisher_requires_explicitly_finalized_matching_public_visibility(
+    tmp_path: Path,
+) -> None:
+    release = tmp_path / "release"
+    shard = release / "data" / "000000.parquet"
+    shard.parent.mkdir(parents=True)
+    pq.write_table(pa.table({"text": ["ready"]}), shard)
+    manifest_path = release / "manifests" / "deduplicated_manifest.json"
+    write_json(
+        manifest_path,
+        {
+            "schema_version": dedup.DEDUP_MANIFEST_SCHEMA,
+            "status": "passed",
+            "root": str(release),
+            "private_only": False,
+            "publication_ready": True,
+            "rows": 1,
+            "files": [
+                {
+                    "rank": 0,
+                    "path": "data/000000.parquet",
+                    "rows": 1,
+                    "bytes": shard.stat().st_size,
+                    "sha256": pipeline.sha256_file(shard),
+                }
+            ],
+        },
+    )
+    manifest, path = publisher.validate_release(release, "deduplicated", "public")
+    assert manifest["publication_ready"] is True
+    assert path == manifest_path
+    with pytest.raises(ValueError, match="visibility differs"):
+        publisher.validate_release(release, "deduplicated", "private")
+    manifest["publication_ready"] = False
+    write_json(manifest_path, manifest)
+    with pytest.raises(ValueError, match="has not passed finalization"):
+        publisher.validate_release(release, "deduplicated", "public")
