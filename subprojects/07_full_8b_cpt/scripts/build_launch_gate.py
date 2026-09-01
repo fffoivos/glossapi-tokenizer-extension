@@ -199,9 +199,56 @@ def main() -> int:
     ):
         raise ValueError("all-panel validation-content audit drift")
     status(args.token_bytes_receipt, {"apertus_token_utf8_byte_lengths_v1"})
-    benchmark = status(args.benchmark_receipt, {"apertus_full_8b_parallelism_benchmark_v1"})
+    benchmark = status(
+        args.benchmark_receipt,
+        {
+            "apertus_full_8b_parallelism_benchmark_v1",
+            "apertus_full_8b_dp32_fallback_selection_v1",
+        },
+    )
     if benchmark.get("selected_profile") != selected["selection"]["profile_id"]:
         raise ValueError("benchmark/selected profile drift")
+    if benchmark.get("schema_version") == "apertus_full_8b_dp32_fallback_selection_v1":
+        required_fallback_checks = {
+            "selection_code_bundle_verified",
+            "parity_code_bundle_verified",
+            "exact_recipe_and_profile_validated",
+            "profile_is_declared_proven_fallback",
+            "parity_receipt_passed_all_frozen_checks",
+            "parity_restart_thresholds_match_profiles",
+            "parity_inputs_bind_exact_profiles_schedule_and_control_log",
+            "control_and_restart_receipts_bind_scientific_digest",
+            "control_and_restart_receipts_use_synchronous_checkpoints",
+            "control_and_restart_allocations_are_single_leaf",
+            "control_has_zero_skipped_and_nonfinite_updates",
+            "two_independent_restart_allocations_passed",
+        }
+        fallback_checks = benchmark.get("checks", {})
+        selection_bundle = benchmark.get("inputs", {}).get(
+            "selection_code_bundle", {}
+        )
+        if (
+            benchmark.get("selection_policy")
+            != "explicit_dp32_fallback_from_exact_recipe_sync_restart_parity_v1"
+            or benchmark.get("selected_profile") != "dp32_16node"
+            or benchmark.get("candidate_profile") != "dp64_32node"
+            or benchmark.get("candidate_evaluated") is not False
+            or benchmark.get("candidate_promoted") is not False
+            or benchmark.get("fallback_control_viable") is not True
+            or benchmark.get("scientific_digest") != validated["scientific_digest"]
+            or set(fallback_checks) != required_fallback_checks
+            or not all(fallback_checks.values())
+            or benchmark.get("checkpointing", {}).get("save_mode")
+            != "synchronous"
+            or benchmark.get("parity", {}).get(
+                "two_independent_restart_allocations_passed"
+            )
+            is not True
+            or Path(selection_bundle.get("root", "")).resolve()
+            != args.code_root.resolve()
+            or selection_bundle.get("tree_sha256") != bundle["tree_sha256"]
+        ):
+            raise ValueError("DP32 fallback selection evidence drift")
     graceful_smoke = status(args.graceful_stop_smoke, {"apertus_full_8b_graceful_stop_smoke_v1"})
     if graceful_smoke.get("profile_id") != selected["selection"]["profile_id"] or graceful_smoke.get("resume", {}).get("passed") is not True:
         raise ValueError("graceful-stop smoke/profile drift")
