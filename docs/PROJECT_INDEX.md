@@ -5,6 +5,12 @@ summarized in the [root README](../README.md). This file only says what each
 document in `docs/` is, when it was written, and whether it still governs
 anything. Dates are first/last commit dates on the consolidated history.
 
+## The consolidation note
+
+| Document | Dates | What it is |
+|---|---|---|
+| [CONSOLIDATION_REVIEW_20260901.md](CONSOLIDATION_REVIEW_20260901.md) | 2026-09-01 | What the 2026-09-01 branch consolidation found and did, the decisions left to the owner, and the writers' archive-candidate and contradiction lists. |
+
 ## Still in force
 
 | Document | Dates | What it is |
