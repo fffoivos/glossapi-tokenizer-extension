@@ -1,0 +1,30 @@
+diff --git a/megatron/training/training.py b/megatron/training/training.py
+--- a/megatron/training/training.py
++++ b/megatron/training/training.py
+@@ -1413,7 +1413,18 @@
+ def train(forward_step_func, model, optimizer, opt_param_scheduler,
+           train_data_iterator, valid_data_iterator,
+           process_non_loss_data_func, config, checkpointing_context, non_loss_data_func,
+           extra_valid_data_iterators=None):
+     """Training function: run train_step desired number of times, run validation, checkpoint."""
+     args = get_args()
++    raw_exact_eval_iterations = os.environ.get("MINI_SCHEDULE_EVAL_ITERATIONS", "")
++    exact_eval_iterations = {
++        int(value.strip())
++        for value in raw_exact_eval_iterations.split(",")
++        if value.strip()
++    }
++    if any(value <= args.iteration for value in exact_eval_iterations):
++        raise ValueError(
++            "MINI_SCHEDULE_EVAL_ITERATIONS must contain only points after the "
++            "loaded/start iteration"
++        )
+     timers = get_timers()
+@@ -1657,3 +1668,5 @@
+-        if args.eval_interval and iteration % args.eval_interval == 0 and \
+-            args.do_valid:
++        if args.do_valid and (
++            (args.eval_interval and iteration % args.eval_interval == 0)
++            or iteration in exact_eval_iterations
++        ):
+             timers('interval-time').stop()

@@ -1,0 +1,63 @@
+{
+  "schema_version": "apertus_mini_native_greekmmlu_four_lane_wave_smoke_v1",
+  "captured_at": "2026-08-02",
+  "status": "passed",
+  "scientific_result": false,
+  "purpose": "Prove that one Clariden GH200 node can run four isolated, exact-checkpoint native-GreekMMLU pipelines concurrently and a fifth pipeline in the next lane wave without changing the frozen evaluator contract",
+  "slurm": {
+    "job_id": "2983668",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed_seconds": 516,
+    "nodes": 1,
+    "allocated_gpus": 4,
+    "first_wave_lanes": 4,
+    "first_wave_elapsed_seconds": [263, 255, 274, 278],
+    "second_wave_lanes": 1,
+    "second_wave_elapsed_seconds": [229],
+    "per_lane_resources": {
+      "gpus": 1,
+      "cpus": 64,
+      "memory_gib": 105
+    }
+  },
+  "orchestration": {
+    "evaluation_bundle": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260802T213000Z-evaluation-bundle-v12",
+    "evaluation_bundle_sha256s_sha256": "dba1167ba690e9bc6686118245b546f212427bdb49ab8def40f2290b1f8fa843",
+    "wave_manifest_sha256": "4cd9232549b81b742276987b9ca6b35b998c153f95c35ed9fe97aa31dd3e0ee0",
+    "checkpoint_evaluation_plan_sha256": "1a0fc8121b1e9079ad626d0b4bcd366f595a454b53a79490ccb3dbd8e9a0c121"
+  },
+  "benchmark": {
+    "repo_id": "dascim/GreekMMLU",
+    "revision": "6a03aa06b68beb932fb75edff3a34e50b3674649",
+    "config": "All",
+    "split": "test",
+    "origin": "natively_authored_greek",
+    "questions_per_pipeline": 16632,
+    "required_metrics": [
+      "official_zero_shot_accuracy",
+      "multiple_choice_cross_entropy_from_frozen_normalized_choice_scores",
+      "correct_answer_continuation_bpb"
+    ]
+  },
+  "pipelines": {
+    "requested": 5,
+    "completed": 5,
+    "exact_receipts": 5,
+    "arms": [
+      "D0_mixed",
+      "D1_hard_h_to_g",
+      "D2_hard_g_to_h",
+      "D3_gradual_h_to_g",
+      "D4_gradual_g_to_h"
+    ],
+    "receipt_sha256": {
+      "D0_mixed": "2609125a8c3b53eb0463f3cc9d6579b03ada21795e4a82d786f9fcdec49b827c",
+      "D1_hard_h_to_g": "eb3b0d366dd2b9154dcb3571c02f928d50e81126bd97580a62c10752e85f4035",
+      "D2_hard_g_to_h": "8243abf238939dd60db66270f331609084f63bb5e26492375c9e18774b83f58f",
+      "D3_gradual_h_to_g": "89d2d6bced58c25d0e215873512d18566f4751afe10ffb3dbbd3075ddcb252da",
+      "D4_gradual_g_to_h": "b02176b5845d603074686b23acc70a4d02c5e78e5eafdb8f520173ad21c6bd85"
+    }
+  },
+  "interpretation": "The repeated iteration-48 checkpoint is deliberately non-scientific and is used only to prove four-GPU lane isolation, full native-GreekMMLU execution, and exact receipt finalization. The production campaign must evaluate each arm's own required checkpoints from the frozen checkpoint plan."
+}

@@ -140,6 +140,28 @@ def _eligible(row: Mapping[str, Any], task: Mapping[str, Any]) -> bool:
     return True
 
 
+def _row_policy_exclusion(
+    row: Mapping[str, Any], task: Mapping[str, Any]
+) -> str | None:
+    """Return the frozen rule id when a row is excluded by eligibility policy."""
+
+    rules = task.get("row_exclusion_rules", [])
+    if not isinstance(rules, list):
+        raise ValueError("row_exclusion_rules must be a list")
+    for rule in rules:
+        if not isinstance(rule, Mapping):
+            raise ValueError("row exclusion rule must be an object")
+        rule_id = str(rule.get("rule_id", ""))
+        when_field = str(rule.get("when_field", ""))
+        reject_field = str(rule.get("reject_if_true_field", ""))
+        values = rule.get("when_values", [])
+        if not rule_id or not when_field or not reject_field or not isinstance(values, list):
+            raise ValueError("malformed row exclusion rule")
+        if row.get(when_field) in values and row.get(reject_field) is True:
+            return rule_id
+    return None
+
+
 def _load_phase_module(task: Mapping[str, Any]):
     """Load the receipt-bound optional two-phase assignment implementation."""
 
@@ -217,6 +239,11 @@ def _iter_parquet_records(
     ):
         if value and str(value) not in columns:
             columns.append(str(value))
+    for rule in task.get("row_exclusion_rules", []):
+        for key in ("when_field", "reject_if_true_field"):
+            value = str(rule[key])
+            if value not in columns:
+                columns.append(value)
     row_index = 0
     for batch in parquet.iter_batches(
         columns=columns, batch_size=4096, use_threads=False
@@ -243,13 +270,19 @@ def _iter_parquet_records(
                 },
                 identity_scope=str(task["identity_scope"]),
             )
-            if doc_id in exclusions:
-                counters["heldout_rows"] += 1
-                continue
             if partition_module is not None and not _in_selected_phase(
                 row, doc_id, task, partition_module
             ):
                 counters["phase_excluded_rows"] += 1
+                continue
+            policy_rule = _row_policy_exclusion(row, task)
+            if policy_rule is not None:
+                counters["policy_excluded_rows"] = (
+                    counters.get("policy_excluded_rows", 0) + 1
+                )
+                continue
+            if doc_id in exclusions:
+                counters["heldout_rows"] += 1
                 continue
             counters["candidate_rows"] += 1
             yield doc_id, text

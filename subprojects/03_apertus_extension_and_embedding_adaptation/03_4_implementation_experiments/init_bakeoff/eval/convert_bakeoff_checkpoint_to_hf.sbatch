@@ -27,12 +27,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "${SCRIPT_DIR_OVERRIDE:-${SLURM_SUBMIT_DIR:-$(pwd)}}" && pwd)"
 source "$SCRIPT_DIR/../bakeoff_training/_train_config_common.env"
 
-# Receipt-gated production launchers may bind a clean Megatron checkout that
-# differs from the historical shared default in _train_config_common.env.
-if [ -n "${MEGATRON_DIR_OVERRIDE:-}" ]; then
-    MEGATRON_LM_SWISSAI_DIR="$MEGATRON_DIR_OVERRIDE"
-fi
-
 ARM="${ARM:?ARM is required: vanilla|retok|centroid|extension|td|td_layer11}"
 ITER="${ITER:?ITER is required, e.g. 65}"
 RUN_TAG="${RUN_TAG:?RUN_TAG is required, e.g. bakeoff_1node_chain_20260522_005620}"

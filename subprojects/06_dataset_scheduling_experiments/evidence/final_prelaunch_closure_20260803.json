@@ -1,0 +1,60 @@
+{
+  "schema_version": "apertus_mini_final_prelaunch_closure_summary_v1",
+  "status": "passed_dry_run_only",
+  "captured_at": "2026-08-03T06:31:35Z",
+  "root": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T074000Z-final-prelaunch-closure-v2",
+  "closure": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T074000Z-final-prelaunch-closure-v2/prelaunch_closure.json",
+    "sha256": "8e23099cf495568f275279ffbac96332e66e2821f26124ea9f48afc35489669f",
+    "gpu_jobs_submitted": 0
+  },
+  "campaign_manifest": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T074000Z-final-prelaunch-closure-v2/campaign_manifest.json",
+    "bytes": 13520,
+    "sha256": "85311d99f0f8a0b901d6c0895cdd00f7696ab5af8cf10e3fda2dd5b657f8cc02",
+    "status": "frozen",
+    "arms": 5,
+    "active_tokens_per_arm": 80729939067,
+    "optimizer_iterations": 38496,
+    "peak_lr": 0.00015,
+    "minimum_lr": 0.000015,
+    "data_parallel_per_arm": 16,
+    "training_nodes": 20,
+    "checkpoint_averaging": false
+  },
+  "evaluation": {
+    "checkpoints_per_arm": 83,
+    "native_greekmmlu_bindings": 415,
+    "validation_panels": 13,
+    "validation_bindings": 5395,
+    "clean_greekmmlu_examples": 16159
+  },
+  "gate_set": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T074000Z-final-prelaunch-closure-v2/gates/gate_set_manifest.json",
+    "sha256": "29056de9bbc1c7feb84bea38e90ba7889544b4914d9d928e2ac3c11b2e14033e",
+    "status": "passed",
+    "gate_count": 16
+  },
+  "authorized_matrix": {
+    "path": "/iopsstor/scratch/cscs/fffoivos/orchestration/dataset-scheduling-0p5b/20260803T074000Z-final-prelaunch-closure-v2/experiment_matrix.authorized.json",
+    "sha256": "f83118fc08826d0bb86ca4ec51a1053b739f47d3e3060c02220c54b64c0c8e0d"
+  },
+  "bundles": {
+    "scientific_tree_sha256": "8479b880c72812de92c95e3c3f9d4d10f799a7774052a4fa381eff2ef5848ae3",
+    "efficiency_tree_sha256": "835289849a78737de5b46bb484038acbb47e021f644a642fcb42dc89a893f10f"
+  },
+  "submission_dry_run": {
+    "run_root_was_not_created": true,
+    "campaign_jobs_submitted": 0
+  },
+  "capacity_test": {
+    "command_mode": "sbatch_test_only",
+    "synthetic_job_id": "2989056",
+    "requested_nodes": 20,
+    "requested_gpus": 80,
+    "time_limit": "12:00:00",
+    "forecast_start": "09:18:22 CSCS scheduler local time",
+    "actually_submitted": false
+  },
+  "next_action_requires_explicit_live_launch_confirmation": true
+}

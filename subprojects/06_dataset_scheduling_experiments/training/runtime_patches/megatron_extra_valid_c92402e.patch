@@ -1,0 +1,209 @@
+From f8d8a30ba22a807321ec5875abbd9692b9282940 Mon Sep 17 00:00:00 2001
+From: Foivos Karounos <fffoivos@users.noreply.github.com>
+Date: Sat, 1 Aug 2026 19:10:47 +0200
+Subject: [PATCH] Restore named extra-validation datasets
+
+---
+ megatron/training/arguments.py |  4 ++
+ megatron/training/training.py  | 68 +++++++++++++++++++++++++++-------
+ pretrain_gpt.py                | 47 +++++++++++++++++++++++
+ 3 files changed, 105 insertions(+), 14 deletions(-)
+
+diff --git a/megatron/training/arguments.py b/megatron/training/arguments.py
+index d1e2bea27..af899f96c 100644
+--- a/megatron/training/arguments.py
++++ b/megatron/training/arguments.py
+@@ -2036,6 +2036,10 @@ def _add_data_args(parser):
+     group.add_argument('--valid-data-path', nargs='*', default=None,
+                        help='The weight and prefix list for an independent validation dataset. '
+                        'Follows the same pattern rules as --data-path.')
++    group.add_argument('--extra-valid-data-path', nargs='*', default=None,
++                       help='Alternating NAME PREFIX pairs for independently reported '
++                       'validation datasets. Each dataset is evaluated separately at '
++                       '--eval-interval using --eval-iters batches.')
+     group.add_argument('--test-data-path', nargs='*', default=None,
+                        help='The weight and prefix list for an independent test dataset. '
+                        'Follows the same pattern rules as --data-path.')
+diff --git a/megatron/training/training.py b/megatron/training/training.py
+index 0482c5ed1..16d301af1 100644
+--- a/megatron/training/training.py
++++ b/megatron/training/training.py
+@@ -247,6 +247,7 @@ def pretrain(
+     get_embedding_ranks=None,
+     get_position_embedding_ranks=None,
+     non_loss_data_func=None,
++    extra_valid_datasets_provider=None,
+ ):
+     """Main training program.
+ 
+@@ -387,6 +388,11 @@ def pretrain(
+             train_data_iterator, valid_data_iterator, test_data_iterator \
+                 = build_train_valid_test_data_iterators(
+                     train_valid_test_dataset_provider)
++        extra_valid_data_iterators = build_extra_valid_data_iterators(
++            extra_valid_datasets_provider
++        )
++        if extra_valid_data_iterators:
++            args.do_valid = True
+         timers('train/valid/test-data-iterators-setup').stop()
+         print_datetime('after dataloaders are built')
+         app_metrics['app_build_dataiters_finish_time'] = one_logger_utils.get_timestamp_in_ms()
+@@ -424,7 +430,7 @@ def pretrain(
+                 model, optimizer, opt_param_scheduler,
+                 train_data_iterator, valid_data_iterator,
+                 process_non_loss_data_func, config, checkpointing_context,
+-                non_loss_data_func)
++                non_loss_data_func, extra_valid_data_iterators)
+ 
+         print_datetime('after training is done')
+ 
+@@ -447,12 +453,21 @@ def pretrain(
+         iteration = args.iteration
+ 
+     if args.do_valid:
+-        prefix = f'iteration {iteration} on validation set'
+-        evaluate_and_print_results(prefix, forward_step_func,
+-                                   valid_data_iterator, model,
+-                                   iteration, process_non_loss_data_func, config,
+-                                   verbose=True, write_to_tensorboard=not args.skip_train,
+-                                   non_loss_data_func=non_loss_data_func)
++        if extra_valid_data_iterators:
++            for name, data_iterator in extra_valid_data_iterators:
++                prefix = f'iteration {iteration} on validation set [{name}]'
++                evaluate_and_print_results(
++                    prefix, forward_step_func, data_iterator, model, iteration,
++                    process_non_loss_data_func, config, verbose=True,
++                    write_to_tensorboard=not args.skip_train,
++                    non_loss_data_func=non_loss_data_func)
++        elif valid_data_iterator is not None:
++            prefix = f'iteration {iteration} on validation set'
++            evaluate_and_print_results(prefix, forward_step_func,
++                                       valid_data_iterator, model,
++                                       iteration, process_non_loss_data_func, config,
++                                       verbose=True, write_to_tensorboard=not args.skip_train,
++                                       non_loss_data_func=non_loss_data_func)
+ 
+     if args.do_test:
+         prefix = f'iteration {iteration} on test set'
+@@ -1397,7 +1412,8 @@ def checkpoint_and_decide_exit(model, optimizer, opt_param_scheduler, iteration,
+ 
+ def train(forward_step_func, model, optimizer, opt_param_scheduler,
+           train_data_iterator, valid_data_iterator,
+-          process_non_loss_data_func, config, checkpointing_context, non_loss_data_func):
++          process_non_loss_data_func, config, checkpointing_context, non_loss_data_func,
++          extra_valid_data_iterators=None):
+     """Training function: run train_step desired number of times, run validation, checkpoint."""
+     args = get_args()
+     timers = get_timers()
+@@ -1650,13 +1666,23 @@ def train(forward_step_func, model, optimizer, opt_param_scheduler,
+                 gc.collect()
+             prefix = f'iteration {iteration}'
+             timers('eval-time', log_level=0).start(barrier=True)
+-            evaluate_and_print_results(prefix, forward_step_func,
+-                                       valid_data_iterator, model,
+-                                       iteration, process_non_loss_data_func,
+-                                       config, verbose=False, write_to_tensorboard=True,
+-                                       non_loss_data_func=non_loss_data_func)
++            if extra_valid_data_iterators:
++                for name, data_iterator in extra_valid_data_iterators:
++                    evaluate_and_print_results(
++                        f'{prefix} [{name}]', forward_step_func,
++                        data_iterator, model, iteration,
++                        process_non_loss_data_func, config, verbose=False,
++                        write_to_tensorboard=True,
++                        non_loss_data_func=non_loss_data_func)
++            elif valid_data_iterator is not None:
++                evaluate_and_print_results(prefix, forward_step_func,
++                                           valid_data_iterator, model,
++                                           iteration, process_non_loss_data_func,
++                                           config, verbose=False, write_to_tensorboard=True,
++                                           non_loss_data_func=non_loss_data_func)
+             eval_duration += timers('eval-time').elapsed()
+-            eval_iterations += args.eval_iters
++            eval_iterations += args.eval_iters * max(
++                1, len(extra_valid_data_iterators or []))
+             timers('eval-time').stop()
+             one_logger_utils.track_e2e_metrics()
+ 
+@@ -2019,3 +2045,17 @@ def build_train_valid_test_data_iterators(
+         test_data_iterator = None
+ 
+     return train_data_iterator, valid_data_iterator, test_data_iterator
++
++
++def build_extra_valid_data_iterators(build_extra_valid_datasets_provider):
++    """Build cyclic iterators for independently reported validation sets."""
++    if build_extra_valid_datasets_provider is None:
++        return []
++    result = []
++    for name, dataset in build_extra_valid_datasets_provider():
++        dataloader = build_pretraining_data_loader(dataset, 0)
++        data_iterator = None
++        if dataloader is not None:
++            data_iterator = RerunDataIterator(iter(cyclic_iter(dataloader)))
++        result.append((name, data_iterator))
++    return result
+diff --git a/pretrain_gpt.py b/pretrain_gpt.py
+index 76cc8d6a5..fb62cbd5c 100644
+--- a/pretrain_gpt.py
++++ b/pretrain_gpt.py
+@@ -308,6 +308,52 @@ def train_valid_test_datasets_provider(train_val_test_num_samples):
+     return train_ds, valid_ds, test_ds
+ 
+ 
++def extra_valid_datasets_provider():
++    """Build independently named validation datasets from NAME/PREFIX pairs."""
++    args = get_args()
++    values = args.extra_valid_data_path or []
++    if len(values) % 2:
++        raise ValueError('--extra-valid-data-path requires alternating NAME PREFIX pairs')
++    names = values[0::2]
++    if len(names) != len(set(names)):
++        raise ValueError('--extra-valid-data-path names must be unique')
++
++    dataset_type = MockGPTDataset if args.mock_data else GPTDataset
++    num_samples = [args.eval_iters * args.global_batch_size, 0, 0]
++    result = []
++    for name, prefix in zip(names, values[1::2]):
++        if not name or not prefix:
++            raise ValueError('--extra-valid-data-path names and prefixes must be non-empty')
++        config = GPTDatasetConfig(
++            random_seed=args.seed,
++            sequence_length=args.seq_length,
++            blend=([prefix], [1.0]),
++            blend_per_split=None,
++            split='100,0,0',
++            num_dataset_builder_threads=args.num_dataset_builder_threads,
++            path_to_cache=args.data_cache_path,
++            mmap_bin_files=args.mmap_bin_files,
++            tokenizer=get_tokenizer(),
++            reset_position_ids=args.reset_position_ids,
++            reset_attention_mask=args.reset_attention_mask,
++            eod_mask_loss=args.eod_mask_loss,
++            create_attention_mask=args.create_attention_mask_in_dataloader,
++            s3_cache_path=args.s3_cache_path,
++            goldfish_loss=args.goldfish_loss,
++            goldfish_k=args.goldfish_k,
++            goldfish_h=args.goldfish_h,
++        )
++        print_rank_0(f'> building extra validation dataset {name}: {prefix}')
++        dataset, _, _ = BlendedMegatronDatasetBuilder(
++            dataset_type,
++            num_samples,
++            is_dataset_built_on_rank,
++            config,
++        ).build()
++        result.append((name, dataset))
++    return result
++
++
+ if __name__ == "__main__":
+ 
+     # Temporary for transition to core datasets
+@@ -318,5 +364,6 @@ if __name__ == "__main__":
+         model_provider,
+         ModelType.encoder_or_decoder,
+         forward_step,
++        extra_valid_datasets_provider=extra_valid_datasets_provider,
+         args_defaults={'tokenizer_type': 'GPT2BPETokenizer'},
+     )

@@ -1,0 +1,24 @@
+{
+  "schema_version": "apertus_mini_checkpoint_plan_rebind_notice_v1",
+  "status": "rebind_required_before_launch",
+  "scientific_cadence_changed": false,
+  "historical_checkpoint_plan": {
+    "sha256": "bb3b28606db06dcdce9ac2e03a49797ae08c3eac944a732c780d5353ccacb45c",
+    "experiment_matrix_sha256": "5280a87bb3213f1ae35f9dd310b65ad725f16a9326846d1bfb3c2c287dffc413",
+    "checkpoints_per_arm": 83,
+    "native_greekmmlu_evaluations_total": 415
+  },
+  "current_unauthorized_experiment_matrix": {
+    "path": "configs/experiment_matrix.json",
+    "sha256": "9e6954dc82af33fb45641d0a58fef447a710d80fb687ea7dbd45d7d5ac69f176"
+  },
+  "frozen_schedule_manifest_sha256": "ffeaa69492b0a30768efb5c34a942e1b7d11ca5df0d962d001ae6387d6f20955",
+  "reason": "Cadence-neutral fail-closed launch policies were added after the historical checkpoint plan was frozen, so its embedded experiment-matrix receipt is stale.",
+  "required_remediation": [
+    "regenerate the checkpoint plan from the frozen schedule and current unauthorized experiment matrix",
+    "require exactly 83 checkpoints per arm and 415 native-GreekMMLU evaluations",
+    "semantically verify every checkpoint row and both exact input receipts",
+    "freeze the regenerated plan through the launch-gate and authorized-matrix receipt chain"
+  ],
+  "launch_authorized": false
+}
