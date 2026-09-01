@@ -26,11 +26,18 @@ uenv run pytorch/v2.9.1:v2 --view=default -- env PYTHONDONTWRITEBYTECODE=1 \
     --runtime-root "$data_runtime_root" --receipt "$data_runtime_root/runtime_receipt.json" \
     --requirements "$subproject/configs/data_runtime_requirements_v1.txt" \
     --code-root "$H2G_CODE_ROOT" --code-receipt "$H2G_CODE_RECEIPT" >/dev/null
+uenv run pytorch/v2.9.1:v2 --view=default -- env PYTHONDONTWRITEBYTECODE=1 \
+  "$data_python" "$subproject/scripts/adopt_published_anonymized_openarchives.py" \
+    --input-jsonl "$H2G_STAGE_ROOT/data/phase3_openarchives_candidates_clean.jsonl" \
+    --prepared-receipt "$H2G_STAGE_ROOT/receipts/phase3_openarchives_candidates_clean.json" \
+    --source-view-receipt "$H2G_STAGE_ROOT/receipts/source_views.json" \
+    --anonymization-manifest /capstor/scratch/cscs/fffoivos/hf_v2_anonymized_releases/20260811T121833Z/run/release/manifests/anonymization_manifest.json \
+    --output-receipt "$H2G_STAGE_ROOT/receipts/phase3_openarchives_candidates_published_anonymized.json"
 uenv run pytorch/v2.9.1:v2 --view=default -- env TOKENIZERS_PARALLELISM=true \
   "$data_python" "$subproject/scripts/build_jsonl_document_catalog.py" \
     --stream phase3_openarchives_candidates --pool openarchives \
-    --input-jsonl "$H2G_STAGE_ROOT/data/phase3_openarchives_candidates_stage_b.jsonl" \
-    --input-receipt "$H2G_STAGE_ROOT/receipts/phase3_openarchives_candidates_stage_b.json" \
+    --input-jsonl "$H2G_STAGE_ROOT/data/phase3_openarchives_candidates_clean.jsonl" \
+    --input-receipt "$H2G_STAGE_ROOT/receipts/phase3_openarchives_candidates_published_anonymized.json" \
     --tokenizer-root "$H2G_STAGE_ROOT/assets/tokenizer_148480" \
     --tokenizer-receipt "$H2G_STAGE_ROOT/receipts/tokenizer_148480.json" \
     --batch-size 512 \
