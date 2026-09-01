@@ -16,6 +16,7 @@ from contract_utils import (
     write_json_atomic,
 )
 from freeze_phase_blend_cache import validate_receipt as validate_phase_cache
+from producer_bundle_compatibility import require_accepted_producer
 
 REQUIRED_CHECKS = (
     "model_state_metadata_complete",
@@ -50,6 +51,7 @@ def validate_permit(
     update: int,
     checkpoint_root: Path,
     source_phase_cache_receipt: Path,
+    accepted_producers: set[tuple[str, str, str, int, str]] | None = None,
 ) -> None:
     require(value.get("schema_version") == "apertus_hard_h_to_g_checkpoint_permit_v2", "checkpoint permit schema drift")
     require(value.get("status") == "passed", "checkpoint permit is not passing")
@@ -70,7 +72,21 @@ def validate_permit(
     require(isinstance(checks, dict) and set(checks) == set(REQUIRED_CHECKS) and all(checks[name] is True for name in REQUIRED_CHECKS), "checkpoint permit checks drift")
     code = value.get("executing_code_bundle")
     current = executing_code_bundle()
-    require(isinstance(code, dict) and code.get("root") == current["root"] and code.get("tree_sha256") == current["tree_sha256"], "checkpoint permit code-bundle drift")
+    exact_code = (
+        isinstance(code, dict)
+        and code.get("root") == current["root"]
+        and code.get("tree_sha256") == current["tree_sha256"]
+    )
+    if not exact_code:
+        require(
+            accepted_producers is not None,
+            "checkpoint permit code-bundle drift",
+        )
+        require_accepted_producer(
+            value,
+            accepted_producers,
+            "checkpoint permit",
+        )
 
 
 def main() -> int:

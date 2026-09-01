@@ -117,6 +117,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--allocation", type=Path, required=True)
     parser.add_argument("--qualification-contract", type=Path, required=True)
     parser.add_argument("--producer-compatibility", type=Path, required=True)
+    parser.add_argument("--pre-main-authorization-gate", type=Path)
+    parser.add_argument("--s2-static-preflight", type=Path)
+    parser.add_argument("--training-run-permit", type=Path)
     parser.add_argument("--output-root", type=Path, required=True)
     return parser.parse_args()
 
@@ -191,6 +194,28 @@ def main() -> int:
     runtime["submission_policy"]["max_nodes"] = max(int(profile["nodes"]), 4)
     campaign["runtime_profile_id"] = runtime["profile_id"]
     campaign["science"]["runtime_requirements_sha256"] = digest(runtime["qualification_scope"])
+    if args.pre_main_authorization_gate is not None:
+        authorization_gate = args.pre_main_authorization_gate.resolve()
+        require(authorization_gate.is_file(), "pre-main authorization gate is missing")
+        for segment in campaign["segments"]:
+            if segment["id"] not in {"s2", "s3"}:
+                continue
+            overrides = segment["argv_overrides"]
+            gate_index = overrides.index("--authorization-gate") + 1
+            overrides[gate_index] = str(authorization_gate)
+    if args.s2_static_preflight is not None:
+        static_preflight = args.s2_static_preflight.resolve()
+        require(static_preflight.is_file(), "s2 static preflight is missing")
+        segment = next(row for row in campaign["segments"] if row["id"] == "s2")
+        overrides = segment["argv_overrides"]
+        static_index = overrides.index("--static-preflight-receipt") + 1
+        overrides[static_index] = str(static_preflight)
+    if args.training_run_permit is not None:
+        training_run_permit = args.training_run_permit.resolve()
+        require(training_run_permit.is_file(), "training run permit is missing")
+        train_argv = campaign["science"]["train_argv"]
+        permit_index = train_argv.index("--training-run-permit") + 1
+        train_argv[permit_index] = str(training_run_permit)
     stage_root = Path(next(arg for arg in campaign["science"]["train_argv"] if "/cpt_runs/hard_h2g_matched/" in arg)).resolve()
     # The chosen argv element is the stage root itself; reject a malformed historical train argv.
     require(stage_root.is_dir() and stage_root.name.endswith("v14"), "stage root cannot be recovered from base argv")

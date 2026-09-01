@@ -1,0 +1,45 @@
+{
+  "schema_version": "apertus_model_checkpoint_release_contract_v1",
+  "scale": "1p5b",
+  "sources": {
+    "hf_root": "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/assets/init/1p5b_roundtrip/hf_roundtrip",
+    "model_card": "/iopsstor/scratch/cscs/fffoivos/checkpoint_releases/td_init_148480/model_cards/MODEL_CARD_1P5B_TD_INIT_148480.md",
+    "evidence": [
+      "/capstor/scratch/cscs/fffoivos/cpt_runs/hard_h2g_matched/20260814T201715Z-r2-v14/receipts/1p5b_init_roundtrip.json"
+    ]
+  },
+  "parent": {
+    "repo_id": "swiss-ai/Apertus-v1.1-1.5B",
+    "revision": "dbe8919b2f0389888bada6b3a19e81e0ef4286c1"
+  },
+  "tokenizer": {
+    "repo_id": "fffoivos/apertus-tokenizer-extension",
+    "revision": "fcd33ec09fb7d86bc072b3a4b3e890efa6473b66",
+    "sha256": "37c110e765160f64a22bf913f714a40744c84208d0ec22d8f22b8232b1923c34"
+  },
+  "geometry": {
+    "vocab_size": 148480,
+    "hidden_size": 2048,
+    "num_hidden_layers": 16,
+    "num_attention_heads": 32,
+    "num_key_value_heads": 8,
+    "rope_theta": 500000.0,
+    "max_position_embeddings": 4096
+  },
+  "repository": {
+    "repo_id": "fffoivos/apertus-1p5b-token-distillation-init-148480",
+    "private": true,
+    "revision": "main",
+    "workers": 8
+  },
+  "release_root": "/iopsstor/scratch/cscs/fffoivos/checkpoint_releases/td_init_148480/1p5b/release",
+  "receipts": {
+    "stage": "/iopsstor/scratch/cscs/fffoivos/checkpoint_releases/td_init_148480/receipts/1p5b/stage.json",
+    "freeze": "/iopsstor/scratch/cscs/fffoivos/checkpoint_releases/td_init_148480/receipts/1p5b/freeze.json",
+    "upload": "/iopsstor/scratch/cscs/fffoivos/checkpoint_releases/td_init_148480/receipts/1p5b/upload.json",
+    "inspection": "/iopsstor/scratch/cscs/fffoivos/checkpoint_releases/td_init_148480/receipts/1p5b/inspection.json"
+  },
+  "required_evidence_schemas": [
+    "apertus_targeted_init_roundtrip_v1"
+  ]
+}
