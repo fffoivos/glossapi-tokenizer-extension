@@ -1,6 +1,7 @@
 # Consolidation review — 2026-09-01
 
-This note accompanies branch `deslop/history-consolidation-20260901`. It records what
+This note accompanied branch `deslop/history-consolidation-20260901`, which is now
+`main`. It records what
 was found, what the branch does, what the owner still has to decide, and the two
 lists the README writers produced but did not act on: documents that could be
 archived, and contradictions between documents. Nothing in this note has been
@@ -41,7 +42,36 @@ applied; the READMEs describe, they do not move or delete.
 Left unmerged on purpose: `agent/h2g-safe-open-verifier-20260817` (13 commits of
 2026-08-17 that conflict with the later `h2g` line; described in subproject 08's README).
 
-## Decisions for the owner
+## Decisions — executed 2026-09-01/03 at the owner's request
+
+The owner answered "push, default to your preferences for the rest, clear the
+branches". What happened:
+
+1. **Published.** The branch was pushed, `main` fast-forwarded onto it and pushed
+   (`origin/main` = the consolidation). The `deslop/...` branch ref was then removed —
+   `main` *is* the consolidation now.
+2. **Renamed** `10_greek_posttraining` → `11_greek_posttraining` (`c99c144c`).
+3. **Working-tree variants archived, worktrees cleared.** Every uncommitted working-tree
+   state was committed and preserved as an annotated tag, pushed to origin:
+   `archive/worktree-{main-clone,full8-results,full8b-launch,h2g-deploy,h2g-extension-gate,h2g-nopilot,h2g-resize}-20260901`.
+   The 119 differing 06/07 copies live inside those snapshots. Excluded on purpose:
+   `.codex_tmp/` and the two 18 MB duplicate candidate tokenizers (still untracked in
+   the main clone).
+4. **`agent/h2g-safe-open-verifier-20260817`** preserved as the pushed tag
+   `archive/branch-h2g-safe-open-verifier-20260817` (its tip content is byte-identical
+   in `main`), then deleted as a branch.
+5. **Branches cleared.** All other local and remote branches were deleted — each was
+   either an ancestor of `main` or had every file of its unique commits byte-identical
+   in `main` (verified per file before deletion). End state: one branch (`main`),
+   8 `archive/*` tags, one worktree (the main clone). Two former worktree directories
+   remain on disk unregistered (~400 MB each of mostly gitignored artifacts):
+   `~/Projects/.codex-worktrees/train-apertus-h2g-{deploy-49d04335,nopilot-20260816}` —
+   left for the owner to delete after a glance.
+6. **Archive moves: deferred** (as recommended). The candidate lists below stand.
+
+The original decision framing is kept below for the record.
+
+### The decisions as originally posed
 
 1. **Publish or not.** Nothing has been pushed. Options: fast-forward `main` to this
    branch and push; or push the branch and open a PR; or keep it local.
